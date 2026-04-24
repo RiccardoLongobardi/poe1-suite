@@ -50,9 +50,7 @@ def test_default_ascendancies_has_19_canonical() -> None:
 def _stats(*, life: int = 0, es: int = 0, mana: int = 0) -> DefensiveStats:
     """Build a DefensiveStats via model_validate — fields have camelCase aliases."""
 
-    return DefensiveStats.model_validate(
-        {"life": life, "energyShield": es, "mana": mana}
-    )
+    return DefensiveStats.model_validate({"life": life, "energyShield": es, "mana": mana})
 
 
 def test_classify_defense_life() -> None:

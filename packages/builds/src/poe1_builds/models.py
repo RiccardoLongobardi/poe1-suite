@@ -394,6 +394,3 @@ __all__ = [
     "SkillDps",
     "SkillGroup",
 ]
-,
-    "SkillGroup",
-]

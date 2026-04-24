@@ -34,9 +34,9 @@ uv run mypy .
 uv run pytest
 ```
 
-All four must pass with zero errors. Current baseline: **249 tests green, 62 files type-checked clean, 60 files formatted clean**.
+All four must pass with zero errors. Current baseline: **275 tests green (2 skipped — integration/LLM), 68 files type-checked clean, 66 files formatted clean**.
 
-## What's built (state as of 2026-04-24, end of Step 4)
+## What's built (state as of 2026-04-25, end of Step 5A)
 
 | Module | Package | Routes | Status |
 |---|---|---|---|
@@ -45,15 +45,14 @@ All four must pass with zero errors. Current baseline: **249 tests green, 62 fil
 | PoB ingest + parser + mapper | `poe1-fob` | `POST /fob/analyze-pob` | done (raw / pobb.in / pastebin; full XML parse; Build mapping) |
 | poe.ninja economy (currency, uniques, cluster, jewels, …) | `poe1-pricing` | `GET /pricing/quote`, `GET /pricing/snapshot` | done |
 | poe.ninja ladder builds | `poe1-builds` | `GET /builds/list`, `GET /builds/detail` | done (protobuf columnar search + JSON hydration, 19 ascendancy fan-out, `main_skill` / `defense_type` filters) |
+| IntentExtractor | `poe1-fob` | `POST /fob/extract-intent` | done (hybrid rule-based IT+EN + Anthropic Haiku tool-use fallback; 15 fixture cases; confidence threshold 0.70) |
 
 Server: `uv run poe1-server` → <http://127.0.0.1:8765>. `/health`, `/version`, plus all the routes above.
 
-## What's next (Step 5 — pick one)
+## What's next (Step 6)
 
-- **A. IntentExtractor** (backend, hybrid rule-based IT+EN + LLM fallback). Turns "voglio una cold build comfy per mapping" into a `BuildIntent`. Feeds the Ranker which consumes `RemoteBuildRef` + `PriceQuote`.
-- **B. UI shell** (`apps/shell/` — React + Vite + Mantine). Makes the three existing routers clickable in a browser before the intent layer is done.
-
-Ask Riccardo which direction he wants before scaffolding.
+- **Ranking Engine** + `SourceAggregator`. End-to-end discovery endpoint: `POST /fob/recommend`. Consumes `BuildIntent` + `RemoteBuildRef` list + `PriceQuote`, scores candidates with weighted breakdown, returns top-N with `ScoreBreakdown`.
+- **UI shell** (`apps/shell/` — React + Vite + Mantine). Makes all routers clickable before the ranking layer.
 
 ## Project-specific gotchas (learned the hard way)
 
