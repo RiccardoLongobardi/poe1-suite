@@ -1,0 +1,1685 @@
+{
+  "lines": [
+    {
+      "id": 71084,
+      "name": "6% increased Mana Reservation Efficiency of Skills",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvSmV3ZWxzL05ld0dlbUJhc2UxIiwidyI6MSwiaCI6MSwic2NhbGUiOjF9XQ/0eb1a9d981/NewGemBase1.png",
+      "levelRequired": 84,
+      "baseType": "Small Cluster Jewel",
+      "variant": "3 passives",
+      "itemClass": 2,
+      "sparkLine": {
+        "totalChange": -30.4,
+        "data": [
+          0,
+          11.28,
+          -0.33,
+          0.12,
+          -3.69,
+          -11.08,
+          -30.4
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": -30.4,
+        "data": [
+          0,
+          11.28,
+          -0.33,
+          0.12,
+          -3.69,
+          -11.08,
+          -30.4
+        ]
+      },
+      "implicitModifiers": [],
+      "explicitModifiers": [],
+      "mutatedModifiers": [],
+      "flavourText": "",
+      "itemType": "Jewel",
+      "chaosValue": 938.2,
+      "exaltedValue": 422.6,
+      "divineValue": 2.78,
+      "count": 399,
+      "detailsId": "6-increased-mana-reservation-efficiency-of-skills-3-passives-84",
+      "tradeInfo": [
+        {
+          "mod": "enchant.stat_3948993189",
+          "min": 0,
+          "max": 0,
+          "option": "54"
+        },
+        {
+          "mod": "enchant.stat_3086156145",
+          "min": 3,
+          "max": 3
+        }
+      ],
+      "listingCount": 2460
+    },
+    {
+      "id": 63569,
+      "name": "12% increased Fire Damage",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvSmV3ZWxzL05ld0dlbUJhc2UzIiwidyI6MSwiaCI6MSwic2NhbGUiOjF9XQ/db35e60885/NewGemBase3.png",
+      "levelRequired": 50,
+      "baseType": "Large Cluster Jewel",
+      "variant": "8 passives",
+      "itemClass": 2,
+      "sparkLine": {
+        "totalChange": 8900,
+        "data": [
+          0,
+          2090,
+          5934,
+          6631,
+          9016,
+          9415,
+          8900
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 8900,
+        "data": [
+          0,
+          2090,
+          5934,
+          6631,
+          9016,
+          9415,
+          8900
+        ]
+      },
+      "implicitModifiers": [],
+      "explicitModifiers": [],
+      "mutatedModifiers": [],
+      "flavourText": "",
+      "chaosValue": 900.0,
+      "exaltedValue": 405.4,
+      "divineValue": 2.67,
+      "count": 33,
+      "detailsId": "12-increased-fire-damage-8-passives-50",
+      "tradeInfo": [
+        {
+          "mod": "enchant.stat_3948993189",
+          "min": 0,
+          "max": 0,
+          "option": "13"
+        },
+        {
+          "mod": "enchant.stat_3086156145",
+          "min": 8,
+          "max": 8
+        }
+      ],
+      "listingCount": 45
+    },
+    {
+      "id": 63971,
+      "name": "Minions deal 10% increased Damage",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvSmV3ZWxzL05ld0dlbUJhc2UzIiwidyI6MSwiaCI6MSwic2NhbGUiOjF9XQ/db35e60885/NewGemBase3.png",
+      "levelRequired": 84,
+      "baseType": "Large Cluster Jewel",
+      "variant": "12 passives",
+      "itemClass": 2,
+      "sparkLine": {
+        "totalChange": 44.8,
+        "data": [
+          0,
+          2.96,
+          16.47,
+          -5.07,
+          32.71,
+          64.29,
+          44.8
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 44.8,
+        "data": [
+          0,
+          2.96,
+          16.47,
+          -5.07,
+          32.71,
+          64.29,
+          44.8
+        ]
+      },
+      "implicitModifiers": [],
+      "explicitModifiers": [],
+      "mutatedModifiers": [],
+      "flavourText": "",
+      "chaosValue": 396.6,
+      "exaltedValue": 178.6,
+      "divineValue": 1.18,
+      "count": 399,
+      "detailsId": "minions-deal-10-increased-damage-12-passives-84",
+      "tradeInfo": [
+        {
+          "mod": "enchant.stat_3948993189",
+          "min": 0,
+          "max": 0,
+          "option": "17"
+        },
+        {
+          "mod": "enchant.stat_3086156145",
+          "min": 12,
+          "max": 12
+        }
+      ],
+      "listingCount": 2723
+    },
+    {
+      "id": 63397,
+      "name": "12% increased Attack Damage while holding a Shield",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvSmV3ZWxzL05ld0dlbUJhc2UzIiwidyI6MSwiaCI6MSwic2NhbGUiOjF9XQ/db35e60885/NewGemBase3.png",
+      "levelRequired": 50,
+      "baseType": "Large Cluster Jewel",
+      "variant": "8 passives",
+      "itemClass": 2,
+      "sparkLine": {
+        "totalChange": -13.67,
+        "data": [
+          0,
+          -22.65,
+          -25.41,
+          -18.77,
+          9.48,
+          -24.03,
+          -13.67
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": -13.67,
+        "data": [
+          0,
+          -22.65,
+          -25.41,
+          -18.77,
+          9.48,
+          -24.03,
+          -13.67
+        ]
+      },
+      "implicitModifiers": [],
+      "explicitModifiers": [],
+      "mutatedModifiers": [],
+      "flavourText": "",
+      "chaosValue": 250.0,
+      "exaltedValue": 112.6,
+      "divineValue": 0.74,
+      "count": 56,
+      "detailsId": "12-increased-attack-damage-while-holding-a-shield-8-passives-50",
+      "tradeInfo": [
+        {
+          "mod": "enchant.stat_3948993189",
+          "min": 0,
+          "max": 0,
+          "option": "8"
+        },
+        {
+          "mod": "enchant.stat_3086156145",
+          "min": 8,
+          "max": 8
+        }
+      ],
+      "listingCount": 81
+    },
+    {
+      "id": 63854,
+      "name": "12% increased Lightning Damage",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvSmV3ZWxzL05ld0dlbUJhc2UzIiwidyI6MSwiaCI6MSwic2NhbGUiOjF9XQ/db35e60885/NewGemBase3.png",
+      "levelRequired": 84,
+      "baseType": "Large Cluster Jewel",
+      "variant": "12 passives",
+      "itemClass": 1,
+      "sparkLine": {
+        "totalChange": 89.81,
+        "data": [
+          0,
+          38.71,
+          38.57,
+          -4.76,
+          16.38,
+          33.33,
+          89.81
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 89.81,
+        "data": [
+          0,
+          38.71,
+          38.57,
+          -4.76,
+          16.38,
+          33.33,
+          89.81
+        ]
+      },
+      "implicitModifiers": [],
+      "explicitModifiers": [],
+      "mutatedModifiers": [],
+      "flavourText": "",
+      "chaosValue": 199.3,
+      "exaltedValue": 89.77,
+      "divineValue": 0.59,
+      "count": 399,
+      "detailsId": "12-increased-lightning-damage-12-passives-84",
+      "tradeInfo": [
+        {
+          "mod": "enchant.stat_3948993189",
+          "min": 0,
+          "max": 0,
+          "option": "14"
+        },
+        {
+          "mod": "enchant.stat_3086156145",
+          "min": 12,
+          "max": 12
+        }
+      ],
+      "listingCount": 2342
+    },
+    {
+      "id": 64015,
+      "name": "12% increased Damage with Bows, 12% increased Damage Over Time with Bow Skills",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvSmV3ZWxzL05ld0dlbUJhc2UzIiwidyI6MSwiaCI6MSwic2NhbGUiOjF9XQ/db35e60885/NewGemBase3.png",
+      "levelRequired": 84,
+      "baseType": "Large Cluster Jewel",
+      "variant": "12 passives",
+      "itemClass": 0,
+      "sparkLine": {
+        "totalChange": -25,
+        "data": [
+          0,
+          -50,
+          -15.45,
+          -50,
+          -15.95,
+          -20,
+          -25
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": -25,
+        "data": [
+          0,
+          -50,
+          -15.45,
+          -50,
+          -15.95,
+          -20,
+          -25
+        ]
+      },
+      "implicitModifiers": [],
+      "explicitModifiers": [],
+      "mutatedModifiers": [],
+      "flavourText": "",
+      "chaosValue": 150.0,
+      "exaltedValue": 67.57,
+      "divineValue": 0.44,
+      "count": 399,
+      "detailsId": "12-increased-damage-with-bows-12-increased-damage-over-time-with-bow-skills-12-passives-84",
+      "tradeInfo": [
+        {
+          "mod": "enchant.stat_3948993189",
+          "min": 0,
+          "max": 0,
+          "option": "4"
+        },
+        {
+          "mod": "enchant.stat_3086156145",
+          "min": 12,
+          "max": 12
+        }
+      ],
+      "listingCount": 1130
+    },
+    {
+      "id": 63870,
+      "name": "6% increased Flask Effect Duration",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvSmV3ZWxzL05ld0dlbUJhc2UyIiwidyI6MSwiaCI6MSwic2NhbGUiOjF9XQ/78f6bf8356/NewGemBase2.png",
+      "levelRequired": 50,
+      "baseType": "Medium Cluster Jewel",
+      "variant": "5 passives",
+      "itemClass": 0,
+      "sparkLine": {
+        "totalChange": 55.55,
+        "data": [
+          0,
+          221.5,
+          242.5,
+          184.4,
+          19.88,
+          121.3,
+          55.55
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 55.55,
+        "data": [
+          0,
+          221.5,
+          242.5,
+          184.4,
+          19.88,
+          121.3,
+          55.55
+        ]
+      },
+      "implicitModifiers": [],
+      "explicitModifiers": [],
+      "mutatedModifiers": [],
+      "flavourText": "",
+      "chaosValue": 136.2,
+      "exaltedValue": 61.37,
+      "divineValue": 0.4,
+      "count": 14,
+      "detailsId": "6-increased-flask-effect-duration-5-passives-50",
+      "tradeInfo": [
+        {
+          "mod": "enchant.stat_3948993189",
+          "min": 0,
+          "max": 0,
+          "option": "37"
+        },
+        {
+          "mod": "enchant.stat_3086156145",
+          "min": 5,
+          "max": 5
+        }
+      ],
+      "listingCount": 72
+    },
+    {
+      "id": 63331,
+      "name": "Wand Attacks deal 12% increased Damage with Hits and Ailments",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvSmV3ZWxzL05ld0dlbUJhc2UzIiwidyI6MSwiaCI6MSwic2NhbGUiOjF9XQ/db35e60885/NewGemBase3.png",
+      "levelRequired": 50,
+      "baseType": "Large Cluster Jewel",
+      "variant": "8 passives",
+      "itemClass": 2,
+      "sparkLine": {
+        "totalChange": -67.24,
+        "data": [
+          0,
+          -35.86,
+          -50.29,
+          83.63,
+          141.7,
+          177.7,
+          -67.24
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": -67.24,
+        "data": [
+          0,
+          -35.86,
+          -50.29,
+          83.63,
+          141.7,
+          177.7,
+          -67.24
+        ]
+      },
+      "implicitModifiers": [],
+      "explicitModifiers": [],
+      "mutatedModifiers": [],
+      "flavourText": "",
+      "chaosValue": 120.0,
+      "exaltedValue": 54.05,
+      "divineValue": 0.36,
+      "count": 15,
+      "detailsId": "wand-attacks-deal-12-increased-damage-with-hits-and-ailments-8-passives-50",
+      "tradeInfo": [
+        {
+          "mod": "enchant.stat_3948993189",
+          "min": 0,
+          "max": 0,
+          "option": "5"
+        },
+        {
+          "mod": "enchant.stat_3086156145",
+          "min": 8,
+          "max": 8
+        }
+      ],
+      "listingCount": 32
+    },
+    {
+      "id": 63894,
+      "name": "10% increased Area Damage",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvSmV3ZWxzL05ld0dlbUJhc2UyIiwidyI6MSwiaCI6MSwic2NhbGUiOjF9XQ/78f6bf8356/NewGemBase2.png",
+      "levelRequired": 84,
+      "baseType": "Medium Cluster Jewel",
+      "variant": "4 passives",
+      "itemClass": 2,
+      "sparkLine": {
+        "totalChange": 72.7,
+        "data": [
+          0,
+          -19.05,
+          11.11,
+          22.62,
+          -11.75,
+          27.62,
+          72.7
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 72.7,
+        "data": [
+          0,
+          -19.05,
+          11.11,
+          22.62,
+          -11.75,
+          27.62,
+          72.7
+        ]
+      },
+      "implicitModifiers": [],
+      "explicitModifiers": [],
+      "mutatedModifiers": [],
+      "flavourText": "",
+      "chaosValue": 108.8,
+      "exaltedValue": 49.01,
+      "divineValue": 0.32,
+      "count": 399,
+      "detailsId": "10-increased-area-damage-4-passives-84",
+      "tradeInfo": [
+        {
+          "mod": "enchant.stat_3948993189",
+          "min": 0,
+          "max": 0,
+          "option": "31"
+        },
+        {
+          "mod": "enchant.stat_3086156145",
+          "min": 4,
+          "max": 4
+        }
+      ],
+      "listingCount": 2484
+    },
+    {
+      "id": 63362,
+      "name": "12% increased Lightning Damage",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvSmV3ZWxzL05ld0dlbUJhc2UzIiwidyI6MSwiaCI6MSwic2NhbGUiOjF9XQ/db35e60885/NewGemBase3.png",
+      "levelRequired": 50,
+      "baseType": "Large Cluster Jewel",
+      "variant": "8 passives",
+      "itemClass": 2,
+      "sparkLine": {
+        "totalChange": 0,
+        "data": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 0,
+        "data": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "implicitModifiers": [],
+      "explicitModifiers": [],
+      "mutatedModifiers": [],
+      "flavourText": "",
+      "chaosValue": 100.0,
+      "exaltedValue": 45.05,
+      "divineValue": 0.3,
+      "count": 128,
+      "detailsId": "12-increased-lightning-damage-8-passives-50",
+      "tradeInfo": [
+        {
+          "mod": "enchant.stat_3948993189",
+          "min": 0,
+          "max": 0,
+          "option": "14"
+        },
+        {
+          "mod": "enchant.stat_3086156145",
+          "min": 8,
+          "max": 8
+        }
+      ],
+      "listingCount": 211
+    },
+    {
+      "id": 63957,
+      "name": "12% increased Chaos Damage",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvSmV3ZWxzL05ld0dlbUJhc2UzIiwidyI6MSwiaCI6MSwic2NhbGUiOjF9XQ/db35e60885/NewGemBase3.png",
+      "levelRequired": 84,
+      "baseType": "Large Cluster Jewel",
+      "variant": "8 passives",
+      "itemClass": 1,
+      "sparkLine": {
+        "totalChange": 9.89,
+        "data": [
+          0,
+          -44.95,
+          -31.87,
+          -29.34,
+          -20.44,
+          -7.14,
+          9.89
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 9.89,
+        "data": [
+          0,
+          -44.95,
+          -31.87,
+          -29.34,
+          -20.44,
+          -7.14,
+          9.89
+        ]
+      },
+      "implicitModifiers": [],
+      "explicitModifiers": [],
+      "mutatedModifiers": [],
+      "flavourText": "",
+      "chaosValue": 100.0,
+      "exaltedValue": 45.05,
+      "divineValue": 0.3,
+      "count": 399,
+      "detailsId": "12-increased-chaos-damage-8-passives-84",
+      "tradeInfo": [
+        {
+          "mod": "enchant.stat_3948993189",
+          "min": 0,
+          "max": 0,
+          "option": "16"
+        },
+        {
+          "mod": "enchant.stat_3086156145",
+          "min": 8,
+          "max": 8
+        }
+      ],
+      "listingCount": 1910
+    },
+    {
+      "id": 63630,
+      "name": "6% increased Flask Effect Duration",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvSmV3ZWxzL05ld0dlbUJhc2UyIiwidyI6MSwiaCI6MSwic2NhbGUiOjF9XQ/78f6bf8356/NewGemBase2.png",
+      "levelRequired": 84,
+      "baseType": "Medium Cluster Jewel",
+      "variant": "4 passives",
+      "itemClass": 2,
+      "sparkLine": {
+        "totalChange": 99.78,
+        "data": [
+          0,
+          -0.4,
+          15.3,
+          34,
+          80.6,
+          100,
+          99.78
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 99.78,
+        "data": [
+          0,
+          -0.4,
+          15.3,
+          34,
+          80.6,
+          100,
+          99.78
+        ]
+      },
+      "implicitModifiers": [],
+      "explicitModifiers": [],
+      "mutatedModifiers": [],
+      "flavourText": "",
+      "chaosValue": 99.89,
+      "exaltedValue": 45.0,
+      "divineValue": 0.3,
+      "count": 399,
+      "detailsId": "6-increased-flask-effect-duration-4-passives-84",
+      "tradeInfo": [
+        {
+          "mod": "enchant.stat_3948993189",
+          "min": 0,
+          "max": 0,
+          "option": "37"
+        },
+        {
+          "mod": "enchant.stat_3086156145",
+          "min": 4,
+          "max": 4
+        }
+      ],
+      "listingCount": 1617
+    },
+    {
+      "id": 63590,
+      "name": "6% increased Flask Effect Duration",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvSmV3ZWxzL05ld0dlbUJhc2UyIiwidyI6MSwiaCI6MSwic2NhbGUiOjF9XQ/78f6bf8356/NewGemBase2.png",
+      "levelRequired": 84,
+      "baseType": "Medium Cluster Jewel",
+      "variant": "5 passives",
+      "itemClass": 2,
+      "sparkLine": {
+        "totalChange": 56.15,
+        "data": [
+          0,
+          0.95,
+          -9.31,
+          -5.36,
+          6.53,
+          8.96,
+          56.15
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 56.15,
+        "data": [
+          0,
+          0.95,
+          -9.31,
+          -5.36,
+          6.53,
+          8.96,
+          56.15
+        ]
+      },
+      "implicitModifiers": [],
+      "explicitModifiers": [],
+      "mutatedModifiers": [],
+      "flavourText": "",
+      "chaosValue": 99.0,
+      "exaltedValue": 44.59,
+      "divineValue": 0.29,
+      "count": 399,
+      "detailsId": "6-increased-flask-effect-duration-5-passives-84",
+      "tradeInfo": [
+        {
+          "mod": "enchant.stat_3948993189",
+          "min": 0,
+          "max": 0,
+          "option": "37"
+        },
+        {
+          "mod": "enchant.stat_3086156145",
+          "min": 5,
+          "max": 5
+        }
+      ],
+      "listingCount": 1799
+    },
+    {
+      "id": 67754,
+      "name": "12% increased Physical Damage over Time",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvSmV3ZWxzL05ld0dlbUJhc2UyIiwidyI6MSwiaCI6MSwic2NhbGUiOjF9XQ/78f6bf8356/NewGemBase2.png",
+      "levelRequired": 50,
+      "baseType": "Medium Cluster Jewel",
+      "variant": "5 passives",
+      "itemClass": 0,
+      "sparkLine": {
+        "totalChange": 810,
+        "data": [
+          0,
+          -20,
+          -20,
+          270,
+          900,
+          900,
+          810
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 810,
+        "data": [
+          0,
+          -20,
+          -20,
+          270,
+          900,
+          900,
+          810
+        ]
+      },
+      "implicitModifiers": [],
+      "explicitModifiers": [],
+      "mutatedModifiers": [],
+      "flavourText": "",
+      "chaosValue": 91.0,
+      "exaltedValue": 40.99,
+      "divineValue": 0.27,
+      "count": 20,
+      "detailsId": "12-increased-physical-damage-over-time-5-passives-50",
+      "tradeInfo": [
+        {
+          "mod": "enchant.stat_3948993189",
+          "min": 0,
+          "max": 0,
+          "option": "20"
+        },
+        {
+          "mod": "enchant.stat_3086156145",
+          "min": 5,
+          "max": 5
+        }
+      ],
+      "listingCount": 93
+    },
+    {
+      "id": 63776,
+      "name": "10% increased Area Damage",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvSmV3ZWxzL05ld0dlbUJhc2UyIiwidyI6MSwiaCI6MSwic2NhbGUiOjF9XQ/78f6bf8356/NewGemBase2.png",
+      "levelRequired": 84,
+      "baseType": "Medium Cluster Jewel",
+      "variant": "6 passives",
+      "itemClass": 2,
+      "sparkLine": {
+        "totalChange": 28.57,
+        "data": [
+          0,
+          36,
+          42.86,
+          42.86,
+          42.86,
+          86,
+          28.57
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 28.57,
+        "data": [
+          0,
+          36,
+          42.86,
+          42.86,
+          42.86,
+          86,
+          28.57
+        ]
+      },
+      "implicitModifiers": [],
+      "explicitModifiers": [],
+      "mutatedModifiers": [],
+      "flavourText": "",
+      "chaosValue": 90.0,
+      "exaltedValue": 40.54,
+      "divineValue": 0.27,
+      "count": 399,
+      "detailsId": "10-increased-area-damage-6-passives-84",
+      "tradeInfo": [
+        {
+          "mod": "enchant.stat_3948993189",
+          "min": 0,
+          "max": 0,
+          "option": "31"
+        },
+        {
+          "mod": "enchant.stat_3086156145",
+          "min": 6,
+          "max": 6
+        }
+      ],
+      "listingCount": 1987
+    },
+    {
+      "id": 63219,
+      "name": "12% increased Trap Damage, 12% increased Mine Damage",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvSmV3ZWxzL05ld0dlbUJhc2UyIiwidyI6MSwiaCI6MSwic2NhbGUiOjF9XQ/78f6bf8356/NewGemBase2.png",
+      "levelRequired": 50,
+      "baseType": "Medium Cluster Jewel",
+      "variant": "4 passives",
+      "itemClass": 2,
+      "sparkLine": {
+        "totalChange": 71.29,
+        "data": [
+          0,
+          15.84,
+          36.63,
+          84.16,
+          78.22,
+          90.1,
+          71.29
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 71.29,
+        "data": [
+          0,
+          15.84,
+          36.63,
+          84.16,
+          78.22,
+          90.1,
+          71.29
+        ]
+      },
+      "implicitModifiers": [],
+      "explicitModifiers": [],
+      "mutatedModifiers": [],
+      "flavourText": "",
+      "chaosValue": 86.5,
+      "exaltedValue": 38.96,
+      "divineValue": 0.26,
+      "count": 21,
+      "detailsId": "12-increased-trap-damage-12-increased-mine-damage-4-passives-50",
+      "tradeInfo": [
+        {
+          "mod": "enchant.stat_3948993189",
+          "min": 0,
+          "max": 0,
+          "option": "33"
+        },
+        {
+          "mod": "enchant.stat_3086156145",
+          "min": 4,
+          "max": 4
+        }
+      ],
+      "listingCount": 38
+    },
+    {
+      "id": 63267,
+      "name": "12% increased Cold Damage",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvSmV3ZWxzL05ld0dlbUJhc2UzIiwidyI6MSwiaCI6MSwic2NhbGUiOjF9XQ/db35e60885/NewGemBase3.png",
+      "levelRequired": 68,
+      "baseType": "Large Cluster Jewel",
+      "variant": "8 passives",
+      "itemClass": 2,
+      "sparkLine": {
+        "totalChange": -19,
+        "data": [
+          0,
+          0,
+          -0.9,
+          0,
+          -3.7,
+          0,
+          -19
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": -19,
+        "data": [
+          0,
+          0,
+          -0.9,
+          0,
+          -3.7,
+          0,
+          -19
+        ]
+      },
+      "implicitModifiers": [],
+      "explicitModifiers": [],
+      "mutatedModifiers": [],
+      "flavourText": "",
+      "chaosValue": 81.0,
+      "exaltedValue": 36.49,
+      "divineValue": 0.24,
+      "count": 178,
+      "detailsId": "12-increased-cold-damage-8-passives-68",
+      "tradeInfo": [
+        {
+          "mod": "enchant.stat_3948993189",
+          "min": 0,
+          "max": 0,
+          "option": "15"
+        },
+        {
+          "mod": "enchant.stat_3086156145",
+          "min": 8,
+          "max": 8
+        }
+      ],
+      "listingCount": 348
+    },
+    {
+      "id": 63515,
+      "name": "10% increased Spell Damage",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvSmV3ZWxzL05ld0dlbUJhc2UzIiwidyI6MSwiaCI6MSwic2NhbGUiOjF9XQ/db35e60885/NewGemBase3.png",
+      "levelRequired": 84,
+      "baseType": "Large Cluster Jewel",
+      "variant": "12 passives",
+      "itemClass": 2,
+      "sparkLine": {
+        "totalChange": 124.3,
+        "data": [
+          0,
+          66.67,
+          56.67,
+          113.8,
+          396.7,
+          233.3,
+          124.3
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 124.3,
+        "data": [
+          0,
+          66.67,
+          56.67,
+          113.8,
+          396.7,
+          233.3,
+          124.3
+        ]
+      },
+      "implicitModifiers": [],
+      "explicitModifiers": [],
+      "mutatedModifiers": [],
+      "flavourText": "",
+      "chaosValue": 67.3,
+      "exaltedValue": 30.32,
+      "divineValue": 0.2,
+      "count": 399,
+      "detailsId": "10-increased-spell-damage-12-passives-84",
+      "tradeInfo": [
+        {
+          "mod": "enchant.stat_3948993189",
+          "min": 0,
+          "max": 0,
+          "option": "10"
+        },
+        {
+          "mod": "enchant.stat_3086156145",
+          "min": 12,
+          "max": 12
+        }
+      ],
+      "listingCount": 4387
+    },
+    {
+      "id": 63290,
+      "name": "12% increased Physical Damage",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvSmV3ZWxzL05ld0dlbUJhc2UzIiwidyI6MSwiaCI6MSwic2NhbGUiOjF9XQ/db35e60885/NewGemBase3.png",
+      "levelRequired": 50,
+      "baseType": "Large Cluster Jewel",
+      "variant": "8 passives",
+      "itemClass": 2,
+      "sparkLine": {
+        "totalChange": -19.51,
+        "data": [
+          0,
+          224.1,
+          309.1,
+          309.6,
+          309.3,
+          270.6,
+          -19.51
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": -19.51,
+        "data": [
+          0,
+          224.1,
+          309.1,
+          309.6,
+          309.3,
+          270.6,
+          -19.51
+        ]
+      },
+      "implicitModifiers": [],
+      "explicitModifiers": [],
+      "mutatedModifiers": [],
+      "flavourText": "",
+      "chaosValue": 66.0,
+      "exaltedValue": 29.73,
+      "divineValue": 0.2,
+      "count": 55,
+      "detailsId": "12-increased-physical-damage-8-passives-50",
+      "tradeInfo": [
+        {
+          "mod": "enchant.stat_3948993189",
+          "min": 0,
+          "max": 0,
+          "option": "12"
+        },
+        {
+          "mod": "enchant.stat_3086156145",
+          "min": 8,
+          "max": 8
+        }
+      ],
+      "listingCount": 99
+    },
+    {
+      "id": 63824,
+      "name": "12% increased Trap Damage, 12% increased Mine Damage",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvSmV3ZWxzL05ld0dlbUJhc2UyIiwidyI6MSwiaCI6MSwic2NhbGUiOjF9XQ/78f6bf8356/NewGemBase2.png",
+      "levelRequired": 50,
+      "baseType": "Medium Cluster Jewel",
+      "variant": "5 passives",
+      "itemClass": 2,
+      "sparkLine": {
+        "totalChange": 68.71,
+        "data": [
+          0,
+          -63.19,
+          -52.45,
+          -57.06,
+          -55.21,
+          -55.21,
+          68.71
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 68.71,
+        "data": [
+          0,
+          -63.19,
+          -52.45,
+          -57.06,
+          -55.21,
+          -55.21,
+          68.71
+        ]
+      },
+      "implicitModifiers": [],
+      "explicitModifiers": [],
+      "mutatedModifiers": [],
+      "flavourText": "",
+      "chaosValue": 55.0,
+      "exaltedValue": 24.77,
+      "divineValue": 0.16,
+      "count": 28,
+      "detailsId": "12-increased-trap-damage-12-increased-mine-damage-5-passives-50",
+      "tradeInfo": [
+        {
+          "mod": "enchant.stat_3948993189",
+          "min": 0,
+          "max": 0,
+          "option": "33"
+        },
+        {
+          "mod": "enchant.stat_3086156145",
+          "min": 5,
+          "max": 5
+        }
+      ],
+      "listingCount": 66
+    },
+    {
+      "id": 63180,
+      "name": "Claw Attacks deal 12% increased Damage with Hits and Ailments, Dagger Attacks deal 12% increased Damage with Hits and Ailments",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvSmV3ZWxzL05ld0dlbUJhc2UzIiwidyI6MSwiaCI6MSwic2NhbGUiOjF9XQ/db35e60885/NewGemBase3.png",
+      "levelRequired": 50,
+      "baseType": "Large Cluster Jewel",
+      "variant": "8 passives",
+      "itemClass": 2,
+      "sparkLine": {
+        "totalChange": -77.4,
+        "data": [
+          0,
+          21.67,
+          21.26,
+          35.62,
+          12.79,
+          21.18,
+          -77.4
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": -77.4,
+        "data": [
+          0,
+          21.67,
+          21.26,
+          35.62,
+          12.79,
+          21.18,
+          -77.4
+        ]
+      },
+      "implicitModifiers": [],
+      "explicitModifiers": [],
+      "mutatedModifiers": [],
+      "flavourText": "",
+      "chaosValue": 50.0,
+      "exaltedValue": 22.52,
+      "divineValue": 0.15,
+      "count": 64,
+      "detailsId": "claw-attacks-deal-12-increased-damage-with-hits-and-ailments-dagger-attacks-deal-12-increased-damage-with-hits-and-ailments-8-passives-50",
+      "tradeInfo": [
+        {
+          "mod": "enchant.stat_3948993189",
+          "min": 0,
+          "max": 0,
+          "option": "3"
+        },
+        {
+          "mod": "enchant.stat_3086156145",
+          "min": 8,
+          "max": 8
+        }
+      ],
+      "listingCount": 88
+    },
+    {
+      "id": 63214,
+      "name": "10% increased Projectile Damage",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvSmV3ZWxzL05ld0dlbUJhc2UyIiwidyI6MSwiaCI6MSwic2NhbGUiOjF9XQ/78f6bf8356/NewGemBase2.png",
+      "levelRequired": 50,
+      "baseType": "Medium Cluster Jewel",
+      "variant": "4 passives",
+      "itemClass": 2,
+      "sparkLine": {
+        "totalChange": 163.2,
+        "data": [
+          0,
+          52.63,
+          57.89,
+          57.89,
+          163.2,
+          155.3,
+          163.2
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 163.2,
+        "data": [
+          0,
+          52.63,
+          57.89,
+          57.89,
+          163.2,
+          155.3,
+          163.2
+        ]
+      },
+      "implicitModifiers": [],
+      "explicitModifiers": [],
+      "mutatedModifiers": [],
+      "flavourText": "",
+      "chaosValue": 50.0,
+      "exaltedValue": 22.52,
+      "divineValue": 0.15,
+      "count": 52,
+      "detailsId": "10-increased-projectile-damage-4-passives-50",
+      "tradeInfo": [
+        {
+          "mod": "enchant.stat_3948993189",
+          "min": 0,
+          "max": 0,
+          "option": "32"
+        },
+        {
+          "mod": "enchant.stat_3086156145",
+          "min": 4,
+          "max": 4
+        }
+      ],
+      "listingCount": 164
+    },
+    {
+      "id": 63493,
+      "name": "Wand Attacks deal 12% increased Damage with Hits and Ailments",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvSmV3ZWxzL05ld0dlbUJhc2UzIiwidyI6MSwiaCI6MSwic2NhbGUiOjF9XQ/db35e60885/NewGemBase3.png",
+      "levelRequired": 68,
+      "baseType": "Large Cluster Jewel",
+      "variant": "8 passives",
+      "itemClass": 2,
+      "sparkLine": {
+        "totalChange": 5.26,
+        "data": [
+          0,
+          5.26,
+          5.26,
+          5.26,
+          33.89,
+          83.16,
+          5.26
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 5.26,
+        "data": [
+          0,
+          5.26,
+          5.26,
+          5.26,
+          33.89,
+          83.16,
+          5.26
+        ]
+      },
+      "implicitModifiers": [],
+      "explicitModifiers": [],
+      "mutatedModifiers": [],
+      "flavourText": "",
+      "chaosValue": 50.0,
+      "exaltedValue": 22.52,
+      "divineValue": 0.15,
+      "count": 98,
+      "detailsId": "wand-attacks-deal-12-increased-damage-with-hits-and-ailments-8-passives-68",
+      "tradeInfo": [
+        {
+          "mod": "enchant.stat_3948993189",
+          "min": 0,
+          "max": 0,
+          "option": "5"
+        },
+        {
+          "mod": "enchant.stat_3086156145",
+          "min": 8,
+          "max": 8
+        }
+      ],
+      "listingCount": 245
+    },
+    {
+      "id": 63501,
+      "name": "12% increased Fire Damage",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvSmV3ZWxzL05ld0dlbUJhc2UzIiwidyI6MSwiaCI6MSwic2NhbGUiOjF9XQ/db35e60885/NewGemBase3.png",
+      "levelRequired": 68,
+      "baseType": "Large Cluster Jewel",
+      "variant": "8 passives",
+      "itemClass": 2,
+      "sparkLine": {
+        "totalChange": 107.5,
+        "data": [
+          0,
+          116.8,
+          298.3,
+          271.4,
+          182.2,
+          107.5,
+          107.5
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 107.5,
+        "data": [
+          0,
+          116.8,
+          298.3,
+          271.4,
+          182.2,
+          107.5,
+          107.5
+        ]
+      },
+      "implicitModifiers": [],
+      "explicitModifiers": [],
+      "mutatedModifiers": [],
+      "flavourText": "",
+      "chaosValue": 50.0,
+      "exaltedValue": 22.52,
+      "divineValue": 0.15,
+      "count": 151,
+      "detailsId": "12-increased-fire-damage-8-passives-68",
+      "tradeInfo": [
+        {
+          "mod": "enchant.stat_3948993189",
+          "min": 0,
+          "max": 0,
+          "option": "13"
+        },
+        {
+          "mod": "enchant.stat_3086156145",
+          "min": 8,
+          "max": 8
+        }
+      ],
+      "listingCount": 340
+    },
+    {
+      "id": 63518,
+      "name": "12% increased Fire Damage",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvSmV3ZWxzL05ld0dlbUJhc2UzIiwidyI6MSwiaCI6MSwic2NhbGUiOjF9XQ/db35e60885/NewGemBase3.png",
+      "levelRequired": 84,
+      "baseType": "Large Cluster Jewel",
+      "variant": "8 passives",
+      "itemClass": 0,
+      "sparkLine": {
+        "totalChange": 66.67,
+        "data": [
+          0,
+          -33.33,
+          -9.5,
+          -4.5,
+          -10,
+          -16.67,
+          66.67
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 66.67,
+        "data": [
+          0,
+          -33.33,
+          -9.5,
+          -4.5,
+          -10,
+          -16.67,
+          66.67
+        ]
+      },
+      "implicitModifiers": [],
+      "explicitModifiers": [],
+      "mutatedModifiers": [],
+      "flavourText": "",
+      "chaosValue": 50.0,
+      "exaltedValue": 22.52,
+      "divineValue": 0.15,
+      "count": 399,
+      "detailsId": "12-increased-fire-damage-8-passives-84",
+      "tradeInfo": [
+        {
+          "mod": "enchant.stat_3948993189",
+          "min": 0,
+          "max": 0,
+          "option": "13"
+        },
+        {
+          "mod": "enchant.stat_3086156145",
+          "min": 8,
+          "max": 8
+        }
+      ],
+      "listingCount": 2792
+    },
+    {
+      "id": 63810,
+      "name": "Axe Attacks deal 12% increased Damage with Hits and Ailments, Sword Attacks deal 12% increased Damage with Hits and Ailments",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvSmV3ZWxzL05ld0dlbUJhc2UzIiwidyI6MSwiaCI6MSwic2NhbGUiOjF9XQ/db35e60885/NewGemBase3.png",
+      "levelRequired": 84,
+      "baseType": "Large Cluster Jewel",
+      "variant": "8 passives",
+      "itemClass": 1,
+      "sparkLine": {
+        "totalChange": 120.3,
+        "data": [
+          0,
+          32.16,
+          -1.98,
+          32.16,
+          18.94,
+          98.24,
+          120.3
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 120.3,
+        "data": [
+          0,
+          32.16,
+          -1.98,
+          32.16,
+          18.94,
+          98.24,
+          120.3
+        ]
+      },
+      "implicitModifiers": [],
+      "explicitModifiers": [],
+      "mutatedModifiers": [],
+      "flavourText": "",
+      "chaosValue": 50.0,
+      "exaltedValue": 22.52,
+      "divineValue": 0.15,
+      "count": 399,
+      "detailsId": "axe-attacks-deal-12-increased-damage-with-hits-and-ailments-sword-attacks-deal-12-increased-damage-with-hits-and-ailments-8-passives-84",
+      "tradeInfo": [
+        {
+          "mod": "enchant.stat_3948993189",
+          "min": 0,
+          "max": 0,
+          "option": "1"
+        },
+        {
+          "mod": "enchant.stat_3086156145",
+          "min": 8,
+          "max": 8
+        }
+      ],
+      "listingCount": 1134
+    },
+    {
+      "id": 64000,
+      "name": "Minions deal 10% increased Damage",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvSmV3ZWxzL05ld0dlbUJhc2UzIiwidyI6MSwiaCI6MSwic2NhbGUiOjF9XQ/db35e60885/NewGemBase3.png",
+      "levelRequired": 84,
+      "baseType": "Large Cluster Jewel",
+      "variant": "8 passives",
+      "itemClass": 2,
+      "sparkLine": {
+        "totalChange": 117.4,
+        "data": [
+          0,
+          38.91,
+          12.83,
+          43.48,
+          282.2,
+          178.7,
+          117.4
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 117.4,
+        "data": [
+          0,
+          38.91,
+          12.83,
+          43.48,
+          282.2,
+          178.7,
+          117.4
+        ]
+      },
+      "implicitModifiers": [],
+      "explicitModifiers": [],
+      "mutatedModifiers": [],
+      "flavourText": "",
+      "chaosValue": 50.0,
+      "exaltedValue": 22.52,
+      "divineValue": 0.15,
+      "count": 399,
+      "detailsId": "minions-deal-10-increased-damage-8-passives-84",
+      "tradeInfo": [
+        {
+          "mod": "enchant.stat_3948993189",
+          "min": 0,
+          "max": 0,
+          "option": "17"
+        },
+        {
+          "mod": "enchant.stat_3086156145",
+          "min": 8,
+          "max": 8
+        }
+      ],
+      "listingCount": 3277
+    },
+    {
+      "id": 64014,
+      "name": "Claw Attacks deal 12% increased Damage with Hits and Ailments, Dagger Attacks deal 12% increased Damage with Hits and Ailments",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvSmV3ZWxzL05ld0dlbUJhc2UzIiwidyI6MSwiaCI6MSwic2NhbGUiOjF9XQ/db35e60885/NewGemBase3.png",
+      "levelRequired": 84,
+      "baseType": "Large Cluster Jewel",
+      "variant": "12 passives",
+      "itemClass": 0,
+      "sparkLine": {
+        "totalChange": 138.1,
+        "data": [
+          0,
+          -3.57,
+          1.9,
+          42.86,
+          59.52,
+          66.67,
+          138.1
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 138.1,
+        "data": [
+          0,
+          -3.57,
+          1.9,
+          42.86,
+          59.52,
+          66.67,
+          138.1
+        ]
+      },
+      "implicitModifiers": [],
+      "explicitModifiers": [],
+      "mutatedModifiers": [],
+      "flavourText": "",
+      "chaosValue": 50.0,
+      "exaltedValue": 22.52,
+      "divineValue": 0.15,
+      "count": 399,
+      "detailsId": "claw-attacks-deal-12-increased-damage-with-hits-and-ailments-dagger-attacks-deal-12-increased-damage-with-hits-and-ailments-12-passives-84",
+      "tradeInfo": [
+        {
+          "mod": "enchant.stat_3948993189",
+          "min": 0,
+          "max": 0,
+          "option": "3"
+        },
+        {
+          "mod": "enchant.stat_3086156145",
+          "min": 12,
+          "max": 12
+        }
+      ],
+      "listingCount": 1496
+    },
+    {
+      "id": 63378,
+      "name": "12% increased Attack Damage while holding a Shield",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvSmV3ZWxzL05ld0dlbUJhc2UzIiwidyI6MSwiaCI6MSwic2NhbGUiOjF9XQ/db35e60885/NewGemBase3.png",
+      "levelRequired": 68,
+      "baseType": "Large Cluster Jewel",
+      "variant": "8 passives",
+      "itemClass": 2,
+      "sparkLine": {
+        "totalChange": -36.77,
+        "data": [
+          0,
+          -0.65,
+          -2.19,
+          -11.55,
+          -3.23,
+          -4.77,
+          -36.77
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": -36.77,
+        "data": [
+          0,
+          -0.65,
+          -2.19,
+          -11.55,
+          -3.23,
+          -4.77,
+          -36.77
+        ]
+      },
+      "implicitModifiers": [],
+      "explicitModifiers": [],
+      "mutatedModifiers": [],
+      "flavourText": "",
+      "chaosValue": 49.0,
+      "exaltedValue": 22.07,
+      "divineValue": 0.15,
+      "count": 240,
+      "detailsId": "12-increased-attack-damage-while-holding-a-shield-8-passives-68",
+      "tradeInfo": [
+        {
+          "mod": "enchant.stat_3948993189",
+          "min": 0,
+          "max": 0,
+          "option": "8"
+        },
+        {
+          "mod": "enchant.stat_3086156145",
+          "min": 8,
+          "max": 8
+        }
+      ],
+      "listingCount": 458
+    },
+    {
+      "id": 63632,
+      "name": "Minions have 12% increased maximum Life",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvSmV3ZWxzL05ld0dlbUJhc2UyIiwidyI6MSwiaCI6MSwic2NhbGUiOjF9XQ/78f6bf8356/NewGemBase2.png",
+      "levelRequired": 84,
+      "baseType": "Medium Cluster Jewel",
+      "variant": "6 passives",
+      "itemClass": 2,
+      "sparkLine": {
+        "totalChange": 48.06,
+        "data": [
+          0,
+          61.29,
+          90.32,
+          11.29,
+          41.94,
+          10.97,
+          48.06
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 48.06,
+        "data": [
+          0,
+          61.29,
+          90.32,
+          11.29,
+          41.94,
+          10.97,
+          48.06
+        ]
+      },
+      "implicitModifiers": [],
+      "explicitModifiers": [],
+      "mutatedModifiers": [],
+      "flavourText": "",
+      "chaosValue": 45.9,
+      "exaltedValue": 20.68,
+      "divineValue": 0.14,
+      "count": 399,
+      "detailsId": "minions-have-12-increased-maximum-life-6-passives-84",
+      "tradeInfo": [
+        {
+          "mod": "enchant.stat_3948993189",
+          "min": 0,
+          "max": 0,
+          "option": "30"
+        },
+        {
+          "mod": "enchant.stat_3086156145",
+          "min": 6,
+          "max": 6
+        }
+      ],
+      "listingCount": 2291
+    }
+  ]
+}

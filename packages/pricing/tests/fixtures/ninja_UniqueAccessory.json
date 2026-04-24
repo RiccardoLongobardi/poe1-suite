@@ -1,0 +1,2110 @@
+{
+  "lines": [
+    {
+      "id": 135150,
+      "name": "Foulborn Headhunter",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQmVsdHMvSGVhZGh1bnRlciIsInciOjIsImgiOjEsInNjYWxlIjoxLCJtdXRhdGVkIjp0cnVlfV0/2a93cbdad2/Headhunter.png",
+      "levelRequired": 40,
+      "baseType": "Leather Belt",
+      "variant": "Culling Strike",
+      "itemClass": 3,
+      "sparkLine": {
+        "totalChange": 2.17,
+        "data": [
+          0,
+          -8.4,
+          -7.65,
+          -5.44,
+          2.03,
+          4.99,
+          2.17
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 2.17,
+        "data": [
+          0,
+          -8.4,
+          -7.65,
+          -5.44,
+          2.03,
+          4.99,
+          2.17
+        ]
+      },
+      "implicitModifiers": [
+        {
+          "text": "+(25-48) to maximum Life",
+          "optional": false
+        }
+      ],
+      "explicitModifiers": [
+        {
+          "text": "+(40-66) to Strength",
+          "optional": false
+        },
+        {
+          "text": "+(40-66) to Dexterity",
+          "optional": false
+        },
+        {
+          "text": "+(50-72) to maximum Life",
+          "optional": false
+        },
+        {
+          "text": "When you Kill a Rare monster, you gain its Modifiers for 60 seconds",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [
+        {
+          "text": "Culling Strike",
+          "optional": false
+        }
+      ],
+      "flavourText": "\"A man's soul rules from a cavern of bone, learns and\njudges through flesh-born windows. The heart is meat.\nThe head is where the Man is.\"\n- Lavianga, Advisor to Kaom",
+      "itemType": "Belt",
+      "chaosValue": 542025,
+      "exaltedValue": 244155,
+      "divineValue": 1606,
+      "count": 15,
+      "detailsId": "foulborn-headhunter-culling-strike-leather-belt",
+      "tradeInfo": [
+        {
+          "mod": "explicit.stat_2524254339",
+          "min": 0,
+          "max": 0
+        }
+      ],
+      "listingCount": 17
+    },
+    {
+      "id": 102015,
+      "name": "Original Sin",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvUmluZ3MvU2FuY3R1bVNwZWNpYWxVbmlxdWVSaW5nIiwidyI6MSwiaCI6MSwic2NhbGUiOjF9XQ/e0ff1c1c6b/SanctumSpecialUniqueRing.png",
+      "levelRequired": 52,
+      "baseType": "Amethyst Ring",
+      "itemClass": 3,
+      "sparkLine": {
+        "totalChange": -65.05,
+        "data": [
+          0,
+          18.81,
+          16.14,
+          5.78,
+          -24.43,
+          -55.97,
+          -65.05
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": -65.05,
+        "data": [
+          0,
+          18.81,
+          16.14,
+          5.78,
+          -24.43,
+          -55.97,
+          -65.05
+        ]
+      },
+      "implicitModifiers": [
+        {
+          "text": "+(17-27)% to Chaos Resistance",
+          "optional": false
+        }
+      ],
+      "explicitModifiers": [
+        {
+          "text": "All Elemental Damage Converted to Chaos Damage",
+          "optional": false
+        },
+        {
+          "text": "Nearby Enemies' Chaos Resistance is 0",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [],
+      "flavourText": "Innocence rose to godhood not on inspired faith,\nbut on the vilification and hatred of another.",
+      "itemType": "Ring",
+      "chaosValue": 442058,
+      "exaltedValue": 199125,
+      "divineValue": 1310,
+      "count": 27,
+      "detailsId": "original-sin-amethyst-ring",
+      "tradeInfo": [],
+      "listingCount": 27
+    },
+    {
+      "id": 135487,
+      "name": "Foulborn Headhunter",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQmVsdHMvSGVhZGh1bnRlciIsInciOjIsImgiOjEsInNjYWxlIjoxLCJtdXRhdGVkIjp0cnVlfV0/2a93cbdad2/Headhunter.png",
+      "levelRequired": 40,
+      "baseType": "Leather Belt",
+      "variant": "Minimap Icons",
+      "itemClass": 3,
+      "sparkLine": {
+        "totalChange": -10.97,
+        "data": [
+          null,
+          0,
+          -4.18,
+          -8.5,
+          3.16,
+          -2.52,
+          -10.97
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": -9.3,
+        "data": [
+          0,
+          1.87,
+          -2.39,
+          -6.79,
+          5.09,
+          -0.69,
+          -9.3
+        ]
+      },
+      "implicitModifiers": [
+        {
+          "text": "+(25-48) to maximum Life",
+          "optional": false
+        }
+      ],
+      "explicitModifiers": [
+        {
+          "text": "+(40-66) to Dexterity",
+          "optional": false
+        },
+        {
+          "text": "+(50-72) to maximum Life",
+          "optional": false
+        },
+        {
+          "text": "(20-30)% increased Damage with Hits against Rare monsters",
+          "optional": false
+        },
+        {
+          "text": "When you Kill a Rare monster, you gain its Modifiers for 60 seconds",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [
+        {
+          "text": "Rare and Unique Enemies within 120 metres have Minimap Icons",
+          "optional": false
+        }
+      ],
+      "flavourText": "\"A man's soul rules from a cavern of bone, learns and\njudges through flesh-born windows. The heart is meat.\nThe head is where the Man is.\"\n- Lavianga, Advisor to Kaom",
+      "itemType": "Belt",
+      "chaosValue": 163822,
+      "exaltedValue": 73794,
+      "divineValue": 485.4,
+      "count": 13,
+      "detailsId": "foulborn-headhunter-minimap-icons-leather-belt",
+      "tradeInfo": [
+        {
+          "mod": "explicit.stat_2543266731",
+          "min": 0,
+          "max": 0
+        }
+      ],
+      "listingCount": 14
+    },
+    {
+      "id": 135418,
+      "name": "Foulborn Headhunter",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQmVsdHMvSGVhZGh1bnRlciIsInciOjIsImgiOjEsInNjYWxlIjoxLCJtdXRhdGVkIjp0cnVlfV0/2a93cbdad2/Headhunter.png",
+      "levelRequired": 40,
+      "baseType": "Leather Belt",
+      "variant": "Culling Strike, Soul Eater",
+      "itemClass": 3,
+      "sparkLine": {
+        "totalChange": 27.68,
+        "data": [
+          0,
+          53.77,
+          null,
+          45.02,
+          44.59,
+          29.16,
+          27.68
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 27.68,
+        "data": [
+          0,
+          53.77,
+          72.68,
+          45.02,
+          44.59,
+          29.16,
+          27.68
+        ]
+      },
+      "implicitModifiers": [
+        {
+          "text": "+(25-48) to maximum Life",
+          "optional": false
+        }
+      ],
+      "explicitModifiers": [
+        {
+          "text": "+(40-64) to Strength",
+          "optional": false
+        },
+        {
+          "text": "+(40-66) to Dexterity",
+          "optional": false
+        },
+        {
+          "text": "+(50-72) to maximum Life",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [
+        {
+          "text": "Culling Strike",
+          "optional": false
+        },
+        {
+          "text": "Eat a Soul when you Hit a Rare or Unique Enemy, no more than once every 0.25 seconds",
+          "optional": false
+        }
+      ],
+      "flavourText": "\"A man's soul rules from a cavern of bone, learns and\njudges through flesh-born windows. The heart is meat.\nThe head is where the Man is.\"\n- Lavianga, Advisor to Kaom",
+      "itemType": "Belt",
+      "chaosValue": 147825,
+      "exaltedValue": 66588,
+      "divineValue": 438.0,
+      "count": 9,
+      "detailsId": "foulborn-headhunter-culling-strike-soul-eater-leather-belt",
+      "tradeInfo": [
+        {
+          "mod": "explicit.stat_2524254339",
+          "min": 0,
+          "max": 0
+        },
+        {
+          "mod": "explicit.stat_2103621252",
+          "min": 0,
+          "max": 0
+        }
+      ],
+      "listingCount": 10
+    },
+    {
+      "id": 135807,
+      "name": "Foulborn Headhunter",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQmVsdHMvSGVhZGh1bnRlciIsInciOjIsImgiOjEsInNjYWxlIjoxLCJtdXRhdGVkIjp0cnVlfV0/2a93cbdad2/Headhunter.png",
+      "levelRequired": 40,
+      "baseType": "Leather Belt",
+      "variant": "Soul Eater, Minimap Icons",
+      "itemClass": 3,
+      "sparkLine": {
+        "totalChange": 251.3,
+        "data": [
+          0,
+          null,
+          91.02,
+          639.8,
+          540.7,
+          509.3,
+          251.3
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 251.3,
+        "data": [
+          0,
+          47.61,
+          91.02,
+          639.8,
+          540.7,
+          509.3,
+          251.3
+        ]
+      },
+      "implicitModifiers": [
+        {
+          "text": "+(25-48) to maximum Life",
+          "optional": false
+        }
+      ],
+      "explicitModifiers": [
+        {
+          "text": "+(40-66) to Dexterity",
+          "optional": false
+        },
+        {
+          "text": "+(50-72) to maximum Life",
+          "optional": false
+        },
+        {
+          "text": "(20-30)% increased Damage with Hits against Rare monsters",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [
+        {
+          "text": "Eat a Soul when you Hit a Rare or Unique Enemy, no more than once every 0.25 seconds",
+          "optional": false
+        },
+        {
+          "text": "Rare and Unique Enemies within 120 metres have Minimap Icons",
+          "optional": false
+        }
+      ],
+      "flavourText": "\"A man's soul rules from a cavern of bone, learns and\njudges through flesh-born windows. The heart is meat.\nThe head is where the Man is.\"\n- Lavianga, Advisor to Kaom",
+      "itemType": "Belt",
+      "chaosValue": 113062,
+      "exaltedValue": 50929,
+      "divineValue": 335.0,
+      "count": 8,
+      "detailsId": "foulborn-headhunter-soul-eater-minimap-icons-leather-belt",
+      "tradeInfo": [
+        {
+          "mod": "explicit.stat_2103621252",
+          "min": 0,
+          "max": 0
+        },
+        {
+          "mod": "explicit.stat_2543266731",
+          "min": 0,
+          "max": 0
+        }
+      ],
+      "listingCount": 8
+    },
+    {
+      "id": 135064,
+      "name": "Foulborn Mageblood",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQmVsdHMvSW5qZWN0b3JCZWx0IiwidyI6MiwiaCI6MSwic2NhbGUiOjEsIm11dGF0ZWQiOnRydWV9XQ/8f193a2016/InjectorBelt.png",
+      "levelRequired": 44,
+      "baseType": "Heavy Belt",
+      "variant": "Rightmost Flasks",
+      "itemClass": 3,
+      "sparkLine": {
+        "totalChange": 7.77,
+        "data": [
+          0,
+          12.17,
+          26.96,
+          8.41,
+          5.09,
+          6.01,
+          7.77
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 7.77,
+        "data": [
+          0,
+          12.17,
+          26.96,
+          8.41,
+          5.09,
+          6.01,
+          7.77
+        ]
+      },
+      "implicitModifiers": [
+        {
+          "text": "+(25-42) to Strength",
+          "optional": false
+        }
+      ],
+      "explicitModifiers": [
+        {
+          "text": "+(30-60) to Dexterity",
+          "optional": false
+        },
+        {
+          "text": "+(15-30)% to Fire Resistance",
+          "optional": false
+        },
+        {
+          "text": "+(15-30)% to Cold Resistance",
+          "optional": false
+        },
+        {
+          "text": "Magic Utility Flasks cannot be Used",
+          "optional": false
+        },
+        {
+          "text": "Magic Utility Flask Effects cannot be removed",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [
+        {
+          "text": "Rightmost (2-4) Magic Utility Flasks constantly apply their Flask Effects to you",
+          "optional": false
+        }
+      ],
+      "flavourText": "Rivers of power course through your veins.",
+      "itemType": "Belt",
+      "chaosValue": 41209,
+      "exaltedValue": 18562,
+      "divineValue": 122.1,
+      "count": 19,
+      "detailsId": "foulborn-mageblood-rightmost-flasks-heavy-belt",
+      "tradeInfo": [
+        {
+          "mod": "explicit.stat_2651470813",
+          "min": 0,
+          "max": 0
+        }
+      ],
+      "listingCount": 21
+    },
+    {
+      "id": 71072,
+      "name": "Mageblood",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQmVsdHMvSW5qZWN0b3JCZWx0IiwidyI6MiwiaCI6MSwic2NhbGUiOjEsInJlbGljIjo4fV0/d2868a013e/InjectorBelt.png",
+      "levelRequired": 44,
+      "baseType": "Heavy Belt",
+      "itemClass": 10,
+      "sparkLine": {
+        "totalChange": 4.67,
+        "data": [
+          0,
+          2.36,
+          4.0,
+          4.4,
+          4.02,
+          4.76,
+          4.67
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 4.67,
+        "data": [
+          0,
+          2.36,
+          4.0,
+          4.4,
+          4.02,
+          4.76,
+          4.67
+        ]
+      },
+      "implicitModifiers": [
+        {
+          "text": "+(25-42) to Strength",
+          "optional": false
+        },
+        {
+          "text": "Item sells for much more to vendors",
+          "optional": true
+        }
+      ],
+      "explicitModifiers": [
+        {
+          "text": "+(30-60) to Dexterity",
+          "optional": false
+        },
+        {
+          "text": "+(15-30)% to Fire Resistance",
+          "optional": false
+        },
+        {
+          "text": "+(15-30)% to Cold Resistance",
+          "optional": false
+        },
+        {
+          "text": "Magic Utility Flasks cannot be Used",
+          "optional": false
+        },
+        {
+          "text": "Leftmost (2-4) Magic Utility Flasks constantly apply their Flask Effects to you",
+          "optional": false
+        },
+        {
+          "text": "Magic Utility Flask Effects cannot be removed",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [],
+      "flavourText": "Rivers of power course through your veins.",
+      "itemType": "Belt",
+      "chaosValue": 37125,
+      "exaltedValue": 16723,
+      "divineValue": 110.0,
+      "count": 364,
+      "detailsId": "mageblood-heavy-belt",
+      "tradeInfo": [],
+      "listingCount": 388
+    },
+    {
+      "id": 118588,
+      "name": "Ynda's Stand",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQmVsdHMvS2FsZ3V1cmFuV2FyZEJlbHQiLCJ3IjoyLCJoIjoxLCJzY2FsZSI6MSwicmVsaWMiOjEyfV0/405b64d709/KalguuranWardBelt.png",
+      "levelRequired": 52,
+      "baseType": "Studded Belt",
+      "itemClass": 10,
+      "sparkLine": {
+        "totalChange": 11.59,
+        "data": [
+          0,
+          11.51,
+          0.95,
+          1.53,
+          3.82,
+          8.33,
+          11.59
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 11.59,
+        "data": [
+          0,
+          11.51,
+          0.95,
+          1.53,
+          3.82,
+          8.33,
+          11.59
+        ]
+      },
+      "implicitModifiers": [
+        {
+          "text": "(20-30)% increased Stun Duration on Enemies",
+          "optional": false
+        }
+      ],
+      "explicitModifiers": [
+        {
+          "text": "Regenerate (30-50) Life per second",
+          "optional": false
+        },
+        {
+          "text": "+(20-34)% to Fire Resistance",
+          "optional": false
+        },
+        {
+          "text": "+(20-36)% to Cold Resistance",
+          "optional": false
+        },
+        {
+          "text": "Gain Ward instead of (50-60)% of Armour and Evasion Rating from Equipped Body Armour",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [],
+      "flavourText": "When all else was burning and overrun,\nshe held the bridge to the very end.",
+      "itemType": "Belt",
+      "chaosValue": 25988,
+      "exaltedValue": 11706,
+      "divineValue": 77.0,
+      "count": 55,
+      "detailsId": "yndas-stand-studded-belt",
+      "tradeInfo": [],
+      "listingCount": 58
+    },
+    {
+      "id": 72129,
+      "name": "Stranglegasp",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQW11bGV0cy9HaWZ0T2ZHbG9waCIsInciOjEsImgiOjEsInNjYWxlIjoxfV0/babc794c98/GiftOfGloph.png",
+      "levelRequired": 52,
+      "baseType": "Onyx Amulet",
+      "itemClass": 3,
+      "sparkLine": {
+        "totalChange": -6.56,
+        "data": [
+          0,
+          0.71,
+          -1.49,
+          -9.1,
+          -10.87,
+          -7.84,
+          -6.56
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": -6.56,
+        "data": [
+          0,
+          0.71,
+          -1.49,
+          -9.1,
+          -10.87,
+          -7.84,
+          -6.56
+        ]
+      },
+      "implicitModifiers": [
+        {
+          "text": "+(10-19) to all Attributes",
+          "optional": false
+        }
+      ],
+      "explicitModifiers": [
+        {
+          "text": "Can have 3 additional Enchantment Modifiers",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [],
+      "flavourText": "Death's approach brings clarity.",
+      "itemType": "Amulet",
+      "chaosValue": 18832,
+      "exaltedValue": 8483,
+      "divineValue": 55.8,
+      "count": 59,
+      "detailsId": "stranglegasp-onyx-amulet",
+      "tradeInfo": [],
+      "listingCount": 59
+    },
+    {
+      "id": 100501,
+      "name": "Nimis",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvUmluZ3MvVWJlckVhdGVyb2ZXb3JsZHMiLCJ3IjoxLCJoIjoxLCJzY2FsZSI6MX1d/6dbfb1baea/UberEaterofWorlds.png",
+      "levelRequired": 48,
+      "baseType": "Topaz Ring",
+      "itemClass": 3,
+      "sparkLine": {
+        "totalChange": 11.87,
+        "data": [
+          0,
+          -0.03,
+          8.72,
+          7.62,
+          7.36,
+          8.58,
+          11.87
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 11.87,
+        "data": [
+          0,
+          -0.03,
+          8.72,
+          7.62,
+          7.36,
+          8.58,
+          11.87
+        ]
+      },
+      "implicitModifiers": [
+        {
+          "text": "+(20-36)% to Lightning Resistance",
+          "optional": false
+        }
+      ],
+      "explicitModifiers": [
+        {
+          "text": "+(30-60) to Dexterity",
+          "optional": false
+        },
+        {
+          "text": "(25-35)% increased Projectile Damage",
+          "optional": false
+        },
+        {
+          "text": "Projectiles Return to you",
+          "optional": false
+        },
+        {
+          "text": "Projectiles are fired in random directions",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [],
+      "flavourText": "Too much of something is bad enough;\ntoo much of nothing is just as tough.",
+      "itemType": "Ring",
+      "chaosValue": 9450,
+      "exaltedValue": 4257,
+      "divineValue": 28.0,
+      "count": 399,
+      "detailsId": "nimis-topaz-ring",
+      "tradeInfo": [],
+      "listingCount": 504
+    },
+    {
+      "id": 134994,
+      "name": "Foulborn Headhunter",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQmVsdHMvSGVhZGh1bnRlciIsInciOjIsImgiOjEsInNjYWxlIjoxLCJtdXRhdGVkIjp0cnVlfV0/2a93cbdad2/Headhunter.png",
+      "levelRequired": 40,
+      "baseType": "Leather Belt",
+      "variant": "Soul Eater",
+      "itemClass": 3,
+      "sparkLine": {
+        "totalChange": -4.48,
+        "data": [
+          0,
+          1.63,
+          24.66,
+          24.84,
+          31.41,
+          -2.43,
+          -4.48
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": -4.48,
+        "data": [
+          0,
+          1.63,
+          24.66,
+          24.84,
+          31.41,
+          -2.43,
+          -4.48
+        ]
+      },
+      "implicitModifiers": [
+        {
+          "text": "+(25-48) to maximum Life",
+          "optional": false
+        }
+      ],
+      "explicitModifiers": [
+        {
+          "text": "+(40-66) to Strength",
+          "optional": false
+        },
+        {
+          "text": "+(40-66) to Dexterity",
+          "optional": false
+        },
+        {
+          "text": "+(50-72) to maximum Life",
+          "optional": false
+        },
+        {
+          "text": "(20-30)% increased Damage with Hits against Rare monsters",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [
+        {
+          "text": "Eat a Soul when you Hit a Rare or Unique Enemy, no more than once every 0.25 seconds",
+          "optional": false
+        }
+      ],
+      "flavourText": "\"A man's soul rules from a cavern of bone, learns and\njudges through flesh-born windows. The heart is meat.\nThe head is where the Man is.\"\n- Lavianga, Advisor to Kaom",
+      "itemType": "Belt",
+      "chaosValue": 8100,
+      "exaltedValue": 3649,
+      "divineValue": 24.0,
+      "count": 16,
+      "detailsId": "foulborn-headhunter-soul-eater-leather-belt",
+      "tradeInfo": [
+        {
+          "mod": "explicit.stat_2103621252",
+          "min": 0,
+          "max": 0
+        }
+      ],
+      "listingCount": 16
+    },
+    {
+      "id": 124912,
+      "name": "Enmity's Embrace",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvUmluZ3MvRW5taXR5c0VtYnJhY2UiLCJ3IjoxLCJoIjoxLCJzY2FsZSI6MX1d/11729d94d1/EnmitysEmbrace.png",
+      "levelRequired": 80,
+      "baseType": "Vermillion Ring",
+      "itemClass": 3,
+      "sparkLine": {
+        "totalChange": 8.63,
+        "data": [
+          0,
+          -1.49,
+          2.63,
+          2.63,
+          -2.33,
+          3.55,
+          8.63
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 8.63,
+        "data": [
+          0,
+          -1.49,
+          2.63,
+          2.63,
+          -2.33,
+          3.55,
+          8.63
+        ]
+      },
+      "implicitModifiers": [
+        {
+          "text": "(5-8)% increased maximum Life",
+          "optional": false
+        }
+      ],
+      "explicitModifiers": [
+        {
+          "text": "+(30-60) to Strength",
+          "optional": false
+        },
+        {
+          "text": "(10-24)% increased Fire Damage",
+          "optional": false
+        },
+        {
+          "text": "(65-75)% reduced Fire Resistance",
+          "optional": false
+        },
+        {
+          "text": "Take (300-600) Fire Damage when you Use a Skill",
+          "optional": false
+        },
+        {
+          "text": "Damage Penetrates Fire Resistance equal to your Overcapped Fire Resistance, up to a maximum of 200%",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [],
+      "flavourText": "In truth, your terror is cold\nYou mask it with heat and ire\nBut they know.\nThey know.",
+      "itemType": "Ring",
+      "chaosValue": 7088,
+      "exaltedValue": 3193,
+      "divineValue": 21.0,
+      "count": 321,
+      "detailsId": "enmitys-embrace-vermillion-ring",
+      "tradeInfo": [],
+      "listingCount": 459
+    },
+    {
+      "id": 135337,
+      "name": "Foulborn Xoph's Blood",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQW11bGV0cy9ZcGhldGhha2tzSGVhcnRVcGdyYWRlIiwidyI6MSwiaCI6MSwic2NhbGUiOjEsIm11dGF0ZWQiOnRydWV9XQ/d43d2d423b/YphethakksHeartUpgrade.png",
+      "levelRequired": 64,
+      "baseType": "Amber Amulet",
+      "variant": "Fire, Elemental Overload",
+      "itemClass": 3,
+      "sparkLine": {
+        "totalChange": -23.47,
+        "data": [
+          0,
+          -1.61,
+          -14.75,
+          2.36,
+          5.0,
+          0.66,
+          -23.47
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": -23.47,
+        "data": [
+          0,
+          -1.61,
+          -14.75,
+          2.36,
+          5.0,
+          0.66,
+          -23.47
+        ]
+      },
+      "implicitModifiers": [
+        {
+          "text": "+(20-36) to Strength",
+          "optional": false
+        }
+      ],
+      "explicitModifiers": [
+        {
+          "text": "(10-12)% increased Strength",
+          "optional": false
+        },
+        {
+          "text": "(10-12)% increased maximum Life",
+          "optional": false
+        },
+        {
+          "text": "Damage Penetrates (10-12)% Fire Resistance",
+          "optional": false
+        },
+        {
+          "text": "Cover Enemies in Ash when they Hit you",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [
+        {
+          "text": "(5-15)% of Physical Damage from Hits taken as Fire Damage",
+          "optional": false
+        },
+        {
+          "text": "Elemental Overload",
+          "optional": false
+        }
+      ],
+      "flavourText": "We are his blood.\nThrough us he carries his burning message.",
+      "itemType": "Amulet",
+      "chaosValue": 6548,
+      "exaltedValue": 2949,
+      "divineValue": 19.4,
+      "count": 63,
+      "detailsId": "foulborn-xophs-blood-fire-elemental-overload-amber-amulet",
+      "tradeInfo": [
+        {
+          "mod": "explicit.stat_3342989455",
+          "min": 0,
+          "max": 0
+        },
+        {
+          "mod": "explicit.stat_3574189159",
+          "min": 0,
+          "max": 0
+        }
+      ],
+      "listingCount": 70
+    },
+    {
+      "id": 135474,
+      "name": "Foulborn Xoph's Heart",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQW11bGV0cy9ZcGhldGhha2tzSGVhcnQiLCJ3IjoxLCJoIjoxLCJzY2FsZSI6MSwibXV0YXRlZCI6dHJ1ZX1d/11ceaf21c7/YphethakksHeart.png",
+      "levelRequired": 5,
+      "baseType": "Amber Amulet",
+      "variant": "Fire, Debilitate",
+      "itemClass": 3,
+      "sparkLine": {
+        "totalChange": -18.29,
+        "data": [
+          0,
+          14.02,
+          5.73,
+          18.71,
+          3.29,
+          -15.81,
+          -18.29
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": -18.29,
+        "data": [
+          0,
+          14.02,
+          5.73,
+          18.71,
+          3.29,
+          -15.81,
+          -18.29
+        ]
+      },
+      "implicitModifiers": [
+        {
+          "text": "+(20-36) to Strength",
+          "optional": false
+        }
+      ],
+      "explicitModifiers": [
+        {
+          "text": "+(20-36) to Strength",
+          "optional": false
+        },
+        {
+          "text": "(25-30)% increased Fire Damage",
+          "optional": false
+        },
+        {
+          "text": "+(25-35) to maximum Life",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [
+        {
+          "text": "(5-15)% of Physical Damage from Hits taken as Fire Damage",
+          "optional": false
+        },
+        {
+          "text": "Nearby Enemies are Debilitated",
+          "optional": false
+        }
+      ],
+      "flavourText": "His is our heart.\nTo its beat we all are driven.",
+      "itemType": "Amulet",
+      "chaosValue": 4590,
+      "exaltedValue": 2068,
+      "divineValue": 13.6,
+      "count": 47,
+      "detailsId": "foulborn-xophs-heart-fire-debilitate-amber-amulet",
+      "tradeInfo": [
+        {
+          "mod": "explicit.stat_3342989455",
+          "min": 0,
+          "max": 0
+        },
+        {
+          "mod": "explicit.stat_2006060276",
+          "min": 0,
+          "max": 0
+        }
+      ],
+      "listingCount": 63
+    },
+    {
+      "id": 135389,
+      "name": "Foulborn Badge of the Brotherhood",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQW11bGV0cy9Bc3Nhc3NpblVuaXF1ZSIsInciOjEsImgiOjEsInNjYWxlIjoxLCJtdXRhdGVkIjp0cnVlfV0/8c4226caee/AssassinUnique.png",
+      "levelRequired": 60,
+      "baseType": "Turquoise Amulet",
+      "variant": "Frenzy Speed",
+      "itemClass": 3,
+      "sparkLine": {
+        "totalChange": -9.56,
+        "data": [
+          0,
+          1.6,
+          0.63,
+          -9.77,
+          1.24,
+          -8.48,
+          -9.56
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": -9.56,
+        "data": [
+          0,
+          1.6,
+          0.63,
+          -9.77,
+          1.24,
+          -8.48,
+          -9.56
+        ]
+      },
+      "implicitModifiers": [
+        {
+          "text": "+(16-28) to Dexterity and Intelligence",
+          "optional": false
+        }
+      ],
+      "explicitModifiers": [
+        {
+          "text": "Your Maximum Frenzy Charges is equal to your Maximum Power Charges",
+          "optional": false
+        },
+        {
+          "text": "(7-10)% increased Effect of Elusive on you per Power Charge",
+          "optional": false
+        },
+        {
+          "text": "(20-25)% chance to lose a Frenzy Charge when you use a Travel Skill",
+          "optional": false
+        },
+        {
+          "text": "(20-25)% chance to lose a Power Charge when you gain Elusive",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [
+        {
+          "text": "2% increased Movement Speed per Frenzy Charge",
+          "optional": false
+        }
+      ],
+      "flavourText": "Greater than any blade, agility and intellect will be your weapons.",
+      "itemType": "Amulet",
+      "chaosValue": 2700,
+      "exaltedValue": 1216,
+      "divineValue": 8.0,
+      "count": 101,
+      "detailsId": "foulborn-badge-of-the-brotherhood-frenzy-speed-turquoise-amulet",
+      "tradeInfo": [
+        {
+          "mod": "explicit.stat_1541516339",
+          "min": 0,
+          "max": 0
+        }
+      ],
+      "listingCount": 108
+    },
+    {
+      "id": 607,
+      "name": "Headhunter",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQmVsdHMvSGVhZGh1bnRlciIsInciOjIsImgiOjEsInNjYWxlIjoxfV0/e9542ec6ee/Headhunter.png",
+      "levelRequired": 40,
+      "baseType": "Leather Belt",
+      "itemClass": 3,
+      "sparkLine": {
+        "totalChange": -14.39,
+        "data": [
+          0,
+          -0.06,
+          12.76,
+          -0.47,
+          -1.12,
+          -13.75,
+          -14.39
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": -14.39,
+        "data": [
+          0,
+          -0.06,
+          12.76,
+          -0.47,
+          -1.12,
+          -13.75,
+          -14.39
+        ]
+      },
+      "implicitModifiers": [
+        {
+          "text": "+(25-48) to maximum Life",
+          "optional": false
+        }
+      ],
+      "explicitModifiers": [
+        {
+          "text": "+(40-66) to Strength",
+          "optional": false
+        },
+        {
+          "text": "+(40-66) to Dexterity",
+          "optional": false
+        },
+        {
+          "text": "+(50-72) to maximum Life",
+          "optional": false
+        },
+        {
+          "text": "(20-30)% increased Damage with Hits against Rare monsters",
+          "optional": false
+        },
+        {
+          "text": "When you Kill a Rare monster, you gain its Modifiers for 60 seconds",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [],
+      "flavourText": "\"A man's soul rules from a cavern of bone, learns and\njudges through flesh-born windows. The heart is meat.\nThe head is where the Man is.\"\n- Lavianga, Advisor to Kaom",
+      "itemType": "Belt",
+      "chaosValue": 2025,
+      "exaltedValue": 912.2,
+      "divineValue": 6.0,
+      "count": 399,
+      "detailsId": "headhunter-leather-belt",
+      "tradeInfo": [],
+      "listingCount": 1435
+    },
+    {
+      "id": 134968,
+      "name": "Foulborn Le Heup of All",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvUmluZ3MvTGVoZXVwb2ZhbGwiLCJ3IjoxLCJoIjoxLCJzY2FsZSI6MSwibXV0YXRlZCI6dHJ1ZX1d/a3014dad89/Leheupofall.png",
+      "levelRequired": 24,
+      "baseType": "Iron Ring",
+      "variant": "Global Multi, Global Defences",
+      "itemClass": 3,
+      "sparkLine": {
+        "totalChange": 19.86,
+        "data": [
+          0,
+          -0.09,
+          -0.74,
+          -0.47,
+          -0.59,
+          -0.03,
+          19.86
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 19.86,
+        "data": [
+          0,
+          -0.09,
+          -0.74,
+          -0.47,
+          -0.59,
+          -0.03,
+          19.86
+        ]
+      },
+      "implicitModifiers": [
+        {
+          "text": "Adds 1 to 4 Physical Damage to Attacks",
+          "optional": false
+        }
+      ],
+      "explicitModifiers": [
+        {
+          "text": "+(10-36) to all Attributes",
+          "optional": false
+        },
+        {
+          "text": "+(10-36)% to all Elemental Resistances",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [
+        {
+          "text": "+(10-36)% to Global Critical Strike Multiplier",
+          "optional": false
+        },
+        {
+          "text": "(10-36)% increased Global Defences",
+          "optional": false
+        }
+      ],
+      "flavourText": "Existence is infinite\nA weave of the living and dead\nBeyond the understanding\nOf the many mortal threads",
+      "itemType": "Ring",
+      "chaosValue": 2025,
+      "exaltedValue": 912.2,
+      "divineValue": 6.0,
+      "count": 399,
+      "detailsId": "foulborn-le-heup-of-all-global-multi-global-defences-iron-ring",
+      "tradeInfo": [
+        {
+          "mod": "explicit.stat_3556824919",
+          "min": 0,
+          "max": 0
+        },
+        {
+          "mod": "explicit.stat_1389153006",
+          "min": 0,
+          "max": 0
+        }
+      ],
+      "listingCount": 663
+    },
+    {
+      "id": 7760,
+      "name": "Putembo's Mountain",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvUmluZ3MvQmx1ZUNvbXBvbmVudCIsInciOjEsImgiOjEsInNjYWxlIjoxfV0/086886e893/BlueComponent.png",
+      "levelRequired": 49,
+      "baseType": "Topaz Ring",
+      "itemClass": 3,
+      "sparkLine": {
+        "totalChange": -27.71,
+        "data": [
+          0,
+          -17.45,
+          -66.88,
+          -28.79,
+          -28.23,
+          -42.12,
+          -27.71
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": -27.71,
+        "data": [
+          0,
+          -17.45,
+          -66.88,
+          -28.79,
+          -28.23,
+          -42.12,
+          -27.71
+        ]
+      },
+      "implicitModifiers": [
+        {
+          "text": "+(20-30)% to Lightning Resistance",
+          "optional": false
+        }
+      ],
+      "explicitModifiers": [
+        {
+          "text": "+20 to Intelligence",
+          "optional": false
+        },
+        {
+          "text": "5% increased maximum Energy Shield",
+          "optional": false
+        },
+        {
+          "text": "5% increased maximum Life",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [],
+      "flavourText": "He surveyed his lands, green and vital,\nwatched with pride as his slaves quarried fine stone for his fortress,\nand thanked the heavens for his many blessings.\nBut this pilgrimage to the peak was to be his last.\n\n<default>{This item can be combined with a Meadow and Valley ring at a Vendor.}",
+      "itemType": "Ring",
+      "chaosValue": 1688,
+      "exaltedValue": 760.1,
+      "divineValue": 5.0,
+      "count": 66,
+      "detailsId": "putembos-mountain-topaz-ring",
+      "tradeInfo": [],
+      "listingCount": 81
+    },
+    {
+      "id": 140944,
+      "name": "Foulborn Berek's Respite",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvUmluZ3MvQmVyZWtzUmVzcGl0ZSIsInciOjEsImgiOjEsInNjYWxlIjoxLCJtdXRhdGVkIjp0cnVlfV0/3fdccbf3ee/BereksRespite.png",
+      "levelRequired": 20,
+      "baseType": "Two-Stone Ring",
+      "variant": "Shock Explosion",
+      "itemClass": 3,
+      "sparkLine": {
+        "totalChange": -0.12,
+        "data": [
+          0,
+          -0.09,
+          -0.71,
+          -0.47,
+          -0.59,
+          -0.03,
+          -0.12
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": -0.12,
+        "data": [
+          0,
+          -0.09,
+          -0.71,
+          -0.47,
+          -0.59,
+          -0.03,
+          -0.12
+        ]
+      },
+      "implicitModifiers": [
+        {
+          "text": "+(12-19)% to Fire and Lightning Resistances",
+          "optional": false
+        }
+      ],
+      "explicitModifiers": [
+        {
+          "text": "Adds (20-30) to (30-60) Fire Damage to Spells and Attacks",
+          "optional": false
+        },
+        {
+          "text": "(25-36)% increased Lightning Damage",
+          "optional": false
+        },
+        {
+          "text": "+(30-44) to maximum Mana",
+          "optional": false
+        },
+        {
+          "text": "When you Kill an Ignited Enemy, inflict an equivalent Ignite on each nearby Enemy",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [
+        {
+          "text": "Shocked Enemies you Kill Explode, dealing (5-6)% of\ntheir Life as Lightning Damage which cannot Shock",
+          "optional": false
+        }
+      ],
+      "flavourText": "\"With Flame licking at his heels\nBerek berated the clouds\nUntil vengeful Storm spewed forth his rains\nAnd Berek held on tight\nAs Fire screamed and steamed\nAnd fled.\"\n- Berek and the Untamed",
+      "itemType": "Ring",
+      "chaosValue": 1688,
+      "exaltedValue": 760.1,
+      "divineValue": 5.0,
+      "count": 399,
+      "detailsId": "foulborn-bereks-respite-shock-explosion-two-stone-ring",
+      "tradeInfo": [],
+      "listingCount": 494
+    },
+    {
+      "id": 7738,
+      "name": "Uzaza's Valley",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvUmluZ3MvR3JlZW5Db21wb25lbnQzIiwidyI6MSwiaCI6MSwic2NhbGUiOjF9XQ/7e3d39e9a7/GreenComponent3.png",
+      "levelRequired": 49,
+      "baseType": "Sapphire Ring",
+      "itemClass": 3,
+      "sparkLine": {
+        "totalChange": 30.28,
+        "data": [
+          0,
+          -4.23,
+          10.14,
+          26.26,
+          28.33,
+          29.1,
+          30.28
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 30.28,
+        "data": [
+          0,
+          -4.23,
+          10.14,
+          26.26,
+          28.33,
+          29.1,
+          30.28
+        ]
+      },
+      "implicitModifiers": [
+        {
+          "text": "+(20-30)% to Cold Resistance",
+          "optional": false
+        }
+      ],
+      "explicitModifiers": [
+        {
+          "text": "+20 to Dexterity",
+          "optional": false
+        },
+        {
+          "text": "5% increased maximum Energy Shield",
+          "optional": false
+        },
+        {
+          "text": "(5-6)% increased maximum Life",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [],
+      "flavourText": "Sheltered beneath thick ice,\nthe river ferried fat fish towards the sea.\nBut the First King knew the river's secret,\nand the fish were not the only ones who grew fat.\n\n<default>{This item can be combined with a Meadow and Mountain ring at a Vendor.}",
+      "itemType": "Ring",
+      "chaosValue": 1350,
+      "exaltedValue": 608.1,
+      "divineValue": 4.0,
+      "count": 58,
+      "detailsId": "uzazas-valley-sapphire-ring",
+      "tradeInfo": [],
+      "listingCount": 78
+    },
+    {
+      "id": 107337,
+      "name": "Defiance of Destiny",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQW11bGV0cy9IaW5la29yYUFtdWxldCIsInciOjEsImgiOjEsInNjYWxlIjoxfV0/d26f80f9c7/HinekoraAmulet.png",
+      "levelRequired": 49,
+      "baseType": "Paua Amulet",
+      "itemClass": 3,
+      "sparkLine": {
+        "totalChange": -19.04,
+        "data": [
+          0,
+          0.87,
+          0.51,
+          21.01,
+          1.26,
+          1.95,
+          -19.04
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": -19.04,
+        "data": [
+          0,
+          0.87,
+          0.51,
+          21.01,
+          1.26,
+          1.95,
+          -19.04
+        ]
+      },
+      "implicitModifiers": [
+        {
+          "text": "(20-36)% increased Mana Regeneration Rate",
+          "optional": false
+        }
+      ],
+      "explicitModifiers": [
+        {
+          "text": "+(60-96) to maximum Life",
+          "optional": false
+        },
+        {
+          "text": "+(10-48)% to Fire Resistance",
+          "optional": false
+        },
+        {
+          "text": "+(10-48)% to Cold Resistance",
+          "optional": false
+        },
+        {
+          "text": "+(10-48)% to Lightning Resistance",
+          "optional": false
+        },
+        {
+          "text": "Gain (10-24)% of Missing Unreserved Life before being Hit by an Enemy",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [],
+      "flavourText": "The farmer was struck again and again, but he refused to stay down.\nAstonished, the raiding warlord ordered the man's family spared.",
+      "itemType": "Amulet",
+      "chaosValue": 1350,
+      "exaltedValue": 608.1,
+      "divineValue": 4.0,
+      "count": 399,
+      "detailsId": "defiance-of-destiny-paua-amulet",
+      "tradeInfo": [],
+      "listingCount": 1391
+    },
+    {
+      "id": 135280,
+      "name": "Foulborn Defiance of Destiny",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQW11bGV0cy9IaW5la29yYUFtdWxldCIsInciOjEsImgiOjEsInNjYWxlIjoxLCJtdXRhdGVkIjp0cnVlfV0/13c3aa8666/HinekoraAmulet.png",
+      "levelRequired": 49,
+      "baseType": "Paua Amulet",
+      "variant": "Gain Missing Mana",
+      "itemClass": 3,
+      "sparkLine": {
+        "totalChange": -14.49,
+        "data": [
+          0,
+          -14.34,
+          6.16,
+          -14.79,
+          -14.89,
+          -14.41,
+          -14.49
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": -14.49,
+        "data": [
+          0,
+          -14.34,
+          6.16,
+          -14.79,
+          -14.89,
+          -14.41,
+          -14.49
+        ]
+      },
+      "implicitModifiers": [
+        {
+          "text": "(20-36)% increased Mana Regeneration Rate",
+          "optional": false
+        }
+      ],
+      "explicitModifiers": [
+        {
+          "text": "+(60-96) to maximum Life",
+          "optional": false
+        },
+        {
+          "text": "+(10-46)% to Fire Resistance",
+          "optional": false
+        },
+        {
+          "text": "+(10-40)% to Cold Resistance",
+          "optional": false
+        },
+        {
+          "text": "+(10-46)% to Lightning Resistance",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [
+        {
+          "text": "Gain (15-36)% of Missing Unreserved Mana before being Hit by an Enemy",
+          "optional": false
+        }
+      ],
+      "flavourText": "The farmer was struck again and again, but he refused to stay down.\nAstonished, the raiding warlord ordered the man's family spared.",
+      "itemType": "Amulet",
+      "chaosValue": 1350,
+      "exaltedValue": 608.1,
+      "divineValue": 4.0,
+      "count": 88,
+      "detailsId": "foulborn-defiance-of-destiny-gain-missing-mana-paua-amulet",
+      "tradeInfo": [
+        {
+          "mod": "explicit.stat_1441107401",
+          "min": 0,
+          "max": 0
+        }
+      ],
+      "listingCount": 100
+    },
+    {
+      "id": 101142,
+      "name": "Eternal Damnation",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQW11bGV0cy9BbndlbnNBbXVsZXQiLCJ3IjoxLCJoIjoxLCJzY2FsZSI6MX1d/1d40745e7d/AnwensAmulet.png",
+      "levelRequired": 52,
+      "baseType": "Agate Amulet",
+      "itemClass": 3,
+      "sparkLine": {
+        "totalChange": 33.68,
+        "data": [
+          0,
+          33.72,
+          32.77,
+          -0.97,
+          -0.97,
+          33.8,
+          33.68
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 33.68,
+        "data": [
+          0,
+          33.72,
+          32.77,
+          -0.97,
+          -0.97,
+          33.8,
+          33.68
+        ]
+      },
+      "implicitModifiers": [
+        {
+          "text": "+(16-28) to Strength and Intelligence",
+          "optional": false
+        }
+      ],
+      "explicitModifiers": [
+        {
+          "text": "+(40-70) to maximum Mana",
+          "optional": false
+        },
+        {
+          "text": "+(-13-13)% to Chaos Resistance",
+          "optional": true
+        },
+        {
+          "text": "-5% to all maximum Resistances",
+          "optional": false
+        },
+        {
+          "text": "Gain additional Elemental Damage Reduction equal to half your Chaos Resistance",
+          "optional": false
+        },
+        {
+          "text": "Maximum Endurance, Frenzy and Power Charges is 0",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [],
+      "flavourText": "The price of immortality is isolation.",
+      "itemType": "Amulet",
+      "chaosValue": 675.0,
+      "exaltedValue": 304.0,
+      "divineValue": 2.0,
+      "count": 47,
+      "detailsId": "eternal-damnation-agate-amulet",
+      "tradeInfo": [],
+      "listingCount": 62
+    },
+    {
+      "id": 129262,
+      "name": "Lost Unity",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvUmluZ3MvQnJlYWNobG9yZFJpbmdVbmlxdWVfQWxsQ29tYmluZWQiLCJ3IjoxLCJoIjoxLCJzY2FsZSI6MX1d/8b39060f10/BreachlordRingUnique_AllCombined.png",
+      "levelRequired": 42,
+      "baseType": "Formless Ring",
+      "itemClass": 3,
+      "sparkLine": {
+        "totalChange": -17.88,
+        "data": [
+          0,
+          -14.52,
+          -15.12,
+          -15.02,
+          -15.15,
+          -14.67,
+          -17.88
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": -17.88,
+        "data": [
+          0,
+          -14.52,
+          -15.12,
+          -15.02,
+          -15.15,
+          -14.67,
+          -17.88
+        ]
+      },
+      "implicitModifiers": [
+        {
+          "text": "(5-8)% increased Global Defences",
+          "optional": false
+        }
+      ],
+      "explicitModifiers": [
+        {
+          "text": "Grants Level 30 Herald of the Hive Skill",
+          "optional": false
+        },
+        {
+          "text": "+(10-24)% to all Elemental Resistances",
+          "optional": false
+        },
+        {
+          "text": "+(23-44)% to Chaos Resistance",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [],
+      "flavourText": "All gates are closed.\nAll dreams are silenced.\nWhat could have been...",
+      "itemType": "Ring",
+      "chaosValue": 650.0,
+      "exaltedValue": 292.8,
+      "divineValue": 1.93,
+      "count": 399,
+      "detailsId": "lost-unity-formless-ring",
+      "tradeInfo": [],
+      "listingCount": 915
+    },
+    {
+      "id": 7620,
+      "name": "Uzaza's Mountain",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvUmluZ3MvR3JlZW5Db21wb25lbnQiLCJ3IjoxLCJoIjoxLCJzY2FsZSI6MX1d/f6e55e6800/GreenComponent.png",
+      "levelRequired": 49,
+      "baseType": "Sapphire Ring",
+      "itemClass": 3,
+      "sparkLine": {
+        "totalChange": 330.8,
+        "data": [
+          0,
+          51.11,
+          146.1,
+          149.5,
+          209.6,
+          275.3,
+          330.8
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 330.8,
+        "data": [
+          0,
+          51.11,
+          146.1,
+          149.5,
+          209.6,
+          275.3,
+          330.8
+        ]
+      },
+      "implicitModifiers": [
+        {
+          "text": "+(20-30)% to Cold Resistance",
+          "optional": false
+        }
+      ],
+      "explicitModifiers": [
+        {
+          "text": "+(20-24) to Dexterity",
+          "optional": false
+        },
+        {
+          "text": "(5-6)% increased maximum Energy Shield",
+          "optional": false
+        },
+        {
+          "text": "(5-6)% increased maximum Life",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [],
+      "flavourText": "The narrow path turned to rough rocks that led towards the sky.\nOne last obstacle in a life-long journey\nto find a land they could call home.\n\n<default>{This item can be combined with a Meadow and Valley ring at a Vendor.}",
+      "itemType": "Ring",
+      "chaosValue": 581.6,
+      "exaltedValue": 262.0,
+      "divineValue": 1.72,
+      "count": 146,
+      "detailsId": "uzazas-mountain-sapphire-ring",
+      "tradeInfo": [],
+      "listingCount": 179
+    },
+    {
+      "id": 93064,
+      "name": "Polaric Devastation",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvUmluZ3MvQXNoQW5kRnJvc3QiLCJ3IjoxLCJoIjoxLCJzY2FsZSI6MX1d/70630a6e17/AshAndFrost.png",
+      "levelRequired": 80,
+      "baseType": "Opal Ring",
+      "itemClass": 3,
+      "sparkLine": {
+        "totalChange": 15.53,
+        "data": [
+          0,
+          -13.2,
+          15.53,
+          25.6,
+          15.53,
+          2.7,
+          15.53
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 15.53,
+        "data": [
+          0,
+          -13.2,
+          15.53,
+          25.6,
+          15.53,
+          2.7,
+          15.53
+        ]
+      },
+      "implicitModifiers": [
+        {
+          "text": "(15-30)% increased Elemental Damage",
+          "optional": false
+        }
+      ],
+      "explicitModifiers": [
+        {
+          "text": "(15-30)% increased Global Critical Strike Chance",
+          "optional": false
+        },
+        {
+          "text": "+(20-48)% to Fire Resistance",
+          "optional": false
+        },
+        {
+          "text": "+(20-48)% to Cold Resistance",
+          "optional": false
+        },
+        {
+          "text": "(10-20)% increased Duration of Ailments on Enemies",
+          "optional": false
+        },
+        {
+          "text": "Left Ring slot: Cover Enemies in Ash for 5 seconds when you Ignite them",
+          "optional": false
+        },
+        {
+          "text": "Right Ring slot: Cover Enemies in Frost for 5 seconds when you Freeze them",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [],
+      "flavourText": "Those that escaped the annihilating light\nsank eternally into crushing darkness.",
+      "itemType": "Ring",
+      "chaosValue": 450.0,
+      "exaltedValue": 202.7,
+      "divineValue": 1.33,
+      "count": 399,
+      "detailsId": "polaric-devastation-opal-ring",
+      "tradeInfo": [],
+      "listingCount": 1213
+    },
+    {
+      "id": 99075,
+      "name": "Kalandra's Touch",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvUmluZ3MvTWlycm9yUmluZyIsInciOjEsImgiOjEsInNjYWxlIjoxLCJkdXBsaWNhdGVkIjp0cnVlfV0/2cbd02eced/MirrorRing.png",
+      "baseType": "Ring",
+      "itemClass": 3,
+      "sparkLine": {
+        "totalChange": -4.68,
+        "data": [
+          0,
+          6.38,
+          70.74,
+          42.89,
+          6.38,
+          29.72,
+          -4.68
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": -4.68,
+        "data": [
+          0,
+          6.38,
+          70.74,
+          42.89,
+          6.38,
+          29.72,
+          -4.68
+        ]
+      },
+      "implicitModifiers": [],
+      "explicitModifiers": [
+        {
+          "text": "Reflects opposite Ring",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [],
+      "flavourText": "On one hand, you have a choice.\nOn the other, you have its twin.",
+      "itemType": "Ring",
+      "chaosValue": 448.0,
+      "exaltedValue": 201.8,
+      "divineValue": 1.33,
+      "count": 399,
+      "detailsId": "kalandras-touch-ring",
+      "tradeInfo": [],
+      "listingCount": 903
+    },
+    {
+      "id": 117457,
+      "name": "Curio of Consumption",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQW11bGV0cy9QaW5uYWNsZUZyYWdtZW50RWF0ZXIiLCJ3IjoxLCJoIjoxLCJzY2FsZSI6MX1d/a386f18599/PinnacleFragmentEater.png",
+      "baseType": "Primordial Fragment",
+      "itemClass": 3,
+      "sparkLine": {
+        "totalChange": -6.67,
+        "data": [
+          0,
+          22.22,
+          22.78,
+          33.33,
+          48.93,
+          19.56,
+          -6.67
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": -6.67,
+        "data": [
+          0,
+          22.22,
+          22.78,
+          33.33,
+          48.93,
+          19.56,
+          -6.67
+        ]
+      },
+      "implicitModifiers": [],
+      "explicitModifiers": [],
+      "mutatedModifiers": [],
+      "flavourText": "When hunger can never be satiated, the\nact of eating becomes the only solace.",
+      "itemType": "Amulet",
+      "chaosValue": 420.0,
+      "exaltedValue": 189.2,
+      "divineValue": 1.24,
+      "count": 238,
+      "detailsId": "curio-of-consumption-primordial-fragment",
+      "tradeInfo": [],
+      "listingCount": 325
+    },
+    {
+      "id": 7628,
+      "name": "Putembo's Meadow",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvUmluZ3MvQmx1ZUNvbXBvbmVudDIiLCJ3IjoxLCJoIjoxLCJzY2FsZSI6MX1d/e8d0f426fe/BlueComponent2.png",
+      "levelRequired": 49,
+      "baseType": "Topaz Ring",
+      "itemClass": 3,
+      "sparkLine": {
+        "totalChange": -15.62,
+        "data": [
+          0,
+          12.5,
+          -16.12,
+          8,
+          12.5,
+          -5.12,
+          -15.62
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": -15.62,
+        "data": [
+          0,
+          12.5,
+          -16.12,
+          8,
+          12.5,
+          -5.12,
+          -15.62
+        ]
+      },
+      "implicitModifiers": [
+        {
+          "text": "+(20-30)% to Lightning Resistance",
+          "optional": false
+        }
+      ],
+      "explicitModifiers": [
+        {
+          "text": "+20 to Intelligence",
+          "optional": false
+        },
+        {
+          "text": "5% increased maximum Energy Shield",
+          "optional": false
+        },
+        {
+          "text": "5% increased maximum Life",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [],
+      "flavourText": "The fields were silent but for the plucking of fruits,\nthe rustling of leaves, and the breaking of stone.\nNo slave dared to speak or look the passing king in the eye.\nNo one... except Aul.\n\n<default>{This item can be combined with a Mountain and Valley ring at a Vendor.}",
+      "itemType": "Ring",
+      "chaosValue": 337.5,
+      "exaltedValue": 152.0,
+      "divineValue": 1.0,
+      "count": 186,
+      "detailsId": "putembos-meadow-topaz-ring",
+      "tradeInfo": [],
+      "listingCount": 224
+    },
+    {
+      "id": 44551,
+      "name": "Replica Headhunter",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQmVsdHMvSGVhZGh1bnRlciIsInciOjIsImgiOjEsInNjYWxlIjoxfV0/e9542ec6ee/Headhunter.png",
+      "levelRequired": 40,
+      "baseType": "Leather Belt",
+      "itemClass": 3,
+      "sparkLine": {
+        "totalChange": 45.47,
+        "data": [
+          0,
+          0,
+          4.78,
+          44.96,
+          44.78,
+          45.6,
+          45.47
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 45.47,
+        "data": [
+          0,
+          0,
+          4.78,
+          44.96,
+          44.78,
+          45.6,
+          45.47
+        ]
+      },
+      "implicitModifiers": [
+        {
+          "text": "+(25-48) to maximum Life",
+          "optional": false
+        }
+      ],
+      "explicitModifiers": [
+        {
+          "text": "+(40-66) to Strength",
+          "optional": false
+        },
+        {
+          "text": "+(40-66) to Dexterity",
+          "optional": false
+        },
+        {
+          "text": "+(50-72) to maximum Life",
+          "optional": false
+        },
+        {
+          "text": "(20-30)% increased Damage with Hits against Magic monsters",
+          "optional": false
+        },
+        {
+          "text": "20% chance when you Kill a Magic Monster to gain its Modifiers for 60 seconds",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [],
+      "flavourText": "\"A type Delta test subject escaped with Prototype #18. He was last seen\nten times the height of a man and crashing straight through walls.\"",
+      "itemType": "Belt",
+      "chaosValue": 337.5,
+      "exaltedValue": 152.0,
+      "divineValue": 1.0,
+      "count": 182,
+      "detailsId": "replica-headhunter-leather-belt",
+      "tradeInfo": [],
+      "listingCount": 282
+    }
+  ]
+}

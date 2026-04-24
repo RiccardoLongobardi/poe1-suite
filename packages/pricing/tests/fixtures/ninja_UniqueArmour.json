@@ -1,0 +1,2199 @@
+{
+  "lines": [
+    {
+      "id": 410,
+      "name": "Demigod's Dominance",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQXJtb3Vycy9Cb2R5QXJtb3Vycy9EZW1pZ29kc0FybW91ciIsInciOjIsImgiOjMsInNjYWxlIjoxfV0/c491aef3bb/DemigodsArmour.png",
+      "levelRequired": 20,
+      "baseType": "Golden Mantle",
+      "links": 6,
+      "itemClass": 3,
+      "sparkLine": {
+        "totalChange": 0,
+        "data": []
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": -7.47,
+        "data": [
+          0,
+          0.22,
+          -1.61,
+          -2.44,
+          -4.76,
+          -6.26,
+          -7.47
+        ]
+      },
+      "implicitModifiers": [
+        {
+          "text": "+22% to all Elemental Resistances",
+          "optional": false
+        }
+      ],
+      "explicitModifiers": [
+        {
+          "text": "+1 to Level of Socketed Gems",
+          "optional": false
+        },
+        {
+          "text": "+40 to all Attributes",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [],
+      "flavourText": "#13 Berserker in the Perandus Flashback Event",
+      "itemType": "Body Armour",
+      "chaosValue": 2269494,
+      "exaltedValue": 1022295,
+      "divineValue": 6724,
+      "count": 1,
+      "detailsId": "demigods-dominance-golden-mantle-6l",
+      "tradeInfo": [],
+      "listingCount": 1
+    },
+    {
+      "id": 21263,
+      "name": "Demigod's Beacon",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQXJtb3Vycy9TaGllbGRzL0RlbWlnb2RzU2hpZWxkIiwidyI6MiwiaCI6Mywic2NhbGUiOjF9XQ/c838c8c4a7/DemigodsShield.png",
+      "levelRequired": 15,
+      "baseType": "Golden Flame",
+      "itemClass": 3,
+      "sparkLine": {
+        "totalChange": 0,
+        "data": []
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": -7.47,
+        "data": [
+          0,
+          0.22,
+          -1.61,
+          -2.61,
+          -18.58,
+          -6.26,
+          -7.47
+        ]
+      },
+      "implicitModifiers": [
+        {
+          "text": "+(11-17)% to Chaos Resistance",
+          "optional": false
+        }
+      ],
+      "explicitModifiers": [
+        {
+          "text": "Adds 10 to 20 Fire Damage to Attacks",
+          "optional": false
+        },
+        {
+          "text": "(12-18)% increased Rarity of Items found",
+          "optional": false
+        },
+        {
+          "text": "20% increased Light Radius",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [],
+      "flavourText": "The light of victory burns eternally.",
+      "itemType": "Shield",
+      "chaosValue": 2269494,
+      "exaltedValue": 1022295,
+      "divineValue": 6724,
+      "count": 1,
+      "detailsId": "demigods-beacon-golden-flame",
+      "tradeInfo": [],
+      "listingCount": 1
+    },
+    {
+      "id": 136084,
+      "name": "Foulborn The Squire",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQXJtb3Vycy9TaGllbGRzL0Nhc3Bpcm9zUmVzb25hbmNlIiwidyI6MiwiaCI6Mywic2NhbGUiOjEsIm11dGF0ZWQiOnRydWV9XQ/2b056eb33d/CaspirosResonance.png",
+      "levelRequired": 70,
+      "baseType": "Elegant Round Shield",
+      "variant": "Gem Level, No Requirements",
+      "itemClass": 3,
+      "sparkLine": {
+        "totalChange": 0,
+        "data": []
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 24.22,
+        "data": [
+          0,
+          1.79,
+          31.74,
+          30.83,
+          -29.73,
+          25.83,
+          24.22
+        ]
+      },
+      "implicitModifiers": [
+        {
+          "text": "120% increased Block Recovery",
+          "optional": false
+        }
+      ],
+      "explicitModifiers": [
+        {
+          "text": "Has 3 Sockets",
+          "optional": false
+        },
+        {
+          "text": "Socketed Support Gems can also Support Skills from your Main Hand",
+          "optional": false
+        },
+        {
+          "text": "(102-150)% increased Armour and Evasion",
+          "optional": false
+        },
+        {
+          "text": "+(3-5)% Chance to Block",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [
+        {
+          "text": "+1 to Level of Socketed Gems",
+          "optional": false
+        },
+        {
+          "text": "Ignore Attribute Requirements of Socketed Gems",
+          "optional": false
+        }
+      ],
+      "flavourText": "Judge not the weak, for\nthey empower the strong.",
+      "itemType": "Shield",
+      "chaosValue": 378249,
+      "exaltedValue": 170382,
+      "divineValue": 1121,
+      "count": 2,
+      "detailsId": "foulborn-the-squire-gem-level-no-requirements-elegant-round-shield",
+      "tradeInfo": [
+        {
+          "mod": "explicit.stat_2843100721",
+          "min": 0,
+          "max": 0
+        },
+        {
+          "mod": "explicit.stat_3850932596",
+          "min": 0,
+          "max": 0
+        }
+      ],
+      "listingCount": 2
+    },
+    {
+      "id": 136335,
+      "name": "Foulborn The Squire",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQXJtb3Vycy9TaGllbGRzL0Nhc3Bpcm9zUmVzb25hbmNlIiwidyI6MiwiaCI6Mywic2NhbGUiOjEsIm11dGF0ZWQiOnRydWV9XQ/2b056eb33d/CaspirosResonance.png",
+      "levelRequired": 70,
+      "baseType": "Elegant Round Shield",
+      "variant": "Gem Level",
+      "itemClass": 3,
+      "sparkLine": {
+        "totalChange": 0,
+        "data": []
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 80.37,
+        "data": [
+          null,
+          null,
+          null,
+          0,
+          -8.07,
+          -13.24,
+          80.37
+        ]
+      },
+      "implicitModifiers": [
+        {
+          "text": "120% increased Block Recovery",
+          "optional": false
+        }
+      ],
+      "explicitModifiers": [
+        {
+          "text": "Has 3 Sockets",
+          "optional": false
+        },
+        {
+          "text": "All Sockets are White",
+          "optional": false
+        },
+        {
+          "text": "Socketed Support Gems can also Support Skills from your Main Hand",
+          "optional": false
+        },
+        {
+          "text": "(100-150)% increased Armour and Evasion",
+          "optional": false
+        },
+        {
+          "text": "+(3-5)% Chance to Block",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [
+        {
+          "text": "+1 to Level of Socketed Gems",
+          "optional": false
+        }
+      ],
+      "flavourText": "Judge not the weak, for\nthey empower the strong.",
+      "itemType": "Shield",
+      "chaosValue": 273375,
+      "exaltedValue": 123142,
+      "divineValue": 810.0,
+      "count": 2,
+      "detailsId": "foulborn-the-squire-gem-level-elegant-round-shield",
+      "tradeInfo": [
+        {
+          "mod": "explicit.stat_2843100721",
+          "min": 0,
+          "max": 0
+        }
+      ],
+      "listingCount": 2
+    },
+    {
+      "id": 137524,
+      "name": "Foulborn Gruthkul's Pelt",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQXJtb3Vycy9Cb2R5QXJtb3Vycy9XaWxlZmFuZ3NQZWx0IiwidyI6MiwiaCI6Mywic2NhbGUiOjEsIm11dGF0ZWQiOnRydWV9XQ/c0d90e2720/WilefangsPelt.png",
+      "levelRequired": 38,
+      "baseType": "Wyrmscale Doublet",
+      "variant": "Attack Damage, No Warcries",
+      "links": 6,
+      "itemClass": 3,
+      "sparkLine": {
+        "totalChange": 0,
+        "data": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          0
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 680.3,
+        "data": [
+          0,
+          -5.7,
+          -5.94,
+          342.8,
+          1667,
+          561.8,
+          680.3
+        ]
+      },
+      "implicitModifiers": [],
+      "explicitModifiers": [
+        {
+          "text": "(303-399)% increased Armour and Evasion",
+          "optional": false
+        },
+        {
+          "text": "+(248-300) to maximum Life",
+          "optional": false
+        },
+        {
+          "text": "Regenerate 10% of Life per second",
+          "optional": false
+        },
+        {
+          "text": "15% increased Character Size",
+          "optional": false
+        },
+        {
+          "text": "Spell Skills deal no Damage",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [
+        {
+          "text": "100% increased Attack Damage",
+          "optional": false
+        },
+        {
+          "text": "Your Warcries are disabled",
+          "optional": false
+        }
+      ],
+      "flavourText": "Simple is the life of the bear.",
+      "itemType": "Body Armour",
+      "chaosValue": 171550,
+      "exaltedValue": 77275,
+      "divineValue": 508.3,
+      "count": 5,
+      "detailsId": "foulborn-gruthkuls-pelt-attack-damage-no-warcries-wyrmscale-doublet-6l",
+      "tradeInfo": [
+        {
+          "mod": "explicit.stat_2843214518",
+          "min": 0,
+          "max": 0
+        },
+        {
+          "mod": "explicit.stat_345628839",
+          "min": 0,
+          "max": 0
+        }
+      ],
+      "listingCount": 6
+    },
+    {
+      "id": 138181,
+      "name": "Foulborn Gruthkul's Pelt",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQXJtb3Vycy9Cb2R5QXJtb3Vycy9XaWxlZmFuZ3NQZWx0IiwidyI6MiwiaCI6Mywic2NhbGUiOjEsIm11dGF0ZWQiOnRydWV9XQ/c0d90e2720/WilefangsPelt.png",
+      "levelRequired": 38,
+      "baseType": "Wyrmscale Doublet",
+      "variant": "Attack Damage, No Warcries",
+      "itemClass": 3,
+      "sparkLine": {
+        "totalChange": -15.17,
+        "data": [
+          0,
+          -15.17,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 399.3,
+        "data": [
+          0,
+          -15.17,
+          265.4,
+          265.8,
+          99.54,
+          59.89,
+          399.3
+        ]
+      },
+      "implicitModifiers": [],
+      "explicitModifiers": [
+        {
+          "text": "(300-400)% increased Armour and Evasion",
+          "optional": false
+        },
+        {
+          "text": "+(240-300) to maximum Life",
+          "optional": false
+        },
+        {
+          "text": "Regenerate 10% of Life per second",
+          "optional": false
+        },
+        {
+          "text": "15% increased Character Size",
+          "optional": false
+        },
+        {
+          "text": "Spell Skills deal no Damage",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [
+        {
+          "text": "100% increased Attack Damage",
+          "optional": false
+        },
+        {
+          "text": "Your Warcries are disabled",
+          "optional": false
+        }
+      ],
+      "flavourText": "Simple is the life of the bear.",
+      "itemType": "Body Armour",
+      "chaosValue": 115610,
+      "exaltedValue": 52076,
+      "divineValue": 342.6,
+      "count": 4,
+      "detailsId": "foulborn-gruthkuls-pelt-attack-damage-no-warcries-wyrmscale-doublet",
+      "tradeInfo": [
+        {
+          "mod": "explicit.stat_2843214518",
+          "min": 0,
+          "max": 0
+        },
+        {
+          "mod": "explicit.stat_345628839",
+          "min": 0,
+          "max": 0
+        }
+      ],
+      "listingCount": 4
+    },
+    {
+      "id": 134993,
+      "name": "Foulborn Rathpith Globe",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQXJtb3Vycy9TaGllbGRzL1NoaWVsZEludDZ1bmlxdWUiLCJ3IjoyLCJoIjoyLCJzY2FsZSI6MSwibXV0YXRlZCI6dHJ1ZX1d/3a19af2f9e/ShieldInt6unique.png",
+      "levelRequired": 68,
+      "baseType": "Titanium Spirit Shield",
+      "variant": "DOT per Life",
+      "itemClass": 3,
+      "sparkLine": {
+        "totalChange": 36.99,
+        "data": [
+          0,
+          3.72,
+          4.28,
+          5.74,
+          23.03,
+          29.32,
+          36.99
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 36.99,
+        "data": [
+          0,
+          3.72,
+          4.28,
+          5.74,
+          23.03,
+          29.32,
+          36.99
+        ]
+      },
+      "implicitModifiers": [],
+      "explicitModifiers": [
+        {
+          "text": "(10-15)% Chance to Block Spell Damage",
+          "optional": false
+        },
+        {
+          "text": "(120-160)% increased Energy Shield",
+          "optional": false
+        },
+        {
+          "text": "10% increased maximum Life",
+          "optional": false
+        },
+        {
+          "text": "Sacrifice 10% of your Life when you Use or Trigger a Spell Skill",
+          "optional": false
+        },
+        {
+          "text": "5% increased Spell Damage per 100 Player Maximum Life",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [
+        {
+          "text": "Deal 5% increased Damage Over Time per 100 Player Maximum Life",
+          "optional": false
+        }
+      ],
+      "flavourText": "The Vaal emptied their slaves of beating hearts,\nand left a mountain of twitching dead.",
+      "itemType": "Shield",
+      "chaosValue": 89100,
+      "exaltedValue": 40135,
+      "divineValue": 264.0,
+      "count": 18,
+      "detailsId": "foulborn-rathpith-globe-dot-per-life-titanium-spirit-shield",
+      "tradeInfo": [
+        {
+          "mod": "explicit.stat_1855381243",
+          "min": 0,
+          "max": 0
+        }
+      ],
+      "listingCount": 20
+    },
+    {
+      "id": 135497,
+      "name": "Foulborn The Brass Dome",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQXJtb3Vycy9Cb2R5QXJtb3Vycy9Eb21lT2ZCcmFzcyIsInciOjIsImgiOjMsInNjYWxlIjoxLCJtdXRhdGVkIjp0cnVlfV0/39106ee9a1/DomeOfBrass.png",
+      "levelRequired": 65,
+      "baseType": "Gladiator Plate",
+      "variant": "Transcendence",
+      "links": 6,
+      "itemClass": 3,
+      "sparkLine": {
+        "totalChange": 0,
+        "data": []
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 12345,
+        "data": [
+          0,
+          null,
+          null,
+          null,
+          12282,
+          12356,
+          12345
+        ]
+      },
+      "implicitModifiers": [],
+      "explicitModifiers": [
+        {
+          "text": "(367-398)% increased Armour",
+          "optional": false
+        },
+        {
+          "text": "Strength provides no bonus to Maximum Life",
+          "optional": false
+        },
+        {
+          "text": "Take no Extra Damage from Critical Strikes",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [
+        {
+          "text": "Transcendence",
+          "optional": false
+        }
+      ],
+      "flavourText": "The turtle's shell one day becomes its tomb.",
+      "itemType": "Body Armour",
+      "chaosValue": 84375,
+      "exaltedValue": 38007,
+      "divineValue": 250.0,
+      "count": 1,
+      "detailsId": "foulborn-the-brass-dome-transcendence-gladiator-plate-6l",
+      "tradeInfo": [
+        {
+          "mod": "explicit.stat_2381571742",
+          "min": 0,
+          "max": 0
+        }
+      ],
+      "listingCount": 1
+    },
+    {
+      "id": 135905,
+      "name": "Foulborn Rathpith Globe",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQXJtb3Vycy9TaGllbGRzL1NoaWVsZEludDZ1bmlxdWUiLCJ3IjoyLCJoIjoyLCJzY2FsZSI6MSwibXV0YXRlZCI6dHJ1ZX1d/3a19af2f9e/ShieldInt6unique.png",
+      "levelRequired": 68,
+      "baseType": "Titanium Spirit Shield",
+      "variant": "DOT per Life, Ailment per Life",
+      "itemClass": 3,
+      "sparkLine": {
+        "totalChange": 13.91,
+        "data": [
+          0,
+          -1.16,
+          -0.06,
+          0.33,
+          13.91,
+          null,
+          null
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 14.05,
+        "data": [
+          0,
+          -1.16,
+          -0.06,
+          0.33,
+          13.91,
+          15.0,
+          14.05
+        ]
+      },
+      "implicitModifiers": [],
+      "explicitModifiers": [
+        {
+          "text": "(10-15)% Chance to Block Spell Damage",
+          "optional": false
+        },
+        {
+          "text": "(120-160)% increased Energy Shield",
+          "optional": false
+        },
+        {
+          "text": "10% increased maximum Life",
+          "optional": false
+        },
+        {
+          "text": "Sacrifice 10% of your Life when you Use or Trigger a Spell Skill",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [
+        {
+          "text": "Deal 5% increased Damage Over Time per 100 Player Maximum Life",
+          "optional": false
+        },
+        {
+          "text": "2% increased Effect of Non-Damaging Ailments you inflict with Critical Strikes per 100 Player Maximum Life",
+          "optional": false
+        }
+      ],
+      "flavourText": "The Vaal emptied their slaves of beating hearts,\nand left a mountain of twitching dead.",
+      "itemType": "Shield",
+      "chaosValue": 70538,
+      "exaltedValue": 31774,
+      "divineValue": 209.0,
+      "count": 3,
+      "detailsId": "foulborn-rathpith-globe-dot-per-life-ailment-per-life-titanium-spirit-shield",
+      "tradeInfo": [
+        {
+          "mod": "explicit.stat_1855381243",
+          "min": 0,
+          "max": 0
+        },
+        {
+          "mod": "explicit.stat_1572854306",
+          "min": 0,
+          "max": 0
+        }
+      ],
+      "listingCount": 4
+    },
+    {
+      "id": 136506,
+      "name": "Foulborn Dialla's Malefaction",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQXJtb3Vycy9Cb2R5QXJtb3Vycy9EaWFsbGFzTWFsZWZhY3Rpb24iLCJ3IjoyLCJoIjozLCJzY2FsZSI6MSwibXV0YXRlZCI6dHJ1ZX1d/e64d0c69d5/DiallasMalefaction.png",
+      "levelRequired": 37,
+      "baseType": "Sage's Robe",
+      "variant": "Gem Level, Blue Requirements",
+      "links": 6,
+      "itemClass": 3,
+      "sparkLine": {
+        "totalChange": 0,
+        "data": []
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 218.2,
+        "data": [
+          null,
+          null,
+          null,
+          null,
+          0,
+          268.7,
+          218.2
+        ]
+      },
+      "implicitModifiers": [],
+      "explicitModifiers": [
+        {
+          "text": "Gems Socketed in Red Sockets have +2 to Level",
+          "optional": false
+        },
+        {
+          "text": "Gems Socketed in Green Sockets have +30% to Quality",
+          "optional": false
+        },
+        {
+          "text": "Has no Attribute Requirements",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [
+        {
+          "text": "+1 to Level of Socketed Gems",
+          "optional": false
+        },
+        {
+          "text": "Ignore Attribute Requirements of Gems Socketed in Blue Sockets",
+          "optional": false
+        }
+      ],
+      "flavourText": "He took me by my hand, promised me power beyond compare.\nBut I did not do it for power.\nI did it for love.\nAnd I'd do it again in an instant.",
+      "itemType": "Body Armour",
+      "chaosValue": 64125,
+      "exaltedValue": 28885,
+      "divineValue": 190.0,
+      "count": 1,
+      "detailsId": "foulborn-diallas-malefaction-gem-level-blue-requirements-sages-robe-6l",
+      "tradeInfo": [
+        {
+          "mod": "explicit.stat_2843100721",
+          "min": 0,
+          "max": 0
+        },
+        {
+          "mod": "explicit.stat_2852307173",
+          "min": 0,
+          "max": 0
+        }
+      ],
+      "listingCount": 1
+    },
+    {
+      "id": 67885,
+      "name": "Olroth's Charge",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQXJtb3Vycy9Cb290cy9BZGFwdGF0aW9uQm9vdHNVbmlxdWUiLCJ3IjoyLCJoIjoyLCJzY2FsZSI6MX1d/a0b7d6e35c/AdaptationBootsUnique.png",
+      "levelRequired": 48,
+      "baseType": "Runic Sollerets",
+      "itemClass": 3,
+      "sparkLine": {
+        "totalChange": -42.89,
+        "data": [
+          0,
+          -14.3,
+          -31.14,
+          -36.26,
+          -40.35,
+          -39.12,
+          -42.89
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": -42.89,
+        "data": [
+          0,
+          -14.3,
+          -31.14,
+          -36.26,
+          -40.35,
+          -39.12,
+          -42.89
+        ]
+      },
+      "implicitModifiers": [],
+      "explicitModifiers": [
+        {
+          "text": "(50-80)% increased Ward",
+          "optional": false
+        },
+        {
+          "text": "(30-50)% slower Restoration of Ward",
+          "optional": false
+        },
+        {
+          "text": "20% increased Movement Speed",
+          "optional": false
+        },
+        {
+          "text": "Gain Adrenaline for 3 seconds when Ward Breaks",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [],
+      "flavourText": "Where others would retreat when vulnerable,\nOlroth the Gallant fought deeper into battle.",
+      "itemType": "Boots",
+      "chaosValue": 27000,
+      "exaltedValue": 12162,
+      "divineValue": 80.0,
+      "count": 79,
+      "detailsId": "olroths-charge-runic-sollerets",
+      "tradeInfo": [],
+      "listingCount": 83
+    },
+    {
+      "id": 135633,
+      "name": "Foulborn Seven-League Step",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQXJtb3Vycy9Cb290cy9Cb290c0RleFVuaXF1ZTMiLCJ3IjoyLCJoIjoyLCJzY2FsZSI6MSwibXV0YXRlZCI6dHJ1ZX1d/f977d14647/BootsDexUnique3.png",
+      "baseType": "Rawhide Boots",
+      "variant": "Action Speed",
+      "itemClass": 3,
+      "sparkLine": {
+        "totalChange": 1.19,
+        "data": [
+          0,
+          null,
+          null,
+          142.5,
+          62.03,
+          55.02,
+          1.19
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 1.19,
+        "data": [
+          0,
+          28.08,
+          79.43,
+          142.5,
+          62.03,
+          55.02,
+          1.19
+        ]
+      },
+      "implicitModifiers": [],
+      "explicitModifiers": [],
+      "mutatedModifiers": [
+        {
+          "text": "15% increased Action Speed",
+          "optional": false
+        }
+      ],
+      "flavourText": "\"Death can be outrun with these, but beware!\nIn running from death, you may forget to live.\"\n- Icius Perandus, Antiquities Collection, Item 202",
+      "itemType": "Boots",
+      "chaosValue": 24975,
+      "exaltedValue": 11250,
+      "divineValue": 74.0,
+      "count": 20,
+      "detailsId": "foulborn-seven-league-step-action-speed-rawhide-boots",
+      "tradeInfo": [
+        {
+          "mod": "explicit.stat_2878959938",
+          "min": 0,
+          "max": 0
+        }
+      ],
+      "listingCount": 24
+    },
+    {
+      "id": 135758,
+      "name": "Foulborn Dialla's Malefaction",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQXJtb3Vycy9Cb2R5QXJtb3Vycy9EaWFsbGFzTWFsZWZhY3Rpb24iLCJ3IjoyLCJoIjozLCJzY2FsZSI6MSwibXV0YXRlZCI6dHJ1ZX1d/e64d0c69d5/DiallasMalefaction.png",
+      "levelRequired": 37,
+      "baseType": "Sage's Robe",
+      "variant": "Gem Level",
+      "itemClass": 3,
+      "sparkLine": {
+        "totalChange": 277.3,
+        "data": [
+          0,
+          54.41,
+          null,
+          null,
+          null,
+          451.0,
+          277.3
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 277.3,
+        "data": [
+          0,
+          54.41,
+          53.41,
+          66.62,
+          84.03,
+          451.0,
+          277.3
+        ]
+      },
+      "implicitModifiers": [],
+      "explicitModifiers": [
+        {
+          "text": "Gems Socketed in Red Sockets have +2 to Level",
+          "optional": false
+        },
+        {
+          "text": "Gems Socketed in Green Sockets have +30% to Quality",
+          "optional": false
+        },
+        {
+          "text": "Gems Socketed in Blue Sockets gain 100% increased Experience",
+          "optional": false
+        },
+        {
+          "text": "Has no Attribute Requirements",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [
+        {
+          "text": "+1 to Level of Socketed Gems",
+          "optional": false
+        }
+      ],
+      "flavourText": "He took me by my hand, promised me power beyond compare.\nBut I did not do it for power.\nI did it for love.\nAnd I'd do it again in an instant.",
+      "itemType": "Body Armour",
+      "chaosValue": 20655,
+      "exaltedValue": 9304,
+      "divineValue": 61.2,
+      "count": 7,
+      "detailsId": "foulborn-diallas-malefaction-gem-level-sages-robe",
+      "tradeInfo": [
+        {
+          "mod": "explicit.stat_2843100721",
+          "min": 0,
+          "max": 0
+        }
+      ],
+      "listingCount": 7
+    },
+    {
+      "id": 118882,
+      "name": "Svalinn",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQXJtb3Vycy9TaGllbGRzL0xheWVyZWRCYXJyaWVyU2hpZWxkIiwidyI6MiwiaCI6NCwic2NhbGUiOjF9XQ/54079c2263/LayeredBarrierShield.png",
+      "levelRequired": 51,
+      "baseType": "Girded Tower Shield",
+      "itemClass": 3,
+      "sparkLine": {
+        "totalChange": -1.37,
+        "data": [
+          0,
+          -1.55,
+          -3.42,
+          -1.72,
+          -1.84,
+          0.45,
+          -1.37
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": -1.37,
+        "data": [
+          0,
+          -1.55,
+          -3.42,
+          -1.72,
+          -1.84,
+          0.45,
+          -1.37
+        ]
+      },
+      "implicitModifiers": [
+        {
+          "text": "+(10-20) to maximum Life",
+          "optional": false
+        }
+      ],
+      "explicitModifiers": [
+        {
+          "text": "(10-15)% Chance to Block Spell Damage",
+          "optional": false
+        },
+        {
+          "text": "+(100-150) to Ward",
+          "optional": false
+        },
+        {
+          "text": "-10% to maximum Chance to Block Attack Damage",
+          "optional": false
+        },
+        {
+          "text": "-10% to maximum Chance to Block Spell Damage",
+          "optional": false
+        },
+        {
+          "text": "Chance to Block is Lucky",
+          "optional": false
+        },
+        {
+          "text": "Trigger a Socketed Elemental Spell on Block, with a 0.25 second Cooldown",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [],
+      "flavourText": "The priests found the Great Shield the night it fell to Middengard,\nbut it was the smiths who delved into the secrets it held.",
+      "itemType": "Shield",
+      "chaosValue": 18562,
+      "exaltedValue": 8361,
+      "divineValue": 55.0,
+      "count": 399,
+      "detailsId": "svalinn-girded-tower-shield",
+      "tradeInfo": [],
+      "listingCount": 507
+    },
+    {
+      "id": 44311,
+      "name": "Replica Alberon's Warpath",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQXJtb3Vycy9Cb290cy9BbGJlcm9uc3dhcnBhdGgiLCJ3IjoyLCJoIjoyLCJzY2FsZSI6MX1d/be7b089ef3/Alberonswarpath.png",
+      "levelRequired": 49,
+      "baseType": "Soldier Boots",
+      "itemClass": 3,
+      "sparkLine": {
+        "totalChange": -0.51,
+        "data": [
+          0,
+          32.5,
+          18.33,
+          12.48,
+          -3.44,
+          -2.37,
+          -0.51
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": -0.51,
+        "data": [
+          0,
+          32.5,
+          18.33,
+          12.48,
+          -3.44,
+          -2.37,
+          -0.51
+        ]
+      },
+      "implicitModifiers": [],
+      "explicitModifiers": [
+        {
+          "text": "(15-18)% increased Strength",
+          "optional": false
+        },
+        {
+          "text": "+(180-220) to Armour",
+          "optional": false
+        },
+        {
+          "text": "+(13-19)% to Chaos Resistance",
+          "optional": false
+        },
+        {
+          "text": "25% increased Movement Speed",
+          "optional": false
+        },
+        {
+          "text": "Cannot deal non-Chaos Damage",
+          "optional": false
+        },
+        {
+          "text": "Adds 1 to 80 Chaos Damage to Attacks per 80 Strength",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [],
+      "flavourText": "\"Starving test subject became completely incapable of exerting force.\nHowever, after being fed, he began to poison everything he touched...\"",
+      "itemType": "Boots",
+      "chaosValue": 17212,
+      "exaltedValue": 7753,
+      "divineValue": 51.0,
+      "count": 120,
+      "detailsId": "replica-alberons-warpath-soldier-boots",
+      "tradeInfo": [],
+      "listingCount": 122
+    },
+    {
+      "id": 138054,
+      "name": "Foulborn Cloak of Defiance",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQXJtb3Vycy9Cb2R5QXJtb3Vycy9DbG9ha09mRGVmaWFuY2UiLCJ3IjoyLCJoIjozLCJzY2FsZSI6MSwibXV0YXRlZCI6dHJ1ZX1d/0d626e1372/CloakOfDefiance.png",
+      "levelRequired": 52,
+      "baseType": "Lacquered Garb",
+      "variant": "Mana Shield",
+      "links": 5,
+      "itemClass": 3,
+      "sparkLine": {
+        "totalChange": 0,
+        "data": []
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 0.48,
+        "data": [
+          0,
+          -14.08,
+          -14.64,
+          -14.54,
+          -0.09,
+          0.54,
+          0.48
+        ]
+      },
+      "implicitModifiers": [],
+      "explicitModifiers": [
+        {
+          "text": "+(100-150) to maximum Mana",
+          "optional": false
+        },
+        {
+          "text": "Regenerate 1% of Mana per second",
+          "optional": false
+        },
+        {
+          "text": "Mind Over Matter",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [
+        {
+          "text": "Gain (15-20)% of Maximum Mana as Extra Maximum Energy Shield",
+          "optional": false
+        }
+      ],
+      "flavourText": "When the throat roars,\nAs eyes weep,\nWhen the hand grips hard\nWith trembling fingers,\nWhen belly twists\nYet legs stand strong,\nThat is the work\nOf the Defiant Heart.",
+      "itemType": "Body Armour",
+      "chaosValue": 17212,
+      "exaltedValue": 7753,
+      "divineValue": 51.0,
+      "count": 2,
+      "detailsId": "foulborn-cloak-of-defiance-mana-shield-lacquered-garb-5l",
+      "tradeInfo": [
+        {
+          "mod": "explicit.stat_2663376056",
+          "min": 0,
+          "max": 0
+        }
+      ],
+      "listingCount": 2
+    },
+    {
+      "id": 136739,
+      "name": "Foulborn The Iron Fortress",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQXJtb3Vycy9Cb2R5QXJtb3Vycy9Jcm9uSGVhcnQgRmluYWwiLCJ3IjoyLCJoIjozLCJzY2FsZSI6MSwibXV0YXRlZCI6dHJ1ZX1d/eb33fc7c53/IronHeart%20Final.png",
+      "levelRequired": 59,
+      "baseType": "Crusader Plate",
+      "variant": "Str Spell Block",
+      "links": 5,
+      "itemClass": 3,
+      "sparkLine": {
+        "totalChange": 0,
+        "data": []
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 1.66,
+        "data": [
+          0,
+          -0.09,
+          -11.74,
+          -11.53,
+          -11.64,
+          -11.14,
+          1.66
+        ]
+      },
+      "implicitModifiers": [],
+      "explicitModifiers": [
+        {
+          "text": "Chance to Block Spell Damage is Unlucky",
+          "optional": false
+        },
+        {
+          "text": "+(60-120) to Strength",
+          "optional": false
+        },
+        {
+          "text": "(80-100)% increased Armour",
+          "optional": false
+        },
+        {
+          "text": "10% reduced Movement Speed",
+          "optional": false
+        },
+        {
+          "text": "Strength's Damage Bonus instead grants 3% increased Melee\nPhysical Damage per 10 Strength",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [
+        {
+          "text": "+1% Chance to Block Spell Damage per 50 Strength",
+          "optional": false
+        }
+      ],
+      "flavourText": "\"Stand steadfast in the face of destruction.\nThe Council cannot afford to falter.\"\n- Mauritius, the Iron Heart",
+      "itemType": "Body Armour",
+      "chaosValue": 15458,
+      "exaltedValue": 6963,
+      "divineValue": 45.8,
+      "count": 2,
+      "detailsId": "foulborn-the-iron-fortress-str-spell-block-crusader-plate-5l",
+      "tradeInfo": [
+        {
+          "mod": "explicit.stat_1114429046",
+          "min": 0,
+          "max": 0
+        }
+      ],
+      "listingCount": 2
+    },
+    {
+      "id": 137483,
+      "name": "Foulborn Dialla's Malefaction",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQXJtb3Vycy9Cb2R5QXJtb3Vycy9EaWFsbGFzTWFsZWZhY3Rpb24iLCJ3IjoyLCJoIjozLCJzY2FsZSI6MSwibXV0YXRlZCI6dHJ1ZX1d/e64d0c69d5/DiallasMalefaction.png",
+      "levelRequired": 37,
+      "baseType": "Sage's Robe",
+      "variant": "Gem Level",
+      "links": 6,
+      "itemClass": 3,
+      "sparkLine": {
+        "totalChange": 512.0,
+        "data": [
+          0,
+          36.66,
+          -14.08,
+          -1.53,
+          null,
+          null,
+          512.0
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 512.0,
+        "data": [
+          0,
+          36.66,
+          -14.08,
+          -1.53,
+          -74.48,
+          296.4,
+          512.0
+        ]
+      },
+      "implicitModifiers": [],
+      "explicitModifiers": [
+        {
+          "text": "Gems Socketed in Red Sockets have +2 to Level",
+          "optional": false
+        },
+        {
+          "text": "Gems Socketed in Green Sockets have +30% to Quality",
+          "optional": false
+        },
+        {
+          "text": "Gems Socketed in Blue Sockets gain 100% increased Experience",
+          "optional": false
+        },
+        {
+          "text": "Has no Attribute Requirements",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [
+        {
+          "text": "+1 to Level of Socketed Gems",
+          "optional": false
+        }
+      ],
+      "flavourText": "He took me by my hand, promised me power beyond compare.\nBut I did not do it for power.\nI did it for love.\nAnd I'd do it again in an instant.",
+      "itemType": "Body Armour",
+      "chaosValue": 15221,
+      "exaltedValue": 6856,
+      "divineValue": 45.1,
+      "count": 8,
+      "detailsId": "foulborn-diallas-malefaction-gem-level-sages-robe-6l",
+      "tradeInfo": [
+        {
+          "mod": "explicit.stat_2843100721",
+          "min": 0,
+          "max": 0
+        }
+      ],
+      "listingCount": 9
+    },
+    {
+      "id": 135555,
+      "name": "Foulborn Aegis Aurora",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQXJtb3Vycy9TaGllbGRzL1NoaWVsZFN0ckludFVuaXF1ZTd1bmlxdWUiLCJ3IjoyLCJoIjozLCJzY2FsZSI6MSwibXV0YXRlZCI6dHJ1ZX1d/4e8444f554/ShieldStrIntUnique7unique.png",
+      "levelRequired": 62,
+      "baseType": "Champion Kite Shield",
+      "variant": "No Reflect",
+      "itemClass": 3,
+      "sparkLine": {
+        "totalChange": 17.36,
+        "data": [
+          0,
+          3.57,
+          3.81,
+          1.8,
+          3.74,
+          11.95,
+          17.36
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 17.36,
+        "data": [
+          0,
+          3.57,
+          3.81,
+          1.8,
+          3.74,
+          11.95,
+          17.36
+        ]
+      },
+      "implicitModifiers": [],
+      "explicitModifiers": [
+        {
+          "text": "(300-400)% increased Armour and Energy Shield",
+          "optional": false
+        },
+        {
+          "text": "+10% to all Elemental Resistances",
+          "optional": false
+        },
+        {
+          "text": "+5% to maximum Cold Resistance",
+          "optional": false
+        },
+        {
+          "text": "+6% Chance to Block",
+          "optional": false
+        },
+        {
+          "text": "Recover Energy Shield equal to 2% of Armour when you Block",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [
+        {
+          "text": "Damage cannot be Reflected",
+          "optional": false
+        }
+      ],
+      "flavourText": "Born from the marriage of ice and sky,\nthe aurora evokes both awe and power.",
+      "itemType": "Shield",
+      "chaosValue": 15188,
+      "exaltedValue": 6841,
+      "divineValue": 45.0,
+      "count": 31,
+      "detailsId": "foulborn-aegis-aurora-no-reflect-champion-kite-shield",
+      "tradeInfo": [
+        {
+          "mod": "explicit.stat_2670993553",
+          "min": 0,
+          "max": 0
+        }
+      ],
+      "listingCount": 34
+    },
+    {
+      "id": 4770,
+      "name": "Shroud of the Lightless",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQXJtb3Vycy9Cb2R5QXJtb3Vycy9BYnlzc0JvZHkiLCJ3IjoyLCJoIjozLCJzY2FsZSI6MSwicmVsaWMiOjd9XQ/4528b35841/AbyssBody.png",
+      "levelRequired": 71,
+      "baseType": "Carnal Armour",
+      "variant": "1 Jewel",
+      "itemClass": 10,
+      "sparkLine": {
+        "totalChange": 238.7,
+        "data": [
+          0,
+          -7.31,
+          -22.99,
+          -11.78,
+          0.03,
+          132.1,
+          238.7
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 238.7,
+        "data": [
+          0,
+          -7.31,
+          -22.99,
+          -11.78,
+          0.03,
+          132.1,
+          238.7
+        ]
+      },
+      "implicitModifiers": [
+        {
+          "text": "+(20-25) to maximum Mana",
+          "optional": false
+        }
+      ],
+      "explicitModifiers": [
+        {
+          "text": "Has 3 Abyssal Sockets",
+          "optional": false
+        },
+        {
+          "text": "20% chance to Trigger Level 20 Shade Form when you Use a Socketed Skill",
+          "optional": false
+        },
+        {
+          "text": "(160-180)% increased Evasion and Energy Shield",
+          "optional": false
+        },
+        {
+          "text": "3% increased Maximum Life per Abyss Jewel affecting you",
+          "optional": false
+        },
+        {
+          "text": "3% increased Maximum Mana per Abyss Jewel affecting you",
+          "optional": false
+        },
+        {
+          "text": "Penetrate 4% Elemental Resistances per Abyss Jewel affecting you",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [],
+      "flavourText": "Look to the darkness for nourishment and you will never go hungry.",
+      "itemType": "Body Armour",
+      "chaosValue": 14782,
+      "exaltedValue": 6659,
+      "divineValue": 43.8,
+      "count": 22,
+      "detailsId": "shroud-of-the-lightless-1-jewel-carnal-armour",
+      "tradeInfo": [],
+      "listingCount": 28
+    },
+    {
+      "id": 137090,
+      "name": "Foulborn Cloak of Defiance",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQXJtb3Vycy9Cb2R5QXJtb3Vycy9DbG9ha09mRGVmaWFuY2UiLCJ3IjoyLCJoIjozLCJzY2FsZSI6MSwibXV0YXRlZCI6dHJ1ZX1d/0d626e1372/CloakOfDefiance.png",
+      "levelRequired": 52,
+      "baseType": "Lacquered Garb",
+      "variant": "Mana Shield",
+      "links": 6,
+      "itemClass": 3,
+      "sparkLine": {
+        "totalChange": 7.52,
+        "data": [
+          0,
+          1.8,
+          -1.56,
+          -3.75,
+          -3.1,
+          -0.38,
+          7.52
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 7.52,
+        "data": [
+          0,
+          1.8,
+          -1.56,
+          -3.75,
+          -3.1,
+          -0.38,
+          7.52
+        ]
+      },
+      "implicitModifiers": [],
+      "explicitModifiers": [
+        {
+          "text": "+(100-150) to maximum Mana",
+          "optional": false
+        },
+        {
+          "text": "Regenerate 1% of Mana per second",
+          "optional": false
+        },
+        {
+          "text": "Mind Over Matter",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [
+        {
+          "text": "Gain (15-20)% of Maximum Mana as Extra Maximum Energy Shield",
+          "optional": false
+        }
+      ],
+      "flavourText": "When the throat roars,\nAs eyes weep,\nWhen the hand grips hard\nWith trembling fingers,\nWhen belly twists\nYet legs stand strong,\nThat is the work\nOf the Defiant Heart.",
+      "itemType": "Body Armour",
+      "chaosValue": 14580,
+      "exaltedValue": 6568,
+      "divineValue": 43.2,
+      "count": 25,
+      "detailsId": "foulborn-cloak-of-defiance-mana-shield-lacquered-garb-6l",
+      "tradeInfo": [
+        {
+          "mod": "explicit.stat_2663376056",
+          "min": 0,
+          "max": 0
+        }
+      ],
+      "listingCount": 26
+    },
+    {
+      "id": 137034,
+      "name": "Foulborn Dialla's Malefaction",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQXJtb3Vycy9Cb2R5QXJtb3Vycy9EaWFsbGFzTWFsZWZhY3Rpb24iLCJ3IjoyLCJoIjozLCJzY2FsZSI6MSwibXV0YXRlZCI6dHJ1ZX1d/e64d0c69d5/DiallasMalefaction.png",
+      "levelRequired": 37,
+      "baseType": "Sage's Robe",
+      "variant": "Gem Level, Blue Requirements",
+      "itemClass": 3,
+      "sparkLine": {
+        "totalChange": 129.8,
+        "data": [
+          null,
+          0,
+          14.26,
+          -0.09,
+          null,
+          null,
+          129.8
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 178.2,
+        "data": [
+          0,
+          21.11,
+          38.38,
+          21.0,
+          -64.51,
+          199.9,
+          178.2
+        ]
+      },
+      "implicitModifiers": [],
+      "explicitModifiers": [
+        {
+          "text": "Gems Socketed in Red Sockets have +2 to Level",
+          "optional": false
+        },
+        {
+          "text": "Gems Socketed in Green Sockets have +30% to Quality",
+          "optional": false
+        },
+        {
+          "text": "Has no Attribute Requirements",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [
+        {
+          "text": "+1 to Level of Socketed Gems",
+          "optional": false
+        },
+        {
+          "text": "Ignore Attribute Requirements of Gems Socketed in Blue Sockets",
+          "optional": false
+        }
+      ],
+      "flavourText": "He took me by my hand, promised me power beyond compare.\nBut I did not do it for power.\nI did it for love.\nAnd I'd do it again in an instant.",
+      "itemType": "Body Armour",
+      "chaosValue": 13162,
+      "exaltedValue": 5929,
+      "divineValue": 39.0,
+      "count": 5,
+      "detailsId": "foulborn-diallas-malefaction-gem-level-blue-requirements-sages-robe",
+      "tradeInfo": [
+        {
+          "mod": "explicit.stat_2843100721",
+          "min": 0,
+          "max": 0
+        },
+        {
+          "mod": "explicit.stat_2852307173",
+          "min": 0,
+          "max": 0
+        }
+      ],
+      "listingCount": 5
+    },
+    {
+      "id": 136238,
+      "name": "Foulborn The Iron Fortress",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQXJtb3Vycy9Cb2R5QXJtb3Vycy9Jcm9uSGVhcnQgRmluYWwiLCJ3IjoyLCJoIjozLCJzY2FsZSI6MSwibXV0YXRlZCI6dHJ1ZX1d/eb33fc7c53/IronHeart%20Final.png",
+      "levelRequired": 59,
+      "baseType": "Crusader Plate",
+      "variant": "Str Spell Block",
+      "links": 6,
+      "itemClass": 3,
+      "sparkLine": {
+        "totalChange": 31.5,
+        "data": [
+          0,
+          12.45,
+          19.91,
+          42.43,
+          41.97,
+          31.42,
+          31.5
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 31.5,
+        "data": [
+          0,
+          12.45,
+          19.91,
+          42.43,
+          41.97,
+          31.42,
+          31.5
+        ]
+      },
+      "implicitModifiers": [],
+      "explicitModifiers": [
+        {
+          "text": "Chance to Block Spell Damage is Unlucky",
+          "optional": false
+        },
+        {
+          "text": "+(64-120) to Strength",
+          "optional": false
+        },
+        {
+          "text": "(80-100)% increased Armour",
+          "optional": false
+        },
+        {
+          "text": "10% reduced Movement Speed",
+          "optional": false
+        },
+        {
+          "text": "Strength's Damage Bonus instead grants 3% increased Melee\nPhysical Damage per 10 Strength",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [
+        {
+          "text": "+1% Chance to Block Spell Damage per 50 Strength",
+          "optional": false
+        }
+      ],
+      "flavourText": "\"Stand steadfast in the face of destruction.\nThe Council cannot afford to falter.\"\n- Mauritius, the Iron Heart",
+      "itemType": "Body Armour",
+      "chaosValue": 11812,
+      "exaltedValue": 5321,
+      "divineValue": 35.0,
+      "count": 24,
+      "detailsId": "foulborn-the-iron-fortress-str-spell-block-crusader-plate-6l",
+      "tradeInfo": [
+        {
+          "mod": "explicit.stat_1114429046",
+          "min": 0,
+          "max": 0
+        }
+      ],
+      "listingCount": 26
+    },
+    {
+      "id": 136617,
+      "name": "Foulborn The Squire",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQXJtb3Vycy9TaGllbGRzL0Nhc3Bpcm9zUmVzb25hbmNlIiwidyI6MiwiaCI6Mywic2NhbGUiOjEsIm11dGF0ZWQiOnRydWV9XQ/2b056eb33d/CaspirosResonance.png",
+      "levelRequired": 70,
+      "baseType": "Elegant Round Shield",
+      "variant": "No Requirements",
+      "itemClass": 3,
+      "sparkLine": {
+        "totalChange": 23.09,
+        "data": [
+          0,
+          23.09,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 219.7,
+        "data": [
+          0,
+          23.09,
+          81.82,
+          162.1,
+          182.4,
+          211.8,
+          219.7
+        ]
+      },
+      "implicitModifiers": [
+        {
+          "text": "120% increased Block Recovery",
+          "optional": false
+        }
+      ],
+      "explicitModifiers": [
+        {
+          "text": "Has 3 Sockets",
+          "optional": false
+        },
+        {
+          "text": "+(5-8)% to Quality of Socketed Support Gems",
+          "optional": false
+        },
+        {
+          "text": "Socketed Support Gems can also Support Skills from your Main Hand",
+          "optional": false
+        },
+        {
+          "text": "(100-150)% increased Armour and Evasion",
+          "optional": false
+        },
+        {
+          "text": "+(3-5)% Chance to Block",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [
+        {
+          "text": "Ignore Attribute Requirements of Socketed Gems",
+          "optional": false
+        }
+      ],
+      "flavourText": "Judge not the weak, for\nthey empower the strong.",
+      "itemType": "Shield",
+      "chaosValue": 11812,
+      "exaltedValue": 5321,
+      "divineValue": 35.0,
+      "count": 1,
+      "detailsId": "foulborn-the-squire-no-requirements-elegant-round-shield",
+      "tradeInfo": [
+        {
+          "mod": "explicit.stat_3850932596",
+          "min": 0,
+          "max": 0
+        }
+      ],
+      "listingCount": 2
+    },
+    {
+      "id": 136320,
+      "name": "Foulborn Cloak of Defiance",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQXJtb3Vycy9Cb2R5QXJtb3Vycy9DbG9ha09mRGVmaWFuY2UiLCJ3IjoyLCJoIjozLCJzY2FsZSI6MSwibXV0YXRlZCI6dHJ1ZX1d/0d626e1372/CloakOfDefiance.png",
+      "levelRequired": 52,
+      "baseType": "Lacquered Garb",
+      "variant": "Mana Shield",
+      "itemClass": 3,
+      "sparkLine": {
+        "totalChange": -15.23,
+        "data": [
+          0,
+          -1.26,
+          -7.81,
+          -18.36,
+          -8.32,
+          6.47,
+          -15.23
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": -15.23,
+        "data": [
+          0,
+          -1.26,
+          -7.81,
+          -18.36,
+          -8.32,
+          6.47,
+          -15.23
+        ]
+      },
+      "implicitModifiers": [],
+      "explicitModifiers": [
+        {
+          "text": "+(100-150) to maximum Mana",
+          "optional": false
+        },
+        {
+          "text": "Regenerate 1% of Mana per second",
+          "optional": false
+        },
+        {
+          "text": "Mind Over Matter",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [
+        {
+          "text": "Gain (15-20)% of Maximum Mana as Extra Maximum Energy Shield",
+          "optional": false
+        }
+      ],
+      "flavourText": "When the throat roars,\nAs eyes weep,\nWhen the hand grips hard\nWith trembling fingers,\nWhen belly twists\nYet legs stand strong,\nThat is the work\nOf the Defiant Heart.",
+      "itemType": "Body Armour",
+      "chaosValue": 10732,
+      "exaltedValue": 4834,
+      "divineValue": 31.8,
+      "count": 10,
+      "detailsId": "foulborn-cloak-of-defiance-mana-shield-lacquered-garb",
+      "tradeInfo": [
+        {
+          "mod": "explicit.stat_2663376056",
+          "min": 0,
+          "max": 0
+        }
+      ],
+      "listingCount": 10
+    },
+    {
+      "id": 136118,
+      "name": "Foulborn Gruthkul's Pelt",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQXJtb3Vycy9Cb2R5QXJtb3Vycy9XaWxlZmFuZ3NQZWx0IiwidyI6MiwiaCI6Mywic2NhbGUiOjEsIm11dGF0ZWQiOnRydWV9XQ/c0d90e2720/WilefangsPelt.png",
+      "levelRequired": 38,
+      "baseType": "Wyrmscale Doublet",
+      "variant": "No Warcries",
+      "links": 6,
+      "itemClass": 3,
+      "sparkLine": {
+        "totalChange": -11.72,
+        "data": [
+          0,
+          -15.17,
+          -17.01,
+          -18.47,
+          -21.23,
+          -20.22,
+          -11.72
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": -11.72,
+        "data": [
+          0,
+          -15.17,
+          -17.01,
+          -18.47,
+          -21.23,
+          -20.22,
+          -11.72
+        ]
+      },
+      "implicitModifiers": [],
+      "explicitModifiers": [
+        {
+          "text": "100% increased Global Physical Damage",
+          "optional": false
+        },
+        {
+          "text": "(300-400)% increased Armour and Evasion",
+          "optional": false
+        },
+        {
+          "text": "+(240-300) to maximum Life",
+          "optional": false
+        },
+        {
+          "text": "Regenerate 10% of Life per second",
+          "optional": false
+        },
+        {
+          "text": "15% increased Character Size",
+          "optional": false
+        },
+        {
+          "text": "Spell Skills deal no Damage",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [
+        {
+          "text": "Your Warcries are disabled",
+          "optional": false
+        }
+      ],
+      "flavourText": "Simple is the life of the bear.",
+      "itemType": "Body Armour",
+      "chaosValue": 9788,
+      "exaltedValue": 4409,
+      "divineValue": 29.0,
+      "count": 16,
+      "detailsId": "foulborn-gruthkuls-pelt-no-warcries-wyrmscale-doublet-6l",
+      "tradeInfo": [
+        {
+          "mod": "explicit.stat_345628839",
+          "min": 0,
+          "max": 0
+        }
+      ],
+      "listingCount": 16
+    },
+    {
+      "id": 136239,
+      "name": "Foulborn The Iron Fortress",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQXJtb3Vycy9Cb2R5QXJtb3Vycy9Jcm9uSGVhcnQgRmluYWwiLCJ3IjoyLCJoIjozLCJzY2FsZSI6MSwibXV0YXRlZCI6dHJ1ZX1d/eb33fc7c53/IronHeart%20Final.png",
+      "levelRequired": 59,
+      "baseType": "Crusader Plate",
+      "variant": "Str Spell Block, Unlucky Block",
+      "links": 6,
+      "itemClass": 3,
+      "sparkLine": {
+        "totalChange": 27.09,
+        "data": [
+          0,
+          null,
+          24.31,
+          27.09,
+          null,
+          null,
+          null
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 4.82,
+        "data": [
+          0,
+          149.8,
+          24.31,
+          27.09,
+          35.2,
+          4.92,
+          4.82
+        ]
+      },
+      "implicitModifiers": [],
+      "explicitModifiers": [
+        {
+          "text": "+(60-120) to Strength",
+          "optional": false
+        },
+        {
+          "text": "(80-100)% increased Armour",
+          "optional": false
+        },
+        {
+          "text": "10% reduced Movement Speed",
+          "optional": false
+        },
+        {
+          "text": "Strength's Damage Bonus instead grants 3% increased Melee\nPhysical Damage per 10 Strength",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [
+        {
+          "text": "+1% Chance to Block Spell Damage per 50 Strength",
+          "optional": false
+        },
+        {
+          "text": "Chance to Block Attack Damage is Unlucky",
+          "optional": false
+        }
+      ],
+      "flavourText": "\"Stand steadfast in the face of destruction.\nThe Council cannot afford to falter.\"\n- Mauritius, the Iron Heart",
+      "itemType": "Body Armour",
+      "chaosValue": 9112,
+      "exaltedValue": 4105,
+      "divineValue": 27.0,
+      "count": 3,
+      "detailsId": "foulborn-the-iron-fortress-str-spell-block-unlucky-block-crusader-plate-6l",
+      "tradeInfo": [
+        {
+          "mod": "explicit.stat_1114429046",
+          "min": 0,
+          "max": 0
+        },
+        {
+          "mod": "explicit.stat_3776150692",
+          "min": 0,
+          "max": 0
+        }
+      ],
+      "listingCount": 3
+    },
+    {
+      "id": 135935,
+      "name": "Foulborn The Iron Fortress",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQXJtb3Vycy9Cb2R5QXJtb3Vycy9Jcm9uSGVhcnQgRmluYWwiLCJ3IjoyLCJoIjozLCJzY2FsZSI6MSwibXV0YXRlZCI6dHJ1ZX1d/eb33fc7c53/IronHeart%20Final.png",
+      "levelRequired": 59,
+      "baseType": "Crusader Plate",
+      "variant": "Str Spell Block",
+      "itemClass": 3,
+      "sparkLine": {
+        "totalChange": 19.31,
+        "data": [
+          0,
+          11.77,
+          14.27,
+          31.15,
+          21.75,
+          14.76,
+          19.31
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 19.31,
+        "data": [
+          0,
+          11.77,
+          14.27,
+          31.15,
+          21.75,
+          14.76,
+          19.31
+        ]
+      },
+      "implicitModifiers": [],
+      "explicitModifiers": [
+        {
+          "text": "Chance to Block Spell Damage is Unlucky",
+          "optional": false
+        },
+        {
+          "text": "+(60-120) to Strength",
+          "optional": false
+        },
+        {
+          "text": "(80-100)% increased Armour",
+          "optional": false
+        },
+        {
+          "text": "10% reduced Movement Speed",
+          "optional": false
+        },
+        {
+          "text": "Strength's Damage Bonus instead grants 3% increased Melee\nPhysical Damage per 10 Strength",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [
+        {
+          "text": "+1% Chance to Block Spell Damage per 50 Strength",
+          "optional": false
+        }
+      ],
+      "flavourText": "\"Stand steadfast in the face of destruction.\nThe Council cannot afford to falter.\"\n- Mauritius, the Iron Heart",
+      "itemType": "Body Armour",
+      "chaosValue": 8775,
+      "exaltedValue": 3953,
+      "divineValue": 26.0,
+      "count": 15,
+      "detailsId": "foulborn-the-iron-fortress-str-spell-block-crusader-plate",
+      "tradeInfo": [
+        {
+          "mod": "explicit.stat_1114429046",
+          "min": 0,
+          "max": 0
+        }
+      ],
+      "listingCount": 17
+    },
+    {
+      "id": 135634,
+      "name": "Foulborn The Iron Fortress",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQXJtb3Vycy9Cb2R5QXJtb3Vycy9Jcm9uSGVhcnQgRmluYWwiLCJ3IjoyLCJoIjozLCJzY2FsZSI6MSwibXV0YXRlZCI6dHJ1ZX1d/eb33fc7c53/IronHeart%20Final.png",
+      "levelRequired": 59,
+      "baseType": "Crusader Plate",
+      "variant": "Str Spell Block, Unlucky Block",
+      "itemClass": 3,
+      "sparkLine": {
+        "totalChange": 20.02,
+        "data": [
+          0,
+          52.49,
+          40.25,
+          40.79,
+          41.58,
+          44.5,
+          20.02
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": 20.02,
+        "data": [
+          0,
+          52.49,
+          40.25,
+          40.79,
+          41.58,
+          44.5,
+          20.02
+        ]
+      },
+      "implicitModifiers": [],
+      "explicitModifiers": [
+        {
+          "text": "+(60-120) to Strength",
+          "optional": false
+        },
+        {
+          "text": "(80-100)% increased Armour",
+          "optional": false
+        },
+        {
+          "text": "10% reduced Movement Speed",
+          "optional": false
+        },
+        {
+          "text": "Strength's Damage Bonus instead grants 3% increased Melee\nPhysical Damage per 10 Strength",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [
+        {
+          "text": "+1% Chance to Block Spell Damage per 50 Strength",
+          "optional": false
+        },
+        {
+          "text": "Chance to Block Attack Damage is Unlucky",
+          "optional": false
+        }
+      ],
+      "flavourText": "\"Stand steadfast in the face of destruction.\nThe Council cannot afford to falter.\"\n- Mauritius, the Iron Heart",
+      "itemType": "Body Armour",
+      "chaosValue": 8438,
+      "exaltedValue": 3801,
+      "divineValue": 25.0,
+      "count": 9,
+      "detailsId": "foulborn-the-iron-fortress-str-spell-block-unlucky-block-crusader-plate",
+      "tradeInfo": [
+        {
+          "mod": "explicit.stat_1114429046",
+          "min": 0,
+          "max": 0
+        },
+        {
+          "mod": "explicit.stat_3776150692",
+          "min": 0,
+          "max": 0
+        }
+      ],
+      "listingCount": 9
+    },
+    {
+      "id": 136140,
+      "name": "Foulborn Gruthkul's Pelt",
+      "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQXJtb3Vycy9Cb2R5QXJtb3Vycy9XaWxlZmFuZ3NQZWx0IiwidyI6MiwiaCI6Mywic2NhbGUiOjEsIm11dGF0ZWQiOnRydWV9XQ/c0d90e2720/WilefangsPelt.png",
+      "levelRequired": 38,
+      "baseType": "Wyrmscale Doublet",
+      "variant": "No Warcries",
+      "itemClass": 3,
+      "sparkLine": {
+        "totalChange": -11.15,
+        "data": [
+          0,
+          -1.96,
+          -9.9,
+          -12.94,
+          -26.07,
+          -34.32,
+          -11.15
+        ]
+      },
+      "lowConfidenceSparkLine": {
+        "totalChange": -11.15,
+        "data": [
+          0,
+          -1.96,
+          -9.9,
+          -12.94,
+          -26.07,
+          -34.32,
+          -11.15
+        ]
+      },
+      "implicitModifiers": [],
+      "explicitModifiers": [
+        {
+          "text": "100% increased Global Physical Damage",
+          "optional": false
+        },
+        {
+          "text": "(300-400)% increased Armour and Evasion",
+          "optional": false
+        },
+        {
+          "text": "+(240-300) to maximum Life",
+          "optional": false
+        },
+        {
+          "text": "Regenerate 10% of Life per second",
+          "optional": false
+        },
+        {
+          "text": "15% increased Character Size",
+          "optional": false
+        },
+        {
+          "text": "Spell Skills deal no Damage",
+          "optional": false
+        }
+      ],
+      "mutatedModifiers": [
+        {
+          "text": "Your Warcries are disabled",
+          "optional": false
+        }
+      ],
+      "flavourText": "Simple is the life of the bear.",
+      "itemType": "Body Armour",
+      "chaosValue": 8269,
+      "exaltedValue": 3725,
+      "divineValue": 24.5,
+      "count": 10,
+      "detailsId": "foulborn-gruthkuls-pelt-no-warcries-wyrmscale-doublet",
+      "tradeInfo": [
+        {
+          "mod": "explicit.stat_345628839",
+          "min": 0,
+          "max": 0
+        }
+      ],
+      "listingCount": 11
+    }
+  ]
+}

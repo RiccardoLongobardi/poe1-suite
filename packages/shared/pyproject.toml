@@ -1,0 +1,25 @@
+[project]
+name = "poe1-shared"
+version = "0.1.0"
+description = "Shared infrastructure (async HTTP, config, logging) for poe1-suite tools."
+readme = "README.md"
+requires-python = ">=3.12"
+license = { file = "../../LICENSE" }
+authors = [{ name = "Riccardo Longobardi", email = "ric.longobardi@outlook.it" }]
+
+dependencies = [
+    "poe1-core",
+    "pydantic>=2.9",
+    "pydantic-settings>=2.6",
+    "httpx>=0.27",
+    "tenacity>=9.0",
+    "diskcache>=5.6",
+    "structlog>=24.4",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/poe1_shared"]

@@ -1,0 +1,22 @@
+[project]
+name = "poe1-core"
+version = "0.1.0"
+description = "Shared PoE 1 domain models used across all tools in poe1-suite."
+readme = "README.md"
+requires-python = ">=3.12"
+license = { file = "../../LICENSE" }
+authors = [{ name = "Riccardo Longobardi", email = "ric.longobardi@outlook.it" }]
+
+dependencies = [
+    "pydantic>=2.9",
+]
+
+[project.urls]
+Repository = "https://github.com/riclongo/poe1-suite"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/poe1_core"]

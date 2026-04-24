@@ -1,0 +1,22 @@
+[project]
+name = "poe1-builds"
+version = "0.1.0"
+description = "Ladder build ingestion for PoE 1 — poe.ninja BuildSource + lazy-hydration pipeline feeding the FOB advisor."
+readme = "README.md"
+requires-python = ">=3.12"
+license = { file = "../../LICENSE" }
+authors = [{ name = "Riccardo Longobardi", email = "ric.longobardi@outlook.it" }]
+
+dependencies = [
+    "poe1-core",
+    "poe1-shared",
+    "pydantic>=2.9",
+    "protobuf>=5.28",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/poe1_builds"]

@@ -1,0 +1,58 @@
+{
+  "economyLeagues": [
+    {
+      "name": "Mirage",
+      "url": "mirage",
+      "displayName": "Mirage"
+    },
+    {
+      "name": "Standard",
+      "url": "standard",
+      "displayName": "Standard"
+    }
+  ],
+  "oldEconomyLeagues": [],
+  "snapshotVersions": [
+    {
+      "url": "mirage",
+      "type": "exp",
+      "name": "Mirage",
+      "timeMachineLabels": [
+        "hour-6",
+        "hour-18",
+        "week-3",
+        "week-2",
+        "week-6",
+        "week-4",
+        "week-1",
+        "day-6",
+        "hour-3",
+        "week-5",
+        "day-4",
+        "hour-12",
+        "day-2",
+        "day-5",
+        "day-3",
+        "day-1"
+      ],
+      "version": "0930-20260423-49594",
+      "snapshotName": "mirage",
+      "overviewType": 0,
+      "passiveTree": "PassiveTree-3.28",
+      "atlasTree": "AtlasTree-3.28"
+    },
+    {
+      "url": "standard",
+      "type": "exp",
+      "name": "Standard",
+      "timeMachineLabels": [],
+      "version": "1001-20260423-30294",
+      "snapshotName": "standard",
+      "overviewType": 0,
+      "passiveTree": "PassiveTree-3.28",
+      "atlasTree": "AtlasTree-3.28"
+    }
+  ],
+  "buildLeagues": [],
+  "oldBuildLeagues": []
+}
