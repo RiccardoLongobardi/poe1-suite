@@ -27,6 +27,9 @@ type Page = "finder" | "analyze" | "planner";
 export function App() {
   const [opened, { toggle }] = useDisclosure();
   const [page, setPage] = useState<Page>("finder");
+  const [plannerInput, setPlannerInput] = useState<string | undefined>(
+    undefined,
+  );
   const { colorScheme, toggleColorScheme } = useMantineColorScheme();
 
   const nav = (p: Page) => () => {
@@ -34,6 +37,12 @@ export function App() {
     // close sidebar on mobile
     if (opened) toggle();
   };
+
+  function onSendToPlanner(pobCode: string) {
+    setPlannerInput(pobCode);
+    setPage("planner");
+    if (opened) toggle();
+  }
 
   return (
     <AppShell
@@ -92,9 +101,11 @@ export function App() {
 
       <AppShell.Main>
         <Container size="lg">
-          {page === "finder" && <FinderPage />}
+          {page === "finder" && (
+            <FinderPage onSendToPlanner={onSendToPlanner} />
+          )}
           {page === "analyze" && <AnalyzePage />}
-          {page === "planner" && <PlannerPage />}
+          {page === "planner" && <PlannerPage initialInput={plannerInput} />}
         </Container>
       </AppShell.Main>
     </AppShell>

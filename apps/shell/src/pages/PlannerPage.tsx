@@ -22,7 +22,7 @@ import {
 } from "@mantine/core";
 import { IconCoinFilled, IconStack3 } from "@tabler/icons-react";
 import { useMutation } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { planBuild } from "../api/fob";
 import type {
   Build,
@@ -114,13 +114,30 @@ function PlanSummary({ plan }: { plan: BuildPlan }) {
   );
 }
 
-export function PlannerPage() {
-  const [input, setInput] = useState("");
+interface Props {
+  initialInput?: string;
+}
+
+export function PlannerPage({ initialInput }: Props) {
+  const [input, setInput] = useState(initialInput ?? "");
   const [target, setTarget] = useState<TargetGoal>("mapping_and_boss");
+  const autoFired = useRef(false);
 
   const mut = useMutation({
     mutationFn: () => planBuild(input, target),
   });
+
+  // Auto-trigger when the page is opened with a pre-filled PoB code
+  // (coming from Build Finder "Pianifica →" button).
+  useEffect(() => {
+    if (initialInput && !autoFired.current) {
+      autoFired.current = true;
+      setInput(initialInput);
+      // Small delay so the textarea renders with the value first.
+      setTimeout(() => mut.mutate(), 50);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialInput]);
 
   return (
     <Stack gap="md">

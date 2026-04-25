@@ -26,7 +26,11 @@ import type { BuildIntent, RecommendResponse } from "../api/types";
 import { BuildCard } from "../components/BuildCard";
 import { IntentCard } from "../components/IntentCard";
 
-export function FinderPage() {
+interface Props {
+  onSendToPlanner?: (pobCode: string) => void;
+}
+
+export function FinderPage({ onSendToPlanner }: Props) {
   const [query, setQuery] = useState("");
   const [topN, setTopN] = useState<number>(10);
   const [intent, setIntent] = useState<BuildIntent | null>(null);
@@ -148,7 +152,11 @@ export function FinderPage() {
 
           <Stack gap="xs">
             {result.ranked.map((b) => (
-              <BuildCard key={b.ref.source_id} build={b} />
+              <BuildCard
+                key={b.ref.source_id}
+                build={b}
+                onSendToPlanner={onSendToPlanner}
+              />
             ))}
           </Stack>
 

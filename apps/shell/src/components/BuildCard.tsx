@@ -1,5 +1,6 @@
 import {
   Badge,
+  Button,
   Card,
   Collapse,
   Group,
@@ -9,11 +10,15 @@ import {
   UnstyledButton,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
+import { IconListCheck } from "@tabler/icons-react";
+import { useState } from "react";
+import { getDetail } from "../api/builds";
 import type { RankedBuild } from "../api/types";
 import { ScoreBar } from "./ScoreBar";
 
 interface Props {
   build: RankedBuild;
+  onSendToPlanner?: (pobCode: string) => void;
 }
 
 function fmt(n: number): string {
@@ -29,9 +34,24 @@ function scoreColor(total: number): string {
   return "red";
 }
 
-export function BuildCard({ build }: Props) {
+export function BuildCard({ build, onSendToPlanner }: Props) {
   const [opened, { toggle }] = useDisclosure(false);
+  const [loading, setLoading] = useState(false);
   const { ref, score } = build;
+
+  async function handlePlan(e: React.MouseEvent) {
+    e.stopPropagation(); // don't toggle collapse
+    if (!onSendToPlanner) return;
+    setLoading(true);
+    try {
+      const code = await getDetail(ref.account, ref.character);
+      onSendToPlanner(code);
+    } catch (err) {
+      alert(`Errore nel caricare il PoB: ${(err as Error).message}`);
+    } finally {
+      setLoading(false);
+    }
+  }
   const pct = Math.round(score.total * 100);
   const color = scoreColor(score.total);
   const defLabel =
@@ -102,6 +122,18 @@ export function BuildCard({ build }: Props) {
                 {fmt(ref.dps)}
               </Text>
             </Stack>
+            {onSendToPlanner && (
+              <Button
+                size="xs"
+                variant="light"
+                color="teal"
+                leftSection={<IconListCheck size={13} />}
+                loading={loading}
+                onClick={handlePlan}
+              >
+                Pianifica
+              </Button>
+            )}
           </Group>
         </Group>
       </UnstyledButton>
