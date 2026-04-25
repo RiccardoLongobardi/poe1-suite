@@ -73,6 +73,7 @@ Server: `uv run poe1-server` → <http://127.0.0.1:8765>. `/health`, `/version`,
 3. Create a new `packages/<name>/` following the pricing/builds template: `src/poe1_<name>/{__init__.py, models.py, service.py, sources/*.py, router.py}`, `tests/{conftest.py, fixtures/, test_*.py}`, `pyproject.toml` declaring the package and its deps.
 4. Capture real fixtures first, then write models to match them, then write the source adapter, then the service facade, then the router.
 5. Close the step by running the full gate and updating this file's "What's built" table.
+6. Commit and **push** the worktree branch: `git push origin claude/friendly-kowalevski-9d17f8`. This is mandatory after every step — don't ask, just do it.
 
 ## Environment
 
