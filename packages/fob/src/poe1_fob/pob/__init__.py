@@ -30,8 +30,20 @@ from .models import (
     PobSnapshot,
 )
 from .parser import PobParseError, decode_export, parse_snapshot
+from .rares import (
+    MOD_PATTERNS,
+    ExtractedMod,
+    ModPattern,
+    clean_mods,
+    extract_mods,
+    valuable_stat_filters,
+)
+from .uniques import unique_variant
 
 __all__ = [
+    "MOD_PATTERNS",
+    "ExtractedMod",
+    "ModPattern",
     "PobConfigOption",
     "PobGem",
     "PobInputError",
@@ -42,8 +54,12 @@ __all__ = [
     "PobPassiveTree",
     "PobSkillGroup",
     "PobSnapshot",
+    "clean_mods",
     "decode_export",
+    "extract_mods",
     "load_pob",
     "parse_snapshot",
     "snapshot_to_build",
+    "unique_variant",
+    "valuable_stat_filters",
 ]
