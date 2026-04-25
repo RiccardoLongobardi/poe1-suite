@@ -47,15 +47,15 @@ All four must pass with zero errors. Current baseline: **324 tests green (2 skip
 | poe.ninja ladder builds | `poe1-builds` | `GET /builds/list`, `GET /builds/detail` | done (protobuf columnar search + JSON hydration, 19 ascendancy fan-out, `main_skill` / `defense_type` filters) |
 | IntentExtractor | `poe1-fob` | `POST /fob/extract-intent` | done (hybrid rule-based IT+EN + Anthropic Haiku tool-use fallback; 15 fixture cases; confidence threshold 0.70) |
 | Ranking Engine | `poe1-fob` | `POST /fob/recommend` | done (SourceAggregator fan-out → hard-constraint filter → 6-dim weighted scorer → top-N; 49 unit tests) |
+| UI shell | `apps/shell` | — | done (React 18 + Vite 5 + Mantine v7 + TanStack Query; Build Finder + PoB Analyzer; `npm run dev` on :5173) |
 
 Server: `uv run poe1-server` → <http://127.0.0.1:8765>. `/health`, `/version`, plus all the routes above.
+Shell dev: `cd apps/shell && npm run dev` → <http://127.0.0.1:5173> (proxies API to :8765).
 
-## What's next (Step 7)
+## What's next (Step 8)
 
-- **UI shell** (`apps/shell/` — React + Vite + Mantine). Makes all routers clickable.
-  - Search bar → `POST /fob/extract-intent` → shows parsed intent
-  - Recommend button → `POST /fob/recommend` → shows ranked builds list with ScoreBreakdown
-  - Analyze PoB → `POST /fob/analyze-pob` → shows build summary
+- **Planner** — `POST /fob/plan`. Dato un `RankedBuild` (o un PoB), genera un piano di upgrade a step con costi da poe.ninja pricing.
+- **Faustus flipper** — nuovo package `poe1-faustus` per flip di valuta basato su poe.ninja bulk trades.
 
 ## Project-specific gotchas (learned the hard way)
 
