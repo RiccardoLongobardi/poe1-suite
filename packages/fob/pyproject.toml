@@ -10,6 +10,7 @@ authors = [{ name = "Riccardo Longobardi", email = "ric.longobardi@outlook.it" }
 dependencies = [
     "poe1-core",
     "poe1-shared",
+    "poe1-builds",
     "anthropic>=0.40",
     "pydantic>=2.9",
 ]

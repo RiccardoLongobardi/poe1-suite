@@ -34,9 +34,9 @@ uv run mypy .
 uv run pytest
 ```
 
-All four must pass with zero errors. Current baseline: **275 tests green (2 skipped — integration/LLM), 68 files type-checked clean, 66 files formatted clean**.
+All four must pass with zero errors. Current baseline: **324 tests green (2 skipped — integration/LLM), 74 files type-checked clean, 72 files formatted clean**.
 
-## What's built (state as of 2026-04-25, end of Step 5A)
+## What's built (state as of 2026-04-25, end of Step 6)
 
 | Module | Package | Routes | Status |
 |---|---|---|---|
@@ -46,13 +46,16 @@ All four must pass with zero errors. Current baseline: **275 tests green (2 skip
 | poe.ninja economy (currency, uniques, cluster, jewels, …) | `poe1-pricing` | `GET /pricing/quote`, `GET /pricing/snapshot` | done |
 | poe.ninja ladder builds | `poe1-builds` | `GET /builds/list`, `GET /builds/detail` | done (protobuf columnar search + JSON hydration, 19 ascendancy fan-out, `main_skill` / `defense_type` filters) |
 | IntentExtractor | `poe1-fob` | `POST /fob/extract-intent` | done (hybrid rule-based IT+EN + Anthropic Haiku tool-use fallback; 15 fixture cases; confidence threshold 0.70) |
+| Ranking Engine | `poe1-fob` | `POST /fob/recommend` | done (SourceAggregator fan-out → hard-constraint filter → 6-dim weighted scorer → top-N; 49 unit tests) |
 
 Server: `uv run poe1-server` → <http://127.0.0.1:8765>. `/health`, `/version`, plus all the routes above.
 
-## What's next (Step 6)
+## What's next (Step 7)
 
-- **Ranking Engine** + `SourceAggregator`. End-to-end discovery endpoint: `POST /fob/recommend`. Consumes `BuildIntent` + `RemoteBuildRef` list + `PriceQuote`, scores candidates with weighted breakdown, returns top-N with `ScoreBreakdown`.
-- **UI shell** (`apps/shell/` — React + Vite + Mantine). Makes all routers clickable before the ranking layer.
+- **UI shell** (`apps/shell/` — React + Vite + Mantine). Makes all routers clickable.
+  - Search bar → `POST /fob/extract-intent` → shows parsed intent
+  - Recommend button → `POST /fob/recommend` → shows ranked builds list with ScoreBreakdown
+  - Analyze PoB → `POST /fob/analyze-pob` → shows build summary
 
 ## Project-specific gotchas (learned the hard way)
 

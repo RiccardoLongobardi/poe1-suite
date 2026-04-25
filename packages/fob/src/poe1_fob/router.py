@@ -7,6 +7,9 @@ This module exposes:
 * ``POST /fob/extract-intent`` — converts a free-text query (IT or EN) into a
   strongly-typed :class:`poe1_core.BuildIntent` using the hybrid rule-based +
   LLM fallback pipeline.
+* ``POST /fob/recommend`` — given a :class:`BuildIntent`, fetches build
+  candidates from all sources, applies hard-constraint filtering, scores each
+  candidate on six weighted dimensions, and returns the top-N ranked builds.
 
 Keep all HTTP-shaped types (request/response models) local to this file
 so the core domain models don't pick up FastAPI/OpenAPI concerns.
@@ -36,6 +39,7 @@ from .pob import (
     parse_snapshot,
     snapshot_to_build,
 )
+from .ranking import RankingEngine, RecommendRequest, RecommendResponse, SourceAggregator
 
 log = get_logger(__name__)
 
@@ -191,7 +195,49 @@ def make_router(settings: Settings) -> APIRouter:
         )
         return intent
 
+    @router.post(
+        "/recommend",
+        response_model=RecommendResponse,
+        summary=("Rank ladder builds against a BuildIntent and return the top-N candidates."),
+    )
+    async def recommend(
+        payload: Annotated[RecommendRequest, Body()],
+    ) -> RecommendResponse:
+        """Fetch → filter → score → sort.
+
+        1. :class:`SourceAggregator` fans out to poe.ninja (19 ascendancies
+           concurrently) and merges refs.
+        2. :class:`RankingEngine` drops hard-constraint violations, scores
+           each ref on six weighted dimensions, and returns the top-N.
+
+        On upstream timeout the engine still runs over whatever refs were
+        fetched in time.
+        """
+        async with HttpClient(settings) as http:
+            agg = SourceAggregator(settings)
+            refs = await agg.fetch_candidates(payload.intent, http=http)
+
+        engine = RankingEngine()
+        ranked = engine.rank(payload.intent, refs, top_n=payload.top_n)
+
+        log.info(
+            "fob_recommend_ok",
+            candidates=len(refs),
+            returned=len(ranked),
+            top_score=ranked[0].score.total if ranked else 0.0,
+        )
+        return RecommendResponse(
+            ranked=tuple(ranked),
+            total_candidates=len(refs),
+            intent=payload.intent,
+        )
+
     return router
 
 
-__all__ = ["AnalyzePobRequest", "AnalyzePobResponse", "ExtractIntentRequest", "make_router"]
+__all__ = [
+    "AnalyzePobRequest",
+    "AnalyzePobResponse",
+    "ExtractIntentRequest",
+    "make_router",
+]
