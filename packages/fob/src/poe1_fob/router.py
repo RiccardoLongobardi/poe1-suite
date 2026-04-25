@@ -10,6 +10,9 @@ This module exposes:
 * ``POST /fob/recommend`` — given a :class:`BuildIntent`, fetches build
   candidates from all sources, applies hard-constraint filtering, scores each
   candidate on six weighted dimensions, and returns the top-N ranked builds.
+* ``POST /fob/plan`` — given the same input as ``/analyze-pob``, runs the
+  analyze pipeline and then turns the resulting :class:`Build` into a
+  staged upgrade :class:`BuildPlan` with poe.ninja-priced items.
 
 Keep all HTTP-shaped types (request/response models) local to this file
 so the core domain models don't pick up FastAPI/OpenAPI concerns.
@@ -25,11 +28,13 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from poe1_core.models import Build
 from poe1_core.models.build_intent import BuildIntent
+from poe1_pricing import PricingService
 from poe1_shared.config import Settings
 from poe1_shared.http import HttpClient, HttpError
 from poe1_shared.logging import get_logger
 
 from .intent import IntentLlmError, extract_intent
+from .planner import PlannerService, PlanRequest, PlanResponse
 from .pob import (
     PobInputError,
     PobParseError,
@@ -117,6 +122,38 @@ def _source_id_for(code: str) -> str:
     return f"pob::{digest[:12]}"
 
 
+async def _resolve_pob_to_build(
+    pob_input: str,
+    *,
+    http: HttpClient,
+) -> tuple[Build, PobSnapshot]:
+    """Run the full ingest → parse → map pipeline.
+
+    Shared by ``/analyze-pob`` and ``/plan`` so the two endpoints stay
+    in lockstep on input handling and error semantics.
+    """
+
+    try:
+        code, origin_url = await load_pob(pob_input, http=http)
+    except PobInputError as err:
+        raise HTTPException(status_code=400, detail=str(err)) from err
+    except HttpError as err:
+        raise HTTPException(status_code=502, detail=f"upstream fetch failed: {err}") from err
+
+    try:
+        xml_bytes = decode_export(code)
+        snapshot = parse_snapshot(xml_bytes, export_code=code, origin_url=origin_url)
+    except PobParseError as err:
+        raise HTTPException(status_code=422, detail=str(err)) from err
+
+    try:
+        build = snapshot_to_build(snapshot, source_id=_source_id_for(code))
+    except ValueError as err:
+        raise HTTPException(status_code=422, detail=str(err)) from err
+
+    return build, snapshot
+
+
 # ---------------------------------------------------------------------------
 # Router factory
 # ---------------------------------------------------------------------------
@@ -142,24 +179,8 @@ def make_router(settings: Settings) -> APIRouter:
     async def analyze_pob(
         payload: Annotated[AnalyzePobRequest, Body()],
     ) -> AnalyzePobResponse:
-        try:
-            async with HttpClient(settings) as http:
-                code, origin_url = await load_pob(payload.input, http=http)
-        except PobInputError as err:
-            raise HTTPException(status_code=400, detail=str(err)) from err
-        except HttpError as err:
-            raise HTTPException(status_code=502, detail=f"upstream fetch failed: {err}") from err
-
-        try:
-            xml_bytes = decode_export(code)
-            snapshot = parse_snapshot(xml_bytes, export_code=code, origin_url=origin_url)
-        except PobParseError as err:
-            raise HTTPException(status_code=422, detail=str(err)) from err
-
-        try:
-            build = snapshot_to_build(snapshot, source_id=_source_id_for(code))
-        except ValueError as err:
-            raise HTTPException(status_code=422, detail=str(err)) from err
+        async with HttpClient(settings) as http:
+            build, snapshot = await _resolve_pob_to_build(payload.input, http=http)
 
         log.info(
             "fob_analyze_pob_ok",
@@ -167,7 +188,7 @@ def make_router(settings: Settings) -> APIRouter:
             character_class=build.character_class,
             ascendancy=build.ascendancy,
             main_skill=build.main_skill,
-            origin_url=origin_url,
+            origin_url=snapshot.origin_url,
         )
         return AnalyzePobResponse(build=build, snapshot=snapshot)
 
@@ -231,6 +252,49 @@ def make_router(settings: Settings) -> APIRouter:
             total_candidates=len(refs),
             intent=payload.intent,
         )
+
+    @router.post(
+        "/plan",
+        response_model=PlanResponse,
+        summary=(
+            "Run analyze-pob then turn the build into a staged upgrade plan "
+            "with poe.ninja-priced items."
+        ),
+    )
+    async def plan_endpoint(
+        payload: Annotated[PlanRequest, Body()],
+    ) -> PlanResponse:
+        """Analyze → price → bucket → assemble plan.
+
+        1. The PoB ingest pipeline produces a :class:`Build` (same path
+           as ``/analyze-pob``).
+        2. :class:`PricingService` is opened against the configured
+           league for poe.ninja lookups.
+        3. :class:`PlannerService` prices each unique key item, buckets
+           by divine cost into LEAGUE_START / MID_GAME / END_GAME, and
+           returns the assembled :class:`BuildPlan`.
+
+        The HTTP client and pricing service share a single
+        :class:`HttpClient` so cache and rate-limit accounting are
+        unified.
+        """
+
+        async with HttpClient(settings) as http:
+            build, _ = await _resolve_pob_to_build(payload.input, http=http)
+
+            pricing = PricingService(http=http, league=settings.poe_league)
+            planner = PlannerService(pricing)
+            plan = await planner.plan(build, target_goal=payload.target_goal)
+
+        log.info(
+            "fob_plan_ok",
+            source_id=build.source_id,
+            target_goal=payload.target_goal.value,
+            stages=len(plan.stages),
+            total_min_div=plan.total_estimated_cost.min.amount,
+            total_max_div=plan.total_estimated_cost.max.amount,
+        )
+        return PlanResponse(build=build, plan=plan)
 
     return router
 

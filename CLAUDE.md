@@ -34,9 +34,9 @@ uv run mypy .
 uv run pytest
 ```
 
-All four must pass with zero errors. Current baseline: **324 tests green (2 skipped — integration/LLM), 74 files type-checked clean, 72 files formatted clean**.
+All four must pass with zero errors. Current baseline: **343 tests green (2 skipped — integration/LLM), 80 files type-checked clean, 78 files formatted clean**.
 
-## What's built (state as of 2026-04-25, end of Step 6)
+## What's built (state as of 2026-04-25, end of Step 8 — FOB completo)
 
 | Module | Package | Routes | Status |
 |---|---|---|---|
@@ -47,15 +47,16 @@ All four must pass with zero errors. Current baseline: **324 tests green (2 skip
 | poe.ninja ladder builds | `poe1-builds` | `GET /builds/list`, `GET /builds/detail` | done (protobuf columnar search + JSON hydration, 19 ascendancy fan-out, `main_skill` / `defense_type` filters) |
 | IntentExtractor | `poe1-fob` | `POST /fob/extract-intent` | done (hybrid rule-based IT+EN + Anthropic Haiku tool-use fallback; 15 fixture cases; confidence threshold 0.70) |
 | Ranking Engine | `poe1-fob` | `POST /fob/recommend` | done (SourceAggregator fan-out → hard-constraint filter → 6-dim weighted scorer → top-N; 49 unit tests) |
-| UI shell | `apps/shell` | — | done (React 18 + Vite 5 + Mantine v7 + TanStack Query; Build Finder + PoB Analyzer; `npm run dev` on :5173) |
+| **Planner** | `poe1-fob` | `POST /fob/plan` | done (analyze-pob → poe.ninja pricing → 3-stage bucket per divine cost → BuildPlan; 19 unit tests) |
+| UI shell | `apps/shell` | — | done (React 18 + Vite 5 + Mantine v7 + TanStack Query; Build Finder + PoB Analyzer + Planner; `npm run dev` on :5173) |
 
 Server: `uv run poe1-server` → <http://127.0.0.1:8765>. `/health`, `/version`, plus all the routes above.
 Shell dev: `cd apps/shell && npm run dev` → <http://127.0.0.1:5173> (proxies API to :8765).
 
-## What's next (Step 8)
+## What's next (Step 9)
 
-- **Planner** — `POST /fob/plan`. Dato un `RankedBuild` (o un PoB), genera un piano di upgrade a step con costi da poe.ninja pricing.
-- **Faustus flipper** — nuovo package `poe1-faustus` per flip di valuta basato su poe.ninja bulk trades.
+- **Faustus flipper** — nuovo package `poe1-faustus` per flip di valuta basato su poe.ninja bulk trades. Sarà uno strumento separato all'interno della stessa app, non parte di FOB. UX: cerca arbitraggi tipo "X chaos → Y div → Z chaos → profit %".
+- **App unica raggruppante** — il navbar dell'UI dovrà passare da "tab piatte" a una struttura per tool (FOB, Faustus, …). Quando arriva il secondo tool, refactor del routing nello shell.
 
 ## Project-specific gotchas (learned the hard way)
 

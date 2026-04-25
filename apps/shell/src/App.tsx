@@ -10,12 +10,19 @@ import {
   ActionIcon,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { IconMoon, IconSearch, IconSun, IconTool } from "@tabler/icons-react";
+import {
+  IconListCheck,
+  IconMoon,
+  IconSearch,
+  IconSun,
+  IconTool,
+} from "@tabler/icons-react";
 import { useState } from "react";
 import { AnalyzePage } from "./pages/AnalyzePage";
 import { FinderPage } from "./pages/FinderPage";
+import { PlannerPage } from "./pages/PlannerPage";
 
-type Page = "finder" | "analyze";
+type Page = "finder" | "analyze" | "planner";
 
 export function App() {
   const [opened, { toggle }] = useDisclosure();
@@ -74,12 +81,20 @@ export function App() {
           onClick={nav("analyze")}
           variant="light"
         />
+        <NavLink
+          label="Planner"
+          leftSection={<IconListCheck size={16} />}
+          active={page === "planner"}
+          onClick={nav("planner")}
+          variant="light"
+        />
       </AppShell.Navbar>
 
       <AppShell.Main>
         <Container size="lg">
           {page === "finder" && <FinderPage />}
           {page === "analyze" && <AnalyzePage />}
+          {page === "planner" && <PlannerPage />}
         </Container>
       </AppShell.Main>
     </AppShell>

@@ -9,7 +9,9 @@ import type {
   AnalyzePobResponse,
   ApiError,
   BuildIntent,
+  PlanResponse,
   RecommendResponse,
+  TargetGoal,
 } from "./types";
 
 const BASE = ""; // same origin; vite.config.ts proxies /fob → 8765
@@ -48,4 +50,15 @@ export async function recommend(
 /** POST /fob/analyze-pob */
 export async function analyzePob(input: string): Promise<AnalyzePobResponse> {
   return post<AnalyzePobResponse>("/fob/analyze-pob", { input });
+}
+
+/** POST /fob/plan */
+export async function planBuild(
+  input: string,
+  targetGoal: TargetGoal = "mapping_and_boss",
+): Promise<PlanResponse> {
+  return post<PlanResponse>("/fob/plan", {
+    input,
+    target_goal: targetGoal,
+  });
 }

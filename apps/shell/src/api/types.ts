@@ -183,6 +183,85 @@ export interface AnalyzePobResponse {
 }
 
 // ---------------------------------------------------------------------------
+// Planner (POST /fob/plan)
+// ---------------------------------------------------------------------------
+
+export type Currency = "divine" | "chaos";
+export type Confidence = "low" | "medium" | "high";
+export type PriceSourceKind =
+  | "poe_ninja"
+  | "trade_api"
+  | "heuristic"
+  | "user"
+  | "unknown";
+export type ItemRarity = "normal" | "magic" | "rare" | "unique";
+export type ItemSlot =
+  | "helmet"
+  | "body_armour"
+  | "gloves"
+  | "boots"
+  | "belt"
+  | "amulet"
+  | "ring"
+  | "weapon_main"
+  | "weapon_offhand"
+  | "quiver"
+  | "flask"
+  | "jewel"
+  | "cluster_jewel";
+export type TargetGoal =
+  | "mapping_only"
+  | "mapping_and_boss"
+  | "uber_capable";
+
+export interface PriceValue {
+  amount: number;
+  currency: Currency;
+}
+
+export interface PriceRange {
+  min: PriceValue;
+  max: PriceValue;
+  source: PriceSourceKind;
+  observed_at: string | null;
+  sample_size: number | null;
+  confidence: Confidence;
+  notes: string | null;
+}
+
+export interface CoreItem {
+  name: string;
+  slot: ItemSlot;
+  rarity: ItemRarity;
+  price_estimate: PriceRange | null;
+  buy_priority: number;
+  notes: string | null;
+}
+
+export interface PlanStage {
+  label: string;
+  budget_range: PriceRange;
+  expected_content: ContentFocus[];
+  core_items: CoreItem[];
+  tree_changes: string[];
+  gem_changes: string[];
+  upgrade_rationale: string;
+  next_step_trigger: string | null;
+}
+
+export interface BuildPlan {
+  build_source_id: string;
+  target_goal: TargetGoal;
+  stages: PlanStage[];
+  total_estimated_cost: PriceRange;
+}
+
+export interface PlanResponse {
+  build: Build;
+  plan: BuildPlan;
+}
+
+// ---------------------------------------------------------------------------
 // Error shape from FastAPI
 // ---------------------------------------------------------------------------
 

@@ -1,0 +1,206 @@
+/**
+ * StageCard — visualisation of one PlanStage.
+ *
+ * Renders the stage label, total budget band, expected content focus,
+ * core item list with per-item prices, gem/tree changes, the upgrade
+ * rationale prose, and the "next step" trigger condition.
+ */
+
+import {
+  Badge,
+  Card,
+  Group,
+  List,
+  Stack,
+  Table,
+  Text,
+  ThemeIcon,
+  Title,
+} from "@mantine/core";
+import {
+  IconArrowDown,
+  IconBolt,
+  IconCheck,
+  IconCoin,
+  IconHourglass,
+} from "@tabler/icons-react";
+import type {
+  Confidence,
+  CoreItem,
+  PlanStage,
+  PriceRange,
+} from "../api/types";
+
+const CONFIDENCE_COLOR: Record<Confidence, string> = {
+  low: "gray",
+  medium: "blue",
+  high: "teal",
+};
+
+function formatPrice(p: PriceRange): string {
+  const fmt = (n: number) =>
+    n >= 100 ? n.toFixed(0) : n >= 1 ? n.toFixed(1) : n.toFixed(2);
+  const currency = p.currency === "divine" ? "div" : "c";
+  if (p.min.amount === p.max.amount) {
+    return `${fmt(p.min.amount)} ${currency}`;
+  }
+  return `${fmt(p.min.amount)}–${fmt(p.max.amount)} ${currency}`;
+}
+
+function ItemRow({ item }: { item: CoreItem }) {
+  const price = item.price_estimate;
+  return (
+    <Table.Tr>
+      <Table.Td>
+        <Text size="xs" c="dimmed" ff="monospace">
+          #{item.buy_priority}
+        </Text>
+      </Table.Td>
+      <Table.Td>
+        <Text size="sm" fw={500}>
+          {item.name}
+        </Text>
+      </Table.Td>
+      <Table.Td>
+        <Text size="xs" c="dimmed">
+          {item.slot.replace("_", " ")}
+        </Text>
+      </Table.Td>
+      <Table.Td ta="right">
+        {price ? (
+          <Group gap={6} justify="flex-end" wrap="nowrap">
+            <Text size="sm" fw={600}>
+              {formatPrice(price)}
+            </Text>
+            <Badge
+              size="xs"
+              variant="dot"
+              color={CONFIDENCE_COLOR[price.confidence]}
+            >
+              {price.confidence}
+            </Badge>
+          </Group>
+        ) : (
+          <Text size="xs" c="dimmed" fs="italic">
+            n/d
+          </Text>
+        )}
+      </Table.Td>
+    </Table.Tr>
+  );
+}
+
+interface Props {
+  stage: PlanStage;
+  index: number;
+}
+
+export function StageCard({ stage, index }: Props) {
+  const accent =
+    index === 0 ? "teal" : index === 1 ? "blue" : "grape";
+
+  return (
+    <Card withBorder radius="md" p="md">
+      <Stack gap="sm">
+        <Group justify="space-between" align="flex-start" wrap="nowrap">
+          <Group gap={10} wrap="nowrap">
+            <ThemeIcon variant="light" color={accent} size="lg" radius="md">
+              <Text size="sm" fw={700}>
+                {index + 1}
+              </Text>
+            </ThemeIcon>
+            <Title order={4}>{stage.label}</Title>
+          </Group>
+          <Group gap={6} wrap="nowrap">
+            <IconCoin size={16} />
+            <Text size="sm" fw={600}>
+              {formatPrice(stage.budget_range)}
+            </Text>
+          </Group>
+        </Group>
+
+        {stage.expected_content.length > 0 && (
+          <Group gap={6} wrap="wrap">
+            {stage.expected_content.map((c) => (
+              <Badge key={c} size="sm" variant="light" color={accent}>
+                {c.replace("_", " ")}
+              </Badge>
+            ))}
+          </Group>
+        )}
+
+        {stage.upgrade_rationale && (
+          <Text size="sm" c="dimmed">
+            {stage.upgrade_rationale}
+          </Text>
+        )}
+
+        {stage.core_items.length > 0 && (
+          <Table withTableBorder withRowBorders verticalSpacing={4}>
+            <Table.Thead>
+              <Table.Tr>
+                <Table.Th style={{ width: 36 }} />
+                <Table.Th>Item</Table.Th>
+                <Table.Th>Slot</Table.Th>
+                <Table.Th ta="right">Prezzo</Table.Th>
+              </Table.Tr>
+            </Table.Thead>
+            <Table.Tbody>
+              {stage.core_items.map((item) => (
+                <ItemRow key={`${item.slot}-${item.name}`} item={item} />
+              ))}
+            </Table.Tbody>
+          </Table>
+        )}
+
+        {stage.gem_changes.length > 0 && (
+          <Stack gap={4}>
+            <Group gap={6}>
+              <IconBolt size={14} />
+              <Text size="sm" fw={600}>
+                Gem
+              </Text>
+            </Group>
+            <List size="sm" spacing={2} icon={
+              <ThemeIcon size={14} radius="xl" color={accent} variant="light">
+                <IconCheck size={10} />
+              </ThemeIcon>
+            }>
+              {stage.gem_changes.map((g, i) => (
+                <List.Item key={i}>{g}</List.Item>
+              ))}
+            </List>
+          </Stack>
+        )}
+
+        {stage.tree_changes.length > 0 && (
+          <Stack gap={4}>
+            <Text size="sm" fw={600}>
+              Albero passive
+            </Text>
+            <List size="sm" spacing={2}>
+              {stage.tree_changes.map((t, i) => (
+                <List.Item key={i}>{t}</List.Item>
+              ))}
+            </List>
+          </Stack>
+        )}
+
+        {stage.next_step_trigger && (
+          <Group gap={6} wrap="nowrap" align="flex-start">
+            <ThemeIcon variant="light" color="orange" size="sm" radius="xl">
+              <IconHourglass size={12} />
+            </ThemeIcon>
+            <Text size="xs" c="dimmed" fs="italic">
+              <Text span fw={600} c="orange">
+                Next step:{" "}
+              </Text>
+              {stage.next_step_trigger}
+            </Text>
+            <IconArrowDown size={12} style={{ opacity: 0.5 }} />
+          </Group>
+        )}
+      </Stack>
+    </Card>
+  );
+}
