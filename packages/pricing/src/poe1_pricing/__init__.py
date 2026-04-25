@@ -22,6 +22,16 @@ from .models import (
 )
 from .service import PricingService
 from .sources.ninja import NinjaSource, NinjaSourceError
+from .sources.trade import (
+    RateLimitState,
+    RateLimitWindow,
+    StatFilter,
+    TradeListing,
+    TradeQuery,
+    TradeSource,
+    TradeSourceError,
+    percentile_price,
+)
 from .variants import (
     VariantRegistry,
     VariantResolver,
@@ -40,10 +50,18 @@ __all__ = [
     "PriceQuote",
     "PriceSnapshot",
     "PricingService",
+    "RateLimitState",
+    "RateLimitWindow",
+    "StatFilter",
+    "TradeListing",
+    "TradeQuery",
+    "TradeSource",
+    "TradeSourceError",
     "VariantRegistry",
     "VariantResolver",
     "__version__",
     "build_default_registry",
     "keystone_allocates_resolver",
     "keystone_radius_resolver",
+    "percentile_price",
 ]

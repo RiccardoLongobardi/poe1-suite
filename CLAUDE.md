@@ -34,7 +34,7 @@ uv run mypy .
 uv run pytest
 ```
 
-All four must pass with zero errors. Current baseline: **378 tests green (2 skipped — integration/LLM), 82 files type-checked clean, 79 files formatted clean**.
+All four must pass with zero errors. Current baseline: **410 tests green (2 skipped — integration/LLM), 84 files type-checked clean, 82 files formatted clean**.
 
 ## What's built (state as of 2026-04-25, end of Step 8 — FOB completo)
 
@@ -58,7 +58,7 @@ Shell dev: `cd apps/shell && npm run dev` → <http://127.0.0.1:5173> (proxies A
 In progress: pricing affidabile con confidence ≥60-75 % anche per uniques con varianti e rari custom-craftati.
 
 - **9.1 — variant-aware uniques** ✅ done (2026-04-25). HelmetEnchant + Oil categorie nuove; `PriceSnapshot.by_name_and_variant`/`variants_of`; `PricingService.quote_unique_variant`/`quote_variants`; modulo `poe1_pricing.variants` con resolver protocol + registry + resolver per Forbidden Shako, Forbidden Flame, Forbidden Flesh, Impossible Escape (35 nuovi test).
-- **9.2 — GGG Trade API source** — nuovo `TradeSource` (rate-limit aware) per prezzare item rari/craftati per stat. Usa httpx + tenacity, parsing dei listing → percentile-based pricing.
+- **9.2 — GGG Trade API source** ✅ done (2026-04-25). Nuovo `TradeSource` async in `poe1_pricing.sources.trade`: search → fetch → trimmed-median pricing in chaos. `RateLimitState` parser sui header `X-Rate-Limit-Ip`, sleep proattivo a 80% di headroom + `Retry-After` honoring sui 429. `TradeQuery` + `StatFilter` per query stat-aware. `HttpClient` esteso con `post_json` e `request_json` (no-cache) generici. 32 nuovi test con `httpx.MockTransport`.
 - **9.3 — PoB mod extraction** — variant matching dai mod del PoB (per uniques) e mod-set → trade query per i rari high-importance.
 - **9.4 — integrazione planner + UI loader** — pricing flow lazy con progress bar nell'UI ("calcolo prezzo rare 1/N…"). Tempo accettabile fino a ~30 min per la massima accuratezza.
 

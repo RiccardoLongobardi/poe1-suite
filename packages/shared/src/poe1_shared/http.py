@@ -190,6 +190,101 @@ class HttpClient:
         )
         return cast(bytes, body)
 
+    async def post_json(
+        self,
+        url: str,
+        *,
+        json_body: dict[str, Any],
+        headers: dict[str, str] | None = None,
+    ) -> tuple[dict[str, Any], dict[str, str]]:
+        """POST JSON and return ``(decoded_json, response_headers)``.
+
+        Headers are returned alongside the body because the GGG Trade
+        API source needs to inspect ``X-Rate-Limit-*`` headers to pace
+        subsequent requests. Header keys are lower-cased for stable
+        lookup. POSTs are never cached.
+        """
+
+        return await self._request_json(
+            "POST", url, params=None, json_body=json_body, headers=headers
+        )
+
+    async def request_json(
+        self,
+        method: str,
+        url: str,
+        *,
+        params: dict[str, Any] | None = None,
+        headers: dict[str, str] | None = None,
+    ) -> tuple[dict[str, Any], dict[str, str]]:
+        """Issue a non-cached ``method`` request and return ``(json, headers)``.
+
+        Use this for endpoints that vary by request-time auth (POESESSID
+        cookie) or whose responses are too short-lived to cache (Trade
+        API listing fetches). For cacheable GETs prefer :meth:`get_json`.
+        """
+
+        return await self._request_json(method, url, params=params, json_body=None, headers=headers)
+
+    async def _request_json(
+        self,
+        method: str,
+        url: str,
+        *,
+        params: dict[str, Any] | None,
+        json_body: dict[str, Any] | None,
+        headers: dict[str, str] | None,
+    ) -> tuple[dict[str, Any], dict[str, str]]:
+        if self._client is None:
+            msg = "HttpClient must be used as an async context manager"
+            raise RuntimeError(msg)
+
+        retryer = AsyncRetrying(
+            stop=stop_after_attempt(self._settings.http_max_retries + 1),
+            wait=wait_exponential(multiplier=0.5, min=0.5, max=8.0),
+            retry=retry_if_exception_type(
+                (httpx.TimeoutException, httpx.NetworkError, httpx.HTTPStatusError)
+            ),
+            reraise=True,
+        )
+
+        try:
+            async for attempt in retryer:
+                with attempt:
+                    response = await self._client.request(
+                        method,
+                        url,
+                        params=params,
+                        json=json_body,
+                        headers=headers,
+                    )
+                    try:
+                        response.raise_for_status()
+                    except httpx.HTTPStatusError as err:
+                        if _is_retryable(err):
+                            log.warning(
+                                "http_retryable_status_request",
+                                method=method,
+                                url=url,
+                                status=err.response.status_code,
+                                attempt=attempt.retry_state.attempt_number,
+                            )
+                            raise
+                        raise HttpError(
+                            f"HTTP {err.response.status_code} for {method} {url}",
+                            url=url,
+                            status_code=err.response.status_code,
+                        ) from err
+                    body = cast(dict[str, Any], response.json())
+                    resp_headers = {k.lower(): v for k, v in response.headers.items()}
+                    return body, resp_headers
+        except RetryError as err:
+            raise HttpError(f"retries exhausted for {method} {url}", url=url) from err
+        except httpx.HTTPError as err:
+            raise HttpError(f"network error for {method} {url}: {err}", url=url) from err
+
+        raise HttpError("unreachable retry exit", url=url)  # pragma: no cover
+
     # ------------------------------------------------------------------
     # Internals
     # ------------------------------------------------------------------
