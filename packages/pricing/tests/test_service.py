@@ -88,3 +88,62 @@ class TestCurrencyHelper:
         q = await pricing_service.quote_currency("Divine Orb")
         assert q is not None
         assert q.category == ItemCategory.CURRENCY
+
+
+class TestQuoteUniqueVariant:
+    """Variant-aware unique helpers."""
+
+    async def test_falls_back_to_quote_unique_when_variant_none(
+        self, pricing_service: PricingService
+    ) -> None:
+        snap = await pricing_service.snapshot(ItemCategory.UNIQUE_ARMOUR)
+        target = snap.quotes[0].name
+        q = await pricing_service.quote_unique_variant(target, None)
+        assert q is not None
+        assert q.name == target
+
+    async def test_returns_specific_variant_match(self, pricing_service: PricingService) -> None:
+        snap = await pricing_service.snapshot(ItemCategory.UNIQUE_ARMOUR)
+        # Find a quote with a non-None variant deterministically.
+        target = next((q for q in snap.quotes if q.variant is not None), None)
+        assert target is not None, "fixture must include at least one variant unique"
+        q = await pricing_service.quote_unique_variant(target.name, target.variant)
+        assert q is not None
+        assert q.name == target.name
+        assert q.variant == target.variant
+        assert q.chaos_value == target.chaos_value
+
+    async def test_unknown_variant_returns_none(self, pricing_service: PricingService) -> None:
+        snap = await pricing_service.snapshot(ItemCategory.UNIQUE_ARMOUR)
+        target = next((q for q in snap.quotes if q.variant is not None), None)
+        assert target is not None
+        # Right name, wrong variant → caller decides whether to fall back.
+        q = await pricing_service.quote_unique_variant(target.name, "Definitely Not A Real Variant")
+        assert q is None
+
+    async def test_quote_variants_lists_all(self, pricing_service: PricingService) -> None:
+        snap = await pricing_service.snapshot(ItemCategory.UNIQUE_ARMOUR)
+        # Pick a name that appears more than once in the fixture.
+        from collections import Counter
+
+        names = Counter(q.name for q in snap.quotes)
+        multi = next((n for n, c in names.items() if c > 1), None)
+        if multi is None:
+            # Fixture may not have duplicates; in that case the helper
+            # should at least return one entry for any known name.
+            multi = snap.quotes[0].name
+        variants = await pricing_service.quote_variants(multi)
+        assert len(variants) >= 1
+        assert all(v.name == multi for v in variants)
+
+
+class TestNewCategories:
+    """The HelmetEnchantment and Oil categories should be enumerable."""
+
+    def test_helmet_enchant_value(self) -> None:
+        assert ItemCategory.HELMET_ENCHANT.value == "HelmetEnchantment"
+        assert not ItemCategory.HELMET_ENCHANT.is_currency
+
+    def test_oil_value(self) -> None:
+        assert ItemCategory.OIL.value == "Oil"
+        assert not ItemCategory.OIL.is_currency

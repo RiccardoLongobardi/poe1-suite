@@ -47,6 +47,8 @@ class ItemCategory(StrEnum):
     ESSENCE = "Essence"
     SCARAB = "Scarab"
     FOSSIL = "Fossil"
+    HELMET_ENCHANT = "HelmetEnchantment"
+    OIL = "Oil"
 
     @property
     def is_currency(self) -> bool:
@@ -202,6 +204,49 @@ class PriceSnapshot(BaseModel):
             if q.name.casefold() == needle:
                 return q
         return None
+
+    def by_name_and_variant(
+        self,
+        name: str,
+        variant: str | None,
+    ) -> PriceQuote | None:
+        """Case-insensitive lookup matching both ``name`` and ``variant``.
+
+        ``variant=None`` means "any variant (or no variant)" — falls back
+        to :meth:`by_name_ci`. When a variant is supplied we require an
+        exact case-insensitive match on it; this is what makes
+        Forbidden Shako / Watcher's Eye / Forbidden Flame & Flesh /
+        Impossible Escape pricing accurate (each variant is a different
+        item and a different price).
+
+        When the requested variant doesn't exist on poe.ninja, returns
+        ``None`` rather than falling back — the caller has to decide
+        whether to retry without a variant.
+        """
+
+        if variant is None:
+            return self.by_name_ci(name)
+        name_needle = name.casefold()
+        variant_needle = variant.casefold()
+        for q in self.quotes:
+            if q.name.casefold() != name_needle:
+                continue
+            if q.variant is None:
+                continue
+            if q.variant.casefold() == variant_needle:
+                return q
+        return None
+
+    def variants_of(self, name: str) -> tuple[PriceQuote, ...]:
+        """Return every quote with the given name (case-insensitive).
+
+        Useful for variant-rich uniques where the caller wants to inspect
+        all variants — e.g. to pick the cheapest, or to surface the full
+        list to the UI.
+        """
+
+        needle = name.casefold()
+        return tuple(q for q in self.quotes if q.name.casefold() == needle)
 
 
 __all__ = [

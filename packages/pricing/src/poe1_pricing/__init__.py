@@ -22,6 +22,13 @@ from .models import (
 )
 from .service import PricingService
 from .sources.ninja import NinjaSource, NinjaSourceError
+from .variants import (
+    VariantRegistry,
+    VariantResolver,
+    build_default_registry,
+    keystone_allocates_resolver,
+    keystone_radius_resolver,
+)
 
 __all__ = [
     "ItemCategory",
@@ -33,5 +40,10 @@ __all__ = [
     "PriceQuote",
     "PriceSnapshot",
     "PricingService",
+    "VariantRegistry",
+    "VariantResolver",
     "__version__",
+    "build_default_registry",
+    "keystone_allocates_resolver",
+    "keystone_radius_resolver",
 ]

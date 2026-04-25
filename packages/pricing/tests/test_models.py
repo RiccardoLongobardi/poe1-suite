@@ -109,6 +109,100 @@ class TestPriceSnapshot:
         assert snapshot.by_name_ci("Headhunter") is None
 
 
+class TestVariantLookup:
+    """Variant-aware lookups on PriceSnapshot."""
+
+    @pytest.fixture()
+    def variant_snapshot(self) -> PriceSnapshot:
+        now = datetime.now(UTC)
+        # Three variants of the same unique + a non-variant filler.
+        quotes = (
+            PriceQuote(
+                name="Forbidden Shako",
+                base_type="Great Crown",
+                variant="Avatar of Fire",
+                category=ItemCategory.UNIQUE_ARMOUR,
+                chaos_value=120.0,
+                league="Mirage",
+                fetched_at=now,
+            ),
+            PriceQuote(
+                name="Forbidden Shako",
+                base_type="Great Crown",
+                variant="Eldritch Battery",
+                category=ItemCategory.UNIQUE_ARMOUR,
+                chaos_value=4500.0,
+                league="Mirage",
+                fetched_at=now,
+            ),
+            PriceQuote(
+                name="Forbidden Shako",
+                base_type="Great Crown",
+                variant="Mind Over Matter",
+                category=ItemCategory.UNIQUE_ARMOUR,
+                chaos_value=900.0,
+                league="Mirage",
+                fetched_at=now,
+            ),
+            PriceQuote(
+                name="Tabula Rasa",
+                base_type="Simple Robe",
+                variant=None,
+                category=ItemCategory.UNIQUE_ARMOUR,
+                chaos_value=20.0,
+                league="Mirage",
+                fetched_at=now,
+            ),
+        )
+        return PriceSnapshot(
+            category=ItemCategory.UNIQUE_ARMOUR,
+            league="Mirage",
+            version="test-2",
+            fetched_at=now,
+            quotes=quotes,
+        )
+
+    def test_variant_match_picks_right_quote(self, variant_snapshot: PriceSnapshot) -> None:
+        hit = variant_snapshot.by_name_and_variant("Forbidden Shako", "Eldritch Battery")
+        assert hit is not None
+        assert hit.chaos_value == pytest.approx(4500.0)
+
+    def test_variant_match_case_insensitive(self, variant_snapshot: PriceSnapshot) -> None:
+        hit = variant_snapshot.by_name_and_variant("forbidden shako", "MIND OVER MATTER")
+        assert hit is not None
+        assert hit.variant == "Mind Over Matter"
+
+    def test_unknown_variant_returns_none(self, variant_snapshot: PriceSnapshot) -> None:
+        # Caller asked for a specific variant — we don't silently downgrade.
+        hit = variant_snapshot.by_name_and_variant("Forbidden Shako", "Nonexistent Keystone")
+        assert hit is None
+
+    def test_no_variant_falls_back_to_first(self, variant_snapshot: PriceSnapshot) -> None:
+        # variant=None means "any variant" — degrades to by_name_ci.
+        hit = variant_snapshot.by_name_and_variant("Forbidden Shako", None)
+        assert hit is not None
+        assert hit.name == "Forbidden Shako"
+
+    def test_variant_skipped_when_quote_has_no_variant(
+        self, variant_snapshot: PriceSnapshot
+    ) -> None:
+        # Tabula has variant=None; asking with a specific variant must miss.
+        hit = variant_snapshot.by_name_and_variant("Tabula Rasa", "Anything")
+        assert hit is None
+
+    def test_variants_of_returns_all(self, variant_snapshot: PriceSnapshot) -> None:
+        all_shakos = variant_snapshot.variants_of("Forbidden Shako")
+        assert len(all_shakos) == 3
+        assert {q.variant for q in all_shakos} == {
+            "Avatar of Fire",
+            "Eldritch Battery",
+            "Mind Over Matter",
+        }
+
+    def test_variants_of_miss_returns_empty(self, variant_snapshot: PriceSnapshot) -> None:
+        assert variant_snapshot.variants_of("Nonexistent Item") == ()
+
+
 class TestPriceQuoteValidation:
     def test_negative_chaos_rejected(self) -> None:
         with pytest.raises(ValueError):

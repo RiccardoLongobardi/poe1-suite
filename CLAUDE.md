@@ -34,7 +34,7 @@ uv run mypy .
 uv run pytest
 ```
 
-All four must pass with zero errors. Current baseline: **343 tests green (2 skipped — integration/LLM), 80 files type-checked clean, 78 files formatted clean**.
+All four must pass with zero errors. Current baseline: **378 tests green (2 skipped — integration/LLM), 82 files type-checked clean, 79 files formatted clean**.
 
 ## What's built (state as of 2026-04-25, end of Step 8 — FOB completo)
 
@@ -53,10 +53,21 @@ All four must pass with zero errors. Current baseline: **343 tests green (2 skip
 Server: `uv run poe1-server` → <http://127.0.0.1:8765>. `/health`, `/version`, plus all the routes above.
 Shell dev: `cd apps/shell && npm run dev` → <http://127.0.0.1:5173> (proxies API to :8765).
 
-## What's next (Step 9)
+## What's next (Step 9 — Pricing v2)
 
-- **Faustus flipper** — nuovo package `poe1-faustus` per flip di valuta basato su poe.ninja bulk trades. Sarà uno strumento separato all'interno della stessa app, non parte di FOB. UX: cerca arbitraggi tipo "X chaos → Y div → Z chaos → profit %".
-- **App unica raggruppante** — il navbar dell'UI dovrà passare da "tab piatte" a una struttura per tool (FOB, Faustus, …). Quando arriva il secondo tool, refactor del routing nello shell.
+In progress: pricing affidabile con confidence ≥60-75 % anche per uniques con varianti e rari custom-craftati.
+
+- **9.1 — variant-aware uniques** ✅ done (2026-04-25). HelmetEnchant + Oil categorie nuove; `PriceSnapshot.by_name_and_variant`/`variants_of`; `PricingService.quote_unique_variant`/`quote_variants`; modulo `poe1_pricing.variants` con resolver protocol + registry + resolver per Forbidden Shako, Forbidden Flame, Forbidden Flesh, Impossible Escape (35 nuovi test).
+- **9.2 — GGG Trade API source** — nuovo `TradeSource` (rate-limit aware) per prezzare item rari/craftati per stat. Usa httpx + tenacity, parsing dei listing → percentile-based pricing.
+- **9.3 — PoB mod extraction** — variant matching dai mod del PoB (per uniques) e mod-set → trade query per i rari high-importance.
+- **9.4 — integrazione planner + UI loader** — pricing flow lazy con progress bar nell'UI ("calcolo prezzo rare 1/N…"). Tempo accettabile fino a ~30 min per la massima accuratezza.
+
+## What comes after (Step 10+)
+
+- **Step 10 — Planner v2 (6-stage day-0 → day-100)** — Early/Mid/End Campaign + Early/End Mapping + High Investment. Reverse-progression dal PoB endgame. Template per 5-6 build canoniche (RF Pohx, Vortex, Spectre, Spark, Bone Spear, Cyclone) come riferimento.
+- **Step 11 — UI overhaul** — tema astrale viola, welcome page animata, home page dashboard, modale donation PayPal (paypal.me/riclong). Refactor a `react-router-dom`.
+- **Faustus flipper** — package `poe1-faustus` per flip di valuta basato su poe.ninja bulk trades. Strumento separato. UX: arbitraggi "X chaos → Y div → Z chaos → profit %".
+- **App unica raggruppante** — navbar per tool (FOB, Faustus, …) quando arriva il secondo tool.
 
 ## Project-specific gotchas (learned the hard way)
 

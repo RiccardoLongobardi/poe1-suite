@@ -141,6 +141,64 @@ class PricingService:
                 return hit
         return None
 
+    async def quote_unique_variant(
+        self,
+        name: str,
+        variant: str | None,
+    ) -> PriceQuote | None:
+        """Variant-aware unique lookup.
+
+        Matches ``(name, variant)`` against poe.ninja's listings. When
+        ``variant`` is ``None`` this degrades to :meth:`quote_unique`.
+
+        For variant-rich uniques (Forbidden Shako, Watcher's Eye,
+        Forbidden Flame & Flesh, Impossible Escape) you must pass the
+        canonical poe.ninja variant string — not the user-facing mod
+        text. The :mod:`poe1_pricing.variants` module provides resolvers
+        from PoB-style mod text to the canonical strings.
+
+        Returns ``None`` when the exact variant doesn't exist on
+        poe.ninja — the caller decides whether to fall back to the
+        cheapest variant or to leave the item un-priced.
+        """
+
+        if variant is None:
+            return await self.quote_unique(name)
+
+        for cat in (
+            ItemCategory.UNIQUE_WEAPON,
+            ItemCategory.UNIQUE_ARMOUR,
+            ItemCategory.UNIQUE_ACCESSORY,
+            ItemCategory.UNIQUE_FLASK,
+            ItemCategory.UNIQUE_JEWEL,
+        ):
+            snapshot = await self.snapshot(cat)
+            hit = snapshot.by_name_and_variant(name, variant)
+            if hit is not None:
+                return hit
+        return None
+
+    async def quote_variants(self, name: str) -> tuple[PriceQuote, ...]:
+        """Return all variants of a unique by name (across unique categories).
+
+        Useful when the variant string isn't known yet and the UI wants
+        to render the full list. Order is ``UNIQUE_WEAPON`` →
+        ``UNIQUE_JEWEL`` (same as :meth:`quote_unique`); within a
+        category, order matches poe.ninja's response.
+        """
+
+        results: list[PriceQuote] = []
+        for cat in (
+            ItemCategory.UNIQUE_WEAPON,
+            ItemCategory.UNIQUE_ARMOUR,
+            ItemCategory.UNIQUE_ACCESSORY,
+            ItemCategory.UNIQUE_FLASK,
+            ItemCategory.UNIQUE_JEWEL,
+        ):
+            snapshot = await self.snapshot(cat)
+            results.extend(snapshot.variants_of(name))
+        return tuple(results)
+
     def invalidate(self, *, category: ItemCategory | None = None) -> None:
         """Drop the in-memory snapshot cache.
 
