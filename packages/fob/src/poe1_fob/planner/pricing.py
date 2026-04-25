@@ -47,11 +47,21 @@ class PricingPort(Protocol):
     Defined as a Protocol so unit tests can stand up a tiny fake without
     instantiating an HttpClient. The real ``PricingService`` satisfies
     this interface structurally.
+
+    ``quote_unique_variant`` lets callers pin a specific poe.ninja
+    variant string (Forbidden Shako keystone, Watcher's Eye combo, etc.).
+    Passing ``variant=None`` is equivalent to :meth:`quote_unique`.
     """
 
     async def quote_currency(self, name: str) -> PriceQuote | None: ...
 
     async def quote_unique(self, name: str) -> PriceQuote | None: ...
+
+    async def quote_unique_variant(
+        self,
+        name: str,
+        variant: str | None,
+    ) -> PriceQuote | None: ...
 
 
 async def chaos_to_divine_rate(pricing: PricingPort) -> float:
@@ -129,10 +139,24 @@ async def quote_unique_range(
     name: str,
     *,
     chaos_per_divine: float,
+    variant: str | None = None,
 ) -> PriceRange | None:
-    """Look up a unique by name; return ``None`` when poe.ninja has no listing."""
+    """Look up a unique by ``(name, variant)``; return ``None`` when missing.
 
-    quote = await pricing.quote_unique(name)
+    When *variant* is supplied we ask poe.ninja for that exact variant
+    string. If poe.ninja doesn't list that variant we fall back to the
+    cheapest variant of the same name — better an approximate price
+    than no price at all. Pass ``variant=None`` to skip variant
+    matching entirely (current behaviour for items without resolvers).
+    """
+
+    quote: PriceQuote | None
+    if variant is not None:
+        quote = await pricing.quote_unique_variant(name, variant)
+        if quote is None:
+            quote = await pricing.quote_unique(name)
+    else:
+        quote = await pricing.quote_unique(name)
     if quote is None:
         return None
     return quote_to_range(quote, chaos_per_divine=chaos_per_divine)

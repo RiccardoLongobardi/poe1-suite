@@ -106,6 +106,24 @@ class FakePricing:
             return None
         return _make_quote(name, chaos)
 
+    async def quote_unique_variant(
+        self,
+        name: str,
+        variant: str | None,
+    ) -> PriceQuote | None:
+        """Variant-aware fake.
+
+        Variants aren't modelled in :attr:`_uniques` (the existing
+        fixtures cover plain uniques only). Any non-``None`` variant
+        misses, and the planner falls back to :meth:`quote_unique` via
+        :func:`quote_unique_range`. ``variant=None`` is equivalent to
+        :meth:`quote_unique`.
+        """
+
+        if variant is None:
+            return await self.quote_unique(name)
+        return None
+
 
 # ---------------------------------------------------------------------------
 # Build fixtures
@@ -418,3 +436,259 @@ async def test_plan_expected_content_per_stage() -> None:
     assert ContentFocus.LEAGUE_START in plan.stages[0].expected_content
     assert ContentFocus.MAPPING in plan.stages[1].expected_content
     assert ContentFocus.UBERS in plan.stages[2].expected_content
+
+
+# ---------------------------------------------------------------------------
+# Streaming progress tests — plan_with_progress + ETA helpers
+# ---------------------------------------------------------------------------
+
+
+async def test_plan_with_progress_emits_full_lifecycle() -> None:
+    """The generator emits start → item_started/item_done* → done."""
+
+    fake = FakePricing(unique_quotes={"Mageblood": 60_000.0})
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[_key_item("Mageblood", slot=ItemSlot.BELT)])
+
+    events = [e async for e in svc.plan_with_progress(build)]
+    kinds = [e.kind for e in events]
+
+    assert kinds[0] == "start"
+    assert kinds[-1] == "done"
+    # one item → exactly one item_started + one item_done in between.
+    assert kinds.count("item_started") == 1
+    assert kinds.count("item_done") == 1
+
+
+async def test_plan_with_progress_start_event_carries_upfront_eta() -> None:
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(
+        key_items=[
+            _key_item("Tabula Rasa"),
+            _key_item("Mageblood", slot=ItemSlot.BELT),
+            _key_item("Goldrim", slot=ItemSlot.HELMET),
+        ]
+    )
+
+    first = None
+    async for e in svc.plan_with_progress(build):
+        first = e
+        break
+
+    assert first is not None
+    assert first.kind == "start"
+    assert first.total_items == 3
+    # 3 ninja items at 0.5s each = 1.5s upfront ETA.
+    assert first.eta_seconds == pytest.approx(1.5, abs=0.01)
+
+
+async def test_plan_with_progress_eta_decreases_through_lifecycle() -> None:
+    """ETA on every item_done should be strictly non-increasing."""
+
+    fake = FakePricing(
+        unique_quotes={
+            "Tabula Rasa": 30.0,
+            "Mageblood": 60_000.0,
+            "Goldrim": 2.0,
+        }
+    )
+    svc = PlannerService(fake)
+    build = _make_build(
+        key_items=[
+            _key_item("Tabula Rasa"),
+            _key_item("Mageblood", slot=ItemSlot.BELT),
+            _key_item("Goldrim", slot=ItemSlot.HELMET),
+        ]
+    )
+
+    item_done_etas = [
+        e.eta_seconds async for e in svc.plan_with_progress(build) if e.kind == "item_done"
+    ]
+    assert item_done_etas == sorted(item_done_etas, reverse=True)
+    # Final item_done should have ETA ~ 0 (one more event — done — to go).
+    assert item_done_etas[-1] >= 0.0
+
+
+async def test_plan_with_progress_done_event_carries_final_plan() -> None:
+    fake = FakePricing(unique_quotes={"Mageblood": 60_000.0})
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[_key_item("Mageblood", slot=ItemSlot.BELT)])
+
+    final = None
+    async for e in svc.plan_with_progress(build):
+        if e.kind == "done":
+            final = e
+    assert final is not None
+    assert final.final_plan is not None
+    assert final.final_plan.build_source_id == build.source_id
+    assert len(final.final_plan.stages) == 3
+
+
+async def test_plan_with_progress_item_events_carry_identity() -> None:
+    fake = FakePricing(unique_quotes={"Mageblood": 60_000.0})
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[_key_item("Mageblood", slot=ItemSlot.BELT)])
+
+    events = [e async for e in svc.plan_with_progress(build)]
+    item_started = next(e for e in events if e.kind == "item_started")
+
+    assert item_started.item_name == "Mageblood"
+    assert item_started.item_slot == "belt"
+    assert item_started.item_index == 0
+
+
+async def test_plan_silent_wrapper_returns_same_plan_as_streaming_done_event() -> None:
+    """The silent ``plan()`` is a thin wrapper — output must match the streaming version."""
+
+    fake = FakePricing(unique_quotes={"Mageblood": 60_000.0})
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[_key_item("Mageblood", slot=ItemSlot.BELT)])
+
+    silent = await svc.plan(build)
+    streamed = None
+    async for e in svc.plan_with_progress(build):
+        if e.kind == "done":
+            streamed = e.final_plan
+    assert streamed is not None
+    assert silent.total_estimated_cost.min.amount == streamed.total_estimated_cost.min.amount
+    assert silent.total_estimated_cost.max.amount == streamed.total_estimated_cost.max.amount
+
+
+# ---------------------------------------------------------------------------
+# ETA helper unit tests
+# ---------------------------------------------------------------------------
+
+
+def test_estimate_total_seconds_is_linear_in_each_population() -> None:
+    from poe1_fob.planner.progress import (
+        PER_ITEM_NINJA_SECONDS,
+        PER_ITEM_TRADE_SECONDS,
+        estimate_total_seconds,
+    )
+
+    assert estimate_total_seconds(n_ninja=0, n_trade=0) == 0.0
+    assert estimate_total_seconds(n_ninja=10, n_trade=0) == pytest.approx(
+        10 * PER_ITEM_NINJA_SECONDS
+    )
+    assert estimate_total_seconds(n_ninja=0, n_trade=5) == pytest.approx(5 * PER_ITEM_TRADE_SECONDS)
+    assert estimate_total_seconds(n_ninja=4, n_trade=3) == pytest.approx(
+        4 * PER_ITEM_NINJA_SECONDS + 3 * PER_ITEM_TRADE_SECONDS
+    )
+
+
+def test_recompute_eta_uses_upfront_estimate_before_any_item_done() -> None:
+    from poe1_fob.planner.progress import recompute_eta
+
+    eta = recompute_eta(
+        items_completed=0,
+        total_items=10,
+        elapsed_seconds=0.0,
+        upfront_eta=20.0,
+    )
+    assert eta == 20.0
+
+
+def test_recompute_eta_uses_observed_average_after_first_item() -> None:
+    from poe1_fob.planner.progress import recompute_eta
+
+    # 1 item in 4 seconds -> projected 4s/item * 9 remaining = 36s.
+    eta = recompute_eta(
+        items_completed=1,
+        total_items=10,
+        elapsed_seconds=4.0,
+        upfront_eta=999.0,  # ignored once we have observed data
+    )
+    assert eta == pytest.approx(36.0)
+
+
+def test_recompute_eta_returns_zero_when_all_items_done() -> None:
+    from poe1_fob.planner.progress import recompute_eta
+
+    eta = recompute_eta(
+        items_completed=5,
+        total_items=5,
+        elapsed_seconds=10.0,
+        upfront_eta=999.0,
+    )
+    assert eta == 0.0
+
+
+# ---------------------------------------------------------------------------
+# Variant-aware unique pricing
+# ---------------------------------------------------------------------------
+
+
+class _VariantTrackingFake(FakePricing):
+    """Fake that records (name, variant) calls for assertion."""
+
+    def __init__(self) -> None:
+        super().__init__(
+            chaos_per_divine=200.0,
+            unique_quotes={"Forbidden Shako": 100.0},
+        )
+        self.variant_calls: list[tuple[str, str | None]] = []
+        self.plain_calls: list[str] = []
+
+    async def quote_unique(self, name: str) -> PriceQuote | None:
+        self.plain_calls.append(name)
+        return await super().quote_unique(name)
+
+    async def quote_unique_variant(
+        self,
+        name: str,
+        variant: str | None,
+    ) -> PriceQuote | None:
+        self.variant_calls.append((name, variant))
+        # Always miss on the variant lookup so the planner exercises
+        # the cheapest-variant fallback path.
+        return None
+
+
+async def test_planner_calls_quote_unique_variant_for_registered_uniques() -> None:
+    """Forbidden Shako with an Allocates mod should trigger a variant lookup."""
+
+    from poe1_core.models import Item, ItemMod, ItemRarity, KeyItem
+    from poe1_core.models.enums import ModType
+
+    fake = _VariantTrackingFake()
+    svc = PlannerService(fake)
+
+    shako_with_keystone = KeyItem(
+        slot=ItemSlot.HELMET,
+        item=Item(
+            name="Forbidden Shako",
+            base_type="Great Crown",
+            rarity=ItemRarity.UNIQUE,
+            slot=ItemSlot.HELMET,
+            mods=[
+                ItemMod(text="Allocates Avatar of Fire", mod_type=ModType.EXPLICIT),
+            ],
+        ),
+        importance=4,
+    )
+    build = _make_build(key_items=[shako_with_keystone])
+
+    await svc.plan(build)
+
+    # The variant-aware lookup ran with the resolved keystone.
+    assert ("Forbidden Shako", "Avatar of Fire") in fake.variant_calls
+    # And after that miss, fell back to the plain unique lookup.
+    assert "Forbidden Shako" in fake.plain_calls
+
+
+async def test_planner_skips_variant_lookup_for_unregistered_uniques() -> None:
+    """A unique without a registered resolver goes straight to quote_unique."""
+
+    fake = _VariantTrackingFake()
+    svc = PlannerService(fake)
+    # Mageblood has no registered resolver in the default registry.
+    build = _make_build(key_items=[_key_item("Mageblood", slot=ItemSlot.BELT)])
+
+    await svc.plan(build)
+
+    # Variant resolver returned None → quote_unique_variant called with
+    # variant=None, which short-circuits to quote_unique inside
+    # quote_unique_range. We expect ZERO variant_calls in this path.
+    assert fake.variant_calls == []
+    assert "Mageblood" in fake.plain_calls

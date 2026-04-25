@@ -21,9 +21,11 @@ so the core domain models don't pick up FastAPI/OpenAPI concerns.
 from __future__ import annotations
 
 import hashlib
+from collections.abc import AsyncIterator
 from typing import Annotated
 
 from fastapi import APIRouter, Body, HTTPException
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, ConfigDict, Field
 
 from poe1_core.models import Build
@@ -34,7 +36,7 @@ from poe1_shared.http import HttpClient, HttpError
 from poe1_shared.logging import get_logger
 
 from .intent import IntentLlmError, extract_intent
-from .planner import PlannerService, PlanRequest, PlanResponse
+from .planner import PlannerService, PlanRequest, PlanResponse, PricingProgress
 from .pob import (
     PobInputError,
     PobParseError,
@@ -110,6 +112,20 @@ class AnalyzePobResponse(BaseModel):
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
+
+def _sse_format(event: PricingProgress) -> str:
+    """Render one progress event as a Server-Sent Events frame.
+
+    SSE expects ``data: <payload>\\n\\n`` blocks. We serialise the
+    Pydantic model with ``by_alias=True`` so camelCase aliases on the
+    nested :class:`BuildPlan` (when the ``done`` event carries it)
+    match what the rest of the API emits — same shape the React shell
+    already parses.
+    """
+
+    payload = event.model_dump_json(by_alias=True)
+    return f"data: {payload}\n\n"
 
 
 def _source_id_for(code: str) -> str:
@@ -295,6 +311,59 @@ def make_router(settings: Settings) -> APIRouter:
             total_max_div=plan.total_estimated_cost.max.amount,
         )
         return PlanResponse(build=build, plan=plan)
+
+    @router.post(
+        "/plan/stream",
+        summary=(
+            "Stream the plan generation as Server-Sent Events. Each event "
+            "is a PricingProgress JSON; the final 'done' event carries the "
+            "full BuildPlan in its final_plan field."
+        ),
+    )
+    async def plan_stream_endpoint(
+        payload: Annotated[PlanRequest, Body()],
+    ) -> StreamingResponse:
+        """SSE-streamed planning.
+
+        The body is the same :class:`PlanRequest` used by ``/plan``.
+        The response is ``text/event-stream`` with one ``data:``-prefixed
+        JSON event per :class:`PricingProgress`. The browser's
+        ``EventSource`` API consumes these directly.
+
+        We deliberately resolve the PoB before opening the stream so a
+        bad input fails fast with the regular HTTPException semantics
+        (400 / 422 / 502) rather than mid-stream. Pricing happens inside
+        the streamed generator where progress events naturally surface.
+        """
+
+        # Resolve the PoB synchronously up-front so input errors return
+        # a clean HTTP error rather than a half-opened SSE stream.
+        async with HttpClient(settings) as http:
+            build, _ = await _resolve_pob_to_build(payload.input, http=http)
+
+        async def event_source() -> AsyncIterator[str]:
+            async with HttpClient(settings) as http:
+                pricing = PricingService(http=http, league=settings.poe_league)
+                planner = PlannerService(pricing)
+                async for event in planner.plan_with_progress(
+                    build, target_goal=payload.target_goal
+                ):
+                    yield _sse_format(event)
+                log.info(
+                    "fob_plan_stream_ok",
+                    source_id=build.source_id,
+                    target_goal=payload.target_goal.value,
+                )
+
+        return StreamingResponse(
+            event_source(),
+            media_type="text/event-stream",
+            headers={
+                # Disable proxy buffering so events flush immediately.
+                "Cache-Control": "no-cache",
+                "X-Accel-Buffering": "no",
+            },
+        )
 
     return router
 

@@ -262,6 +262,31 @@ export interface PlanResponse {
 }
 
 // ---------------------------------------------------------------------------
+// Streaming pricing — POST /fob/plan/stream (Server-Sent Events)
+// ---------------------------------------------------------------------------
+
+export type PricingProgressKind =
+  | "start"
+  | "item_started"
+  | "item_done"
+  | "item_failed"
+  | "done";
+
+export interface PricingProgress {
+  kind: PricingProgressKind;
+  item_index: number;
+  total_items: number;
+  item_name: string | null;
+  item_slot: string | null;
+  elapsed_seconds: number;
+  /** Seconds remaining until projected completion (0 on the final 'done'). */
+  eta_seconds: number;
+  status: string;
+  /** Only populated on the 'done' event. */
+  final_plan: BuildPlan | null;
+}
+
+// ---------------------------------------------------------------------------
 // Error shape from FastAPI
 // ---------------------------------------------------------------------------
 
