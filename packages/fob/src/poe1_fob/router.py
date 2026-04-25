@@ -30,7 +30,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from poe1_core.models import Build
 from poe1_core.models.build_intent import BuildIntent
-from poe1_pricing import PricingService
+from poe1_pricing import PricingService, TradeSource
 from poe1_shared.config import Settings
 from poe1_shared.http import HttpClient, HttpError
 from poe1_shared.logging import get_logger
@@ -299,7 +299,8 @@ def make_router(settings: Settings) -> APIRouter:
             build, _ = await _resolve_pob_to_build(payload.input, http=http)
 
             pricing = PricingService(http=http, league=settings.poe_league)
-            planner = PlannerService(pricing)
+            trade = TradeSource(http=http, league=settings.poe_league)
+            planner = PlannerService(pricing, trade=trade)
             plan = await planner.plan(build, target_goal=payload.target_goal)
 
         log.info(
@@ -344,7 +345,8 @@ def make_router(settings: Settings) -> APIRouter:
         async def event_source() -> AsyncIterator[str]:
             async with HttpClient(settings) as http:
                 pricing = PricingService(http=http, league=settings.poe_league)
-                planner = PlannerService(pricing)
+                trade = TradeSource(http=http, league=settings.poe_league)
+                planner = PlannerService(pricing, trade=trade)
                 async for event in planner.plan_with_progress(
                     build, target_goal=payload.target_goal
                 ):

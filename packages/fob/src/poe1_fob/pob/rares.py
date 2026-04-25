@@ -393,6 +393,38 @@ def extract_mods(lines: Iterable[str]) -> list[ExtractedMod]:
     return out
 
 
+def valuable_stat_filters_from_mods(
+    explicit_mods: Iterable[str],
+    *,
+    floor_ratio: float | None = None,
+    max_filters: int = 6,
+) -> list[StatFilter]:
+    """String-input variant of :func:`valuable_stat_filters`.
+
+    Same behaviour but accepts raw mod strings directly so callers
+    holding a :class:`poe1_core.Item` (which carries
+    :class:`ItemMod` objects, not :class:`PobItem`) can extract the
+    text and pass it in without a round-trip through PoB models. The
+    metadata cleaner runs unconditionally — passing already-clean
+    strings is a no-op.
+    """
+
+    cleaned = _clean(tuple(explicit_mods))
+    matched = extract_mods(cleaned)
+    out: list[StatFilter] = []
+    seen_ids: set[str] = set()
+    for em in matched:
+        if em.stat_id in seen_ids:
+            continue
+        ratio = floor_ratio if floor_ratio is not None else _floor_for(em.stat_id)
+        floor = max(1.0, em.value * ratio)
+        out.append(StatFilter(stat_id=em.stat_id, min=round(floor, 2)))
+        seen_ids.add(em.stat_id)
+        if len(out) >= max_filters:
+            break
+    return out
+
+
 def valuable_stat_filters(
     item: PobItem,
     *,
@@ -415,20 +447,11 @@ def valuable_stat_filters(
     default — usually 0.85.
     """
 
-    _, explicits = clean_mods(item)
-    matched = extract_mods(explicits)
-    out: list[StatFilter] = []
-    seen_ids: set[str] = set()
-    for em in matched:
-        if em.stat_id in seen_ids:
-            continue
-        ratio = floor_ratio if floor_ratio is not None else _floor_for(em.stat_id)
-        floor = max(1.0, em.value * ratio)
-        out.append(StatFilter(stat_id=em.stat_id, min=round(floor, 2)))
-        seen_ids.add(em.stat_id)
-        if len(out) >= max_filters:
-            break
-    return out
+    return valuable_stat_filters_from_mods(
+        item.explicits,
+        floor_ratio=floor_ratio,
+        max_filters=max_filters,
+    )
 
 
 def _floor_for(stat_id: str) -> float:
@@ -447,4 +470,5 @@ __all__ = [
     "clean_mods",
     "extract_mods",
     "valuable_stat_filters",
+    "valuable_stat_filters_from_mods",
 ]

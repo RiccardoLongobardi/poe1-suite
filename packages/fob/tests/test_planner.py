@@ -47,7 +47,7 @@ from poe1_fob.planner.stages import (
     stage_budget,
     stage_for_amount,
 )
-from poe1_pricing import ItemCategory, PriceQuote
+from poe1_pricing import ItemCategory, PriceQuote, TradeQuery
 
 # ---------------------------------------------------------------------------
 # Fakes
@@ -675,6 +675,160 @@ async def test_planner_calls_quote_unique_variant_for_registered_uniques() -> No
     assert ("Forbidden Shako", "Avatar of Fire") in fake.variant_calls
     # And after that miss, fell back to the plain unique lookup.
     assert "Forbidden Shako" in fake.plain_calls
+
+
+# ---------------------------------------------------------------------------
+# Trade-API integration for rare items
+# ---------------------------------------------------------------------------
+
+
+class _FakeTradePort:
+    """Minimal :class:`TradePort` for tests.
+
+    Returns a canned :class:`PriceQuote` for any query whose stat
+    filter list is non-empty (the planner already gates that, but we
+    re-check defensively). Records every query for assertion.
+    """
+
+    def __init__(self, *, chaos_value: float = 8000.0) -> None:
+        self._chaos = chaos_value
+        self.calls: list[tuple[str | None, int]] = []  # (type, len(stats))
+
+    async def quote(
+        self,
+        query: TradeQuery,
+        *,
+        chaos_per_divine: float,
+        category: ItemCategory = ItemCategory.UNIQUE_ARMOUR,
+    ) -> PriceQuote | None:
+        self.calls.append((query.type, len(query.stats)))
+        if not query.stats:
+            return None
+        return _make_quote(
+            query.type or "rare",
+            self._chaos,
+            category=category,
+            sample_count=20,
+        )
+
+
+def _rare_key_item(
+    base_type: str,
+    *,
+    slot: ItemSlot,
+    importance: int = 4,
+    explicits: tuple[str, ...] = (
+        "+122 to maximum Life",
+        "+48% to Fire Resistance",
+        "+38% to Cold Resistance",
+    ),
+) -> KeyItem:
+    """Helper to build a RARE :class:`KeyItem` with mod text."""
+
+    from poe1_core.models import ItemMod
+    from poe1_core.models.enums import ModType
+
+    return KeyItem(
+        slot=slot,
+        item=Item(
+            name="",  # rares have no unique name
+            base_type=base_type,
+            rarity=ItemRarity.RARE,
+            slot=slot,
+            mods=[ItemMod(text=m, mod_type=ModType.EXPLICIT) for m in explicits],
+        ),
+        importance=importance,
+    )
+
+
+async def test_planner_prices_rares_via_trade_when_port_provided() -> None:
+    fake_pricing = FakePricing()
+    fake_trade = _FakeTradePort(chaos_value=8000.0)  # 40 div @ 200
+    svc = PlannerService(fake_pricing, trade=fake_trade)
+    build = _make_build(
+        key_items=[_rare_key_item("Vaal Regalia", slot=ItemSlot.BODY_ARMOUR)],
+    )
+
+    plan = await svc.plan(build)
+
+    # The Trade port was consulted with the right base type and >=2 filters.
+    assert fake_trade.calls
+    base_type, n_stats = fake_trade.calls[0]
+    assert base_type == "Vaal Regalia"
+    assert n_stats >= 2
+    # The rare landed in End-game (40 div > 25 div ceiling).
+    end_stage = plan.stages[2]
+    assert any(ci.name == "Vaal Regalia" for ci in end_stage.core_items)
+
+
+async def test_planner_skips_trade_when_port_not_configured() -> None:
+    """Without a TradePort the planner leaves rares un-priced (no exceptions)."""
+
+    fake_pricing = FakePricing()
+    svc = PlannerService(fake_pricing)  # trade=None implicit
+    build = _make_build(
+        key_items=[_rare_key_item("Vaal Regalia", slot=ItemSlot.BODY_ARMOUR)],
+    )
+
+    plan = await svc.plan(build)
+
+    # Item is in the plan but un-priced.
+    all_items = [ci for s in plan.stages for ci in s.core_items]
+    rare = next((ci for ci in all_items if ci.name == "Vaal Regalia"), None)
+    assert rare is not None
+    assert rare.price_estimate is None
+
+
+async def test_planner_skips_trade_when_rare_has_too_few_recognised_mods() -> None:
+    """A rare with only 1 recognised mod doesn't waste a Trade query."""
+
+    fake_pricing = FakePricing()
+    fake_trade = _FakeTradePort()
+    svc = PlannerService(fake_pricing, trade=fake_trade)
+    build = _make_build(
+        key_items=[
+            _rare_key_item(
+                "Vaal Regalia",
+                slot=ItemSlot.BODY_ARMOUR,
+                # Only one recognised mod (life). Below the 2-filter threshold.
+                explicits=("+122 to maximum Life",),
+            )
+        ],
+    )
+
+    await svc.plan(build)
+
+    # No Trade call should have been issued.
+    assert fake_trade.calls == []
+
+
+async def test_planner_eta_includes_trade_seconds_for_rares() -> None:
+    """Upfront ETA scales by the per-rare Trade budget (~6s each)."""
+
+    from poe1_fob.planner.progress import (
+        PER_ITEM_NINJA_SECONDS,
+        PER_ITEM_TRADE_SECONDS,
+    )
+
+    fake_pricing = FakePricing()
+    fake_trade = _FakeTradePort()
+    svc = PlannerService(fake_pricing, trade=fake_trade)
+    build = _make_build(
+        key_items=[
+            _key_item("Tabula Rasa"),  # unique → ninja
+            _rare_key_item("Vaal Regalia", slot=ItemSlot.BODY_ARMOUR),  # rare → trade
+            _rare_key_item("Coronal Maul", slot=ItemSlot.WEAPON_MAIN),  # rare → trade
+        ],
+    )
+
+    first = None
+    async for e in svc.plan_with_progress(build):
+        first = e
+        break
+    assert first is not None
+    # 1 ninja item (0.5s) + 2 trade items (12s) = 12.5s upfront.
+    expected = PER_ITEM_NINJA_SECONDS + 2 * PER_ITEM_TRADE_SECONDS
+    assert first.eta_seconds == pytest.approx(expected, abs=0.01)
 
 
 async def test_planner_skips_variant_lookup_for_unregistered_uniques() -> None:

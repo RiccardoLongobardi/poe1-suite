@@ -25,7 +25,7 @@ from poe1_core.models import (
     PriceSource,
     PriceValue,
 )
-from poe1_pricing import PriceQuote
+from poe1_pricing import ItemCategory, PriceQuote, TradeQuery
 
 # Heuristic fallback when poe.ninja's currency overview can't be reached
 # or when ``Divine Orb`` is missing. Mirage league baseline (~April 2026).
@@ -61,6 +61,24 @@ class PricingPort(Protocol):
         self,
         name: str,
         variant: str | None,
+    ) -> PriceQuote | None: ...
+
+
+class TradePort(Protocol):
+    """Subset of :class:`poe1_pricing.TradeSource` the planner needs.
+
+    Used for rare custom-craft items the poe.ninja overview can't
+    price. Provided as a separate Protocol so the planner accepts a
+    ``trade=None`` (skip rare pricing) without forcing every consumer
+    to wire up a Trade source.
+    """
+
+    async def quote(
+        self,
+        query: TradeQuery,
+        *,
+        chaos_per_divine: float,
+        category: ItemCategory = ...,
     ) -> PriceQuote | None: ...
 
 
@@ -162,6 +180,31 @@ async def quote_unique_range(
     return quote_to_range(quote, chaos_per_divine=chaos_per_divine)
 
 
+async def quote_trade_range(
+    trade: TradePort,
+    query: TradeQuery,
+    *,
+    chaos_per_divine: float,
+    category: ItemCategory = ItemCategory.UNIQUE_ARMOUR,
+) -> PriceRange | None:
+    """Run a Trade API query and return a divine-denominated PriceRange.
+
+    Returns ``None`` when the search produces no listings or every
+    listing's currency is unknown to the percentile pricer. The
+    resulting :class:`PriceRange` is stamped with
+    :attr:`PriceSource.TRADE_API` so downstream UI can distinguish
+    Trade-priced rares from poe.ninja-priced uniques.
+    """
+
+    quote = await trade.quote(query, chaos_per_divine=chaos_per_divine, category=category)
+    if quote is None:
+        return None
+    rng = quote_to_range(quote, chaos_per_divine=chaos_per_divine)
+    # quote_to_range stamps PriceSource.POE_NINJA — override with TRADE_API
+    # so consumers can correctly attribute the data source.
+    return rng.model_copy(update={"source": PriceSource.TRADE_API})
+
+
 def price_range_to_divines(price: PriceRange | None, chaos_per_divine: float) -> float | None:
     """Express a :class:`PriceRange` mid-point in divines.
 
@@ -179,8 +222,10 @@ def price_range_to_divines(price: PriceRange | None, chaos_per_divine: float) ->
 
 __all__ = [
     "PricingPort",
+    "TradePort",
     "chaos_to_divine_rate",
     "price_range_to_divines",
     "quote_to_range",
+    "quote_trade_range",
     "quote_unique_range",
 ]

@@ -37,6 +37,7 @@ from .rares import (
     clean_mods,
     extract_mods,
     valuable_stat_filters,
+    valuable_stat_filters_from_mods,
 )
 from .uniques import unique_variant
 
@@ -62,4 +63,5 @@ __all__ = [
     "snapshot_to_build",
     "unique_variant",
     "valuable_stat_filters",
+    "valuable_stat_filters_from_mods",
 ]

@@ -49,14 +49,17 @@ from poe1_core.models import (
     PriceSource,
     PriceValue,
 )
-from poe1_core.models.enums import ItemRarity, TargetGoal
-from poe1_pricing import VariantRegistry, build_default_registry
+from poe1_core.models.enums import ItemRarity, ItemSlot, TargetGoal
+from poe1_pricing import ItemCategory, TradeQuery, VariantRegistry, build_default_registry
 from poe1_shared.logging import get_logger
 
+from ..pob.rares import valuable_stat_filters_from_mods
 from .pricing import (
     PricingPort,
+    TradePort,
     chaos_to_divine_rate,
     price_range_to_divines,
+    quote_trade_range,
     quote_unique_range,
 )
 from .progress import (
@@ -169,9 +172,11 @@ class PlannerService:
         self,
         pricing: PricingPort,
         *,
+        trade: TradePort | None = None,
         variant_registry: VariantRegistry | None = None,
     ) -> None:
         self._pricing = pricing
+        self._trade = trade
         self._registry = variant_registry or build_default_registry()
 
     # ------------------------------------------------------------------
@@ -203,10 +208,17 @@ class PlannerService:
         rate = await chaos_to_divine_rate(self._pricing)
 
         n_items = len(build.key_items)
-        # All items are poe.ninja-priced for now (Trade integration for
-        # rares ships in a follow-up milestone). When that lands the
-        # split here will reflect KeyItem rarity.
-        upfront_eta = estimate_total_seconds(n_ninja=n_items, n_trade=0)
+        # Split items by which source will price them: uniques go to
+        # poe.ninja (~0.5s each, mostly cached), rares go to GGG Trade
+        # (~6s each with rate-limit pacing). When ``self._trade`` is
+        # ``None`` rares are skipped entirely — count them as ninja so
+        # the ETA stays honest.
+        if self._trade is not None:
+            n_trade = sum(1 for ki in build.key_items if ki.item.rarity is ItemRarity.RARE)
+        else:
+            n_trade = 0
+        n_ninja = n_items - n_trade
+        upfront_eta = estimate_total_seconds(n_ninja=n_ninja, n_trade=n_trade)
         started_at = monotonic()
 
         yield PricingProgress(
@@ -354,12 +366,17 @@ class PlannerService:
         * ``UNIQUE`` — variant-aware lookup if the registry knows this
           unique, plain ``quote_unique`` otherwise. Variant misses
           fall back to the cheapest variant.
-        * Anything else — currently un-priced (see module docstring).
+        * ``RARE`` — when a Trade port is configured, build a stat-aware
+          query from the item's mods and price via the Trade API
+          (percentile-trimmed median). Rares without enough recognised
+          mods (< 2 ``StatFilter``s) skip the query altogether — they'd
+          return noise, not signal.
+        * Other rarities — un-priced.
         """
 
-        if not ki.item.name:
-            return None
         if ki.item.rarity is ItemRarity.UNIQUE:
+            if not ki.item.name:
+                return None
             variant = _resolve_variant(ki.item, self._registry)
             return await quote_unique_range(
                 self._pricing,
@@ -367,7 +384,48 @@ class PlannerService:
                 chaos_per_divine=rate,
                 variant=variant,
             )
+        if ki.item.rarity is ItemRarity.RARE and self._trade is not None:
+            mod_texts = tuple(m.text for m in ki.item.mods)
+            stats = valuable_stat_filters_from_mods(mod_texts, max_filters=6)
+            if len(stats) < 2:
+                return None
+            query = TradeQuery(
+                type=ki.item.base_type,
+                stats=tuple(stats),
+            )
+            return await quote_trade_range(
+                self._trade,
+                query,
+                chaos_per_divine=rate,
+                category=_slot_to_category(ki.slot),
+            )
         return None
+
+
+def _slot_to_category(slot: ItemSlot) -> ItemCategory:
+    """Best-effort mapping of an item slot to an :class:`ItemCategory`.
+
+    The category is decorative metadata on the resulting
+    :class:`PriceQuote`; it doesn't affect Trade search, only how
+    consumers attribute the item afterwards. Slots without a clean
+    mapping fall back to :attr:`ItemCategory.UNIQUE_ARMOUR` (the most
+    common case).
+    """
+
+    if slot in {
+        ItemSlot.HELMET,
+        ItemSlot.BODY_ARMOUR,
+        ItemSlot.GLOVES,
+        ItemSlot.BOOTS,
+    }:
+        return ItemCategory.UNIQUE_ARMOUR
+    if slot in {ItemSlot.WEAPON_MAIN, ItemSlot.WEAPON_OFFHAND}:
+        return ItemCategory.UNIQUE_WEAPON
+    if slot in {ItemSlot.RING, ItemSlot.AMULET, ItemSlot.BELT}:
+        return ItemCategory.UNIQUE_ACCESSORY
+    if slot in {ItemSlot.JEWEL, ItemSlot.CLUSTER_JEWEL}:
+        return ItemCategory.UNIQUE_JEWEL
+    return ItemCategory.UNIQUE_ARMOUR
 
 
 __all__ = ["PlannerService"]

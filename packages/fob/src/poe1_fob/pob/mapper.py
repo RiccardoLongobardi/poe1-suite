@@ -35,6 +35,7 @@ from poe1_core.models import (
 )
 
 from .models import PobItem, PobSkillGroup, PobSnapshot
+from .rares import valuable_stat_filters
 
 # ---------------------------------------------------------------------------
 # Main skill extraction
@@ -417,12 +418,43 @@ def _pob_item_to_core(pob_item: PobItem, *, slot: ItemSlot) -> Item:
     )
 
 
-def _key_items(snapshot: PobSnapshot) -> list[KeyItem]:
-    """Build the KeyItem list — every equipped UNIQUE becomes a key item.
+# Importance per slot for promoted rares. Higher = priced first.
+# Body armour and weapons have the highest absolute price spread, so
+# they get top importance; jewellery sits in the middle.
+_RARE_SLOT_IMPORTANCE: dict[ItemSlot, int] = {
+    ItemSlot.BODY_ARMOUR: 4,
+    ItemSlot.WEAPON_MAIN: 4,
+    ItemSlot.WEAPON_OFFHAND: 4,
+    ItemSlot.HELMET: 3,
+    ItemSlot.GLOVES: 3,
+    ItemSlot.BOOTS: 3,
+    ItemSlot.AMULET: 3,
+    ItemSlot.BELT: 3,
+    ItemSlot.RING: 2,
+    ItemSlot.QUIVER: 3,
+}
 
-    Rare items aren't promoted because their importance is a function of
-    roll quality, which isn't cheap to assess here. Ranking will add
-    criteria for rares separately when it knows the build's damage type.
+# Below this many recognised valuable mods we don't promote a rare.
+# Two filters are the minimum the Trade API needs to narrow the search
+# beyond "any rare of this base"; one filter alone returns thousands
+# of unrelated listings and pollutes the percentile pricer.
+_RARE_MIN_VALUABLE_MODS: int = 2
+
+
+def _key_items(snapshot: PobSnapshot) -> list[KeyItem]:
+    """Build the KeyItem list — equipped uniques + worth-pricing rares.
+
+    A rare is "worth pricing" when it has at least
+    :data:`_RARE_MIN_VALUABLE_MODS` mods that match the
+    :data:`MOD_PATTERNS` table — i.e. enough signal to send a focused
+    Trade API query. Bare rares (e.g. unidentified, or with only mods
+    we don't track) are skipped to avoid wasting Trade requests on
+    queries that would return noise.
+
+    Importance follows :data:`_RARE_SLOT_IMPORTANCE`. Uniques keep
+    their default importance of 3 — the planner orders by stage cost
+    bucket, not by importance, so the absolute number matters less
+    than the relative ordering inside each bucket.
     """
 
     out: list[KeyItem] = []
@@ -433,6 +465,19 @@ def _key_items(snapshot: PobSnapshot) -> list[KeyItem]:
                     slot=slot,
                     item=_pob_item_to_core(pob_item, slot=slot),
                     importance=3,
+                )
+            )
+            continue
+        if pob_item.rarity is ItemRarity.RARE:
+            filters = valuable_stat_filters(pob_item, max_filters=8)
+            if len(filters) < _RARE_MIN_VALUABLE_MODS:
+                continue
+            importance = _RARE_SLOT_IMPORTANCE.get(slot, 2)
+            out.append(
+                KeyItem(
+                    slot=slot,
+                    item=_pob_item_to_core(pob_item, slot=slot),
+                    importance=importance,
                 )
             )
     return out

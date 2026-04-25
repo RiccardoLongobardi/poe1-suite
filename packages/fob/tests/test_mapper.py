@@ -107,10 +107,20 @@ def test_build_content_tags_include_mapping(real_build) -> None:  # type: ignore
     assert ContentFocus.UBERS in real_build.content_tags
 
 
-def test_build_key_items_are_uniques(real_build) -> None:  # type: ignore[no-untyped-def]
+def test_build_key_items_are_uniques_or_high_value_rares(real_build) -> None:  # type: ignore[no-untyped-def]
+    """Every KeyItem is either a unique or a rare with enough valuable mods.
+
+    Step 9.4b extended the mapper to also surface high-value rares so
+    they can be priced via the GGG Trade API. We require at least one
+    unique to be present (typical for any well-built character) and
+    every entry to satisfy the rarity contract.
+    """
+
     assert real_build.key_items  # non-empty for a level-100 build
+    rarities = {key.item.rarity for key in real_build.key_items}
+    assert ItemRarity.UNIQUE in rarities  # any decent build has uniques
     for key in real_build.key_items:
-        assert key.item.rarity is ItemRarity.UNIQUE
+        assert key.item.rarity in {ItemRarity.UNIQUE, ItemRarity.RARE}
         assert 1 <= key.importance <= 5
         assert isinstance(key.slot, ItemSlot)
 

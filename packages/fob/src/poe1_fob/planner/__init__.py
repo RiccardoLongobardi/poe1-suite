@@ -17,7 +17,7 @@ Public surface:
 from __future__ import annotations
 
 from .models import PlanRequest, PlanResponse
-from .pricing import PricingPort
+from .pricing import PricingPort, TradePort
 from .progress import (
     PER_ITEM_NINJA_SECONDS,
     PER_ITEM_TRADE_SECONDS,
@@ -35,6 +35,7 @@ __all__ = [
     "PlannerService",
     "PricingPort",
     "PricingProgress",
+    "TradePort",
     "estimate_total_seconds",
     "recompute_eta",
 ]
