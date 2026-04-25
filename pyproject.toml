@@ -113,6 +113,9 @@ testpaths = [
     "apps/server/tests",
 ]
 asyncio_mode = "auto"
+markers = [
+    "integration: tests that require external services (e.g. ANTHROPIC_API_KEY)",
+]
 addopts = [
     "-ra",
     "--strict-markers",

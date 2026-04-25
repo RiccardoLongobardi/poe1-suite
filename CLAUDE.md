@@ -34,9 +34,9 @@ uv run mypy .
 uv run pytest
 ```
 
-All four must pass with zero errors. Current baseline: **249 tests green, 62 files type-checked clean, 60 files formatted clean**.
+All four must pass with zero errors. Current baseline: **324 tests green (2 skipped — integration/LLM), 74 files type-checked clean, 72 files formatted clean**.
 
-## What's built (state as of 2026-04-24, end of Step 4)
+## What's built (state as of 2026-04-25, end of Step 6)
 
 | Module | Package | Routes | Status |
 |---|---|---|---|
@@ -45,15 +45,17 @@ All four must pass with zero errors. Current baseline: **249 tests green, 62 fil
 | PoB ingest + parser + mapper | `poe1-fob` | `POST /fob/analyze-pob` | done (raw / pobb.in / pastebin; full XML parse; Build mapping) |
 | poe.ninja economy (currency, uniques, cluster, jewels, …) | `poe1-pricing` | `GET /pricing/quote`, `GET /pricing/snapshot` | done |
 | poe.ninja ladder builds | `poe1-builds` | `GET /builds/list`, `GET /builds/detail` | done (protobuf columnar search + JSON hydration, 19 ascendancy fan-out, `main_skill` / `defense_type` filters) |
+| IntentExtractor | `poe1-fob` | `POST /fob/extract-intent` | done (hybrid rule-based IT+EN + Anthropic Haiku tool-use fallback; 15 fixture cases; confidence threshold 0.70) |
+| Ranking Engine | `poe1-fob` | `POST /fob/recommend` | done (SourceAggregator fan-out → hard-constraint filter → 6-dim weighted scorer → top-N; 49 unit tests) |
+| UI shell | `apps/shell` | — | done (React 18 + Vite 5 + Mantine v7 + TanStack Query; Build Finder + PoB Analyzer; `npm run dev` on :5173) |
 
 Server: `uv run poe1-server` → <http://127.0.0.1:8765>. `/health`, `/version`, plus all the routes above.
+Shell dev: `cd apps/shell && npm run dev` → <http://127.0.0.1:5173> (proxies API to :8765).
 
-## What's next (Step 5 — pick one)
+## What's next (Step 8)
 
-- **A. IntentExtractor** (backend, hybrid rule-based IT+EN + LLM fallback). Turns "voglio una cold build comfy per mapping" into a `BuildIntent`. Feeds the Ranker which consumes `RemoteBuildRef` + `PriceQuote`.
-- **B. UI shell** (`apps/shell/` — React + Vite + Mantine). Makes the three existing routers clickable in a browser before the intent layer is done.
-
-Ask Riccardo which direction he wants before scaffolding.
+- **Planner** — `POST /fob/plan`. Dato un `RankedBuild` (o un PoB), genera un piano di upgrade a step con costi da poe.ninja pricing.
+- **Faustus flipper** — nuovo package `poe1-faustus` per flip di valuta basato su poe.ninja bulk trades.
 
 ## Project-specific gotchas (learned the hard way)
 
@@ -71,6 +73,7 @@ Ask Riccardo which direction he wants before scaffolding.
 3. Create a new `packages/<name>/` following the pricing/builds template: `src/poe1_<name>/{__init__.py, models.py, service.py, sources/*.py, router.py}`, `tests/{conftest.py, fixtures/, test_*.py}`, `pyproject.toml` declaring the package and its deps.
 4. Capture real fixtures first, then write models to match them, then write the source adapter, then the service facade, then the router.
 5. Close the step by running the full gate and updating this file's "What's built" table.
+6. Commit and **push** the worktree branch: `git push origin claude/friendly-kowalevski-9d17f8`. This is mandatory after every step — don't ask, just do it.
 
 ## Environment
 

@@ -1,9 +1,15 @@
 """FastAPI router for the FOB (Frusta Oracle Builder) endpoints.
 
-This module exposes the tools that don't need the ranking or intent
-pipelines yet — primarily the ``POST /fob/analyze-pob`` endpoint, which
-resolves a raw PoB code or pobb.in / pastebin share URL into a
-:class:`poe1_core.Build` plus the full :class:`PobSnapshot`.
+This module exposes:
+
+* ``POST /fob/analyze-pob`` — resolves a raw PoB code or pobb.in / pastebin
+  share URL into a :class:`poe1_core.Build` plus the full :class:`PobSnapshot`.
+* ``POST /fob/extract-intent`` — converts a free-text query (IT or EN) into a
+  strongly-typed :class:`poe1_core.BuildIntent` using the hybrid rule-based +
+  LLM fallback pipeline.
+* ``POST /fob/recommend`` — given a :class:`BuildIntent`, fetches build
+  candidates from all sources, applies hard-constraint filtering, scores each
+  candidate on six weighted dimensions, and returns the top-N ranked builds.
 
 Keep all HTTP-shaped types (request/response models) local to this file
 so the core domain models don't pick up FastAPI/OpenAPI concerns.
@@ -18,10 +24,12 @@ from fastapi import APIRouter, Body, HTTPException
 from pydantic import BaseModel, ConfigDict, Field
 
 from poe1_core.models import Build
+from poe1_core.models.build_intent import BuildIntent
 from poe1_shared.config import Settings
 from poe1_shared.http import HttpClient, HttpError
 from poe1_shared.logging import get_logger
 
+from .intent import IntentLlmError, extract_intent
 from .pob import (
     PobInputError,
     PobParseError,
@@ -31,6 +39,7 @@ from .pob import (
     parse_snapshot,
     snapshot_to_build,
 )
+from .ranking import RankingEngine, RecommendRequest, RecommendResponse, SourceAggregator
 
 log = get_logger(__name__)
 
@@ -38,6 +47,23 @@ log = get_logger(__name__)
 # ---------------------------------------------------------------------------
 # Request / response shapes
 # ---------------------------------------------------------------------------
+
+
+class ExtractIntentRequest(BaseModel):
+    """Input for ``POST /fob/extract-intent``."""
+
+    model_config = ConfigDict(frozen=True)
+
+    query: str = Field(
+        ...,
+        min_length=1,
+        max_length=2000,
+        description=(
+            "Free-text description of the desired build — Italian or English. "
+            "Example: 'voglio una cold build comfy per mapping' or "
+            "'looking for a cheap CI caster for bossing'."
+        ),
+    )
 
 
 class AnalyzePobRequest(BaseModel):
@@ -145,7 +171,73 @@ def make_router(settings: Settings) -> APIRouter:
         )
         return AnalyzePobResponse(build=build, snapshot=snapshot)
 
+    @router.post(
+        "/extract-intent",
+        response_model=BuildIntent,
+        summary="Convert a free-text query into a structured BuildIntent.",
+    )
+    async def extract_intent_endpoint(
+        payload: Annotated[ExtractIntentRequest, Body()],
+    ) -> BuildIntent:
+        try:
+            intent = await extract_intent(payload.query, settings=settings)
+        except IntentLlmError as exc:
+            raise HTTPException(status_code=502, detail=f"LLM fallback failed: {exc}") from exc
+        except ValueError as exc:
+            raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+        log.info(
+            "fob_extract_intent_ok",
+            origin=intent.parser_origin,
+            confidence=intent.confidence,
+            damage=intent.damage_profile,
+            playstyle=intent.playstyle,
+        )
+        return intent
+
+    @router.post(
+        "/recommend",
+        response_model=RecommendResponse,
+        summary=("Rank ladder builds against a BuildIntent and return the top-N candidates."),
+    )
+    async def recommend(
+        payload: Annotated[RecommendRequest, Body()],
+    ) -> RecommendResponse:
+        """Fetch → filter → score → sort.
+
+        1. :class:`SourceAggregator` fans out to poe.ninja (19 ascendancies
+           concurrently) and merges refs.
+        2. :class:`RankingEngine` drops hard-constraint violations, scores
+           each ref on six weighted dimensions, and returns the top-N.
+
+        On upstream timeout the engine still runs over whatever refs were
+        fetched in time.
+        """
+        async with HttpClient(settings) as http:
+            agg = SourceAggregator(settings)
+            refs = await agg.fetch_candidates(payload.intent, http=http)
+
+        engine = RankingEngine()
+        ranked = engine.rank(payload.intent, refs, top_n=payload.top_n)
+
+        log.info(
+            "fob_recommend_ok",
+            candidates=len(refs),
+            returned=len(ranked),
+            top_score=ranked[0].score.total if ranked else 0.0,
+        )
+        return RecommendResponse(
+            ranked=tuple(ranked),
+            total_candidates=len(refs),
+            intent=payload.intent,
+        )
+
     return router
 
 
-__all__ = ["AnalyzePobRequest", "AnalyzePobResponse", "make_router"]
+__all__ = [
+    "AnalyzePobRequest",
+    "AnalyzePobResponse",
+    "ExtractIntentRequest",
+    "make_router",
+]

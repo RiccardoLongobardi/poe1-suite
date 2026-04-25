@@ -1,0 +1,164 @@
+[
+  {
+    "id": "cold_mapping_comfy",
+    "raw": "voglio una cold build comfy per mapping",
+    "expect": {
+      "damage_profile": "cold",
+      "playstyle": null,
+      "content_focus_contains": ["mapping"],
+      "complexity_cap": "low",
+      "min_confidence": 0.55
+    }
+  },
+  {
+    "id": "fire_totem_boss",
+    "raw": "totem fire bossing low budget",
+    "expect": {
+      "damage_profile": "fire",
+      "playstyle": "totem",
+      "content_focus_contains": ["bossing"],
+      "budget_tier": "low",
+      "min_confidence": 0.70
+    }
+  },
+  {
+    "id": "lightning_ranged_mapping",
+    "raw": "lightning bow mapper, medium budget, no melee",
+    "expect": {
+      "damage_profile": "lightning",
+      "playstyle": "ranged_attack",
+      "content_focus_contains": ["mapping"],
+      "budget_tier": "medium",
+      "hard_constraints_contains": ["no_melee"],
+      "min_confidence": 0.70
+    }
+  },
+  {
+    "id": "ci_caster_bossing",
+    "raw": "looking for a cheap CI caster for bossing",
+    "expect": {
+      "defense_profile": "chaos_inoculation",
+      "content_focus_contains": ["bossing"],
+      "budget_tier": "low",
+      "min_confidence": 0.40
+    }
+  },
+  {
+    "id": "necro_ssf_starter",
+    "raw": "necromancer servitori ssf league start semplice",
+    "expect": {
+      "damage_profile": "minion_physical",
+      "playstyle": "minion",
+      "budget_tier": "league_start",
+      "complexity_cap": "low",
+      "hard_constraints_contains": ["ssf_viable"],
+      "min_confidence": 0.70
+    }
+  },
+  {
+    "id": "phys_melee_hc",
+    "raw": "physical melee hardcore viable, high budget",
+    "expect": {
+      "damage_profile": "physical",
+      "playstyle": "melee",
+      "budget_tier": "high",
+      "hard_constraints_contains": ["hardcore_viable"],
+      "min_confidence": 0.70
+    }
+  },
+  {
+    "id": "trap_chaos_delve",
+    "raw": "trappola chaos delve, voglio qualcosa di tecnico",
+    "expect": {
+      "damage_profile": "chaos",
+      "playstyle": "trap",
+      "content_focus_contains": ["delve"],
+      "complexity_cap": "high",
+      "min_confidence": 0.70
+    }
+  },
+  {
+    "id": "rf_aura_mapping",
+    "raw": "righteous fire mapping farm brain dead",
+    "expect": {
+      "playstyle": "degen_aura",
+      "content_focus_contains": ["mapping"],
+      "complexity_cap": "low",
+      "min_confidence": 0.50
+    }
+  },
+  {
+    "id": "brand_lightning_sanctum",
+    "raw": "brand fulmine sanctum medium budget",
+    "expect": {
+      "damage_profile": "lightning",
+      "playstyle": "brand",
+      "content_focus_contains": ["sanctum"],
+      "budget_tier": "medium",
+      "min_confidence": 0.70
+    }
+  },
+  {
+    "id": "poison_bow_simulacrum",
+    "raw": "poison bow simulacrum, no trap, no mine",
+    "expect": {
+      "damage_profile": "poison",
+      "playstyle": "ranged_attack",
+      "content_focus_contains": ["simulacrum"],
+      "hard_constraints_contains": ["no_trap_mine"],
+      "min_confidence": 0.55
+    }
+  },
+  {
+    "id": "bleed_gladiator_mapping",
+    "raw": "bleed gladiator for mapping, evasion defense",
+    "expect": {
+      "damage_profile": "bleed",
+      "content_focus_contains": ["mapping"],
+      "defense_profile": "evasion",
+      "min_confidence": 0.55
+    }
+  },
+  {
+    "id": "cold_dot_uber",
+    "raw": "cold dot per uber boss killer",
+    "expect": {
+      "damage_profile": "cold_dot",
+      "content_focus_contains": ["ubers"],
+      "min_confidence": 0.50
+    }
+  },
+  {
+    "id": "cwc_chaos_mapping",
+    "raw": "cwc chaos mapping economico",
+    "expect": {
+      "damage_profile": "chaos",
+      "playstyle": "cast_while_channelling",
+      "content_focus_contains": ["mapping"],
+      "budget_tier": "low",
+      "min_confidence": 0.70
+    }
+  },
+  {
+    "id": "mine_lightning_uber",
+    "raw": "mine lightning uber capable, high budget, CI",
+    "expect": {
+      "damage_profile": "lightning",
+      "playstyle": "mine",
+      "content_focus_contains": ["ubers"],
+      "budget_tier": "high",
+      "defense_profile": "chaos_inoculation",
+      "min_confidence": 0.70
+    }
+  },
+  {
+    "id": "generalist_low_budget",
+    "raw": "build generalista tutto contenuto budget basso semplice",
+    "expect": {
+      "content_focus_contains": ["generalist"],
+      "budget_tier": "low",
+      "complexity_cap": "low",
+      "min_confidence": 0.40
+    }
+  }
+]
