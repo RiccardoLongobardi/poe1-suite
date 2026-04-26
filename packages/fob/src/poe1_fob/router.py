@@ -287,8 +287,9 @@ def make_router(settings: Settings) -> APIRouter:
         2. :class:`PricingService` is opened against the configured
            league for poe.ninja lookups.
         3. :class:`PlannerService` prices each unique key item, buckets
-           by divine cost into LEAGUE_START / MID_GAME / END_GAME, and
-           returns the assembled :class:`BuildPlan`.
+           by divine cost into the 6-stage layout (Early/Mid/End Campaign
+           + Early/End Mapping + High Investment), and returns the
+           assembled :class:`BuildPlan`.
 
         The HTTP client and pricing service share a single
         :class:`HttpClient` so cache and rate-limit accounting are

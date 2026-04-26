@@ -3,18 +3,25 @@
 Pipeline:
 
 1. Resolve the current chaos-per-divine rate.
-2. For every :class:`KeyItem`, derive a :class:`PriceRange`:
+2. Pick a :class:`BuildTemplate` from the registry based on the
+   build's main skill — falls back to :class:`GenericTemplate` when
+   nothing matches.
+3. For every :class:`KeyItem`, derive a :class:`PriceRange`:
    * **Variant-aware uniques** — read mod text from the item, ask the
      :class:`VariantRegistry` for a poe.ninja variant string, call
      :meth:`PricingPort.quote_unique_variant`. Falls back to the
      cheapest variant (``quote_unique``) when the variant isn't listed.
    * **Plain uniques** — direct ``quote_unique`` lookup.
-   * **Other items** — left un-priced for now (rare-via-Trade lands in
-     a follow-up milestone alongside KeyItem extension for rares).
-3. Bucket items into LEAGUE_START / MID_GAME / END_GAME by their
-   divine-equivalent midpoint.
-4. Sum each bucket into a stage budget and assemble the
-   :class:`BuildPlan`.
+   * **Rare items** — when a TradePort is configured, build a
+     stat-aware Trade query from the item's mods (≥ 2 recognised
+     valuable mods required) and percentile-trim the listings.
+   * **Anything else** — left un-priced.
+4. Bucket items across the 6 stages (Early / Mid / End Campaign +
+   Early / End Mapping + High Investment) by their divine-equivalent
+   midpoint.
+5. Run the template against each stage to produce gem changes, tree
+   changes, rationale, and trigger copy. Sum each bucket into a stage
+   budget and assemble the :class:`BuildPlan`.
 
 Two entry points are exposed:
 
@@ -68,6 +75,7 @@ from .progress import (
     recompute_eta,
 )
 from .stages import ALL_STAGES, StageSpec, stage_budget, stage_for_amount
+from .templates import BuildTemplate, StagePlanContent, pick_template
 
 log = get_logger(__name__)
 
@@ -110,23 +118,15 @@ def _renumber_priorities(items: list[CoreItem]) -> list[CoreItem]:
     return [ci.model_copy(update={"buy_priority": i}) for i, ci in enumerate(sorted_items, start=1)]
 
 
-def _gem_changes_for_stage(spec: StageSpec, build: Build) -> list[str]:
-    """Stage-flavoured gem hints derived from the build's main skill."""
+def _stage_content(spec: StageSpec, build: Build, template: BuildTemplate) -> StagePlanContent:
+    """Per-stage payload from a build template.
 
-    if spec.label == "League start":
-        supports = ", ".join(build.support_gems[:3]) or "(usa i support che hai dalle quest)"
-        return [f"Setup base: {build.main_skill} + {supports}."]
-    if spec.label == "Mid-game":
-        return [
-            "Porta tutti i support gem a 20/20 (quality + level).",
-            "Compra eventuali gem 21/20 corruptati se il prezzo è ragionevole.",
-        ]
-    if spec.label == "End-game" and build.support_gems:
-        return [
-            "Sostituisci con awakened support gem dove esistono "
-            "(es. Awakened Added Fire / Awakened Spell Echo)."
-        ]
-    return []
+    Template selection happens once at the top of
+    :meth:`plan_with_progress`; this is a thin pass-through so the
+    streaming generator stays linear and easy to read.
+    """
+
+    return template.for_stage(spec, build)
 
 
 def _total_cost(stages: list[PlanStage]) -> PriceRange:
@@ -174,10 +174,15 @@ class PlannerService:
         *,
         trade: TradePort | None = None,
         variant_registry: VariantRegistry | None = None,
+        template_override: BuildTemplate | None = None,
     ) -> None:
         self._pricing = pricing
         self._trade = trade
         self._registry = variant_registry or build_default_registry()
+        # Tests pass ``template_override`` to lock template behaviour
+        # without going through the registry. Production leaves this
+        # ``None`` so :func:`pick_template` runs against each Build.
+        self._template_override = template_override
 
     # ------------------------------------------------------------------
     # Streaming entry point — yields PricingProgress as it works
@@ -206,6 +211,7 @@ class PlannerService:
         """
 
         rate = await chaos_to_divine_rate(self._pricing)
+        template = self._template_override or pick_template(build)
 
         n_items = len(build.key_items)
         # Split items by which source will price them: uniques go to
@@ -285,20 +291,22 @@ class PlannerService:
         for spec in ALL_STAGES:
             buckets[spec] = _renumber_priorities(buckets[spec])
 
-        # Materialise PlanStage objects.
-        stages: list[PlanStage] = [
-            PlanStage(
-                label=spec.label,
-                budget_range=stage_budget(buckets[spec], spec, chaos_per_divine=rate),
-                expected_content=list(spec.expected_content),
-                core_items=buckets[spec],
-                tree_changes=[],
-                gem_changes=_gem_changes_for_stage(spec, build),
-                upgrade_rationale=spec.rationale,
-                next_step_trigger=spec.next_trigger,
+        # Materialise PlanStage objects via the resolved template.
+        stages: list[PlanStage] = []
+        for spec in ALL_STAGES:
+            content = _stage_content(spec, build, template)
+            stages.append(
+                PlanStage(
+                    label=spec.label,
+                    budget_range=stage_budget(buckets[spec], spec, chaos_per_divine=rate),
+                    expected_content=list(spec.expected_content),
+                    core_items=buckets[spec],
+                    tree_changes=content.tree_changes,
+                    gem_changes=content.gem_changes,
+                    upgrade_rationale=content.rationale_override or spec.rationale,
+                    next_step_trigger=content.trigger_override or spec.next_trigger,
+                )
             )
-            for spec in ALL_STAGES
-        ]
 
         plan = BuildPlan(
             build_source_id=build.source_id,

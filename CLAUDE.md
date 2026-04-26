@@ -34,7 +34,7 @@ uv run mypy .
 uv run pytest
 ```
 
-All four must pass with zero errors. Current baseline: **461 tests green (2 skipped — integration/LLM), 89 files type-checked clean, 87 files formatted clean**.
+All four must pass with zero errors. Current baseline: **466 tests green (2 skipped — integration/LLM), 90 files type-checked clean, 88 files formatted clean**.
 
 ## What's built (state as of 2026-04-25, end of Step 8 — FOB completo)
 
@@ -47,7 +47,7 @@ All four must pass with zero errors. Current baseline: **461 tests green (2 skip
 | poe.ninja ladder builds | `poe1-builds` | `GET /builds/list`, `GET /builds/detail` | done (protobuf columnar search + JSON hydration, 19 ascendancy fan-out, `main_skill` / `defense_type` filters) |
 | IntentExtractor | `poe1-fob` | `POST /fob/extract-intent` | done (hybrid rule-based IT+EN + Anthropic Haiku tool-use fallback; 15 fixture cases; confidence threshold 0.70) |
 | Ranking Engine | `poe1-fob` | `POST /fob/recommend` | done (SourceAggregator fan-out → hard-constraint filter → 6-dim weighted scorer → top-N; 49 unit tests) |
-| **Planner** | `poe1-fob` | `POST /fob/plan` | done (analyze-pob → poe.ninja pricing → 3-stage bucket per divine cost → BuildPlan; 19 unit tests) |
+| **Planner v2** | `poe1-fob` | `POST /fob/plan`, `POST /fob/plan/stream` | done — 6-stage layout (Early/Mid/End Campaign + Early/End Mapping + High Investment), variant-aware unique pricing + Trade-API rare pricing, BuildTemplate registry (RfPohx detailed, GenericTemplate fallback), SSE streaming con progress + ETA |
 | UI shell | `apps/shell` | — | done (React 18 + Vite 5 + Mantine v7 + TanStack Query; Build Finder + PoB Analyzer + Planner; `npm run dev` on :5173) |
 
 Server: `uv run poe1-server` → <http://127.0.0.1:8765>. `/health`, `/version`, plus all the routes above.
@@ -72,9 +72,19 @@ Step 9 (Pricing v2) chiuso. Cosa abbiamo:
 - Streaming planner (SSE `/fob/plan/stream`) con progress + ETA dinamico
 - UI con barra di caricamento + countdown ETA in tempo reale
 
-## What comes after (Step 10+)
+## Step 10 completo
 
-- **Step 10 — Planner v2 (6-stage day-0 → day-100)** — Early/Mid/End Campaign + Early/End Mapping + High Investment. Reverse-progression dal PoB endgame. Template per 5-6 build canoniche (RF Pohx, Vortex, Spectre, Spark, Bone Spear, Cyclone) come riferimento.
+Step 10 (Planner v2) chiuso. Cosa abbiamo:
+- **6 fasi**: Early/Mid/End Campaign + Early/End Mapping + High Investment, ognuna con range di divines, rationale di default, content focus, trigger to advance. Bucketing items per divine midpoint con clamp che preserva l'invariante monotone-midpoint del `BuildPlan`.
+- **`BuildTemplate` system** in `poe1_fob.planner.templates`: protocol + registry-based dispatch (`pick_template(build)`). `GenericTemplate` come fallback (deriva content da main_skill + support_gems), `RfPohxTemplate` come reference fully-detailed (Holy Flame Totem early → Unflinching switch → Kaom's Heart → Mageblood). 5 nuovi test sui template.
+- `PlannerService.template_override` kwarg per i test.
+- Aggiornati i test esistenti per il nuovo layout 6-stage (40 verdi nel modulo planner).
+
+Templates futuri da aggiungere: Vortex, Spectre, Spark, Bone Spear, Cyclone (struttura già pronta, serve solo riempire i 6 metodi `for_stage` per ognuno).
+
+## What comes after (Step 11+)
+
+- **Step 11 — UI overhaul** — tema astrale viola, welcome page animata, home page dashboard, modale donation PayPal (paypal.me/riclong). Refactor a `react-router-dom`.
 - **Step 11 — UI overhaul** — tema astrale viola, welcome page animata, home page dashboard, modale donation PayPal (paypal.me/riclong). Refactor a `react-router-dom`.
 - **Faustus flipper** — package `poe1-faustus` per flip di valuta basato su poe.ninja bulk trades. Strumento separato. UX: arbitraggi "X chaos → Y div → Z chaos → profit %".
 - **App unica raggruppante** — navbar per tool (FOB, Faustus, …) quando arriva il secondo tool.

@@ -1,23 +1,29 @@
-"""Stage definitions and bucketing logic for the planner.
+"""Stage definitions and bucketing logic for the planner v2.
 
-Three stages cover the typical PoE 1 progression:
+Six stages cover the full PoE 1 journey from day 0 to day 100+:
 
-* **League start** (≤ 1 div): cheap rares + skill setup. Anything you
-  can buy in the first day of a fresh league.
-* **Mid-game** (1 - 25 div): the build's defining unique items, a
-  5L/6L body armour, the first jewels.
-* **End-game** (≥ 25 div): chase uniques, mirror-tier rares, awakened
-  gems, and final min-max polishing.
+* **Early Campaign** (≤ 0.5 div) — atti 1-4, levelling pre-lab,
+  Holy Flame Totem / Caustic Arrow / Frostblink-tier skills, gem dalle
+  quest, qualche unique levelling cheap (Goldrim, Wanderlust, Lifesprig).
+* **Mid Campaign** (0.5 - 2 div) — atti 5-7, primo lab, prima 4L,
+  Springleaf / Karui Ward, ascendancy iniziale.
+* **End Campaign** (2 - 8 div) — atti 8-10 + Kitava, res cap, primo
+  set di unique core, primo body 4L/5L, ascendancy completa.
+* **Early Mapping** (8 - 25 div) — T1-T8 maps, Atlas tree avviato,
+  primi cluster jewel, primo body 6L, Maven Awakening.
+* **End Mapping** (25 - 100 div) — T14-T16, Conqueror+Sirus+Maven,
+  set unique core completo, awakened gem base.
+* **High Investment** (≥ 100 div) — Uber pinnacle, mirror-tier rare,
+  Mageblood, awakened 5/6, Forbidden Flame+Flesh combo.
 
-Items are bucketed by their *divine-equivalent midpoint*: anything
-priced at ≤ 1 div lands in League start, items in [1, 25] div go to
-Mid-game, and anything above (or items poe.ninja can't price) ends up
-in End-game.
+Items are bucketed by their *divine-equivalent midpoint*. Boundaries
+are inclusive on the lower stage so an item priced exactly at 0.5 div
+lands in Early Campaign (cheaper bucket wins).
 
 Stage budgets are computed by summing the items inside each stage and
 expanding the band so it always covers at least the spec-default
 range. That preserves the monotone-midpoint invariant
-:class:`BuildPlan` enforces, even in edge cases (e.g. a Mid-game stage
+:class:`BuildPlan` enforces, even in edge cases (a Mid Campaign stage
 with one cheap unique that sums below the spec floor).
 """
 
@@ -43,11 +49,17 @@ class StageSpec:
     ``floor_div`` and ``ceiling_div`` set both the bucketing threshold
     *and* the minimum range the resulting :class:`PlanStage` must
     cover. The spec defaults are deliberately overlapping at the
-    boundaries (``LEAGUE_START.ceiling == MID_GAME.floor``) so an item
-    priced exactly at 1 div lands in League start — the cheaper bucket
-    wins ties.
+    boundaries (``Early Campaign.ceiling == Mid Campaign.floor``) so an
+    item priced exactly at 0.5 div lands in Early Campaign — the
+    cheaper bucket wins ties.
+
+    The ``key`` is a stable identifier used to dispatch
+    template-specific content (gem changes, tree changes, rationale)
+    in :mod:`poe1_fob.planner.templates` — the label may be
+    user-facing copy and prone to translation churn.
     """
 
+    key: str
     label: str
     floor_div: float
     ceiling_div: float
@@ -56,69 +68,156 @@ class StageSpec:
     expected_content: tuple[ContentFocus, ...]
 
 
-LEAGUE_START = StageSpec(
-    label="League start",
+# ---------------------------------------------------------------------------
+# The six stages
+# ---------------------------------------------------------------------------
+
+EARLY_CAMPAIGN = StageSpec(
+    key="early_campaign",
+    label="Early Campaign",
     floor_div=0.0,
-    ceiling_div=1.0,
+    ceiling_div=0.5,
     rationale=(
-        "Setup base con i gem dalle quest, qualche rare cheap craftato o "
-        "comprato, e gli unique sotto 1 divine. Obiettivo: cap delle "
-        "resistenze e capacità di farmare T1-T8 in modo regolare."
+        "Atti 1-4. Usi i gem dalle quest, raccogli currency a terra, e indossi "
+        "qualche unique levelling sotto 0.5 div (Goldrim, Wanderlust, Lifesprig, "
+        "Tabula Rasa quando arrivi al level 5). Niente craft sofisticato: "
+        "Transmute + Alteration spam su un body bianco a 4-link è già abbastanza."
     ),
     next_trigger=(
-        "Quando hai accumulato ~1 div liquido e i tre res elementali sono "
-        "a 75 %, passa al mid-game."
+        "Quando completi atto 5 (~level 40-45) e hai accumulato 5-10 chaos "
+        "liquidi, passa al Mid Campaign."
+    ),
+    expected_content=(ContentFocus.LEAGUE_START,),
+)
+
+MID_CAMPAIGN = StageSpec(
+    key="mid_campaign",
+    label="Mid Campaign",
+    floor_div=0.5,
+    ceiling_div=2.0,
+    rationale=(
+        "Atti 5-7. Primo lab (level ~33), ascendancy points iniziali, prima "
+        "4L per la skill principale. Resistenze importanti: cap fire/cold/lightning "
+        "almeno a 60% per i debuff di Kitava in arrivo. Springleaf, Karui Ward, "
+        "Goldrim sono i workhorse di questa fase."
+    ),
+    next_trigger=(
+        "Quando hai finito il secondo lab (Cruel) e i res sono sopra 60%, "
+        "spingi per finire la campaign."
+    ),
+    expected_content=(ContentFocus.LEAGUE_START,),
+)
+
+END_CAMPAIGN = StageSpec(
+    key="end_campaign",
+    label="End Campaign",
+    floor_div=2.0,
+    ceiling_div=8.0,
+    rationale=(
+        "Atti 8-10 + Kitava. Res cap a 75% (Kitava taglia 30%, prevedi over-cap), "
+        "ascendancy completa al Merciless (terzo lab, level ~65). Body 4L/5L "
+        "rare con life + res, primo unique core della build (Belly of the Beast, "
+        "Brass Dome, Cospri's Will, ecc. a seconda dell'archetipo). "
+        "Pronto per atlas progression."
+    ),
+    next_trigger=(
+        "Kitava è morto, sei in white maps con res cappati e ~3-5 div liquidi. "
+        "Inizia Atlas progression."
     ),
     expected_content=(ContentFocus.LEAGUE_START, ContentFocus.MAPPING),
 )
 
-MID_GAME = StageSpec(
-    label="Mid-game",
-    floor_div=1.0,
+EARLY_MAPPING = StageSpec(
+    key="early_mapping",
+    label="Early Mapping",
+    floor_div=8.0,
     ceiling_div=25.0,
     rationale=(
-        "Aggiungi gli unique core della build (1-25 div), un body 5L/6L, "
-        "e i primi cluster/jewel singoli. Stop appena puoi farmare T16 "
-        "in modo affidabile e i res chaos non sono più un problema."
+        "T1-T8 maps. Atlas tree avviato (Maven Awakening + Eldritch Altars sono "
+        "le 2 voids prioritarie), primi cluster jewel medi (1-2 div), body 6L "
+        "(comprato pre-fitted o craftato con Tainted Fusing). Inizia a buyout "
+        "i primi unique medi (Inpulsa, Kaom's Heart, Voll's Devotion). "
+        "Maven Awakening level 3+ è il target per sbloccare Searing Exarch."
     ),
     next_trigger=(
-        "Quando hai ~25 div di liquidità e ti senti comodo nelle T16, spingi verso l'end-game."
+        "T16 stabile, 25+ div liquidi, hai ucciso almeno una volta i Conqueror. "
+        "Passa al farming dell'end-game."
+    ),
+    expected_content=(ContentFocus.MAPPING,),
+)
+
+END_MAPPING = StageSpec(
+    key="end_mapping",
+    label="End Mapping",
+    floor_div=25.0,
+    ceiling_div=100.0,
+    rationale=(
+        "T14-T16, Conqueror, Sirus, Maven. Set unique core completo, body 6L "
+        "rare con +1 socketed o equivalente, awakened gem base (Awakened Added "
+        "Fire / Awakened Spell Echo / Awakened Empower 4). Cluster jewel "
+        "high-roll, watcher's eye con la combo aura della build. Atlas "
+        "completato 95%+, Wandering Path o Voidstones."
+    ),
+    next_trigger=(
+        "Sirus 9 è facile, Maven da Awakened è confortevole. "
+        "Vuoi puntare agli Uber? Vai di High Investment."
     ),
     expected_content=(ContentFocus.MAPPING, ContentFocus.BOSSING),
 )
 
-END_GAME = StageSpec(
-    label="End-game",
-    floor_div=25.0,
-    ceiling_div=100.0,
+HIGH_INVESTMENT = StageSpec(
+    key="high_investment",
+    label="High Investment",
+    floor_div=100.0,
+    ceiling_div=1000.0,
     rationale=(
-        "Min-max: awakened gem, cluster jewel craftati, gli unique chase "
-        "(>25 div) e rare top-tier sui pezzi rimasti. Da qui in poi è "
-        "ottimizzazione marginale, ma è ciò che separa una build comoda "
+        "Uber pinnacle e oltre. Mageblood (~250-300 div), awakened 5/6 a "
+        "level 21, mirror-tier rare con +2 socketed gems / suppression / "
+        "life / res, Forbidden Flame+Flesh combo per ascendancy notable extra. "
+        "Hands of the High Templar craftato custom. Da qui in poi è "
+        "ottimizzazione marginale ma è ciò che separa una build comoda "
         "da una build da Uber."
     ),
     next_trigger=None,
     expected_content=(ContentFocus.BOSSING, ContentFocus.UBERS),
 )
 
-ALL_STAGES: tuple[StageSpec, ...] = (LEAGUE_START, MID_GAME, END_GAME)
+ALL_STAGES: tuple[StageSpec, ...] = (
+    EARLY_CAMPAIGN,
+    MID_CAMPAIGN,
+    END_CAMPAIGN,
+    EARLY_MAPPING,
+    END_MAPPING,
+    HIGH_INVESTMENT,
+)
+
+
+# ---------------------------------------------------------------------------
+# Bucketing
+# ---------------------------------------------------------------------------
 
 
 def stage_for_amount(div_amount: float | None) -> StageSpec:
     """Decide which stage an item with *div_amount* belongs to.
 
     ``None`` means "we couldn't price this" — those items go to
-    :data:`END_GAME` because un-priced uniques are usually the chase
-    pieces poe.ninja doesn't have enough listings for.
+    :data:`HIGH_INVESTMENT` because un-priced uniques are usually
+    chase pieces poe.ninja doesn't have enough listings for.
     """
 
     if div_amount is None:
-        return END_GAME
-    if div_amount <= LEAGUE_START.ceiling_div:
-        return LEAGUE_START
-    if div_amount <= MID_GAME.ceiling_div:
-        return MID_GAME
-    return END_GAME
+        return HIGH_INVESTMENT
+    if div_amount <= EARLY_CAMPAIGN.ceiling_div:
+        return EARLY_CAMPAIGN
+    if div_amount <= MID_CAMPAIGN.ceiling_div:
+        return MID_CAMPAIGN
+    if div_amount <= END_CAMPAIGN.ceiling_div:
+        return END_CAMPAIGN
+    if div_amount <= EARLY_MAPPING.ceiling_div:
+        return EARLY_MAPPING
+    if div_amount <= END_MAPPING.ceiling_div:
+        return END_MAPPING
+    return HIGH_INVESTMENT
 
 
 def _stage_default_budget(spec: StageSpec) -> PriceRange:
@@ -192,9 +291,12 @@ def stage_budget(
 
 __all__ = [
     "ALL_STAGES",
-    "END_GAME",
-    "LEAGUE_START",
-    "MID_GAME",
+    "EARLY_CAMPAIGN",
+    "EARLY_MAPPING",
+    "END_CAMPAIGN",
+    "END_MAPPING",
+    "HIGH_INVESTMENT",
+    "MID_CAMPAIGN",
     "StageSpec",
     "stage_budget",
     "stage_for_amount",

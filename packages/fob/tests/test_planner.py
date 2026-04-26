@@ -41,9 +41,12 @@ from poe1_fob.planner.pricing import (
 )
 from poe1_fob.planner.service import PlannerService
 from poe1_fob.planner.stages import (
-    END_GAME,
-    LEAGUE_START,
-    MID_GAME,
+    EARLY_CAMPAIGN,
+    EARLY_MAPPING,
+    END_CAMPAIGN,
+    END_MAPPING,
+    HIGH_INVESTMENT,
+    MID_CAMPAIGN,
     stage_budget,
     stage_for_amount,
 )
@@ -236,18 +239,28 @@ def test_price_range_to_divines_handles_currencies() -> None:
 
 
 def test_stage_for_amount_buckets_correctly() -> None:
-    assert stage_for_amount(None) is END_GAME
-    assert stage_for_amount(0.5) is LEAGUE_START
-    assert stage_for_amount(1.0) is LEAGUE_START  # boundary -> cheaper bucket wins
-    assert stage_for_amount(5.0) is MID_GAME
-    assert stage_for_amount(25.0) is MID_GAME
-    assert stage_for_amount(50.0) is END_GAME
+    # Un-priced items go to the highest stage.
+    assert stage_for_amount(None) is HIGH_INVESTMENT
+
+    # Boundaries: ceiling-inclusive on the lower stage, so the cheaper
+    # bucket wins ties.
+    assert stage_for_amount(0.0) is EARLY_CAMPAIGN
+    assert stage_for_amount(0.5) is EARLY_CAMPAIGN  # boundary
+    assert stage_for_amount(1.0) is MID_CAMPAIGN
+    assert stage_for_amount(2.0) is MID_CAMPAIGN  # boundary
+    assert stage_for_amount(5.0) is END_CAMPAIGN
+    assert stage_for_amount(8.0) is END_CAMPAIGN  # boundary
+    assert stage_for_amount(15.0) is EARLY_MAPPING
+    assert stage_for_amount(25.0) is EARLY_MAPPING  # boundary
+    assert stage_for_amount(50.0) is END_MAPPING
+    assert stage_for_amount(100.0) is END_MAPPING  # boundary
+    assert stage_for_amount(300.0) is HIGH_INVESTMENT
 
 
 def test_stage_default_budget_when_empty() -> None:
-    rng = stage_budget([], LEAGUE_START, chaos_per_divine=200.0)
+    rng = stage_budget([], EARLY_CAMPAIGN, chaos_per_divine=200.0)
     assert rng.min.amount == 0.0
-    assert rng.max.amount == 1.0
+    assert rng.max.amount == 0.5
     assert rng.source is PriceSource.HEURISTIC
     assert rng.confidence is Confidence.LOW
 
@@ -268,11 +281,11 @@ def test_stage_budget_clamps_to_spec_floor_and_ceiling() -> None:
         ),
         buy_priority=1,
     )
-    rng = stage_budget([cheap], MID_GAME, chaos_per_divine=200.0)
-    # Items sum to ~0.015 div but Mid spec ceiling is 25 -> clamp pushes
-    # the band to at least [1, 25].
-    assert rng.min.amount >= MID_GAME.floor_div
-    assert rng.max.amount >= MID_GAME.ceiling_div
+    rng = stage_budget([cheap], END_MAPPING, chaos_per_divine=200.0)
+    # Items sum to ~0.015 div but End-Mapping ceiling is 100 -> clamp
+    # pushes the band to at least [25, 100].
+    assert rng.min.amount >= END_MAPPING.floor_div
+    assert rng.max.amount >= END_MAPPING.ceiling_div
 
 
 # ---------------------------------------------------------------------------
@@ -287,9 +300,16 @@ async def test_plan_with_no_key_items_returns_default_stages() -> None:
 
     plan = await svc.plan(build)
 
-    assert len(plan.stages) == 3
+    assert len(plan.stages) == 6
     labels = [s.label for s in plan.stages]
-    assert labels == ["League start", "Mid-game", "End-game"]
+    assert labels == [
+        "Early Campaign",
+        "Mid Campaign",
+        "End Campaign",
+        "Early Mapping",
+        "End Mapping",
+        "High Investment",
+    ]
     # Every stage falls back to its HEURISTIC default.
     for s in plan.stages:
         assert s.budget_range.source is PriceSource.HEURISTIC
@@ -300,9 +320,9 @@ async def test_plan_buckets_items_by_divine_cost() -> None:
     fake = FakePricing(
         chaos_per_divine=200.0,
         unique_quotes={
-            "Tabula Rasa": 30.0,  # 0.15 div  -> league start
-            "Inpulsa's Broken Heart": 1500.0,  # 7.5 div    -> mid-game
-            "Mageblood": 60_000.0,  # 300 div    -> end-game
+            "Tabula Rasa": 30.0,  # 0.15 div  -> Early Campaign (idx 0, ≤0.5)
+            "Inpulsa's Broken Heart": 1500.0,  # 7.5 div  -> End Campaign (idx 2, ≤8)
+            "Mageblood": 60_000.0,  # 300 div -> High Investment (idx 5, >100)
         },
     )
     svc = PlannerService(fake)
@@ -315,20 +335,20 @@ async def test_plan_buckets_items_by_divine_cost() -> None:
     )
 
     plan = await svc.plan(build)
-    [ls, mid, end] = plan.stages
+    early_campaign, _mid, end_campaign, _early_mapping, _end_mapping, high_inv = plan.stages
 
-    assert {ci.name for ci in ls.core_items} == {"Tabula Rasa"}
-    assert {ci.name for ci in mid.core_items} == {"Inpulsa's Broken Heart"}
-    assert {ci.name for ci in end.core_items} == {"Mageblood"}
+    assert {ci.name for ci in early_campaign.core_items} == {"Tabula Rasa"}
+    assert {ci.name for ci in end_campaign.core_items} == {"Inpulsa's Broken Heart"}
+    assert {ci.name for ci in high_inv.core_items} == {"Mageblood"}
 
 
 async def test_plan_respects_buy_priority_within_stage() -> None:
     fake = FakePricing(
         chaos_per_divine=200.0,
         unique_quotes={
-            "Atziri's Promise": 4.0,  # 0.02 div
-            "Goldrim": 2.0,  # 0.01 div
-            "Wanderlust": 1.0,
+            "Atziri's Promise": 4.0,  # 0.02 div  -> Early Campaign
+            "Goldrim": 2.0,  # 0.01 div  -> Early Campaign
+            "Wanderlust": 1.0,  # 0.005 div -> Early Campaign
         },
     )
     svc = PlannerService(fake)
@@ -340,26 +360,28 @@ async def test_plan_respects_buy_priority_within_stage() -> None:
         ],
     )
     plan = await svc.plan(build)
-    ls_items = plan.stages[0].core_items
+    early_campaign_items = plan.stages[0].core_items
 
     # Mandatory Goldrim (importance=5) should come first.
-    assert ls_items[0].name == "Goldrim"
-    assert ls_items[0].buy_priority == 1
+    assert early_campaign_items[0].name == "Goldrim"
+    assert early_campaign_items[0].buy_priority == 1
     # Priorities are 1..N inside the stage.
-    assert [ci.buy_priority for ci in ls_items] == list(range(1, len(ls_items) + 1))
+    assert [ci.buy_priority for ci in early_campaign_items] == list(
+        range(1, len(early_campaign_items) + 1)
+    )
 
 
-async def test_plan_unpriced_items_go_to_end_game() -> None:
+async def test_plan_unpriced_items_go_to_high_investment() -> None:
     fake = FakePricing(unique_quotes={})  # poe.ninja knows nothing
     svc = PlannerService(fake)
     build = _make_build(key_items=[_key_item("Some Esoteric Unique")])
 
     plan = await svc.plan(build)
-    end_stage = plan.stages[2]
+    high_investment = plan.stages[-1]  # last stage
 
-    assert len(end_stage.core_items) == 1
-    assert end_stage.core_items[0].name == "Some Esoteric Unique"
-    assert end_stage.core_items[0].price_estimate is None
+    assert len(high_investment.core_items) == 1
+    assert high_investment.core_items[0].name == "Some Esoteric Unique"
+    assert high_investment.core_items[0].price_estimate is None
 
 
 async def test_plan_total_cost_is_sum_of_stages() -> None:
@@ -380,16 +402,16 @@ async def test_plan_total_cost_is_sum_of_stages() -> None:
 async def test_plan_stages_are_monotone_even_with_expensive_mid_items() -> None:
     """Regression guard: BuildPlan validator requires monotone stage midpoints.
 
-    A heavy mid-game item could push MID's budget midpoint above
-    END_GAME's spec default. The clamp inside :func:`stage_budget` is
-    what keeps the invariant valid.
+    A heavy mid-stage item could push that stage's budget midpoint above
+    a later stage's spec default. The clamp inside :func:`stage_budget`
+    is what keeps the invariant valid across all 6 stages.
     """
 
     fake = FakePricing(
         chaos_per_divine=200.0,
         unique_quotes={
-            "Heavy Mid Item": 4_000.0,  # 20 div -> mid bucket
-            "Heavy Mid Item Two": 4_000.0,  # 20 div -> mid bucket
+            "Heavy Mid Item": 4_000.0,  # 20 div -> Early Mapping bucket
+            "Heavy Mid Item Two": 4_000.0,  # 20 div -> Early Mapping bucket
         },
     )
     svc = PlannerService(fake)
@@ -412,19 +434,27 @@ async def test_plan_target_goal_is_propagated() -> None:
     assert plan.target_goal is TargetGoal.UBER_CAPABLE
 
 
-async def test_plan_gem_changes_are_stage_appropriate() -> None:
+async def test_plan_gem_changes_use_generic_template_for_unknown_skill() -> None:
+    """A build with an unmatched main_skill ('Vortex') falls back to GenericTemplate."""
+
     fake = FakePricing()
     svc = PlannerService(fake)
-    build = _make_build(key_items=[])
+    build = _make_build(key_items=[])  # main_skill="Vortex" via fixture
     plan = await svc.plan(build)
 
-    league_start_gems = plan.stages[0].gem_changes
-    mid_gems = plan.stages[1].gem_changes
-    end_gems = plan.stages[2].gem_changes
+    early_campaign_gems = plan.stages[0].gem_changes
+    mid_campaign_gems = plan.stages[1].gem_changes
+    end_mapping_gems = plan.stages[4].gem_changes
+    high_inv_gems = plan.stages[5].gem_changes
 
-    assert any("Vortex" in g for g in league_start_gems)
-    assert any("20/20" in g for g in mid_gems)
-    assert any("awakened" in g.lower() for g in end_gems)
+    # Early Campaign mentions the build's main skill.
+    assert any("Vortex" in g for g in early_campaign_gems)
+    # Mid Campaign mentions ascendancy.
+    assert any("lab" in g.lower() for g in mid_campaign_gems)
+    # End Mapping mentions 20/20 / 21/20 / awakened.
+    assert any("20/20" in g or "21/20" in g or "awakened" in g.lower() for g in end_mapping_gems)
+    # High Investment mentions awakened level 5/6.
+    assert any("Awakened" in g for g in high_inv_gems)
 
 
 async def test_plan_expected_content_per_stage() -> None:
@@ -433,9 +463,13 @@ async def test_plan_expected_content_per_stage() -> None:
     build = _make_build(key_items=[])
     plan = await svc.plan(build)
 
-    assert ContentFocus.LEAGUE_START in plan.stages[0].expected_content
-    assert ContentFocus.MAPPING in plan.stages[1].expected_content
-    assert ContentFocus.UBERS in plan.stages[2].expected_content
+    # Map index -> expected ContentFocus tag based on the 6-stage spec.
+    assert ContentFocus.LEAGUE_START in plan.stages[0].expected_content  # Early Campaign
+    assert ContentFocus.LEAGUE_START in plan.stages[1].expected_content  # Mid Campaign
+    assert ContentFocus.MAPPING in plan.stages[2].expected_content  # End Campaign
+    assert ContentFocus.MAPPING in plan.stages[3].expected_content  # Early Mapping
+    assert ContentFocus.BOSSING in plan.stages[4].expected_content  # End Mapping
+    assert ContentFocus.UBERS in plan.stages[5].expected_content  # High Investment
 
 
 # ---------------------------------------------------------------------------
@@ -522,7 +556,7 @@ async def test_plan_with_progress_done_event_carries_final_plan() -> None:
     assert final is not None
     assert final.final_plan is not None
     assert final.final_plan.build_source_id == build.source_id
-    assert len(final.final_plan.stages) == 3
+    assert len(final.final_plan.stages) == 6
 
 
 async def test_plan_with_progress_item_events_carry_identity() -> None:
@@ -756,9 +790,10 @@ async def test_planner_prices_rares_via_trade_when_port_provided() -> None:
     base_type, n_stats = fake_trade.calls[0]
     assert base_type == "Vaal Regalia"
     assert n_stats >= 2
-    # The rare landed in End-game (40 div > 25 div ceiling).
-    end_stage = plan.stages[2]
-    assert any(ci.name == "Vaal Regalia" for ci in end_stage.core_items)
+    # The rare priced at 40 div (8000 chaos / 200) lands in End Mapping
+    # (boundaries 25-100). 6-stage layout: idx 4 == End Mapping.
+    end_mapping = plan.stages[4]
+    assert any(ci.name == "Vaal Regalia" for ci in end_mapping.core_items)
 
 
 async def test_planner_skips_trade_when_port_not_configured() -> None:
@@ -846,3 +881,95 @@ async def test_planner_skips_variant_lookup_for_unregistered_uniques() -> None:
     # quote_unique_range. We expect ZERO variant_calls in this path.
     assert fake.variant_calls == []
     assert "Mageblood" in fake.plain_calls
+
+
+# ---------------------------------------------------------------------------
+# Build template dispatch (Step 10)
+# ---------------------------------------------------------------------------
+
+
+def _make_rf_build() -> Build:
+    """Build fixture with main_skill='Righteous Fire' so RfPohx matches."""
+
+    return Build(
+        source_id="pob::rf-test",
+        source_type=BuildSourceType.POB,
+        character_class=CharacterClass.MARAUDER,
+        ascendancy=None,
+        main_skill="Righteous Fire",
+        support_gems=["Concentrated Effect", "Burning Damage", "Empower"],
+        damage_profile=DamageProfile.FIRE_DOT,
+        playstyle=Playstyle.DEGEN_AURA,
+        content_tags=[ContentFocus.MAPPING],
+        defense_profile=DefenseProfile.LIFE,
+        key_items=[],
+    )
+
+
+def test_pick_template_returns_rf_for_righteous_fire() -> None:
+    from poe1_fob.planner import pick_template
+
+    build = _make_rf_build()
+    template = pick_template(build)
+    assert template.name == "rf_pohx"
+
+
+def test_pick_template_falls_back_to_generic_for_unknown_skill() -> None:
+    from poe1_fob.planner import pick_template
+
+    build = _make_build(key_items=[])  # main_skill="Vortex" not registered
+    template = pick_template(build)
+    assert template.name == "generic"
+
+
+async def test_planner_uses_rf_template_when_main_skill_is_rf() -> None:
+    """RF Pohx template emits its signature 'no RF before lab' warning."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_rf_build()
+    plan = await svc.plan(build)
+
+    early_campaign = plan.stages[0]
+
+    # The Holy Flame Totem advice and the RF warning are RF-specific.
+    assert any("Holy Flame Totem" in g for g in early_campaign.gem_changes)
+    assert any("righteous fire" in g.lower() for g in early_campaign.gem_changes)
+    # Rationale is overridden by the template (mentions Holy Flame Totem).
+    assert "Holy Flame Totem" in early_campaign.upgrade_rationale
+
+
+async def test_planner_rf_template_advice_evolves_across_stages() -> None:
+    """RF template hits its full lifecycle: HFT → RF switch → Kaom's → Mageblood."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    plan = await svc.plan(_make_rf_build())
+
+    _early, mid, _end_camp, early_map, _end_map, high_inv = plan.stages
+
+    # Mid Campaign: lab + switch to RF.
+    assert any("Unflinching" in g for g in mid.gem_changes)
+    assert any("Righteous Fire" in g for g in mid.gem_changes)
+    # Early Mapping: Kaom's Heart milestone in tree_changes.
+    assert any("Kaom" in t for t in early_map.tree_changes)
+    # High Investment: Mageblood mention.
+    assert any("Mageblood" in t for t in high_inv.tree_changes)
+
+
+async def test_template_override_bypasses_registry() -> None:
+    """Tests can lock template behaviour by passing template_override."""
+
+    from poe1_fob.planner import GenericTemplate
+
+    fake = FakePricing()
+    # Even though main_skill='Righteous Fire' would match RfPohx, the
+    # override forces GenericTemplate.
+    svc = PlannerService(fake, template_override=GenericTemplate())
+    plan = await svc.plan(_make_rf_build())
+
+    early = plan.stages[0]
+    # GenericTemplate doesn't say "Holy Flame Totem".
+    assert not any("Holy Flame Totem" in g for g in early.gem_changes)
+    # GenericTemplate does mention the build's main_skill.
+    assert any("Righteous Fire" in g for g in early.gem_changes)
