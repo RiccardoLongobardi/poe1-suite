@@ -42,7 +42,7 @@ const TARGET_OPTIONS: { value: TargetGoal; label: string }[] = [
 function formatPrice(p: PriceRange): string {
   const fmt = (n: number) =>
     n >= 100 ? n.toFixed(0) : n >= 1 ? n.toFixed(1) : n.toFixed(2);
-  const cur = p.currency === "divine" ? "div" : "c";
+  const cur = p.min.currency === "divine" ? "div" : "c";
   if (p.min.amount === p.max.amount) return `${fmt(p.min.amount)} ${cur}`;
   return `${fmt(p.min.amount)}–${fmt(p.max.amount)} ${cur}`;
 }

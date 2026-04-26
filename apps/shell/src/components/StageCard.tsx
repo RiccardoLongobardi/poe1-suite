@@ -40,7 +40,9 @@ const CONFIDENCE_COLOR: Record<Confidence, string> = {
 function formatPrice(p: PriceRange): string {
   const fmt = (n: number) =>
     n >= 100 ? n.toFixed(0) : n >= 1 ? n.toFixed(1) : n.toFixed(2);
-  const currency = p.currency === "divine" ? "div" : "c";
+  // PriceRange carries currency on each PriceValue end; min/max share
+  // the same currency in practice.
+  const currency = p.min.currency === "divine" ? "div" : "c";
   if (p.min.amount === p.max.amount) {
     return `${fmt(p.min.amount)} ${currency}`;
   }
