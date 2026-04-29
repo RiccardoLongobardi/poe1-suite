@@ -293,8 +293,823 @@ class RfPohxTemplate(GenericTemplate):
 
 
 # ---------------------------------------------------------------------------
+# Caster spell DPS templates
+# ---------------------------------------------------------------------------
+
+
+class VortexOccultistTemplate(GenericTemplate):
+    """Vortex / Cold DoT Occultist — comfy mapper signature build.
+
+    Cold DoT applied via Cold Snap + Vortex with Bonechill / Hypothermia
+    multipliers. Occultist's Profane Bloom + Frigid Wake give chill +
+    explode + freeze immunity. Levels with Cold Snap + Frostblink before
+    Vortex unlocks.
+    """
+
+    name: str = "vortex_occultist"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Freezing Pulse + Frostblink dalla quest 'The Caged Brute'.",
+                    "Atto 3: Cold Snap diventa la skill principale del levelling.",
+                    "Vortex sblocca a level 28 (atto 4); switch a Vortex + Bonechill.",
+                    "Aura: Hatred (level ~24).",
+                ],
+                rationale_override=(
+                    "Cold DoT è la più scriptbile in atto. Freezing Pulse → Cold Snap "
+                    "→ Vortex porta da level 1 a Kitava senza switching dolorosi."
+                ),
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Profane Bloom (explode + chill).",
+                    "Cold Snap come main DPS, Vortex per chill on-cast.",
+                    "Aggiungi Bonechill + Hypothermia + Efficacy.",
+                ],
+                tree_changes=[
+                    "Lifesprig come wand levelling (cheap, +1 cold gems implicit).",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L con Vortex + Bonechill + Hypothermia + Efficacy + Controlled Destruction + Empower.",
+                    "+2/+3 cold spell wand (~5-15 div) come main weapon.",
+                    "Atlas: Maven Awakening + Eldritch Altars priority.",
+                ],
+                tree_changes=[
+                    "Body Cospri's Will (auto-curse on hit) o Inpulsa's per pack clear.",
+                    "Watcher's Eye Hatred 'Adds Cold Damage' (~20-50 div).",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Burning Damage non si applica al cold; usa Awakened Hextouch + Awakened Cold Penetration.",
+                    "21/20 Vortex corrupted + 21/20 Cold Snap.",
+                ],
+                tree_changes=[
+                    "Cluster jewel cold DoT multi (Sadist + Wicked Pall).",
+                    "Forbidden Flame + Flesh per Profane Bloom doppio.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class SparkInquisitorTemplate(GenericTemplate):
+    """Spark Inquisitor — bouncing lightning projectiles, big screen clear.
+
+    Spark scales with cast speed + projectile count + lightning damage.
+    Inquisitor's Inevitable Judgment ignores enemy lightning res entirely.
+    Levels with Storm Brand or Arc before Spark becomes viable around lvl 10.
+    """
+
+    name: str = "spark_inquisitor"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Storm Brand (quest 'Mercy Mission') per il levelling iniziale.",
+                    "Atto 1 boss reward: Spark + Faster Casting + Onslaught.",
+                    "Wand+shield setup con Lifesprig.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Inevitable Judgment (ignore lightning res).",
+                    "Spark + Lightning Penetration + Pierce + Faster Casting.",
+                    "Wrath aura, Herald of Thunder.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Spark + Lightning Pen + Slower Projectiles + Spell Echo + Inspiration + Awakened Added Lightning (cheap).",
+                    "+1 Spell Skill / +1 Lightning Spell sceptre o staff.",
+                ],
+                tree_changes=[
+                    "Cluster jewel: Storm Drinker / Wandslinger.",
+                    "Watcher's Eye Wrath 'Lightning Penetration' (~30-60 div).",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Lightning Penetration **5** + Awakened Spell Echo **5**.",
+                    "Slower Projectiles 21/20 (~5 div) — boss DPS x2.",
+                ],
+                tree_changes=[
+                    "Replica Conqueror's Efficiency (mana cost reduction) jewel.",
+                    "+1 power charge / +2 power charge body craft per crit cap.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class BoneSpearNecroTemplate(GenericTemplate):
+    """Bone Spear / Soulrend hit caster Necromancer.
+
+    Skill scales with chaos+phys conversion. Necromancer Mistress of Sacrifice
+    + Commander of Darkness + Mindless Aggression for stat sticks aura buff.
+    """
+
+    name: str = "bone_spear_necromancer"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Bone Offering + Skeletons setup base.",
+                    "Atto 3: Bone Spear sblocca; metti su 4L con Spell Echo + Pierce.",
+                    "Aura: Discipline + Clarity.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Mistress of Sacrifice (Bone Offering buff propagato).",
+                    "Bone Spear + Pierce + Spell Echo + Added Chaos + Void Manipulation.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L con Bone Spear + Awakened Spell Echo + Pierce + Added Chaos + Void Manipulation + Empower.",
+                    "+1 spell skill staff/sceptre o The Whispering Ice.",
+                ],
+                tree_changes=[
+                    "Cluster jewel chaos damage (Wicked Pall, Touch of Cruelty).",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Void Manipulation 5 + Awakened Spell Echo 5.",
+                    "Vaal corrupted Bone Spear 21/20 per single-target Maven.",
+                ],
+                tree_changes=[
+                    "Doppio curse via Hexblast threshold jewel o ring corruzione.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class HexblastMinesTemplate(GenericTemplate):
+    """Hexblast Mines Saboteur (or Pathfinder) — chaos curse-detonator.
+
+    Hexblast is a curse-removing nuker that scales hard with mine throw speed
+    + Saboteur's Born in the Shadows / Pyromaniac. Pathfinder variant uses
+    flask uptime for Master Surgeon.
+    """
+
+    name: str = "hexblast_mines"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Explosive Trap (quest 'Breaking Some Eggs') per levelling fino al lab.",
+                    "NON Hexblast prima del lab Cruel: ti manca curse + Pyromaniac.",
+                ],
+                rationale_override=(
+                    "Hexblast richiede Withering Step / Bane / Despair per stackare la "
+                    "curse. Esplosivo Trap fa il levelling con zero setup."
+                ),
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Pyromaniac (mine throwing + life regen).",
+                    "Switch a Hexblast Mine + High-Impact Mine + Trap & Mine Damage + Despair.",
+                    "Withering Step come applicatore di Wither stack.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Hexblast Mine + High-Impact Mine + Awakened Trap & Mine Damage + Inspiration + Cluster Traps + Concentrated Effect.",
+                    "Cospri's Malice / Bottled Faith per power charge / damage.",
+                ],
+                tree_changes=[
+                    "Cluster mine throwing speed + chaos damage.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Cluster Traps + Awakened Cast On Critical Strike (per Withering Step trigger).",
+                    "Vaal Hexblast 21/20 per pinnacle bossing.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class DetonateDeadNecroTemplate(GenericTemplate):
+    """Detonate Dead Necromancer — corpse-based AoE fire.
+
+    Volatile Dead / Detonate Dead scale with corpse life. Mistress of
+    Sacrifice + Commander of Darkness baseline.
+    """
+
+    name: str = "detonate_dead_necromancer"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Skeletons + Raise Zombie come levelling.",
+                    "Atto 3: Detonate Dead sblocca; metti su Desecrate per spawnare corpses.",
+                    "Volatile Dead da Library di Siosa.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Mistress of Sacrifice.",
+                    "Volatile Dead + Spell Cascade + Unleash + Elemental Focus.",
+                    "Desecrate come supplemento corpse.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Volatile Dead + Spell Cascade + Unleash + Awakened Elemental Focus + Combustion + Empower.",
+                    "The Devouring Diadem helmet (auto-cast Desecrate trigger).",
+                ],
+                tree_changes=[
+                    "Cluster jewel fire damage + Sadist (DoT multi).",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Spell Cascade 5 (~30 div) — area boss molto più ampia.",
+                    "Awakened Empower 4 + Awakened Elemental Focus 5.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class BaneOccultistTemplate(GenericTemplate):
+    """Bane / ED+Contagion Occultist — chaos DoT spreader.
+
+    Stacks 3 curses + chaos DoT explosion. Contagion spreads, ED ticks.
+    Profane Bloom + Withering Presence make Bane Occultist the king of clear.
+    """
+
+    name: str = "bane_occultist"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Contagion + Essence Drain dalle quest reward.",
+                    "Atto 3: aggiungi Bane appena lo trovi.",
+                    "Aura: Malevolence (level ~24).",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Profane Bloom (explode on chaos kill).",
+                    "Bane + 2-3 curses (Despair, Temporal Chains, Punishment).",
+                    "ED + Contagion 4L per single target / pack clearing.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Bane + Despair + Temporal Chains + Enfeeble + Awakened Hextouch + Empower.",
+                    "+1 chaos / +1 spell skill weapon.",
+                ],
+                tree_changes=[
+                    "Cluster jewel: Wicked Pall + Touch of Cruelty + Sadist.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Hextouch 5 + Awakened Empower 4.",
+                    "Doomsday + Whispers of Doom per +1 curse limit.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+# ---------------------------------------------------------------------------
+# Attack-based templates
+# ---------------------------------------------------------------------------
+
+
+class CycloneSlayerTemplate(GenericTemplate):
+    """Cyclone Slayer / Berserker / Champion — channel spin damage.
+
+    Cyclone scales with attack speed + impale + AoE. Slayer Headsman gives
+    free over-leech, Berserker War Bringer triples warcry effects.
+    """
+
+    name: str = "cyclone_slayer"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Sunder o Ground Slam per levelling pre-Cyclone.",
+                    "Atto 3: Cyclone sblocca; metti su 4L con Fortify + Faster Attacks.",
+                    "Leap Slam come movement.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Headsman (Slayer) o Crave the Slaughter (Berserker).",
+                    "Cyclone + Pulverise + Brutality + Impale + Faster Attacks.",
+                    "Pride aura, War Banner.",
+                ],
+                tree_changes=[
+                    "Brightbeak + Lycosidae shield per Resolute Technique baseline.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Cyclone + Awakened Melee Phys + Awakened Brutality + Pulverise + Impale + Fortify.",
+                    "+1/+2 socketed body o axe/sword end-game.",
+                ],
+                tree_changes=[
+                    "Cluster jewel impale (Fuel the Fight) + crit.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Melee Phys 5 + Awakened Brutality 5.",
+                    "Cyclone 21/20 corrupted + Awakened Fortify Support 5.",
+                ],
+                tree_changes=[
+                    "Atziri's Disfavour per +2 socketed gems built-in.",
+                    "Watcher's Eye Pride 'Increased Phys Damage' (~50+ div).",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class LightningStrikeRaiderTemplate(GenericTemplate):
+    """Lightning Strike Raider/Champion — ranged melee with projectiles.
+
+    LS strikes locally + shoots projectiles. Scales with attack speed +
+    weapon damage + projectiles. Raider gives Avatar of the Slaughter (frenzy
+    + onslaught), Champion gives Inspirational + Worthy Foe.
+    """
+
+    name: str = "lightning_strike_raider"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Frost Blades dalla quest, fino a level 12.",
+                    "Atto 4 (Library): Lightning Strike + Multistrike + Added Lightning + Elemental Damage with Attacks.",
+                    "Onslaught Support per movespeed.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Avatar of the Slaughter (Raider) o Inspirational (Champion).",
+                    "Lightning Strike + Multistrike + Added Lightning + Inspiration + Trinity / Elemental Damage with Attacks.",
+                    "Wrath + Herald of Thunder + Precision low-level.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Lightning Strike + Multistrike + Inspiration + Awakened Added Lightning + Trinity + Awakened Elemental Damage with Attacks.",
+                    "Paradoxica / +1 attack staff o Foil con +1/+2 socketed.",
+                ],
+                tree_changes=[
+                    "Saviour shield (mirror minion + crit boost) o Lycosidae.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Added Lightning 5 + Awakened Elemental Damage with Attacks 5.",
+                    "21/20 Lightning Strike + 21/20 Multistrike corrupted.",
+                ],
+                tree_changes=[
+                    "Watcher's Eye Wrath 'Lightning Pen' + Precision 'crit chance'.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class TornadoShotDeadeyeTemplate(GenericTemplate):
+    """Tornado Shot Deadeye — bow projectile screen clear.
+
+    TS shoots a tornado that releases secondary projectiles. Scales with
+    projectile count + bow damage. Deadeye Endless Munitions = +2 projectiles.
+    """
+
+    name: str = "tornado_shot_deadeye"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Caustic Arrow (cheapest bow levelling).",
+                    "Atto 4 reward: Tornado Shot + Mirage Archer + Pierce + Onslaught.",
+                    "Quill Rain o Storm Cloud bow per attack speed.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Endless Munitions (+2 projectiles).",
+                    "Tornado Shot + Mirage Archer + Greater Multiple Projectiles + Pierce + Inspiration.",
+                    "Anger + Wrath + Herald of Ice.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Tornado Shot + Awakened GMP + Awakened Elemental Damage with Attacks + Inspiration + Mirage Archer + Slower Projectiles.",
+                    "Lioneye's Glare unique bow (level 70 entry, ~3-10 div).",
+                ],
+                tree_changes=[
+                    "Hyrri's Bite o Yoke of Suffering per ele attacks.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened GMP 5 (~50 div) — single-projectile boss conversion.",
+                    "Awakened Elemental Damage with Attacks 5 + Awakened Added Cold/Fire/Lightning.",
+                ],
+                tree_changes=[
+                    "+3 bow craft (~50-100 div) o Voltaxic Rift unique.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class FrostBladesRaiderTemplate(GenericTemplate):
+    """Frost Blades Raider/Trickster — cold melee with projectiles.
+
+    Strike that fires 3 cold projectiles per hit. Raider scales speed +
+    frenzy charges. Trickster Patient Reaper / One Step Ahead = movement.
+    """
+
+    name: str = "frost_blades_raider"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Frost Blades dalla quest 'Mercy Mission' — main skill day 1.",
+                    "Multistrike + Ancestral Call + Hatred low-level.",
+                    "Whirling Blades come movement.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Way of the Poacher (frenzy) o Patient Reaper (Trickster).",
+                    "Frost Blades + Multistrike + Trinity + Inspiration + Added Cold + Elemental Damage with Attacks.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Frost Blades + Awakened Multistrike + Awakened Added Cold + Trinity + Awakened Elemental Damage with Attacks + Inspiration.",
+                    "Paradoxica o +1 ele attack claw/sword.",
+                ],
+                tree_changes=[
+                    "Watcher's Eye Hatred 'Cold Damage as Extra'.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Added Cold 5 (~30 div) + Awakened Multistrike 5.",
+                    "21/20 Frost Blades corrupted + Trinity 21.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class ToxicRainPathfinderTemplate(GenericTemplate):
+    """Toxic Rain Pathfinder — bow chaos DoT cloud.
+
+    TR pods deal chaos DoT + ground tick. Scales with bow damage + chaos
+    over time multi + projectile count. Pathfinder gives 100% flask uptime
+    (Master Surgeon) and Mistress of Sacrifice-tier staying alive.
+    """
+
+    name: str = "toxic_rain_pathfinder"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Caustic Arrow per levelling.",
+                    "Atto 3: Toxic Rain sblocca; switch immediato.",
+                    "Mirage Archer + Despair + Vile Toxins low-level.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Master Surgeon (flask uptime) — pathfinder essenziale.",
+                    "Toxic Rain + Mirage Archer + Vile Toxins + Damage on Full Life + Empower + Swift Affliction.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: TR + Mirage Archer + Awakened Vile Toxins + Damage on Full Life + Awakened Swift Affliction + Empower.",
+                    "+1 socketed gem helmet con Toxic Rain enchant.",
+                ],
+                tree_changes=[
+                    "Quill Rain → Death's Harp → +2 bow craft.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Vile Toxins 5 + Awakened Empower 4.",
+                    "21/20 Toxic Rain corrupted (~10 div).",
+                ],
+                tree_changes=[
+                    "Bow craft +1 socketed gems / chaos DoT multi.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+# ---------------------------------------------------------------------------
+# Minion templates
+# ---------------------------------------------------------------------------
+
+
+class SpectreNecroTemplate(GenericTemplate):
+    """Spectre Necromancer — premium minion build.
+
+    Scales with minion damage / minion life / +X to minion level. Uses
+    specific spectres (Carnage Chieftain, Slave Driver, Soul Eater Tukohama).
+    """
+
+    name: str = "spectre_necromancer"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Skeletons + Raise Zombie come levelling.",
+                    "Atto 3 (Solaris Temple Lvl 2): Raise Spectre sblocca.",
+                    "Spectre iniziali: Solar Guards (atto 8) o Frost Sentinels.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Mistress of Sacrifice (Bone Offering propagato).",
+                    "Spectre + Minion Damage + Elemental Damage + Spell Echo + Pierce.",
+                    "Aura: Anger / Wrath / Hatred (a seconda dello spectre).",
+                ],
+                tree_changes=[
+                    "Wand levelling: Lifesprig per +1 spell skill (sale anche minion gem).",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Spectre + Minion Damage + Elemental Damage + Awakened Greater Multiple Projectiles + Awakened Empower 3 + Pierce.",
+                    "+3 minion gem helm (Bone Helmet base, ~3-10 div).",
+                ],
+                tree_changes=[
+                    "Convocation per pull spectre-pack on cooldown.",
+                    "Animate Guardian con Garb of the Ephemeral / Kingmaker.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Empower 4 + Awakened Spell Echo 5.",
+                    "Awakened Greater Multiple Projectiles 5 (~80 div).",
+                ],
+                tree_changes=[
+                    "+3 minion gem helm con Hatred efficacy o Curse on Hit.",
+                    "The Squire (4-link auto-effect + Animate Guardian gear room).",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class SkeletonMagesTemplate(GenericTemplate):
+    """Skeleton Mages Necromancer — Dark Ascetic notable + Mages of Caer Doan."""
+
+    name: str = "skeleton_mages_necromancer"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Summon Raging Spirit + Raise Zombie.",
+                    "Atto 3: Summon Skeletons (regular fino al threshold jewel).",
+                    "Aura: Discipline + Clarity.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Mages of Caer Doan threshold jewel: Skeleton → Skeleton Mage cold/fire/lightning.",
+                    "Primo lab: Mistress of Sacrifice.",
+                    "Skeletons + Spell Echo + Minion Damage + Concentrated Effect.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Skeletons + Awakened Spell Echo + Minion Damage + Concentrated Effect + Predator + Empower.",
+                    "Skin of the Lords con keystone utile (Crimson Dance / Pain Attunement).",
+                ],
+                tree_changes=[
+                    "Dead Reckoning jewel per spawn skeleton senza casting.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Spell Echo 5 + Awakened Empower 4.",
+                    "Predator 21/20 corrupted.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class AnimateWeaponNecroTemplate(GenericTemplate):
+    """Animate Weapon Necromancer — Earendel's Embrace + scrappy weapons."""
+
+    name: str = "animate_weapon_necromancer"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Skeletons + Zombie + Raise Spectre baseline.",
+                    "Atto 3+: Animate Weapon sblocca; usa weapon vendor scraps.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Mindless Aggression + Mistress of Sacrifice.",
+                    "Animate Weapon + Minion Damage + Multistrike + Melee Phys + Brutality + Impale.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: AW + Awakened Multistrike + Awakened Melee Phys + Brutality + Impale + Empower.",
+                    "Earendel's Embrace per +Spell skill animation.",
+                ],
+                tree_changes=[
+                    "Wings of Entropy / Aukuna's Will ring per evocation gratis.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Melee Phys 5 + Awakened Multistrike 5.",
+                    "Animate Weapon 21/20 corrupted.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+# ---------------------------------------------------------------------------
+# Totem templates
+# ---------------------------------------------------------------------------
+
+
+class HolyFlameTotemHieroTemplate(GenericTemplate):
+    """Holy Flame Totem Hierophant — non-RF totem caster.
+
+    Pure totem build: 4 totems, Astral Projector ring or proximity, Soul
+    Mantle for +1 totem. Hierophant Conviction of Power + Pursuit of Faith.
+    """
+
+    name: str = "holy_flame_totem_hierophant"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Holy Flame Totem dalla quest 'Breaking Some Eggs'.",
+                    "Multiple Totems + Combustion + Faster Casting low-level.",
+                    "Aura: Anger + Determination.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Pursuit of Faith (+1 totem).",
+                    "HFT + Multiple Totems + Awakened Burning Damage (cheap) + Combustion + Empower.",
+                    "Aspect of the Spider per slow + chill.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body Soul Mantle (~5-10 div): +1 totem total.",
+                    "Body 6L: HFT + Multiple Totems + Awakened Burning Damage + Combustion + Empower + Awakened Elemental Focus.",
+                    "Astramentis amulet o +1 spell skill amulet.",
+                ],
+                tree_changes=[
+                    "Astral Projector ring: totem casting target ranged.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Burning Damage 5 + Awakened Empower 4.",
+                    "21/20 HFT corrupted (~3 div).",
+                ],
+                tree_changes=[
+                    "+1 socketed body craft per +9 levels totali sui 6 link.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class ShrapnelBallistaDeadeyeTemplate(GenericTemplate):
+    """Shrapnel Ballista / Lancing Steel Ballista Deadeye — bow totem."""
+
+    name: str = "ballista_totem_deadeye"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Caustic Arrow + Quill Rain bow.",
+                    "Atto 3 reward: Shrapnel Ballista + Multiple Totems + Onslaught.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Far Shot + Endless Munitions.",
+                    "Shrapnel Ballista + Awakened GMP (cheap) + Inspiration + Elemental Damage with Attacks + Multiple Totems + Trinity.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: SB + Awakened GMP + Trinity + Inspiration + Multiple Totems + Awakened Elemental Damage with Attacks.",
+                    "Lioneye's Fall jewel (Resolute Technique area to Iron Grip).",
+                ],
+                tree_changes=[
+                    "Dying Sun + Cinderswallow per +2 projectiles + life.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Elemental Damage with Attacks 5 + Awakened GMP 5.",
+                    "+3 bow craft o Voltaxic Rift / Maraketh Bow custom.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+# ---------------------------------------------------------------------------
 # Registry & dispatch
 # ---------------------------------------------------------------------------
+
+
+def _matches_skill(*needles: str) -> Callable[[Build], bool]:
+    """Build a matcher that hits when any *needles* appears in main_skill.
+
+    Case-insensitive substring match. Used for templates that map cleanly
+    to a single skill name; templates that need to differentiate between
+    ascendancies (e.g. Cyclone Slayer vs Cyclone Berserker) can ignore
+    that distinction at this layer — the per-stage advice is mostly the
+    same and the registry only keys on the skill.
+    """
+
+    folded = tuple(n.casefold() for n in needles)
+
+    def matcher(build: Build) -> bool:
+        skill = (build.main_skill or "").casefold()
+        return any(needle in skill for needle in folded)
+
+    return matcher
 
 
 def _matches_rf(build: Build) -> bool:
@@ -304,9 +1119,37 @@ def _matches_rf(build: Build) -> bool:
 
 # Each registry entry pairs a matcher with its template instance. Order
 # matters: the first matching entry wins. Put more specific matchers
-# first.
+# first — e.g. RF (which contains "fire") is listed before fire-totem
+# templates so a Holy Flame Totem RF Jugg still routes to RfPohx.
 TEMPLATE_REGISTRY: list[tuple[Callable[[Build], bool], BuildTemplate]] = [
+    # Most-specific first.
     (_matches_rf, RfPohxTemplate()),
+    # Casters
+    (_matches_skill("vortex", "cold snap"), VortexOccultistTemplate()),
+    (_matches_skill("spark"), SparkInquisitorTemplate()),
+    (_matches_skill("bone spear", "soulrend"), BoneSpearNecroTemplate()),
+    (_matches_skill("hexblast"), HexblastMinesTemplate()),
+    (_matches_skill("detonate dead", "volatile dead"), DetonateDeadNecroTemplate()),
+    (_matches_skill("bane", "essence drain", "contagion"), BaneOccultistTemplate()),
+    # Attacks
+    (_matches_skill("cyclone"), CycloneSlayerTemplate()),
+    (_matches_skill("lightning strike"), LightningStrikeRaiderTemplate()),
+    (_matches_skill("tornado shot"), TornadoShotDeadeyeTemplate()),
+    (_matches_skill("frost blades"), FrostBladesRaiderTemplate()),
+    (_matches_skill("toxic rain"), ToxicRainPathfinderTemplate()),
+    # Minions
+    (_matches_skill("raise spectre", "spectre"), SpectreNecroTemplate()),
+    (
+        _matches_skill("summon skeletons", "skeleton"),
+        SkeletonMagesTemplate(),
+    ),
+    (_matches_skill("animate weapon"), AnimateWeaponNecroTemplate()),
+    # Totems (after RF so non-RF Holy Flame Totem matches here)
+    (_matches_skill("holy flame totem"), HolyFlameTotemHieroTemplate()),
+    (
+        _matches_skill("shrapnel ballista", "lancing steel"),
+        ShrapnelBallistaDeadeyeTemplate(),
+    ),
 ]
 
 GENERIC_TEMPLATE = GenericTemplate()
@@ -341,9 +1184,25 @@ __all__ = [
     "HIGH_INVESTMENT",
     "MID_CAMPAIGN",
     "TEMPLATE_REGISTRY",
+    "AnimateWeaponNecroTemplate",
+    "BaneOccultistTemplate",
+    "BoneSpearNecroTemplate",
     "BuildTemplate",
+    "CycloneSlayerTemplate",
+    "DetonateDeadNecroTemplate",
+    "FrostBladesRaiderTemplate",
     "GenericTemplate",
+    "HexblastMinesTemplate",
+    "HolyFlameTotemHieroTemplate",
+    "LightningStrikeRaiderTemplate",
     "RfPohxTemplate",
+    "ShrapnelBallistaDeadeyeTemplate",
+    "SkeletonMagesTemplate",
+    "SparkInquisitorTemplate",
+    "SpectreNecroTemplate",
     "StagePlanContent",
+    "TornadoShotDeadeyeTemplate",
+    "ToxicRainPathfinderTemplate",
+    "VortexOccultistTemplate",
     "pick_template",
 ]

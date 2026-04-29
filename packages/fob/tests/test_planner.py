@@ -434,12 +434,19 @@ async def test_plan_target_goal_is_propagated() -> None:
     assert plan.target_goal is TargetGoal.UBER_CAPABLE
 
 
-async def test_plan_gem_changes_use_generic_template_for_unknown_skill() -> None:
-    """A build with an unmatched main_skill ('Vortex') falls back to GenericTemplate."""
+async def test_plan_gem_changes_cover_main_skill_lab_and_awakened() -> None:
+    """Sanity check on the per-stage gem advice across the lifecycle.
+
+    Whether the build hits a specific template (e.g. VortexOccultist) or
+    falls through to GenericTemplate, three things must be true: the
+    early-campaign copy mentions the main skill, the mid-campaign copy
+    mentions the lab, and the late stages mention 20/20 / awakened
+    progression.
+    """
 
     fake = FakePricing()
     svc = PlannerService(fake)
-    build = _make_build(key_items=[])  # main_skill="Vortex" via fixture
+    build = _make_build(key_items=[])  # main_skill="Vortex" via fixture → VortexOccultistTemplate
     plan = await svc.plan(build)
 
     early_campaign_gems = plan.stages[0].gem_changes
@@ -915,11 +922,94 @@ def test_pick_template_returns_rf_for_righteous_fire() -> None:
 
 
 def test_pick_template_falls_back_to_generic_for_unknown_skill() -> None:
+    """A skill that isn't covered by any registered template hits the generic fallback.
+
+    Step 12 added templates for the most popular skills (Vortex, Spark,
+    Cyclone, Spectre, etc.); we use a deliberately exotic / unmatched
+    skill name here to exercise the fallback path.
+    """
+
     from poe1_fob.planner import pick_template
 
-    build = _make_build(key_items=[])  # main_skill="Vortex" not registered
-    template = pick_template(build)
+    obscure = _make_build(key_items=[]).model_copy(update={"main_skill": "Bladestorm"})
+    template = pick_template(obscure)
     assert template.name == "generic"
+
+
+def test_template_registry_covers_popular_skills() -> None:
+    """Step 12 coverage — every flagship skill resolves to a specific template.
+
+    If someone removes a template by accident the test fires immediately.
+    """
+
+    from poe1_fob.planner import pick_template
+
+    canonical = {
+        "Righteous Fire": "rf_pohx",
+        "Vortex": "vortex_occultist",
+        "Spark": "spark_inquisitor",
+        "Bone Spear": "bone_spear_necromancer",
+        "Hexblast": "hexblast_mines",
+        "Volatile Dead": "detonate_dead_necromancer",
+        "Bane": "bane_occultist",
+        "Cyclone": "cyclone_slayer",
+        "Lightning Strike": "lightning_strike_raider",
+        "Tornado Shot": "tornado_shot_deadeye",
+        "Frost Blades": "frost_blades_raider",
+        "Toxic Rain": "toxic_rain_pathfinder",
+        "Raise Spectre": "spectre_necromancer",
+        "Summon Skeletons": "skeleton_mages_necromancer",
+        "Animate Weapon": "animate_weapon_necromancer",
+        "Holy Flame Totem": "holy_flame_totem_hierophant",
+        "Shrapnel Ballista": "ballista_totem_deadeye",
+    }
+    base_build = _make_build(key_items=[])
+    for skill, expected in canonical.items():
+        build = base_build.model_copy(update={"main_skill": skill})
+        template = pick_template(build)
+        assert template.name == expected, (
+            f"main_skill={skill!r} should resolve to {expected!r}, got {template.name!r}"
+        )
+
+
+async def test_vortex_template_emits_signature_advice() -> None:
+    """Spot-check VortexOccultistTemplate produces its key Cold Snap → Vortex advice."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Vortex"})
+    plan = await svc.plan(build)
+
+    early = plan.stages[0]
+    assert any("Cold Snap" in g for g in early.gem_changes)
+    assert any("Frostblink" in g for g in early.gem_changes)
+    # Profane Bloom is the Vortex-specific lab pick.
+    mid = plan.stages[1]
+    assert any("Profane Bloom" in g for g in mid.gem_changes)
+
+
+async def test_cyclone_template_emits_signature_advice() -> None:
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Cyclone"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    end_map = plan.stages[4]
+    assert any("Cyclone" in g for g in mid.gem_changes)
+    assert any("Atziri's Disfavour" in t for t in end_map.tree_changes)
+
+
+async def test_spectre_template_routes_to_minion_setup() -> None:
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Raise Spectre"})
+    plan = await svc.plan(build)
+
+    early_map = plan.stages[3]
+    assert any(
+        "Spectre" in g or "Convocation" in g for g in early_map.gem_changes + early_map.tree_changes
+    )
 
 
 async def test_planner_uses_rf_template_when_main_skill_is_rf() -> None:

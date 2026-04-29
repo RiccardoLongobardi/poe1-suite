@@ -74,6 +74,9 @@ ignore = ["ANN401"]
 "**/tests/**/*.py" = ["ANN"]
 "**/__init__.py" = ["F401"]
 "**/generated/**/*.py" = ["ALL"]
+# Build templates ship long Italian copy strings — splitting them with
+# implicit concatenation would hurt readability for no real value.
+"**/poe1_fob/planner/templates.py" = ["E501"]
 
 [tool.ruff.format]
 quote-style = "double"

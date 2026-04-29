@@ -34,7 +34,7 @@ uv run mypy .
 uv run pytest
 ```
 
-All four must pass with zero errors. Current baseline: **466 tests green (2 skipped — integration/LLM), 90 files type-checked clean, 88 files formatted clean**.
+All four must pass with zero errors. Current baseline: **470 tests green (2 skipped — integration/LLM), 90 files type-checked clean, 88 files formatted clean**.
 
 ## What's built (state as of 2026-04-25, end of Step 8 — FOB completo)
 
@@ -92,9 +92,24 @@ Step 11 (UI overhaul) chiuso. Cosa abbiamo:
 - **DonationModal**: copy in italiano, 2 sezioni icon+testo (cosa cambia / quanto donare), CTA gold "Apri PayPal — paypal.me/riclong" con `target=_blank rel=noopener`.
 - **Routing react-router-dom**: BrowserRouter wraps la app, Routes per `/` `/home` `/finder` `/analyze` `/planner` + 404→/home redirect. AppShell solo sulle route non-welcome. Navbar usa `useLocation` per attive states; lift-to-planner ora via `navigate('/planner')` invece che state-based. "Supporta" button anche nella navbar.
 
-## What comes after (Step 12+)
+## Step 12 completo
 
-- **Step 12 — Templates aggiuntivi** (Vortex, Spectre, Spark, Bone Spear, Cyclone) per il Planner v2. Struttura già pronta in `poe1_fob.planner.templates`; basta riempire i 6 metodi `for_stage` per ognuno.
+Step 12 (Templates aggiuntivi + UI BuildCard upgrade) chiuso. Cosa abbiamo:
+- **17 template totali** in `poe1_fob.planner.templates`. RfPohx + 16 nuovi:
+  - Caster: Vortex Occultist, Spark Inquisitor, Bone Spear Necro, Hexblast Mines, Detonate Dead Necro, Bane Occultist
+  - Attack: Cyclone Slayer/Berserker, Lightning Strike Raider, Tornado Shot Deadeye, Frost Blades Raider, Toxic Rain Pathfinder
+  - Minion: Raise Spectre Necro, Skeleton Mages, Animate Weapon
+  - Totem: Holy Flame Totem Hierophant (non-RF), Shrapnel/Lancing Ballista Deadeye
+  - Ognuno ha advice mirato per Early Campaign / Mid Campaign / Early Mapping / End Mapping (gli stage non sovrascritti cadono su `GenericTemplate.for_stage`)
+- `_matches_skill(*needles)` helper per matcher case-insensitive substring.
+- `pyproject.toml`: per-file-ignore E501 per `templates.py` (testo italiano descrittivo).
+- 4 nuovi test (registry coverage, Vortex/Cyclone/Spectre signature advice).
+- **BuildCard upgrade**: EHP visibile accanto a Life/ES e DPS, pulsante "Copia link" che mette in clipboard l'URL pubblico poe.ninja del personaggio (con feedback "Copiato"), main gems lazy-fetched dal `/builds/detail` quando l'utente espande la card. Nuova API `getDetailFull(account, name)` espone anche `skills: SkillGroup[]`.
+
+## What comes after (Step 13+)
+
+- **Step 13 — poe.ninja Trade search integration** — vedere come integrare il nuovo trade search di poe.ninja (post-update) nel nostro flow. TBD: capire cosa è cambiato nelle loro API.
+- Templates ulteriori per skill emergenti (Penance Brand, Crackling Lance, Storm Brand, Forbidden Rite, ecc.) man mano che escono mete nuove.
 - **Step 11 — UI overhaul** — tema astrale viola, welcome page animata, home page dashboard, modale donation PayPal (paypal.me/riclong). Refactor a `react-router-dom`.
 - **Faustus flipper** — package `poe1-faustus` per flip di valuta basato su poe.ninja bulk trades. Strumento separato. UX: arbitraggi "X chaos → Y div → Z chaos → profit %".
 - **App unica raggruppante** — navbar per tool (FOB, Faustus, …) quando arriva il secondo tool.
