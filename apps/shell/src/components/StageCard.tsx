@@ -204,8 +204,8 @@ export function StageCard({ stage, index }: Props) {
             onClose={tradeCtl.close}
             title={tradeItem.name}
             itemName={tradeItem.rarity === "unique" ? tradeItem.name : null}
-            itemType={null}
-            mods={[]}
+            itemType={tradeItem.base_type ?? null}
+            rawMods={tradeItem.mods ?? []}
             allowLinks={tradeItem.slot === "body_armour"}
           />
         )}

@@ -236,6 +236,10 @@ export interface CoreItem {
   price_estimate: PriceRange | null;
   buy_priority: number;
   notes: string | null;
+  /** Item base type when known (e.g. "Vaal Regalia"). Used for Trade dialog. */
+  base_type?: string | null;
+  /** Verbatim mod text lines from PoB. Empty for items mapped without source. */
+  mods?: string[];
 }
 
 export interface PlanStage {
@@ -296,6 +300,24 @@ export interface TradeSearchResponse {
   /** Browser URL on pathofexile.com — open in a new tab. */
   url: string;
   total_listings: number;
+}
+
+/** One row in the Trade-search dialog's mod list. */
+export interface ExtractedTradeMod {
+  line: string;
+  stat_id: string;
+  /** Numeric value rolled on the source item. */
+  value: number;
+  /** Human-readable label, e.g. "+# to maximum Life". */
+  label: string;
+}
+
+export interface TradeModExtractRequest {
+  mods: string[];
+}
+
+export interface TradeModExtractResponse {
+  mods: ExtractedTradeMod[];
 }
 
 export interface PricingProgress {

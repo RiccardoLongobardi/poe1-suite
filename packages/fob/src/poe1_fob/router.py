@@ -37,10 +37,13 @@ from poe1_shared.logging import get_logger
 
 from .intent import IntentLlmError, extract_intent
 from .planner import (
+    ExtractedTradeMod,
     PlannerService,
     PlanRequest,
     PlanResponse,
     PricingProgress,
+    TradeModExtractRequest,
+    TradeModExtractResponse,
     TradeSearchRequest,
     TradeSearchResponse,
 )
@@ -53,6 +56,8 @@ from .pob import (
     parse_snapshot,
     snapshot_to_build,
 )
+from .pob import clean_mod_lines as _clean_mod_lines
+from .pob import extract_mods as _extract_mod_patterns
 from .ranking import RankingEngine, RecommendRequest, RecommendResponse, SourceAggregator
 
 log = get_logger(__name__)
@@ -455,6 +460,48 @@ def make_router(settings: Settings) -> APIRouter:
             url=url,
             total_listings=total,
         )
+
+    @router.post(
+        "/extract-trade-mods",
+        response_model=TradeModExtractResponse,
+        summary=(
+            "Run the rare-mod pattern table over a list of mod text "
+            "lines and return the dialog-ready filter rows."
+        ),
+    )
+    async def extract_trade_mods_endpoint(
+        payload: Annotated[TradeModExtractRequest, Body()],
+    ) -> TradeModExtractResponse:
+        """Pure-extraction preview for the Trade-search dialog.
+
+        The frontend sends the verbatim mod text lines from a CoreItem
+        (or any other PoB-derived item) and gets back the rows ready
+        to render: ``stat_id``, label, rolled value. Mod lines that
+        don't match any pattern in :data:`MOD_PATTERNS` are silently
+        dropped — no point surfacing rolls we can't query on Trade.
+
+        Stateless and offline: no HTTP calls, no rate limit.
+        """
+
+        cleaned = _clean_mod_lines(payload.mods)
+        extracted = _extract_mod_patterns(cleaned)
+        # Dedupe by stat_id, keeping the first seen — same dedup rule
+        # the pricing layer uses, so the dialog matches the pricer.
+        seen: set[str] = set()
+        out: list[ExtractedTradeMod] = []
+        for em in extracted:
+            if em.stat_id in seen:
+                continue
+            seen.add(em.stat_id)
+            out.append(
+                ExtractedTradeMod(
+                    line=em.line,
+                    stat_id=em.stat_id,
+                    value=em.value,
+                    label=em.label,
+                )
+            )
+        return TradeModExtractResponse(mods=tuple(out))
 
     return router
 

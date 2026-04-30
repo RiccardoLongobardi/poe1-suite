@@ -13,6 +13,7 @@ import type {
   PricingProgress,
   RecommendResponse,
   TargetGoal,
+  TradeModExtractResponse,
   TradeSearchRequest,
   TradeSearchResponse,
 } from "./types";
@@ -53,6 +54,19 @@ export async function recommend(
 /** POST /fob/analyze-pob */
 export async function analyzePob(input: string): Promise<AnalyzePobResponse> {
   return post<AnalyzePobResponse>("/fob/analyze-pob", { input });
+}
+
+/**
+ * POST /fob/extract-trade-mods — turn raw mod text into dialog rows.
+ *
+ * Pure server-side pattern matching (no HTTP / no rate-limit). Used
+ * by ``TradeSearchDialog`` to populate its mod-toggle list when the
+ * caller has the original mod text but no pre-extracted rows.
+ */
+export async function extractTradeMods(
+  mods: string[],
+): Promise<TradeModExtractResponse> {
+  return post<TradeModExtractResponse>("/fob/extract-trade-mods", { mods });
 }
 
 /**

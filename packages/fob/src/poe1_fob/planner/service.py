@@ -93,6 +93,10 @@ def _key_item_to_core_item(ki: KeyItem, *, price: PriceRange | None) -> CoreItem
 
     Falls back to ``base_type`` when the item has no name (defensive —
     proper uniques always carry a name in PoB exports).
+
+    Carries forward ``base_type`` and the mod text lines so the
+    frontend's "Cerca su Trade" dialog can populate its toggle list
+    without re-fetching the original Build.
     """
 
     name = ki.item.name or ki.item.base_type
@@ -103,6 +107,8 @@ def _key_item_to_core_item(ki: KeyItem, *, price: PriceRange | None) -> CoreItem
         price_estimate=price,
         buy_priority=_initial_priority(ki.importance),
         notes=None,
+        base_type=ki.item.base_type or None,
+        mods=tuple(m.text for m in ki.item.mods),
     )
 
 

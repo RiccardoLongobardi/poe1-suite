@@ -123,6 +123,17 @@ def _clean(lines: tuple[str, ...]) -> tuple[str, ...]:
     return tuple(out)
 
 
+def clean_mod_lines(lines: Iterable[str]) -> tuple[str, ...]:
+    """Public string-input variant of :func:`_clean`.
+
+    Used by routers / API endpoints that get raw mod text from the
+    frontend (rather than from a parsed :class:`PobItem`) and need
+    metadata-free, annotation-free lines before pattern matching.
+    """
+
+    return _clean(tuple(lines))
+
+
 def clean_mods(item: PobItem) -> tuple[tuple[str, ...], tuple[str, ...]]:
     """Return ``(implicits, explicits)`` with PoB metadata stripped.
 
@@ -467,6 +478,7 @@ __all__ = [
     "MOD_PATTERNS",
     "ExtractedMod",
     "ModPattern",
+    "clean_mod_lines",
     "clean_mods",
     "extract_mods",
     "valuable_stat_filters",

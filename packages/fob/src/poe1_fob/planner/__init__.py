@@ -22,8 +22,11 @@ Public surface:
 from __future__ import annotations
 
 from .models import (
+    ExtractedTradeMod,
     PlanRequest,
     PlanResponse,
+    TradeModExtractRequest,
+    TradeModExtractResponse,
     TradeSearchModFilter,
     TradeSearchRequest,
     TradeSearchResponse,
@@ -49,6 +52,7 @@ __all__ = [
     "PER_ITEM_NINJA_SECONDS",
     "PER_ITEM_TRADE_SECONDS",
     "BuildTemplate",
+    "ExtractedTradeMod",
     "GenericTemplate",
     "PlanRequest",
     "PlanResponse",
@@ -57,6 +61,8 @@ __all__ = [
     "PricingProgress",
     "RfPohxTemplate",
     "StagePlanContent",
+    "TradeModExtractRequest",
+    "TradeModExtractResponse",
     "TradePort",
     "TradeSearchModFilter",
     "TradeSearchRequest",

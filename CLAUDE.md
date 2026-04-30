@@ -34,7 +34,7 @@ uv run mypy .
 uv run pytest
 ```
 
-All four must pass with zero errors. Current baseline: **480 tests green (2 skipped — integration/LLM), 90 files type-checked clean, 88 files formatted clean**.
+All four must pass with zero errors. Current baseline: **485 tests green (2 skipped — integration/LLM), 91 files type-checked clean, 89 files formatted clean**.
 
 ## What's built (state as of 2026-04-25, end of Step 8 — FOB completo)
 
@@ -130,9 +130,29 @@ Step 13.A — poe.ninja-style item Trade search integration (parte 1, MVP).
 
 Baseline: 480 test verdi / 90 mypy / 88 format. Build frontend 508 KB / 159 KB gzip.
 
-## What comes after (Step 13+)
+## Step 13.A3 completo
 
-- **Step 13.A3 — Pseudo-stats + local-mod filtering**: estendere `MOD_PATTERNS` con i pseudo-stat principali (`pseudo.pseudo_total_life`, `pseudo.pseudo_total_elemental_resistance`), aggiungere set di local-mod prefixes da escludere dalle Trade query. Estendere `CoreItem` con `mods: list[ItemMod]` e `base_type: str` per popolare il dialog.
+Step 13.A3 — popolamento dialog Trade-search dalla mod text del PoB.
+
+**Modello core**:
+- `CoreItem` esteso con `base_type: str | None = None` e `mods: tuple[str, ...] = ()`. Defaults vuoti per backward-compat con plan serializzati pre-A3.
+- `_key_item_to_core_item()` nel planner service popola entrambi i nuovi campi dal `KeyItem.item.base_type` + `KeyItem.item.mods` (tuple di mod text).
+
+**Backend** (`POST /fob/extract-trade-mods`):
+- Nuovo endpoint stateless: prende `{mods: list[str]}` e ritorna `{mods: list[ExtractedTradeMod]}` con `(line, stat_id, value, label)` per ogni mod riconosciuto da `MOD_PATTERNS`.
+- Internamente: `clean_mod_lines()` (nuovo helper pubblico in `pob/rares.py` che espone `_clean()` per stringhe) → `extract_mods()` → dedupe by `stat_id`.
+- Zero HTTP esterni — serve solo per il pattern matching client-friendly.
+- 5 nuovi test sui modelli Pydantic.
+
+**Frontend**:
+- Tipi `ExtractedTradeMod`, `TradeModExtractRequest`, `TradeModExtractResponse` in `types.ts`. `CoreItem` esteso con `base_type` e `mods` opzionali.
+- Client `extractTradeMods(mods)` in `api/fob.ts`.
+- `TradeSearchDialog` ora accetta sia `mods` (rows pre-extracted) sia `rawMods` (text); su `opened=true` con `rawMods` non vuoto fa `useEffect` fetch all'endpoint preview e popola la lista. Loader Mantine durante l'estrazione, fallback "non riconosciuti" se il match table non trova nulla.
+- `StageCard` passa `tradeItem.base_type` come `itemType` e `tradeItem.mods` come `rawMods` — il dialog ora ha la lista mod popolata automaticamente per qualsiasi item del Plan, **non solo per gli unique**.
+
+Baseline: 485 test verdi / 91 mypy / 89 format. Frontend build 508 KB / 159 KB gzip.
+
+## What comes after (Step 13+)
 - **Step 13.B — Pricing v3 — Watcher's Eye combinations**: pricing dedicato per Watcher's Eye con (aura, stat) match esatto via Trade. Pattern già pronto, manca la mappa stat-id Watcher's-specifica.
 - **Step 13.D — Templates per ogni classe** (almeno 3 build per Duelist / Witch / Marauder / Templar / Shadow / Ranger / Scion). Obiettivo: dato un endgame PoB, FOB ha sempre un piano coerente per la classe corrispondente. ~21 template totali nel registry.
 - **Step 13.C — Reverse-progression engine** (final endgame del progetto): derivare custom upgrade ladder dal PoB endgame anziché dai template hardcoded.

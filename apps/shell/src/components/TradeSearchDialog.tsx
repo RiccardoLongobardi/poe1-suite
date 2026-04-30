@@ -23,6 +23,7 @@ import {
   Badge,
   Button,
   Group,
+  Loader,
   Modal,
   ScrollArea,
   Slider,
@@ -32,8 +33,8 @@ import {
   ThemeIcon,
 } from "@mantine/core";
 import { IconExternalLink, IconSearch } from "@tabler/icons-react";
-import { useState } from "react";
-import { tradeSearch } from "../api/fob";
+import { useEffect, useState } from "react";
+import { extractTradeMods, tradeSearch } from "../api/fob";
 import type { TradeSearchModFilter } from "../api/types";
 
 /**
@@ -68,8 +69,18 @@ interface Props {
   itemName?: string | null;
   /** Base type — for rares + uniques where Trade needs the base. */
   itemType?: string | null;
-  /** Available mods the user can toggle on. */
-  mods: TradeDialogMod[];
+  /**
+   * Pre-extracted mods (skip the server round-trip).
+   * Use this when the caller already knows the dialog rows.
+   */
+  mods?: TradeDialogMod[];
+  /**
+   * Raw PoB mod text lines. Sent to ``/fob/extract-trade-mods`` on
+   * mount; the server replies with the typed dialog rows. Either
+   * ``mods`` or ``rawMods`` should be supplied — if both are set,
+   * ``mods`` wins and the fetch is skipped.
+   */
+  rawMods?: string[];
   /** Allow the user to require a 6L? */
   allowLinks?: boolean;
 }
@@ -81,10 +92,11 @@ export function TradeSearchDialog({
   itemName,
   itemType,
   mods,
+  rawMods,
   allowLinks = false,
 }: Props) {
   const [rows, setRows] = useState<ModRowState[]>(() =>
-    mods.map((m) => ({
+    (mods ?? []).map((m) => ({
       mod: m,
       enabled: m.default_enabled ?? true,
       strictness: 80,
@@ -93,14 +105,50 @@ export function TradeSearchDialog({
   const [requireLinks, setRequireLinks] = useState(false);
   const [linkCount, setLinkCount] = useState(6);
   const [loading, setLoading] = useState(false);
+  const [extracting, setExtracting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Re-seed local state when the dialog re-opens with a different item.
-  // Mantine modals keep their children mounted but we rebuild the row
-  // list whenever ``mods`` (an identity-stable input from the parent)
-  // actually changes.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useState; // satisfy linter — useState already used above
+  // Lazy-load the dialog rows from raw mod text when ``rawMods`` is
+  // provided and ``mods`` is empty. Skipped entirely when the caller
+  // already supplied rows (component is identity-stable per item via
+  // the ``key=`` set by StageCard).
+  useEffect(() => {
+    if (!opened) return;
+    if (mods && mods.length > 0) return;
+    if (!rawMods || rawMods.length === 0) return;
+    // Already extracted at least once for this mount — skip refetch.
+    if (rows.length > 0) return;
+
+    let cancelled = false;
+    setExtracting(true);
+    extractTradeMods(rawMods)
+      .then((resp) => {
+        if (cancelled) return;
+        setRows(
+          resp.mods.map((m) => ({
+            mod: {
+              stat_id: m.stat_id,
+              label: m.label,
+              rolled_value: m.value,
+              default_enabled: true,
+            },
+            enabled: true,
+            strictness: 80,
+          })),
+        );
+      })
+      .catch(() => {
+        // Extraction is non-fatal: the dialog still works with name/type.
+        if (!cancelled) setRows([]);
+      })
+      .finally(() => {
+        if (!cancelled) setExtracting(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [opened, rawMods, mods]);
 
   function setRow(idx: number, patch: Partial<ModRowState>) {
     setRows((cur) =>
@@ -187,8 +235,18 @@ export function TradeSearchDialog({
           )}
         </Group>
 
+        {/* Loader while we extract mod rows from raw text */}
+        {extracting && (
+          <Group gap={8}>
+            <Loader size="xs" />
+            <Text size="xs" c="dimmed">
+              Estrazione mod in corso...
+            </Text>
+          </Group>
+        )}
+
         {/* Mod toggles */}
-        {rows.length > 0 && (
+        {rows.length > 0 && !extracting && (
           <Stack gap={4}>
             <Text size="xs" c="dimmed" fw={500} tt="uppercase">
               Mod ({enabledCount}/{rows.length} attivi)
@@ -257,7 +315,7 @@ export function TradeSearchDialog({
           </Stack>
         )}
 
-        {rows.length === 0 && (
+        {rows.length === 0 && !extracting && (
           <Text size="sm" c="dimmed">
             Questo item non ha mod riconosciuti dal pattern table — la
             ricerca userà solo nome/base.

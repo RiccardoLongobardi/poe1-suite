@@ -152,9 +152,58 @@ class TradeSearchResponse(BaseModel):
     )
 
 
+# ---------------------------------------------------------------------------
+# Trade-search dialog preview — POST /fob/extract-trade-mods
+# ---------------------------------------------------------------------------
+
+
+class TradeModExtractRequest(BaseModel):
+    """Input for ``POST /fob/extract-trade-mods``.
+
+    The frontend sends the verbatim mod text lines from a CoreItem (or
+    from any other PoB-derived item) and gets back the typed dialog
+    rows ready to render: stat_id, label, rolled value. Mod lines
+    that don't match any pattern are silently dropped.
+    """
+
+    model_config = ConfigDict(frozen=True)
+
+    mods: tuple[str, ...] = Field(
+        default=(),
+        description="Mod text lines to extract trade filters from.",
+    )
+
+
+class ExtractedTradeMod(BaseModel):
+    """One row in the Trade-search dialog's mod list.
+
+    Mirrors :class:`poe1_fob.pob.rares.ExtractedMod` but lives in the
+    HTTP layer so the wire format is decoupled from the internal
+    extraction dataclass.
+    """
+
+    model_config = ConfigDict(frozen=True)
+
+    line: str = Field(..., description="Original mod line that matched.")
+    stat_id: str = Field(..., description="GGG stat id keyed by the matching pattern.")
+    value: float = Field(..., description="Numeric value rolled on the item.")
+    label: str = Field(..., description="Human-readable label (e.g. '+# to maximum Life').")
+
+
+class TradeModExtractResponse(BaseModel):
+    """Output for ``POST /fob/extract-trade-mods``."""
+
+    model_config = ConfigDict(frozen=True)
+
+    mods: tuple[ExtractedTradeMod, ...] = Field(default=())
+
+
 __all__ = [
+    "ExtractedTradeMod",
     "PlanRequest",
     "PlanResponse",
+    "TradeModExtractRequest",
+    "TradeModExtractResponse",
     "TradeSearchModFilter",
     "TradeSearchRequest",
     "TradeSearchResponse",

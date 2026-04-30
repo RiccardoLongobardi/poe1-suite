@@ -21,6 +21,13 @@ class CoreItem(BaseModel):
     """An item the player should acquire at a given stage.
 
     ``buy_priority`` is a 1..N ordering within the stage (1 = buy first).
+
+    ``base_type`` and ``mods`` are populated when the planner has access
+    to the item's PoB-side detail (always for items mapped from a Build's
+    KeyItems). They power the "Cerca su Trade" dialog: ``mods`` carries
+    the verbatim mod text lines so the frontend can extract stat filters
+    on demand. Both default to None / empty so test fixtures don't have
+    to supply them, and so older serialised plans deserialise cleanly.
     """
 
     model_config = ConfigDict(frozen=True)
@@ -31,6 +38,8 @@ class CoreItem(BaseModel):
     price_estimate: PriceRange | None = None
     buy_priority: int = Field(..., ge=1)
     notes: str | None = None
+    base_type: str | None = None
+    mods: tuple[str, ...] = ()
 
 
 class PlanStage(BaseModel):

@@ -12,6 +12,9 @@ import pytest
 from pydantic import ValidationError
 
 from poe1_fob.planner.models import (
+    ExtractedTradeMod,
+    TradeModExtractRequest,
+    TradeModExtractResponse,
     TradeSearchModFilter,
     TradeSearchRequest,
     TradeSearchResponse,
@@ -98,3 +101,42 @@ class TestTradeSearchResponse:
                 url="https://x",
                 total_listings=-1,
             )
+
+
+class TestTradeModExtract:
+    def test_extract_request_default_empty(self) -> None:
+        req = TradeModExtractRequest()
+        assert req.mods == ()
+
+    def test_extract_request_carries_mods(self) -> None:
+        req = TradeModExtractRequest(mods=("+122 to maximum Life", "Sockets: B-B-B"))
+        assert len(req.mods) == 2
+
+    def test_extracted_mod_round_trips(self) -> None:
+        em = ExtractedTradeMod(
+            line="+122 to maximum Life",
+            stat_id="explicit.stat_3299347043",
+            value=122.0,
+            label="+# to maximum Life",
+        )
+        assert em.value == 122.0
+        assert em.stat_id == "explicit.stat_3299347043"
+        assert em.label == "+# to maximum Life"
+
+    def test_extract_response_default_empty(self) -> None:
+        resp = TradeModExtractResponse()
+        assert resp.mods == ()
+
+    def test_extract_response_with_rows(self) -> None:
+        resp = TradeModExtractResponse(
+            mods=(
+                ExtractedTradeMod(
+                    line="+122 to maximum Life",
+                    stat_id="explicit.stat_3299347043",
+                    value=122.0,
+                    label="+# to maximum Life",
+                ),
+            )
+        )
+        assert len(resp.mods) == 1
+        assert resp.mods[0].stat_id == "explicit.stat_3299347043"
