@@ -34,7 +34,7 @@ uv run mypy .
 uv run pytest
 ```
 
-All four must pass with zero errors. Current baseline: **470 tests green (2 skipped — integration/LLM), 90 files type-checked clean, 88 files formatted clean**.
+All four must pass with zero errors. Current baseline: **480 tests green (2 skipped — integration/LLM), 90 files type-checked clean, 88 files formatted clean**.
 
 ## What's built (state as of 2026-04-25, end of Step 8 — FOB completo)
 
@@ -106,9 +106,36 @@ Step 12 (Templates aggiuntivi + UI BuildCard upgrade) chiuso. Cosa abbiamo:
 - 4 nuovi test (registry coverage, Vortex/Cyclone/Spectre signature advice).
 - **BuildCard upgrade**: EHP visibile accanto a Life/ES e DPS, pulsante "Copia link" che mette in clipboard l'URL pubblico poe.ninja del personaggio (con feedback "Copiato"), main gems lazy-fetched dal `/builds/detail` quando l'utente espande la card. Nuova API `getDetailFull(account, name)` espone anche `skills: SkillGroup[]`.
 
+## Step 13.A1+A2 completo
+
+Step 13.A — poe.ninja-style item Trade search integration (parte 1, MVP).
+
+**Backend** (`/fob/trade-search`):
+- Nuovo endpoint POST con `TradeSearchRequest` (item_name + item_type + tuple di `TradeSearchModFilter` con stat_id+min+max + online_only + min_links 1-6) → `TradeSearchResponse` (league + search_id + url + total_listings).
+- Internamente costruisce un `TradeQuery` (riusando la stessa abstraction di Step 9.2), chiama `TradeSource.search()`, riformatta come `https://www.pathofexile.com/trade/search/<league>/<search_id>` da aprire in nuova tab.
+- Validation 422 quando il payload non ha né nome né tipo né mod (no-empty-query rule).
+- 6L / 5L socket constraint passato via `extra_filters.socket_filters` di GGG. 10 nuovi test sui validators Pydantic.
+
+**Frontend**:
+- Nuovo client `tradeSearch(req)` in `api/fob.ts` + tipi `TradeSearchModFilter` / `TradeSearchRequest` / `TradeSearchResponse` in `types.ts`.
+- Nuovo componente `TradeSearchDialog` (Mantine `<Modal>`):
+  - Header con item name/base in badge.
+  - Lista mod toggleable (Switch) con strictness slider 50-100% (default 80%, marker visivo a 80 e 100).
+  - Computed live: per ogni mod attivo mostra il `min` calcolato (`rolled_value × strictness/100`).
+  - Optional 5L/6L socket constraint quando il caller passa `allowLinks=true`.
+  - "Apri su Trade" → POST → `window.open(url, '_blank', 'noopener,noreferrer')`.
+- `StageCard` integrato: ogni `ItemRow` ha un `<ActionIcon>` "Cerca su Trade" con `<IconSearch>` che apre il dialog. Per uniques passa `itemName=name`; allowLinks=true per body armour.
+
+**Note sui limiti dell'MVP**: oggi `CoreItem` non porta `mods`/`base_type`, quindi per i rari del Plan il dialog ha la lista mod vuota (la ricerca sarà solo per slot/base se aggiunto). Step 13.A3 estenderà `CoreItem` con questi campi e popolerà il dialog con i mod estratti.
+
+Baseline: 480 test verdi / 90 mypy / 88 format. Build frontend 508 KB / 159 KB gzip.
+
 ## What comes after (Step 13+)
 
-- **Step 13 — poe.ninja Trade search integration** — vedere come integrare il nuovo trade search di poe.ninja (post-update) nel nostro flow. TBD: capire cosa è cambiato nelle loro API.
+- **Step 13.A3 — Pseudo-stats + local-mod filtering**: estendere `MOD_PATTERNS` con i pseudo-stat principali (`pseudo.pseudo_total_life`, `pseudo.pseudo_total_elemental_resistance`), aggiungere set di local-mod prefixes da escludere dalle Trade query. Estendere `CoreItem` con `mods: list[ItemMod]` e `base_type: str` per popolare il dialog.
+- **Step 13.B — Pricing v3 — Watcher's Eye combinations**: pricing dedicato per Watcher's Eye con (aura, stat) match esatto via Trade. Pattern già pronto, manca la mappa stat-id Watcher's-specifica.
+- **Step 13.D — Templates per ogni classe** (almeno 3 build per Duelist / Witch / Marauder / Templar / Shadow / Ranger / Scion). Obiettivo: dato un endgame PoB, FOB ha sempre un piano coerente per la classe corrispondente. ~21 template totali nel registry.
+- **Step 13.C — Reverse-progression engine** (final endgame del progetto): derivare custom upgrade ladder dal PoB endgame anziché dai template hardcoded.
 - Templates ulteriori per skill emergenti (Penance Brand, Crackling Lance, Storm Brand, Forbidden Rite, ecc.) man mano che escono mete nuove.
 - **Step 11 — UI overhaul** — tema astrale viola, welcome page animata, home page dashboard, modale donation PayPal (paypal.me/riclong). Refactor a `react-router-dom`.
 - **Faustus flipper** — package `poe1-faustus` per flip di valuta basato su poe.ninja bulk trades. Strumento separato. UX: arbitraggi "X chaos → Y div → Z chaos → profit %".

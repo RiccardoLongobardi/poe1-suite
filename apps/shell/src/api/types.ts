@@ -272,6 +272,32 @@ export type PricingProgressKind =
   | "item_failed"
   | "done";
 
+// ---------------------------------------------------------------------------
+// Trade search — POST /fob/trade-search (poe.ninja-style item search)
+// ---------------------------------------------------------------------------
+
+export interface TradeSearchModFilter {
+  stat_id: string;
+  min: number | null;
+  max: number | null;
+}
+
+export interface TradeSearchRequest {
+  item_name?: string | null;
+  item_type?: string | null;
+  mods?: TradeSearchModFilter[];
+  online_only?: boolean;
+  min_links?: number | null;
+}
+
+export interface TradeSearchResponse {
+  league: string;
+  search_id: string;
+  /** Browser URL on pathofexile.com — open in a new tab. */
+  url: string;
+  total_listings: number;
+}
+
 export interface PricingProgress {
   kind: PricingProgressKind;
   item_index: number;

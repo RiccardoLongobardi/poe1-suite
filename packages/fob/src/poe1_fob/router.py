@@ -30,13 +30,20 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from poe1_core.models import Build
 from poe1_core.models.build_intent import BuildIntent
-from poe1_pricing import PricingService, TradeSource
+from poe1_pricing import PricingService, StatFilter, TradeQuery, TradeSource
 from poe1_shared.config import Settings
 from poe1_shared.http import HttpClient, HttpError
 from poe1_shared.logging import get_logger
 
 from .intent import IntentLlmError, extract_intent
-from .planner import PlannerService, PlanRequest, PlanResponse, PricingProgress
+from .planner import (
+    PlannerService,
+    PlanRequest,
+    PlanResponse,
+    PricingProgress,
+    TradeSearchRequest,
+    TradeSearchResponse,
+)
 from .pob import (
     PobInputError,
     PobParseError,
@@ -366,6 +373,87 @@ def make_router(settings: Settings) -> APIRouter:
                 "Cache-Control": "no-cache",
                 "X-Accel-Buffering": "no",
             },
+        )
+
+    @router.post(
+        "/trade-search",
+        response_model=TradeSearchResponse,
+        summary=(
+            "Build a pre-filled GGG Trade search from a focused mod selection "
+            "and return the share URL the frontend can open in a new tab."
+        ),
+    )
+    async def trade_search_endpoint(
+        payload: Annotated[TradeSearchRequest, Body()],
+    ) -> TradeSearchResponse:
+        """Mirror of poe.ninja's character trade search.
+
+        The frontend extracts mods from an analyzed PoB / planned item,
+        lets the user toggle which ones to require and adjust the
+        strictness slider, then submits the assembled filter spec
+        here. We POST it to GGG's ``/api/trade/search/<league>`` and
+        return the share URL — the same one
+        ``https://www.pathofexile.com/trade/search/<league>/<id>``
+        the Trade UI itself uses.
+
+        We deliberately don't fetch listings: this endpoint exists so
+        the user can inspect / negotiate / buy on the official trade
+        site. Pricing remains the planner's job.
+        """
+
+        # Reject empty queries up-front. GGG would happily run them
+        # but the result list (every rare in the league) is useless and
+        # wastes a rate-limit token.
+        if not payload.item_name and not payload.item_type and not payload.mods:
+            raise HTTPException(
+                status_code=422,
+                detail="trade-search requires at least a name, type, or one mod filter",
+            )
+
+        stats = tuple(StatFilter(stat_id=m.stat_id, min=m.min, max=m.max) for m in payload.mods)
+        # Optional 6L / 5L socket filter goes in the GGG ``filters``
+        # bag rather than as a stat.
+        extra_filters: dict[str, dict[str, dict[str, dict[str, int]]]] | None = None
+        if payload.min_links is not None:
+            extra_filters = {
+                "socket_filters": {
+                    "filters": {"links": {"min": payload.min_links}},
+                },
+            }
+        query = TradeQuery(
+            name=payload.item_name,
+            type=payload.item_type,
+            stats=stats,
+            online_only=payload.online_only,
+            extra_filters=extra_filters,
+        )
+
+        async with HttpClient(settings) as http:
+            trade = TradeSource(http=http, league=settings.poe_league)
+            try:
+                search_id, _hashes, total = await trade.search(query)
+            except HttpError as err:
+                raise HTTPException(
+                    status_code=502,
+                    detail=f"GGG Trade search failed: {err}",
+                ) from err
+
+        url = f"https://www.pathofexile.com/trade/search/{settings.poe_league}/{search_id}"
+
+        log.info(
+            "fob_trade_search_ok",
+            league=settings.poe_league,
+            search_id=search_id,
+            total=total,
+            mods=len(payload.mods),
+            has_name=bool(payload.item_name),
+            has_type=bool(payload.item_type),
+        )
+        return TradeSearchResponse(
+            league=settings.poe_league,
+            search_id=search_id,
+            url=url,
+            total_listings=total,
         )
 
     return router

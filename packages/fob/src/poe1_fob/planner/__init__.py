@@ -21,7 +21,13 @@ Public surface:
 
 from __future__ import annotations
 
-from .models import PlanRequest, PlanResponse
+from .models import (
+    PlanRequest,
+    PlanResponse,
+    TradeSearchModFilter,
+    TradeSearchRequest,
+    TradeSearchResponse,
+)
 from .pricing import PricingPort, TradePort
 from .progress import (
     PER_ITEM_NINJA_SECONDS,
@@ -52,6 +58,9 @@ __all__ = [
     "RfPohxTemplate",
     "StagePlanContent",
     "TradePort",
+    "TradeSearchModFilter",
+    "TradeSearchRequest",
+    "TradeSearchResponse",
     "estimate_total_seconds",
     "pick_template",
     "recompute_eta",

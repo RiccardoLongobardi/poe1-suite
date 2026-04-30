@@ -13,6 +13,8 @@ import type {
   PricingProgress,
   RecommendResponse,
   TargetGoal,
+  TradeSearchRequest,
+  TradeSearchResponse,
 } from "./types";
 
 const BASE = ""; // same origin; vite.config.ts proxies /fob → 8765
@@ -51,6 +53,19 @@ export async function recommend(
 /** POST /fob/analyze-pob */
 export async function analyzePob(input: string): Promise<AnalyzePobResponse> {
   return post<AnalyzePobResponse>("/fob/analyze-pob", { input });
+}
+
+/**
+ * POST /fob/trade-search — build a pre-filled GGG Trade share URL.
+ *
+ * Mirrors poe.ninja's character trade search: feed a focused mod
+ * selection (plus optional name/type/links), get back the URL the user
+ * can open on pathofexile.com to inspect / negotiate / buy.
+ */
+export async function tradeSearch(
+  req: TradeSearchRequest,
+): Promise<TradeSearchResponse> {
+  return post<TradeSearchResponse>("/fob/trade-search", req);
 }
 
 /** POST /fob/plan */

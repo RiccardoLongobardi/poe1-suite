@@ -7,6 +7,7 @@
  */
 
 import {
+  ActionIcon,
   Badge,
   Card,
   Group,
@@ -16,20 +17,25 @@ import {
   Text,
   ThemeIcon,
   Title,
+  Tooltip,
 } from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
 import {
   IconArrowDown,
   IconBolt,
   IconCheck,
   IconCoin,
   IconHourglass,
+  IconSearch,
 } from "@tabler/icons-react";
+import { useState } from "react";
 import type {
   Confidence,
   CoreItem,
   PlanStage,
   PriceRange,
 } from "../api/types";
+import { TradeSearchDialog } from "./TradeSearchDialog";
 
 const CONFIDENCE_COLOR: Record<Confidence, string> = {
   low: "gray",
@@ -49,7 +55,13 @@ function formatPrice(p: PriceRange): string {
   return `${fmt(p.min.amount)}–${fmt(p.max.amount)} ${currency}`;
 }
 
-function ItemRow({ item }: { item: CoreItem }) {
+function ItemRow({
+  item,
+  onTradeClick,
+}: {
+  item: CoreItem;
+  onTradeClick: (item: CoreItem) => void;
+}) {
   const price = item.price_estimate;
   return (
     <Table.Tr>
@@ -88,6 +100,19 @@ function ItemRow({ item }: { item: CoreItem }) {
           </Text>
         )}
       </Table.Td>
+      <Table.Td style={{ width: 36 }}>
+        <Tooltip label="Cerca su pathofexile.com" withArrow>
+          <ActionIcon
+            variant="subtle"
+            color="astral"
+            size="sm"
+            onClick={() => onTradeClick(item)}
+            aria-label="Cerca su Trade"
+          >
+            <IconSearch size={14} />
+          </ActionIcon>
+        </Tooltip>
+      </Table.Td>
     </Table.Tr>
   );
 }
@@ -100,6 +125,16 @@ interface Props {
 export function StageCard({ stage, index }: Props) {
   const accent =
     index === 0 ? "teal" : index === 1 ? "blue" : "grape";
+
+  // Trade search dialog state. We hold the active item so re-opening
+  // the modal with a different row resets the row state cleanly.
+  const [tradeOpen, tradeCtl] = useDisclosure(false);
+  const [tradeItem, setTradeItem] = useState<CoreItem | null>(null);
+
+  function openTradeDialog(item: CoreItem) {
+    setTradeItem(item);
+    tradeCtl.open();
+  }
 
   return (
     <Card withBorder radius="md" p="md">
@@ -145,14 +180,34 @@ export function StageCard({ stage, index }: Props) {
                 <Table.Th>Item</Table.Th>
                 <Table.Th>Slot</Table.Th>
                 <Table.Th ta="right">Prezzo</Table.Th>
+                <Table.Th style={{ width: 36 }} />
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
               {stage.core_items.map((item) => (
-                <ItemRow key={`${item.slot}-${item.name}`} item={item} />
+                <ItemRow
+                  key={`${item.slot}-${item.name}`}
+                  item={item}
+                  onTradeClick={openTradeDialog}
+                />
               ))}
             </Table.Tbody>
           </Table>
+        )}
+
+        {/* Trade search dialog — keyed on the item identity so opening
+            for a different row resets internal row state. */}
+        {tradeItem && (
+          <TradeSearchDialog
+            key={`${tradeItem.slot}-${tradeItem.name}`}
+            opened={tradeOpen}
+            onClose={tradeCtl.close}
+            title={tradeItem.name}
+            itemName={tradeItem.rarity === "unique" ? tradeItem.name : null}
+            itemType={null}
+            mods={[]}
+            allowLinks={tradeItem.slot === "body_armour"}
+          />
         )}
 
         {stage.gem_changes.length > 0 && (

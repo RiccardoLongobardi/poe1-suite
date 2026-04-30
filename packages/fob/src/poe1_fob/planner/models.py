@@ -58,4 +58,104 @@ class PlanResponse(BaseModel):
     plan: BuildPlan
 
 
-__all__ = ["PlanRequest", "PlanResponse"]
+# ---------------------------------------------------------------------------
+# Trade search — POST /fob/trade-search
+# ---------------------------------------------------------------------------
+
+
+class TradeSearchModFilter(BaseModel):
+    """One mod filter the user has toggled on in the search dialog.
+
+    The frontend extracts mod text from the analyzed PoB / plan item,
+    runs it through the same pattern table the pricing layer uses, and
+    submits one of these per mod the user wants to require. ``min`` is
+    typically the rolled value scaled by the strictness slider (default
+    80 % — same as poe.ninja's character trade search default).
+    """
+
+    model_config = ConfigDict(frozen=True)
+
+    stat_id: str = Field(
+        ...,
+        min_length=1,
+        description="GGG stat id (e.g. 'explicit.stat_3299347043' for +# to maximum Life).",
+    )
+    min: float | None = Field(
+        default=None,
+        description="Lower bound for the stat value; None = open lower bound.",
+    )
+    max: float | None = Field(
+        default=None,
+        description="Upper bound for the stat value; None = open upper bound.",
+    )
+
+
+class TradeSearchRequest(BaseModel):
+    """Input for ``POST /fob/trade-search``.
+
+    Builds a GGG Trade query from a focused selection of mods plus
+    optional name / base type / link constraints, runs the search, and
+    returns the share URL the frontend can open in a new tab. The
+    endpoint never parses listings — that's the pricing layer's job.
+
+    All fields are optional except that the request must specify *at
+    least* a name, type, or one mod filter; an empty query would match
+    every rare in the league and is rejected at validation.
+    """
+
+    model_config = ConfigDict(frozen=True)
+
+    item_name: str | None = Field(
+        default=None,
+        description="Unique name to constrain the search to (e.g. 'Mageblood').",
+    )
+    item_type: str | None = Field(
+        default=None,
+        description="Base type to constrain the search to (e.g. 'Vaal Regalia').",
+    )
+    mods: tuple[TradeSearchModFilter, ...] = Field(
+        default=(),
+        description="Stat filters AND-combined; each one becomes one row in the search.",
+    )
+    online_only: bool = Field(
+        default=True,
+        description="When True (default), only include sellers currently online.",
+    )
+    min_links: int | None = Field(
+        default=None,
+        ge=1,
+        le=6,
+        description="Required minimum socket-link count (5 or 6 are the common values).",
+    )
+
+
+class TradeSearchResponse(BaseModel):
+    """Response from ``POST /fob/trade-search``.
+
+    The frontend opens :attr:`url` in a new tab; ``search_id`` is also
+    surfaced in case the caller wants to construct alternative URLs
+    (e.g. the official trade tools beyond the standard search page).
+    """
+
+    model_config = ConfigDict(frozen=True)
+
+    league: str = Field(..., description="League the search ran against.")
+    search_id: str = Field(..., description="GGG-issued search id (~10 minute lifetime).")
+    url: str = Field(
+        ...,
+        description="Browser URL pointing at the pre-filled search on pathofexile.com.",
+    )
+    total_listings: int = Field(
+        ...,
+        ge=0,
+        description="Server-reported total matches at search time.",
+    )
+
+
+__all__ = [
+    "PlanRequest",
+    "PlanResponse",
+    "TradeSearchModFilter",
+    "TradeSearchRequest",
+    "TradeSearchResponse",
+]
