@@ -354,6 +354,157 @@ MOD_PATTERNS: tuple[ModPattern, ...] = (
         "explicit.stat_328541901",
         label="+# to Intelligence",
     ),
+    # --- Watcher's Eye (aura-conditional) ---------------------------------
+    #
+    # Watcher's Eye is a Prismatic Jewel unique that rolls 1-3 mods,
+    # each gated by a specific aura the player has running. The mod
+    # text always starts with "While affected by <Aura>, ...". The
+    # stat ids below pin the highest-traded combos: cold/fire/lightning
+    # damage conversion under Hatred/Anger/Wrath, ES recharge under
+    # Discipline, crit under Precision, DoT multi under Malevolence,
+    # etc. Coverage is intentionally partial — the cheap mods (e.g.
+    # "while affected by clarity, mana regen") aren't worth pinning
+    # because Watcher's Eyes priced on those alone are the cheapest
+    # bucket and the planner is happy to ignore the variant.
+    #
+    # Stat ids verified against awakened-poe-trade's bundled
+    # ``trade-stats.json`` snapshot. Floor ratio sits at 0.85 like the
+    # rest of the rare-mod table — the actual rolled value matters
+    # more for Trade matching than the relative quality.
+    ModPattern(
+        _r(r"^While affected by Hatred, (\d+)% of Physical Damage Converted to Cold Damage$"),
+        "explicit.stat_2233437671",
+        label="While affected by Hatred, #% Phys to Cold",
+    ),
+    ModPattern(
+        _r(r"^While affected by Hatred, (\d+)% increased Cold Damage$"),
+        "explicit.stat_3618888098",
+        label="While affected by Hatred, #% increased Cold Damage",
+    ),
+    ModPattern(
+        _r(r"^While affected by Hatred, Adds (\d+) to \d+ Cold Damage$"),
+        "explicit.stat_2611224062",
+        label="While affected by Hatred, Adds Cold Damage",
+    ),
+    ModPattern(
+        _r(r"^While affected by Anger, (\d+)% of Physical Damage Converted to Fire Damage$"),
+        "explicit.stat_4231842891",
+        label="While affected by Anger, #% Phys to Fire",
+    ),
+    ModPattern(
+        _r(r"^While affected by Anger, (\d+)% increased Fire Damage$"),
+        "explicit.stat_3551025193",
+        label="While affected by Anger, #% increased Fire Damage",
+    ),
+    ModPattern(
+        _r(r"^While affected by Anger, Adds (\d+) to \d+ Fire Damage$"),
+        "explicit.stat_2818854203",
+        label="While affected by Anger, Adds Fire Damage",
+    ),
+    ModPattern(
+        _r(r"^While affected by Wrath, (\d+)% of Physical Damage Converted to Lightning Damage$"),
+        "explicit.stat_3683243800",
+        label="While affected by Wrath, #% Phys to Lightning",
+    ),
+    ModPattern(
+        _r(r"^While affected by Wrath, (\d+)% increased Lightning Damage$"),
+        "explicit.stat_3848282610",
+        label="While affected by Wrath, #% increased Lightning Damage",
+    ),
+    ModPattern(
+        _r(r"^While affected by Wrath, Adds (\d+) to \d+ Lightning Damage$"),
+        "explicit.stat_3759663284",
+        label="While affected by Wrath, Adds Lightning Damage",
+    ),
+    ModPattern(
+        _r(r"^While affected by Discipline, (\d+)% increased Energy Shield Recharge Rate$"),
+        "explicit.stat_4267315121",
+        label="While affected by Discipline, #% inc. ES Recharge Rate",
+    ),
+    ModPattern(
+        _r(
+            r"^While affected by Discipline, (\d+)% chance to Gain Onslaught for 4 seconds when Hit$"
+        ),
+        "explicit.stat_1474337958",
+        label="While affected by Discipline, Onslaught on Hit",
+    ),
+    ModPattern(
+        _r(
+            r"^While affected by Discipline, (\d+)% increased Energy Shield from Equipped Body Armour$"
+        ),
+        "explicit.stat_4078194209",
+        label="While affected by Discipline, #% inc. ES from Body",
+    ),
+    ModPattern(
+        _r(r"^While affected by Precision, (\d+)% increased Critical Strike Chance$"),
+        "explicit.stat_775081860",
+        label="While affected by Precision, #% inc. Crit Chance",
+    ),
+    ModPattern(
+        _r(r"^While affected by Precision, \+(\d+)% to Critical Strike Multiplier$"),
+        "explicit.stat_3032420365",
+        label="While affected by Precision, +#% Crit Multi",
+    ),
+    ModPattern(
+        _r(r"^While affected by Malevolence, (\d+)% increased Damage Over Time$"),
+        "explicit.stat_3759021413",
+        label="While affected by Malevolence, #% inc. DoT",
+    ),
+    ModPattern(
+        _r(r"^While affected by Malevolence, (\d+)% chance to Avoid Cold Damage from Hits$"),
+        "explicit.stat_3163738488",
+        label="While affected by Malevolence, % Avoid Cold",
+    ),
+    ModPattern(
+        _r(r"^While affected by Determination, (\d+)% increased Armour$"),
+        "explicit.stat_2618394336",
+        label="While affected by Determination, #% increased Armour",
+    ),
+    ModPattern(
+        _r(r"^While affected by Determination, (\d+)% additional Physical Damage Reduction$"),
+        "explicit.stat_2734168507",
+        label="While affected by Determination, #% Phys Damage Reduction",
+    ),
+    ModPattern(
+        _r(r"^While affected by Grace, (\d+)% chance to Dodge Attack Hits$"),
+        "explicit.stat_4181072906",
+        label="While affected by Grace, % Dodge Attacks",
+    ),
+    ModPattern(
+        _r(r"^While affected by Grace, \+(\d+) to maximum Energy Shield$"),
+        "explicit.stat_3151397056",
+        label="While affected by Grace, +# max ES",
+    ),
+    ModPattern(
+        _r(r"^While affected by Vitality, (\d+)% of Damage Leeched as Life$"),
+        "explicit.stat_3656301437",
+        label="While affected by Vitality, #% Life Leech",
+    ),
+    ModPattern(
+        _r(r"^While affected by Haste, (\d+)% increased Cooldown Recovery Rate$"),
+        "explicit.stat_2784545195",
+        label="While affected by Haste, #% inc. Cooldown Recovery",
+    ),
+    ModPattern(
+        _r(r"^While affected by Haste, (\d+)% increased Attack and Cast Speed$"),
+        "explicit.stat_1493091477",
+        label="While affected by Haste, #% inc. Attack/Cast Speed",
+    ),
+    ModPattern(
+        _r(r"^While affected by Pride, Nearby Enemies take (\d+)% increased Physical Damage$"),
+        "explicit.stat_1714175687",
+        label="While affected by Pride, #% inc. Phys Taken (enemies)",
+    ),
+    ModPattern(
+        _r(r"^While affected by Zealotry, (\d+)% increased Critical Strike Chance for Spells$"),
+        "explicit.stat_2814483053",
+        label="While affected by Zealotry, #% inc. Spell Crit",
+    ),
+    ModPattern(
+        _r(r"^While affected by Zealotry, Damaging Ailments deal damage (\d+)% faster$"),
+        "explicit.stat_3743910227",
+        label="While affected by Zealotry, #% faster Ailment damage",
+    ),
 )
 
 

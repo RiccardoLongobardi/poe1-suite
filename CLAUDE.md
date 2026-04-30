@@ -34,7 +34,7 @@ uv run mypy .
 uv run pytest
 ```
 
-All four must pass with zero errors. Current baseline: **485 tests green (2 skipped — integration/LLM), 91 files type-checked clean, 89 files formatted clean**.
+All four must pass with zero errors. Current baseline: **489 tests green (2 skipped — integration/LLM), 91 files type-checked clean, 89 files formatted clean**.
 
 ## What's built (state as of 2026-04-25, end of Step 8 — FOB completo)
 
@@ -152,8 +152,19 @@ Step 13.A3 — popolamento dialog Trade-search dalla mod text del PoB.
 
 Baseline: 485 test verdi / 91 mypy / 89 format. Frontend build 508 KB / 159 KB gzip.
 
+## Step 13.B completo
+
+Step 13.B — Watcher's Eye combo pricing via Trade.
+
+- **`MOD_PATTERNS` esteso con 26 pattern Watcher's Eye** in `pob/rares.py`: Hatred (cold conv / inc cold / adds cold), Anger (fire), Wrath (lightning), Discipline (ES recharge / onslaught / ES from body), Precision (crit chance / multi), Malevolence (DoT / avoid cold), Determination (armour / phys reduction), Grace (dodge / max ES), Vitality (life leech), Haste (cooldown / atk-cast speed), Pride (phys taken aura), Zealotry (spell crit / faster ailments). Stat ID GGG verificati contro `awakened-poe-trade/data/trade-stats.json`.
+- **`_TRADE_PRICED_UNIQUES`** (`{"Watcher's Eye"}`) frozenset in `planner/service.py`. Quando un unique in questo set è in build E TradePort è disponibile, si entra nel path `_price_combo_unique`: `valuable_stat_filters_from_mods` + `TradeQuery(name=name, type="Prismatic Jewel", stats=...)` + percentile median. Risultato stampato `PriceSource.TRADE_API`.
+- **Fallback graceful**: se Trade ritorna None (zero listing, currencies sconosciute), il planner cade su poe.ninja `quote_unique_range` per cheapest-variant.
+- **4 nuovi test** (Trade dispatch, fallback su Trade None, skip senza TradePort, skip se nessun mod riconosciuto). Anche un Watcher's Eye con mod fittizia non rompe il piano.
+- `pyproject.toml` per-file-ignore E501 esteso a `pob/rares.py` (regex Watcher's Eye lunghi).
+
+Baseline: 489 test verdi / 91 mypy / 89 format.
+
 ## What comes after (Step 13+)
-- **Step 13.B — Pricing v3 — Watcher's Eye combinations**: pricing dedicato per Watcher's Eye con (aura, stat) match esatto via Trade. Pattern già pronto, manca la mappa stat-id Watcher's-specifica.
 - **Step 13.D — Templates per ogni classe** (almeno 3 build per Duelist / Witch / Marauder / Templar / Shadow / Ranger / Scion). Obiettivo: dato un endgame PoB, FOB ha sempre un piano coerente per la classe corrispondente. ~21 template totali nel registry.
 - **Step 13.C — Reverse-progression engine** (final endgame del progetto): derivare custom upgrade ladder dal PoB endgame anziché dai template hardcoded.
 - Templates ulteriori per skill emergenti (Penance Brand, Crackling Lance, Storm Brand, Forbidden Rite, ecc.) man mano che escono mete nuove.

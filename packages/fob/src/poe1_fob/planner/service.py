@@ -148,6 +148,19 @@ def _total_cost(stages: list[PlanStage]) -> PriceRange:
     )
 
 
+# Unique items that should be priced via the GGG Trade API when a
+# TradePort is configured, instead of poe.ninja's overview. These
+# uniques have many price-distinct combos (Watcher's Eye stacks
+# aura+stat pairs; future entries will cover Forbidden Flame/Flesh
+# notable combos and other multi-axis variants) where poe.ninja's
+# single "cheapest variant" doesn't reflect the rolled value.
+_TRADE_PRICED_UNIQUES: frozenset[str] = frozenset(
+    {
+        "Watcher's Eye",
+    }
+)
+
+
 def _resolve_variant(item: Item, registry: VariantRegistry) -> str | None:
     """Try to derive the poe.ninja variant string from an item's mod text.
 
@@ -377,8 +390,15 @@ class PlannerService:
 
         Strategy by rarity:
 
-        * ``UNIQUE`` — variant-aware lookup if the registry knows this
-          unique, plain ``quote_unique`` otherwise. Variant misses
+        * ``UNIQUE`` in :data:`_TRADE_PRICED_UNIQUES` (Watcher's Eye, etc.)
+          — when a TradePort is configured, route via stat-aware Trade
+          search instead of poe.ninja. These uniques have so many price-
+          distinct variants (Watcher's Eye has ~250 aura+stat combos)
+          that poe.ninja's single-line "cheapest variant" undersells the
+          actual roll the player has. Trade's stat filter pins the exact
+          combo the player wants priced.
+        * Other ``UNIQUE`` — variant-aware lookup if the registry knows
+          this unique, plain ``quote_unique`` otherwise. Variant misses
           fall back to the cheapest variant.
         * ``RARE`` — when a Trade port is configured, build a stat-aware
           query from the item's mods and price via the Trade API
@@ -391,6 +411,15 @@ class PlannerService:
         if ki.item.rarity is ItemRarity.UNIQUE:
             if not ki.item.name:
                 return None
+            # Combo-priced uniques: route via Trade when available so the
+            # exact aura+stat combo the player rolled can be priced.
+            if self._trade is not None and ki.item.name in _TRADE_PRICED_UNIQUES:
+                trade_price = await self._price_combo_unique(ki, rate=rate)
+                if trade_price is not None:
+                    return trade_price
+                # Trade gave no signal (zero listings, all unconvertible
+                # currencies, etc.) — fall through to poe.ninja so the
+                # planner still ends up with *some* price.
             variant = _resolve_variant(ki.item, self._registry)
             return await quote_unique_range(
                 self._pricing,
@@ -414,6 +443,43 @@ class PlannerService:
                 category=_slot_to_category(ki.slot),
             )
         return None
+
+    async def _price_combo_unique(
+        self,
+        ki: KeyItem,
+        *,
+        rate: float,
+    ) -> PriceRange | None:
+        """Trade-pricing path for combo-rich uniques like Watcher's Eye.
+
+        Builds a Trade query keyed on the item's name + base type + the
+        stat filters extracted from its rolled mods. Returns ``None``
+        when the mods don't carry any recognised aura-conditional stat
+        (the planner falls back to the standard variant lookup in that
+        case so unrolled / fixture-empty items still get *some* price).
+
+        Caller (``_price_key_item``) guarantees ``self._trade`` is set
+        and ``ki.item.name`` is non-empty.
+        """
+
+        assert self._trade is not None  # narrowing for the type checker
+        assert ki.item.name
+
+        mod_texts = tuple(m.text for m in ki.item.mods)
+        stats = valuable_stat_filters_from_mods(mod_texts, max_filters=4)
+        if not stats:
+            return None
+        query = TradeQuery(
+            name=ki.item.name,
+            type=ki.item.base_type or None,
+            stats=tuple(stats),
+        )
+        return await quote_trade_range(
+            self._trade,
+            query,
+            chaos_per_divine=rate,
+            category=_slot_to_category(ki.slot),
+        )
 
 
 def _slot_to_category(slot: ItemSlot) -> ItemCategory:

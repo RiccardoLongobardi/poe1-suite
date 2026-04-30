@@ -891,6 +891,151 @@ async def test_planner_skips_variant_lookup_for_unregistered_uniques() -> None:
 
 
 # ---------------------------------------------------------------------------
+# Watcher's Eye combo pricing — Step 13.B
+# ---------------------------------------------------------------------------
+
+
+def _watchers_eye_key_item(*explicits: str) -> KeyItem:
+    """Build a Watcher's Eye KeyItem with the given mod text lines."""
+
+    from poe1_core.models import ItemMod
+    from poe1_core.models.enums import ModType
+
+    return KeyItem(
+        slot=ItemSlot.JEWEL,
+        item=Item(
+            name="Watcher's Eye",
+            base_type="Prismatic Jewel",
+            rarity=ItemRarity.UNIQUE,
+            slot=ItemSlot.JEWEL,
+            mods=[ItemMod(text=m, mod_type=ModType.EXPLICIT) for m in explicits],
+        ),
+        importance=4,
+    )
+
+
+async def test_watchers_eye_routes_via_trade_when_port_available() -> None:
+    """A Watcher's Eye with recognised aura-conditional mods goes to Trade."""
+
+    fake_pricing = FakePricing(
+        chaos_per_divine=200.0,
+        unique_quotes={"Watcher's Eye": 600.0},  # cheap-variant fallback price
+    )
+    fake_trade = _FakeTradePort(chaos_value=12_000.0)  # 60 div Trade-priced
+    svc = PlannerService(fake_pricing, trade=fake_trade)
+    build = _make_build(
+        key_items=[
+            _watchers_eye_key_item(
+                "While affected by Hatred, 18% of Physical Damage Converted to Cold Damage",
+                "While affected by Malevolence, 32% increased Damage Over Time",
+            )
+        ],
+    )
+
+    plan = await svc.plan(build)
+
+    # Trade was consulted with name=Watcher's Eye and 2 stat filters.
+    assert fake_trade.calls
+    base, n_stats = fake_trade.calls[0]
+    assert base == "Prismatic Jewel"
+    assert n_stats == 2
+    # The item priced at 60 div ends up in End Mapping (25-100 div bucket).
+    end_mapping = plan.stages[4]
+    assert any(ci.name == "Watcher's Eye" for ci in end_mapping.core_items)
+
+
+async def test_watchers_eye_falls_back_to_ninja_when_trade_returns_none() -> None:
+    """Trade route returns None → planner uses poe.ninja as a safety net."""
+
+    class _SilentTrade(_FakeTradePort):
+        async def quote(
+            self,
+            query: TradeQuery,
+            *,
+            chaos_per_divine: float,
+            category: ItemCategory = ItemCategory.UNIQUE_JEWEL,
+        ) -> PriceQuote | None:
+            self.calls.append((query.type, len(query.stats)))
+            return None  # always misses
+
+    fake_pricing = FakePricing(
+        chaos_per_divine=200.0,
+        unique_quotes={"Watcher's Eye": 6_000.0},  # 30 div via ninja
+    )
+    fake_trade = _SilentTrade()
+    svc = PlannerService(fake_pricing, trade=fake_trade)
+    build = _make_build(
+        key_items=[
+            _watchers_eye_key_item(
+                "While affected by Hatred, 18% of Physical Damage Converted to Cold Damage",
+                "While affected by Malevolence, 32% increased Damage Over Time",
+            )
+        ],
+    )
+
+    plan = await svc.plan(build)
+
+    # Trade was attempted but returned None.
+    assert fake_trade.calls
+    # Ninja-priced Watcher's Eye landed in End Mapping (30 div).
+    items = [ci for s in plan.stages for ci in s.core_items if ci.name == "Watcher's Eye"]
+    assert len(items) == 1
+    priced = items[0].price_estimate
+    assert priced is not None  # ninja fallback worked
+
+
+async def test_watchers_eye_skips_trade_without_port() -> None:
+    """No TradePort → Watcher's Eye prices via the regular unique path."""
+
+    fake_pricing = FakePricing(
+        chaos_per_divine=200.0,
+        unique_quotes={"Watcher's Eye": 6_000.0},
+    )
+    svc = PlannerService(fake_pricing)  # trade=None
+    build = _make_build(
+        key_items=[
+            _watchers_eye_key_item(
+                "While affected by Hatred, 18% of Physical Damage Converted to Cold Damage",
+            )
+        ],
+    )
+
+    plan = await svc.plan(build)
+
+    # Item is priced (via ninja fallback) and present.
+    items = [ci for s in plan.stages for ci in s.core_items if ci.name == "Watcher's Eye"]
+    assert len(items) == 1
+    assert items[0].price_estimate is not None
+
+
+async def test_watchers_eye_no_recognised_mods_falls_back_to_unique_lookup() -> None:
+    """A Watcher's Eye with mods we don't recognise still gets a price (cheapest variant)."""
+
+    fake_pricing = FakePricing(
+        chaos_per_divine=200.0,
+        unique_quotes={"Watcher's Eye": 4_000.0},
+    )
+    fake_trade = _FakeTradePort()
+    svc = PlannerService(fake_pricing, trade=fake_trade)
+    build = _make_build(
+        key_items=[
+            _watchers_eye_key_item(
+                "While affected by Clarity, mods we deliberately don't pattern-match",
+            )
+        ],
+    )
+
+    plan = await svc.plan(build)
+
+    # Trade NOT consulted (zero stat filters extracted).
+    assert fake_trade.calls == []
+    # But the item is still priced via the ninja unique fallback.
+    items = [ci for s in plan.stages for ci in s.core_items if ci.name == "Watcher's Eye"]
+    assert len(items) == 1
+    assert items[0].price_estimate is not None
+
+
+# ---------------------------------------------------------------------------
 # Build template dispatch (Step 10)
 # ---------------------------------------------------------------------------
 
