@@ -1125,6 +1125,9 @@ def test_template_registry_covers_popular_skills() -> None:
         "Crackling Lance": "crackling_lance_inquisitor",
         "Arc": "arc_hierophant",
         "Smite": "smite_guardian",
+        "Blade Vortex": "poison_blade_vortex_assassin",
+        "Cobra Lash": "cobra_lash_assassin",
+        "Pyroclast Mine": "pyroclast_mines_saboteur",
     }
     base_build = _make_build(key_items=[])
     for skill, expected in canonical.items():
@@ -1478,6 +1481,50 @@ async def test_aurabot_template_emits_signature_advice() -> None:
     assert any("Generosity" in g for g in mid.gem_changes)
     assert any("Crown of the Tyrant" in t for t in early_map.tree_changes)
     assert any("Generosity" in g for g in end_map.gem_changes)
+
+
+async def test_poison_blade_vortex_template_emits_signature_advice() -> None:
+    """Poison BV Assassin template hits Mistwalker + Cospri's Will + Cold Iron Point."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Blade Vortex"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    early_map = plan.stages[3]
+    assert any("Mistwalker" in g for g in mid.gem_changes)
+    assert any("Cospri's Will" in g for g in early_map.gem_changes)
+    assert any("Cold Iron Point" in g for g in early_map.gem_changes)
+
+
+async def test_cobra_lash_template_emits_signature_advice() -> None:
+    """Cobra Lash Assassin template covers Toxic Delivery + Awakened Chain."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Cobra Lash"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    early_map = plan.stages[3]
+    assert any("Toxic Delivery" in t for t in mid.tree_changes)
+    assert any("Awakened Chain" in g for g in early_map.gem_changes)
+
+
+async def test_pyroclast_mines_template_emits_signature_advice() -> None:
+    """Pyroclast Mines Saboteur template covers Pyromaniac + Bombardier + Bottled Faith."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Pyroclast Mine"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    early_map = plan.stages[3]
+    assert any("Pyromaniac" in g for g in mid.gem_changes)
+    assert any("Bombardier" in t for t in mid.tree_changes)
+    assert any("Bottled Faith" in t for t in early_map.tree_changes)
 
 
 async def test_spectre_template_routes_to_minion_setup() -> None:

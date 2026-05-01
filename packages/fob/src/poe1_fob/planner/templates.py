@@ -1184,6 +1184,181 @@ class HexblastMinesTemplate(GenericTemplate):
         return super().for_stage(stage, build)
 
 
+class PoisonBladeVortexAssassinTemplate(GenericTemplate):
+    """Poison Blade Vortex Assassin — chaos blade orbit + poison stacking.
+
+    BV crea fino a 10 blade orbit attorno al personaggio che colpiscono
+    in AoE. Assassin Mistwalker + Noxious Strike + Toxic Delivery scalano
+    poison + crit + cull strike. Cospri's Will body (double curse on hit
+    Despair + Wither). Cold Iron Point dagger (~1 chaos, +30% spell phys).
+    Build dei boss-killer chaos signature.
+    """
+
+    name: str = "poison_blade_vortex_assassin"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Caustic Arrow come levelling pre-BV.",
+                    "Atto 3: Blade Vortex sblocca; setup 4L con Unleash + Lesser Poison + Spell Echo.",
+                    "Whirling Blades + Quicksilver come movement.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Mistwalker (smoke cloud + crit) + Noxious Strike (cull on poison).",
+                    "BV + Awakened Spell Echo (cheap) + Awakened Vile Toxins (cheap) + Awakened Void Manipulation (cheap) + Empower 3 + Withering Step.",
+                    "Despair self-cast o Bane low-level per curse.",
+                ],
+                tree_changes=[
+                    "Toxic Delivery ascendancy: chaos damage on poison + culling.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body Cospri's Will (~5-15 div): cursed by Despair + Wither on hit.",
+                    "Body 6L: BV + Awakened Spell Echo + Awakened Vile Toxins + Awakened Void Manipulation + Empower + Withering Step.",
+                    "Cold Iron Point dagger (~1 chaos) + offhand stat stick.",
+                ],
+                tree_changes=[
+                    "Cluster jewel chaos DoT multi: Wicked Pall + Touch of Cruelty + Sadist.",
+                    "Watcher's Eye Malevolence 'DoT damage' (~50+ div).",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Vile Toxins 5 + Awakened Void Manipulation 5 + Awakened Spell Echo 5.",
+                    "21/20 Blade Vortex corrupted + Empower 4.",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh per Toxic Delivery doppio.",
+                    "Mageblood (~250-300 div): Dying Sun + Bottled Faith permanenti.",
+                    "Helmet enchant: Blade Vortex 40% increased damage.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class CobraLashAssassinTemplate(GenericTemplate):
+    """Cobra Lash Assassin — chaos projectile chain + poison.
+
+    Cobra Lash spara un proietto chaos che chain tra i nemici, applicando
+    poison massive. Assassin Toxic Delivery + Noxious Strike + Mistwalker.
+    Mark of the Elder ring + +1 dex amulet variant; oppure dual-wield daggers
+    standard. Endgame con Awakened Chain + Awakened Vile Toxins, Vaal Cobra
+    Lash per single-target burst.
+    """
+
+    name: str = "cobra_lash_assassin"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Caustic Arrow come levelling pre-Cobra Lash.",
+                    "Atto 3: Cobra Lash sblocca; setup 4L con Pierce + Lesser Poison + Faster Attacks.",
+                    "Whirling Blades come movement, Despair self-cast.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Mistwalker + Noxious Strike (Assassin).",
+                    "Cobra Lash + Awakened Chain (cheap) + Awakened Vile Toxins (cheap) + Awakened Void Manipulation (cheap) + Inspiration + Withering Step.",
+                    "Bane / Despair / Wither setup curse.",
+                ],
+                tree_changes=[
+                    "Toxic Delivery ascendancy + chaos damage area.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Cobra Lash + Awakened Chain + Awakened Vile Toxins + Awakened Void Manipulation + Inspiration + Withering Step.",
+                    "Dual-wield daggers Cold Iron Point (cheap) + +1/+2 socketed dagger craft o Mark of the Elder + +1 dex amulet variant.",
+                ],
+                tree_changes=[
+                    "Cluster jewel: Wicked Pall + Touch of Cruelty + Sadist.",
+                    "Cospri's Will body alternativo per double curse on hit.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Chain 5 + Awakened Vile Toxins 5 + Awakened Void Manipulation 5.",
+                    "21/20 Cobra Lash corrupted + Vaal Cobra Lash 4L laterale per single-target.",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh per Toxic Delivery doppio.",
+                    "Watcher's Eye Malevolence 'DoT damage' (~50+ div).",
+                    "Helmet enchant: Cobra Lash +2 projectiles.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class PyroclastMinesSaboteurTemplate(GenericTemplate):
+    """Pyroclast Mines Saboteur — fire AoE mine bossing burst.
+
+    Pyroclast Mine throws a mine that erupts in fire AoE explosions.
+    Saboteur Pyromaniac (life regen + mine throw speed) + Bombardier
+    (extra mines per throw) + Demolitions Specialist. Build classico
+    bossing single-target — un detonate combo distrugge ogni boss in
+    un colpo. Cospri's Malice / +X Fire Spell mines weapon.
+    """
+
+    name: str = "pyroclast_mines_saboteur"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Explosive Trap (quest 'Breaking Some Eggs') per levelling iniziale.",
+                    "Atto 3+: Pyroclast Mine sblocca; metti su 4L con High-Impact Mine + Trap & Mine Damage + Combustion.",
+                    "Smoke Mine come movement skill.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Pyromaniac (mine throw speed + life regen).",
+                    "Pyroclast Mine + High-Impact Mine + Awakened Trap & Mine Damage (cheap) + Combustion + Concentrated Effect + Awakened Fire Pen (cheap).",
+                    "Skitterbots aura per shock + chill bonus.",
+                ],
+                tree_changes=[
+                    "Demolitions Specialist + Bombardier ascendancy.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Pyroclast Mine + High-Impact Mine + Awakened Trap & Mine Damage + Combustion + Concentrated Effect + Awakened Fire Pen.",
+                    "Cospri's Malice (~3-5 div) o +X to Fire Spell mines weapon.",
+                ],
+                tree_changes=[
+                    "Cluster mine throwing speed + fire damage (Sleepless Sentries + Calamitous).",
+                    "Bottled Faith flask (~30-50 div): consacrated ground = damage multi.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Trap & Mine Damage 5 + Awakened Fire Pen 5 + Awakened Burning Damage 5.",
+                    "21/20 Pyroclast Mine corrupted + High-Impact Mine 21/20.",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh per Bombardier doppio (Saboteur).",
+                    "Watcher's Eye Anger 'Increased Fire Damage' (~30-60 div).",
+                    "Helmet enchant: Pyroclast Mine 40% increased damage.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
 class DetonateDeadNecroTemplate(GenericTemplate):
     """Detonate Dead Necromancer — corpse-based AoE fire.
 
@@ -2326,7 +2501,8 @@ TEMPLATE_REGISTRY: list[tuple[Callable[[Build], bool], BuildTemplate]] = [
     (_matches_skill("molten strike"), MoltenStrikeChieftainTemplate()),
     (_matches_skill("ground slam"), GroundSlamJuggTemplate()),
     (_matches_skill("volcanic fissure"), VolcanicFissureJuggTemplate()),
-    # Casters
+    # Casters — Blade Vortex must come BEFORE Vortex (substring collision).
+    (_matches_skill("blade vortex"), PoisonBladeVortexAssassinTemplate()),
     (_matches_skill("vortex", "cold snap"), VortexOccultistTemplate()),
     (_matches_skill("spark"), SparkInquisitorTemplate()),
     (_matches_skill("penance brand"), PenanceBrandInquisitorTemplate()),
@@ -2335,6 +2511,8 @@ TEMPLATE_REGISTRY: list[tuple[Callable[[Build], bool], BuildTemplate]] = [
     (_matches_skill("smite"), SmiteGuardianTemplate()),
     (_matches_skill("bone spear", "soulrend"), BoneSpearNecroTemplate()),
     (_matches_skill("hexblast"), HexblastMinesTemplate()),
+    (_matches_skill("cobra lash"), CobraLashAssassinTemplate()),
+    (_matches_skill("pyroclast"), PyroclastMinesSaboteurTemplate()),
     (_matches_skill("detonate dead", "volatile dead"), DetonateDeadNecroTemplate()),
     (_matches_skill("bane", "essence drain", "contagion"), BaneOccultistTemplate()),
     # Attacks
@@ -2405,6 +2583,7 @@ __all__ = [
     "BoneSpearNecroTemplate",
     "BoneshatterTemplate",
     "BuildTemplate",
+    "CobraLashAssassinTemplate",
     "CracklingLanceInquisitorTemplate",
     "CycloneSlayerTemplate",
     "DetonateDeadNecroTemplate",
@@ -2419,7 +2598,9 @@ __all__ = [
     "LightningStrikeRaiderTemplate",
     "MoltenStrikeChieftainTemplate",
     "PenanceBrandInquisitorTemplate",
+    "PoisonBladeVortexAssassinTemplate",
     "PoisonousConcoctionPathfinderTemplate",
+    "PyroclastMinesSaboteurTemplate",
     "ReaveSlayerTemplate",
     "RfPohxTemplate",
     "ShrapnelBallistaDeadeyeTemplate",
