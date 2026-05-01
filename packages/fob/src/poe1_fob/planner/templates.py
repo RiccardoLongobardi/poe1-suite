@@ -1086,6 +1086,64 @@ class AurabotGuardianTemplate(GenericTemplate):
         return super().for_stage(stage, build)
 
 
+class BallLightningElementalistTemplate(GenericTemplate):
+    """Ball Lightning Elementalist — slow lightning orb + Shaper of Storms shock.
+
+    Ball Lightning crea un orb lightning che attraversa lentamente l'area
+    facendo hit ripetuti. Elementalist Shaper of Storms (max shock) +
+    Mastermind of Discord (lightning exposure) + Heart of Destruction
+    (per shock effect alto). Build classico mapper Elementalist alternativo
+    a Spark; scaling Wrath + cast speed + lightning pen.
+    """
+
+    name: str = "ball_lightning_elementalist"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Storm Brand come levelling pre-Ball Lightning.",
+                    "Atto 3 reward: Ball Lightning sblocca; setup 4L con Faster Casting + Added Lightning + Spell Echo.",
+                    "Wand+shield Lifesprig, Wrath aura + Herald of Thunder.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Shaper of Storms (Elementalist: max shock 50%) + Heart of Destruction.",
+                    "Ball Lightning + Awakened Spell Echo (cheap) + Awakened Lightning Pen (cheap) + Slower Projectiles + Inspiration + Awakened Added Lightning (cheap).",
+                    "Wrath + Herald of Thunder + Skitterbots aura.",
+                ],
+                tree_changes=[
+                    "Mastermind of Discord ascendancy: lightning exposure on hit.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Ball Lightning + Awakened Spell Echo + Awakened Lightning Pen + Slower Projectiles + Inspiration + Awakened Added Lightning.",
+                    "+1 Spell Skill / +1 Lightning Spell sceptre o staff (~10-30 div).",
+                ],
+                tree_changes=[
+                    "Cluster jewel: Storm Drinker + Wandslinger + Pure Power.",
+                    "Watcher's Eye Wrath 'Lightning Penetration' (~30-60 div).",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Spell Echo 5 + Awakened Lightning Pen 5 + Awakened Added Lightning 5.",
+                    "Slower Projectiles 21/20 corrupted (boss DPS x2).",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh: combo Shaper of Storms + Mastermind of Discord doppio.",
+                    "+2 spell skill staff custom craft (~50-100 div).",
+                    "Helmet enchant: Ball Lightning 40% increased damage.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
 class BoneSpearNecroTemplate(GenericTemplate):
     """Bone Spear / Soulrend hit caster Necromancer.
 
@@ -2449,46 +2507,6 @@ class SkeletonMagesTemplate(GenericTemplate):
         return super().for_stage(stage, build)
 
 
-class AnimateWeaponNecroTemplate(GenericTemplate):
-    """Animate Weapon Necromancer — Earendel's Embrace + scrappy weapons."""
-
-    name: str = "animate_weapon_necromancer"
-
-    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
-        if stage.key == "early_campaign":
-            return StagePlanContent(
-                gem_changes=[
-                    "Atto 1: Skeletons + Zombie + Raise Spectre baseline.",
-                    "Atto 3+: Animate Weapon sblocca; usa weapon vendor scraps.",
-                ],
-            )
-        if stage.key == "mid_campaign":
-            return StagePlanContent(
-                gem_changes=[
-                    "Primo lab: Mindless Aggression + Mistress of Sacrifice.",
-                    "Animate Weapon + Minion Damage + Multistrike + Melee Phys + Brutality + Impale.",
-                ],
-            )
-        if stage.key == "early_mapping":
-            return StagePlanContent(
-                gem_changes=[
-                    "Body 6L: AW + Awakened Multistrike + Awakened Melee Phys + Brutality + Impale + Empower.",
-                    "Earendel's Embrace per +Spell skill animation.",
-                ],
-                tree_changes=[
-                    "Wings of Entropy / Aukuna's Will ring per evocation gratis.",
-                ],
-            )
-        if stage.key == "end_mapping":
-            return StagePlanContent(
-                gem_changes=[
-                    "Awakened Melee Phys 5 + Awakened Multistrike 5.",
-                    "Animate Weapon 21/20 corrupted.",
-                ],
-            )
-        return super().for_stage(stage, build)
-
-
 # ---------------------------------------------------------------------------
 # Totem templates
 # ---------------------------------------------------------------------------
@@ -2897,6 +2915,65 @@ class SpectralHelixScionTemplate(GenericTemplate):
         return super().for_stage(stage, build)
 
 
+class WaveOfConvictionScionTemplate(GenericTemplate):
+    """Wave of Conviction Scion — fire+lightning wave AoE con exposure.
+
+    Wave of Conviction è una spell che spara una wave fire+lightning
+    espandente, applicando exposure (riduzione res ele). Scaling con
+    spell damage + ele pen + cast speed. Scion Ascendant Inquisitor +
+    Elementalist (ele pen + exposure stacking) o Inquisitor + Hierophant.
+    Build versatile mapper-bosser; Awakened Elemental Focus + Awakened
+    Fire/Lightning Pen endgame.
+    """
+
+    name: str = "wave_of_conviction_scion"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Storm Brand come levelling pre-Wave of Conviction.",
+                    "Atto 3 reward: Wave of Conviction sblocca; setup 4L con Faster Casting + Combustion + Spell Echo.",
+                    "Wand+shield Lifesprig, Anger + Wrath low-level.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Inquisitor + Elementalist (Scion Ascendant): Inevitable Judgment + Mastermind of Discord exposure.",
+                    "Wave of Conviction + Awakened Spell Echo (cheap) + Awakened Elemental Focus (cheap) + Combustion + Inspiration + Awakened Fire Pen (cheap).",
+                    "Wrath + Anger + Herald of Thunder.",
+                ],
+                tree_changes=[
+                    "Cluster spell damage + ele pen sotto Witch start.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Wave of Conviction + Awakened Spell Echo + Awakened Elemental Focus + Combustion + Inspiration + Awakened Fire Pen.",
+                    "+1 Spell Skill / +1 Fire Spell o +1 Lightning Spell staff (~10-30 div).",
+                ],
+                tree_changes=[
+                    "Watcher's Eye Wrath 'Lightning Pen' o Anger 'Fire Damage' (~30-60 div).",
+                    "Cluster jewel: Pure Power + Storm Drinker + Wandslinger.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Spell Echo 5 + Awakened Elemental Focus 5 + Awakened Fire Pen 5.",
+                    "21/20 Wave of Conviction corrupted + Combustion 21/20.",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh: combo Inquisitor + Elementalist doppio-ascendancy.",
+                    "+2 spell skill staff custom craft (~50-100 div).",
+                    "Helmet enchant: Wave of Conviction 25% increased damage.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
 class ForbiddenRiteScionTemplate(GenericTemplate):
     """Forbidden Rite Scion — chaos+ele self-cast spell con life cost.
 
@@ -3086,6 +3163,7 @@ TEMPLATE_REGISTRY: list[tuple[Callable[[Build], bool], BuildTemplate]] = [
     (_matches_skill("cold snap"), ColdDotTricksterTemplate()),
     (_matches_skill("vortex"), VortexOccultistTemplate()),
     (_matches_skill("spark"), SparkInquisitorTemplate()),
+    (_matches_skill("ball lightning"), BallLightningElementalistTemplate()),
     (_matches_skill("penance brand"), PenanceBrandInquisitorTemplate()),
     (_matches_skill("crackling lance"), CracklingLanceInquisitorTemplate()),
     # Storm Brand must come BEFORE Arc (no substring collision but keep
@@ -3118,13 +3196,13 @@ TEMPLATE_REGISTRY: list[tuple[Callable[[Build], bool], BuildTemplate]] = [
     (_matches_skill("toxic rain"), ToxicRainPathfinderTemplate()),
     (_matches_skill("power siphon"), PowerSiphonScionTemplate()),
     (_matches_skill("forbidden rite"), ForbiddenRiteScionTemplate()),
+    (_matches_skill("wave of conviction"), WaveOfConvictionScionTemplate()),
     # Minions
     (_matches_skill("raise spectre", "spectre"), SpectreNecroTemplate()),
     (
         _matches_skill("summon skeletons", "skeleton"),
         SkeletonMagesTemplate(),
     ),
-    (_matches_skill("animate weapon"), AnimateWeaponNecroTemplate()),
     # Totems (after RF so non-RF Holy Flame Totem matches here)
     (_matches_skill("holy flame totem"), HolyFlameTotemHieroTemplate()),
     (
@@ -3165,9 +3243,9 @@ __all__ = [
     "HIGH_INVESTMENT",
     "MID_CAMPAIGN",
     "TEMPLATE_REGISTRY",
-    "AnimateWeaponNecroTemplate",
     "ArcHierophantTemplate",
     "AurabotGuardianTemplate",
+    "BallLightningElementalistTemplate",
     "BaneOccultistTemplate",
     "BladeBlastTricksterTemplate",
     "BoneSpearNecroTemplate",
@@ -3216,5 +3294,6 @@ __all__ = [
     "ToxicRainPathfinderTemplate",
     "VolcanicFissureJuggTemplate",
     "VortexOccultistTemplate",
+    "WaveOfConvictionScionTemplate",
     "pick_template",
 ]

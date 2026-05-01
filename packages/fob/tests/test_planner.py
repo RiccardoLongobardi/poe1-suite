@@ -1104,7 +1104,6 @@ def test_template_registry_covers_popular_skills() -> None:
         "Toxic Rain": "toxic_rain_pathfinder",
         "Raise Spectre": "spectre_necromancer",
         "Summon Skeletons": "skeleton_mages_necromancer",
-        "Animate Weapon": "animate_weapon_necromancer",
         "Holy Flame Totem": "holy_flame_totem_hierophant",
         "Shrapnel Ballista": "ballista_totem_deadeye",
         "Boneshatter": "boneshatter_marauder",
@@ -1135,6 +1134,8 @@ def test_template_registry_covers_popular_skills() -> None:
         "Storm Brand": "storm_brand_scion",
         "Spectral Helix": "spectral_helix_scion",
         "Forbidden Rite": "forbidden_rite_scion",
+        "Ball Lightning": "ball_lightning_elementalist",
+        "Wave of Conviction": "wave_of_conviction_scion",
     }
     base_build = _make_build(key_items=[])
     for skill, expected in canonical.items():
@@ -1712,6 +1713,33 @@ async def test_forbidden_rite_template_emits_signature_advice() -> None:
     early_map = plan.stages[3]
     assert any("Pathfinder + Trickster" in g for g in mid.gem_changes)
     assert any("Shavronne's Wrappings" in g or "Solaris Lorica" in g for g in early_map.gem_changes)
+
+
+async def test_ball_lightning_template_emits_signature_advice() -> None:
+    """Ball Lightning Elementalist hits Shaper of Storms + Mastermind of Discord."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Ball Lightning"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    assert any("Shaper of Storms" in g for g in mid.gem_changes)
+    assert any("Mastermind of Discord" in t for t in mid.tree_changes)
+
+
+async def test_wave_of_conviction_template_emits_signature_advice() -> None:
+    """Wave of Conviction Scion hits Inquisitor+Elementalist + Awakened Fire Pen."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Wave of Conviction"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    end_map = plan.stages[4]
+    assert any("Inquisitor + Elementalist" in g for g in mid.gem_changes)
+    assert any("Awakened Fire Pen" in g for g in end_map.gem_changes)
 
 
 async def test_spectre_template_routes_to_minion_setup() -> None:
