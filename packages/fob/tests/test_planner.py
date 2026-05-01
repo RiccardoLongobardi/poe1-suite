@@ -1121,6 +1121,9 @@ def test_template_registry_covers_popular_skills() -> None:
         "Spectral Throw": "spectral_throw_champion",
         "Ice Shot": "ice_shot_deadeye",
         "Poisonous Concoction": "poisonous_concoction_pathfinder",
+        "Penance Brand": "penance_brand_inquisitor",
+        "Crackling Lance": "crackling_lance_inquisitor",
+        "Arc": "arc_hierophant",
     }
     base_build = _make_build(key_items=[])
     for skill, expected in canonical.items():
@@ -1352,6 +1355,47 @@ async def test_poisonous_concoction_template_emits_signature_advice() -> None:
     assert any("Master Surgeon" in g for g in mid.gem_changes)
     assert any("Nature's Reprisal" in t for t in mid.tree_changes)
     assert any("Mageblood" in t for t in end_map.tree_changes)
+
+
+async def test_penance_brand_template_emits_signature_advice() -> None:
+    """Penance Brand template hits Inevitable Judgment + Brand Recall + Pious Path."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Penance Brand"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    assert any("Inevitable Judgment" in g for g in mid.gem_changes)
+    assert any("Pious Path" in t for t in mid.tree_changes)
+
+
+async def test_crackling_lance_template_emits_signature_advice() -> None:
+    """Crackling Lance template covers Augury of Penitence + Slower Projectiles boss."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Crackling Lance"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    end_map = plan.stages[4]
+    assert any("Inevitable Judgment" in g for g in mid.gem_changes)
+    assert any("Augury of Penitence" in t for t in mid.tree_changes)
+    assert any("Slower Projectiles" in g for g in end_map.gem_changes)
+
+
+async def test_arc_template_emits_signature_advice() -> None:
+    """Arc Hierophant template hits Conviction of Power + MoM + Arcane Cloak."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Arc"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    assert any("Conviction of Power" in g for g in mid.gem_changes)
+    assert any("Mind Over Matter" in t for t in mid.tree_changes)
 
 
 async def test_spectre_template_routes_to_minion_setup() -> None:

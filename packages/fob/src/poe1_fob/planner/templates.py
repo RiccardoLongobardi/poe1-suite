@@ -778,6 +778,183 @@ class SparkInquisitorTemplate(GenericTemplate):
         return super().for_stage(stage, build)
 
 
+class PenanceBrandInquisitorTemplate(GenericTemplate):
+    """Penance Brand Inquisitor — brand caster lightning/phys.
+
+    Penance Brand attacca un brand al nemico che accumula stack di phys
+    damage e poi esplode rilasciando energy pulse lightning. Inquisitor
+    Inevitable Judgment ignora lightning res; Pious Path / Augury of
+    Penitence per damage multi consacrated. Build by Cold Iron Point /
+    +1/+2 spell skill weapon, Awakened Brand Recall + Awakened Lightning
+    Pen endgame.
+    """
+
+    name: str = "penance_brand_inquisitor"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Storm Brand (quest 'Mercy Mission') per il levelling iniziale.",
+                    "Atto 4 reward: Penance Brand sblocca; setup 4L con Brand Recall + Combustion + Faster Casting.",
+                    "Wand+shield setup con Lifesprig.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Inevitable Judgment (ignore lightning res).",
+                    "Penance Brand + Brand Recall + Awakened Lightning Pen (cheap) + Concentrated Effect + Awakened Spell Echo + Empower.",
+                    "Wrath aura + Herald of Thunder + Skitterbots low-level.",
+                ],
+                tree_changes=[
+                    "Pious Path (Inq) per area damage consacrato.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Penance Brand + Awakened Brand Recall + Awakened Lightning Pen + Concentrated Effect + Awakened Spell Echo + Empower 3.",
+                    "+1 Spell Skill / +1 Lightning Spell sceptre o staff (~10-30 div).",
+                ],
+                tree_changes=[
+                    "Cluster jewel: Brand Loyalty + Storm Drinker + Wandslinger.",
+                    "Watcher's Eye Wrath 'Lightning Penetration' (~30-60 div).",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Brand Recall 5 + Awakened Lightning Pen 5 + Awakened Spell Echo 5.",
+                    "Concentrated Effect 21/20 corrupted + Empower 4.",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh per Inevitable Judgment doppio.",
+                    "+2 spell skill staff custom craft (~50-100 div).",
+                    "Helmet enchant: Penance Brand 25% increased damage.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class CracklingLanceInquisitorTemplate(GenericTemplate):
+    """Crackling Lance Inquisitor — lightning beam multistage hit.
+
+    Crackling Lance lancia un raggio lightning che colpisce a stadi
+    multipli (ogni stadio aumenta il danno). Inquisitor Inevitable
+    Judgment + Augury of Penitence per consacrated ground damage multi.
+    Scala con cast speed + spell crit + lightning pen. Replica Conqueror's
+    Efficiency per cost reduction; +1 power charge body.
+    """
+
+    name: str = "crackling_lance_inquisitor"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Storm Brand come levelling pre-Crackling Lance.",
+                    "Atto 4 reward: Crackling Lance sblocca; setup 4L con Faster Casting + Added Lightning + Spell Echo.",
+                    "Wand+shield Lifesprig per +1 spell skill.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Inevitable Judgment (ignore lightning res).",
+                    "Crackling Lance + Awakened Spell Echo (cheap) + Lightning Penetration + Inspiration + Slower Projectiles + Awakened Added Lightning (cheap).",
+                    "Wrath + Herald of Thunder + Skitterbots.",
+                ],
+                tree_changes=[
+                    "Augury of Penitence per damage consacrated.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Crackling Lance + Awakened Spell Echo + Awakened Lightning Pen + Inspiration + Slower Projectiles + Awakened Added Lightning.",
+                    "+1 Spell Skill / +1 Lightning Spell staff o sceptre+focus (~10-30 div).",
+                ],
+                tree_changes=[
+                    "Replica Conqueror's Efficiency jewel (mana cost reduction).",
+                    "+1 power charge / +2 power charge body craft per crit cap.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Spell Echo 5 + Awakened Lightning Pen 5 + Awakened Added Lightning 5.",
+                    "Slower Projectiles 21/20 corrupted (boss DPS x2).",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh per Augury of Penitence doppio.",
+                    "+2 spell skill staff custom craft + +1 power charge.",
+                    "Helmet enchant: Crackling Lance 25% increased damage.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class ArcHierophantTemplate(GenericTemplate):
+    """Arc Hierophant — chain lightning spell con Conviction of Power.
+
+    Arc è il chain lightning iconico Templar. Hierophant Conviction of
+    Power dà permanent power+endurance charges; Sign of the Sin Eater /
+    Sanctuary of Thought per mana scaling. Viable con Mind Over Matter
+    keystone + Arcane Cloak guard skill. Build di mana stacking endgame
+    via Battlemage's Cry o The Agnostic keystone.
+    """
+
+    name: str = "arc_hierophant"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Arc dalla quest 'Breaking Some Eggs' — main skill day-1 Templar.",
+                    "Setup 4L: Arc + Faster Casting + Added Lightning + Onslaught.",
+                    "Wand+shield Lifesprig, Wrath aura.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Conviction of Power (permanent power + endurance charges).",
+                    "Arc + Awakened Spell Echo (cheap) + Awakened Lightning Pen (cheap) + Awakened Chain (cheap) + Inspiration + Empower 3.",
+                    "Wrath + Discipline + Herald of Thunder + Arcane Cloak.",
+                ],
+                tree_changes=[
+                    "Mind Over Matter keystone + mana clusters.",
+                    "Sanctuary of Thought ascendancy per mana → spell damage.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Arc + Awakened Spell Echo + Awakened Lightning Pen + Awakened Chain + Inspiration + Empower.",
+                    "+1 Spell Skill / +1 Lightning Spell staff endgame (~30-50 div).",
+                    "Battlemage's Cry warcry trigger su Mind Over Matter.",
+                ],
+                tree_changes=[
+                    "Watcher's Eye Wrath 'Lightning Penetration' (~30-60 div).",
+                    "Cluster jewel: Storm Drinker + Wandslinger + Pure Power.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Spell Echo 5 + Awakened Lightning Pen 5 + Awakened Chain 5.",
+                    "21/20 Arc corrupted + Empower 4.",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh per Conviction of Power doppio.",
+                    "Cospri's Will / Inpulsa's Broken Heart body per shock + explode.",
+                    "Helmet enchant: Arc 40% increased damage.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
 class BoneSpearNecroTemplate(GenericTemplate):
     """Bone Spear / Soulrend hit caster Necromancer.
 
@@ -1972,6 +2149,9 @@ TEMPLATE_REGISTRY: list[tuple[Callable[[Build], bool], BuildTemplate]] = [
     # Casters
     (_matches_skill("vortex", "cold snap"), VortexOccultistTemplate()),
     (_matches_skill("spark"), SparkInquisitorTemplate()),
+    (_matches_skill("penance brand"), PenanceBrandInquisitorTemplate()),
+    (_matches_skill("crackling lance"), CracklingLanceInquisitorTemplate()),
+    (_matches_skill("arc"), ArcHierophantTemplate()),
     (_matches_skill("bone spear", "soulrend"), BoneSpearNecroTemplate()),
     (_matches_skill("hexblast"), HexblastMinesTemplate()),
     (_matches_skill("detonate dead", "volatile dead"), DetonateDeadNecroTemplate()),
@@ -2038,10 +2218,12 @@ __all__ = [
     "MID_CAMPAIGN",
     "TEMPLATE_REGISTRY",
     "AnimateWeaponNecroTemplate",
+    "ArcHierophantTemplate",
     "BaneOccultistTemplate",
     "BoneSpearNecroTemplate",
     "BoneshatterTemplate",
     "BuildTemplate",
+    "CracklingLanceInquisitorTemplate",
     "CycloneSlayerTemplate",
     "DetonateDeadNecroTemplate",
     "EarthshatterJuggTemplate",
@@ -2054,6 +2236,7 @@ __all__ = [
     "LacerateGladiatorTemplate",
     "LightningStrikeRaiderTemplate",
     "MoltenStrikeChieftainTemplate",
+    "PenanceBrandInquisitorTemplate",
     "PoisonousConcoctionPathfinderTemplate",
     "ReaveSlayerTemplate",
     "RfPohxTemplate",

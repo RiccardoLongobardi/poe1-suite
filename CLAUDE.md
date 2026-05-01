@@ -176,7 +176,7 @@ Mappa coverage attuale (post-Turno 1):
 | Duelist | 7/7 ✅ | Cyclone Slayer, Reave Slayer, Lacerate Gladiator, Splitting Steel Gladiator, Sunder Champion, Static Strike Gladiator, Spectral Throw Champion |
 | Ranger | 7/7 ✅ | LS Raider, TS Deadeye, FB Raider, TR Pathfinder, Ballista Deadeye, Ice Shot Deadeye, Poisonous Concoction Pathfinder |
 | Witch | 7/7 ✅ | Vortex Occ, Bone Spear Necro, DD Necro, Bane Occ, Spectre Necro, Skel Mages, Animate Weapon (1 da swap → Elementalist) |
-| Templar | 2/7 | Spark Inq, HFT Hiero |
+| Templar | 5/7 | Spark Inq, HFT Hiero, Penance Brand Inq, Crackling Lance Inq, Arc Hierophant |
 | Shadow | 1/7 | Hexblast Mines |
 | Scion | 0/7 | — |
 
@@ -216,8 +216,16 @@ Baseline 501 test verdi / 91 mypy / 89 format.
 
 Baseline 503 test verdi / 91 mypy / 89 format.
 
+**Turno 6 (Templar)** ✅ done (2026-05-01). Templar coverage 2/7 → 5/7. 3 nuovi template:
+- `PenanceBrandInquisitorTemplate` (matcher "penance brand") — brand caster phys/lightning, Inevitable Judgment + Pious Path, Awakened Brand Recall + Awakened Lightning Pen endgame.
+- `CracklingLanceInquisitorTemplate` (matcher "crackling lance") — lightning beam multistage, Inevitable Judgment + Augury of Penitence, Replica Conqueror's Efficiency + +1 power charge body.
+- `ArcHierophantTemplate` (matcher "arc") — chain lightning day-1 Templar, Conviction of Power + Sanctuary of Thought, Mind Over Matter + Arcane Cloak, Awakened Chain endgame.
+
+NOTA: matcher "arc" è una substring potenzialmente collisiva (matcherebbe "Arctic Breath", "Arctic Armour" se mai apparissero come main_skill). Tollerabile in pratica perché Arctic Armour è una buff aura (mai main_skill DPS) e Arctic Breath è skill morta. Se in futuro serve distinguere, mettere matcher più specifico prima di "arc".
+
+Baseline 506 test verdi / 91 mypy / 89 format.
+
 Turni successivi pianificati:
-- T6-T7 Templar: Penance Brand Inq, Crackling Lance Inq, Arc Hierophant, Smite Guardian, Aurabot Guardian (5)
 - T8-T9 Shadow: Poison BV Assassin, Cobra Lash Assassin, Pyroclast Mines Sab, Cold DoT Trickster, Blade Blast Trickster, Soulrend Trickster *(richiede split del matcher BoneSpearNecro)* (6)
 - T10-T12 Scion: CoC Cospri, Power Siphon, Storm Brand, Mjolner, Spectral Helix, Reap, Forbidden Rite (7)
 - T13 Witch swap: rimpiazzo di 1 template Necro (probabilmente Animate Weapon) con Ball Lightning Elementalist o equivalente.
