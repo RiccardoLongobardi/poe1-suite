@@ -1128,6 +1128,9 @@ def test_template_registry_covers_popular_skills() -> None:
         "Blade Vortex": "poison_blade_vortex_assassin",
         "Cobra Lash": "cobra_lash_assassin",
         "Pyroclast Mine": "pyroclast_mines_saboteur",
+        "Cold Snap": "cold_dot_trickster",
+        "Blade Blast": "blade_blast_trickster",
+        "Soulrend": "soulrend_trickster",
     }
     base_build = _make_build(key_items=[])
     for skill, expected in canonical.items():
@@ -1525,6 +1528,48 @@ async def test_pyroclast_mines_template_emits_signature_advice() -> None:
     assert any("Pyromaniac" in g for g in mid.gem_changes)
     assert any("Bombardier" in t for t in mid.tree_changes)
     assert any("Bottled Faith" in t for t in early_map.tree_changes)
+
+
+async def test_cold_dot_trickster_template_emits_signature_advice() -> None:
+    """Cold Snap DoT Trickster template hits Patient Reaper + Soul Drinker."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Cold Snap"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    assert any("Patient Reaper" in g for g in mid.gem_changes)
+    assert any("Soul Drinker" in t for t in mid.tree_changes)
+
+
+async def test_blade_blast_template_emits_signature_advice() -> None:
+    """Blade Blast Trickster template covers Patient Reaper + Escape Artist + Blade Fall trigger."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Blade Blast"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    early_map = plan.stages[3]
+    assert any("Patient Reaper" in g for g in mid.gem_changes)
+    assert any("Blade Fall" in g for g in mid.gem_changes)
+    assert any("Escape Artist" in t for t in early_map.tree_changes)
+
+
+async def test_soulrend_template_emits_signature_advice() -> None:
+    """Soulrend Trickster template hits Patient Reaper + Awakened Added Chaos."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Soulrend"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    end_map = plan.stages[4]
+    assert any("Patient Reaper" in g for g in mid.gem_changes)
+    assert any("Awakened Added Chaos" in g for g in end_map.gem_changes)
 
 
 async def test_spectre_template_routes_to_minion_setup() -> None:

@@ -1359,6 +1359,181 @@ class PyroclastMinesSaboteurTemplate(GenericTemplate):
         return super().for_stage(stage, build)
 
 
+class ColdDotTricksterTemplate(GenericTemplate):
+    """Cold Snap DoT Trickster — pure cold DoT alternative al Vortex Occultist.
+
+    Cold Snap (specialmente Cold Snap of Power transfigured) è il main DoT
+    skill. Trickster Patient Reaper (kill on hit + life regen) + Soul
+    Drinker + One Step Ahead per movement immunity. Differente dal Vortex
+    Occultist: niente explode, ma tank tramite ES/EB Trickster + speed.
+    Dybella's Heel + The Devouring Diadem variant per dual-DoT.
+    """
+
+    name: str = "cold_dot_trickster"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Freezing Pulse + Frostblink dalla quest 'The Caged Brute'.",
+                    "Atto 3: Cold Snap diventa la skill principale; setup 4L con Bonechill + Hypothermia + Efficacy.",
+                    "Aura: Hatred (level ~24) + Herald of Ice.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Patient Reaper (Trickster: kill = life/ES regen).",
+                    "Cold Snap + Bonechill + Hypothermia + Awakened Cold Penetration (cheap) + Efficacy + Empower 3.",
+                    "Vortex 4L laterale come chill on-cast.",
+                ],
+                tree_changes=[
+                    "Soul Drinker ascendancy: ES sustain on kill.",
+                    "Cluster cold DoT multi sotto Witch start (anche se siamo Shadow, accessibile via routing).",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Cold Snap + Awakened Cold Pen + Awakened Hextouch + Bonechill + Empower + Hypothermia.",
+                    "Considera Cold Snap of Power transfigured per Hierophant-style scaling (controllo).",
+                    "+2/+3 cold spell wand + offhand stat stick.",
+                ],
+                tree_changes=[
+                    "Watcher's Eye Hatred 'Adds Cold Damage' (~20-50 div).",
+                    "Cluster cold DoT (Sadist + Wicked Pall) + ES cluster.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Cold Pen 5 + Awakened Hextouch 5 + Awakened Empower 4.",
+                    "21/20 Cold Snap corrupted + Vortex 21/20 secondary.",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh per Patient Reaper o Escape Artist doppio (Trickster).",
+                    "+1 spell skill staff o The Whispering Ice unique evolved (~30-50 div).",
+                    "Helmet enchant: Cold Snap 40% increased damage.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class BladeBlastTricksterTemplate(GenericTemplate):
+    """Blade Blast Trickster — detona Blade Fall blades for AoE phys/spell.
+
+    Blade Blast detona blade lasciate da Blade Fall, con damage scaling
+    aggressivo. Trickster Patient Reaper + Soul Drinker per ES sustain;
+    One Step Ahead + Escape Artist per movement immunity. Build hit
+    aggressivo con detonate massiccio. Dual-wield daggers + +1/+2 socketed
+    spell skill weapon endgame.
+    """
+
+    name: str = "blade_blast_trickster"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Freezing Pulse o Frost Blades come levelling pre-Blade Blast.",
+                    "Atto 3: Blade Fall + Blade Blast sblocca; setup 4L con Inspiration + Spell Echo + Concentrated Effect.",
+                    "Whirling Blades come movement, Hatred aura.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Patient Reaper (Trickster) + Soul Drinker per ES sustain.",
+                    "Blade Blast + Awakened Spell Echo (cheap) + Inspiration + Concentrated Effect + Hypothermia + Awakened Added Cold (cheap).",
+                    "Blade Fall trigger setup (4L laterale).",
+                ],
+                tree_changes=[
+                    "Cluster spell damage + ES sotto Shadow start.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Blade Blast + Awakened Spell Echo + Inspiration + Concentrated Effect + Hypothermia + Awakened Added Cold.",
+                    "Dual-wield +1/+2 socketed spell skill daggers o sceptre+focus craft (~10-30 div).",
+                ],
+                tree_changes=[
+                    "Cluster jewel: Pressure Points + Calamitous + Quick Getaway.",
+                    "One Step Ahead + Escape Artist ascendancy per phys → ES.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Spell Echo 5 + Awakened Added Cold 5 + Awakened Cold Pen 5.",
+                    "21/20 Blade Blast corrupted + Concentrated Effect 21/20.",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh per Patient Reaper doppio (Trickster).",
+                    "Watcher's Eye Hatred 'Adds Cold Damage' o Discipline 'ES recharge'.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class SoulrendTricksterTemplate(GenericTemplate):
+    """Soulrend Trickster — chaos+cold projectile spell DoT.
+
+    Soulrend è uno spell projectile chaos+cold che applica DoT on hit.
+    Trickster Patient Reaper + Soul Drinker per ES + life sustain;
+    Escape Artist per phys → ES. Niente Bone Spear: questo template è
+    distinto dal BoneSpearNecro (che ha Necro ascendancy). Soulrend si
+    fa anche su Trickster con scaling chaos+cold ibrido.
+    """
+
+    name: str = "soulrend_trickster"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Freezing Pulse come levelling pre-Soulrend.",
+                    "Atto 3: Soulrend sblocca; setup 4L con Pierce + Faster Casting + Awakened Added Chaos.",
+                    "Whirling Blades come movement, Malevolence + Discipline.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Patient Reaper (Trickster) + Soul Drinker per ES regen.",
+                    "Soulrend + Pierce + Awakened Added Chaos (cheap) + Awakened Void Manipulation (cheap) + Empower 3 + Faster Projectiles.",
+                    "Wither + Despair self-cast o Bane setup curse.",
+                ],
+                tree_changes=[
+                    "Cluster chaos DoT multi (Wicked Pall + Touch of Cruelty).",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Soulrend + Awakened Added Chaos + Awakened Void Manipulation + Pierce + Empower + Faster Projectiles.",
+                    "+1 chaos / +1 spell skill staff o The Whispering Ice unique.",
+                ],
+                tree_changes=[
+                    "Watcher's Eye Malevolence 'DoT damage' (~50+ div).",
+                    "Cluster ES + Sadist (DoT multi).",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Added Chaos 5 + Awakened Void Manipulation 5 + Awakened Empower 4.",
+                    "21/20 Soulrend corrupted + Faster Projectiles 21/20.",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh per Escape Artist o Patient Reaper doppio.",
+                    "+2 spell skill staff custom craft (~50-100 div).",
+                    "Helmet enchant: Soulrend +1 projectile o increased damage.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
 class DetonateDeadNecroTemplate(GenericTemplate):
     """Detonate Dead Necromancer — corpse-based AoE fire.
 
@@ -2503,13 +2678,18 @@ TEMPLATE_REGISTRY: list[tuple[Callable[[Build], bool], BuildTemplate]] = [
     (_matches_skill("volcanic fissure"), VolcanicFissureJuggTemplate()),
     # Casters — Blade Vortex must come BEFORE Vortex (substring collision).
     (_matches_skill("blade vortex"), PoisonBladeVortexAssassinTemplate()),
-    (_matches_skill("vortex", "cold snap"), VortexOccultistTemplate()),
+    (_matches_skill("blade blast"), BladeBlastTricksterTemplate()),
+    # Cold Snap split off Vortex Occultist: Cold Snap → Trickster, Vortex → Occultist.
+    (_matches_skill("cold snap"), ColdDotTricksterTemplate()),
+    (_matches_skill("vortex"), VortexOccultistTemplate()),
     (_matches_skill("spark"), SparkInquisitorTemplate()),
     (_matches_skill("penance brand"), PenanceBrandInquisitorTemplate()),
     (_matches_skill("crackling lance"), CracklingLanceInquisitorTemplate()),
     (_matches_skill("arc"), ArcHierophantTemplate()),
     (_matches_skill("smite"), SmiteGuardianTemplate()),
-    (_matches_skill("bone spear", "soulrend"), BoneSpearNecroTemplate()),
+    # Soulrend split off BoneSpearNecro: Soulrend → Trickster, Bone Spear → Necro.
+    (_matches_skill("soulrend"), SoulrendTricksterTemplate()),
+    (_matches_skill("bone spear"), BoneSpearNecroTemplate()),
     (_matches_skill("hexblast"), HexblastMinesTemplate()),
     (_matches_skill("cobra lash"), CobraLashAssassinTemplate()),
     (_matches_skill("pyroclast"), PyroclastMinesSaboteurTemplate()),
@@ -2580,10 +2760,12 @@ __all__ = [
     "ArcHierophantTemplate",
     "AurabotGuardianTemplate",
     "BaneOccultistTemplate",
+    "BladeBlastTricksterTemplate",
     "BoneSpearNecroTemplate",
     "BoneshatterTemplate",
     "BuildTemplate",
     "CobraLashAssassinTemplate",
+    "ColdDotTricksterTemplate",
     "CracklingLanceInquisitorTemplate",
     "CycloneSlayerTemplate",
     "DetonateDeadNecroTemplate",
@@ -2606,6 +2788,7 @@ __all__ = [
     "ShrapnelBallistaDeadeyeTemplate",
     "SkeletonMagesTemplate",
     "SmiteGuardianTemplate",
+    "SoulrendTricksterTemplate",
     "SparkInquisitorTemplate",
     "SpectralThrowChampionTemplate",
     "SpectreNecroTemplate",

@@ -177,7 +177,7 @@ Mappa coverage attuale (post-Turno 1):
 | Ranger | 7/7 ✅ | LS Raider, TS Deadeye, FB Raider, TR Pathfinder, Ballista Deadeye, Ice Shot Deadeye, Poisonous Concoction Pathfinder |
 | Witch | 7/7 ✅ | Vortex Occ, Bone Spear Necro, DD Necro, Bane Occ, Spectre Necro, Skel Mages, Animate Weapon (1 da swap → Elementalist) |
 | Templar | 7/7 ✅ | Spark Inq, HFT Hiero, Penance Brand Inq, Crackling Lance Inq, Arc Hierophant, Smite Guardian, Aurabot Guardian |
-| Shadow | 4/7 | Hexblast Mines, Poison BV Assassin, Cobra Lash Assassin, Pyroclast Mines Saboteur |
+| Shadow | 7/7 ✅ | Hexblast Mines, Poison BV Assassin, Cobra Lash Assassin, Pyroclast Mines Saboteur, Cold DoT Trickster, Blade Blast Trickster, Soulrend Trickster |
 | Scion | 0/7 | — |
 
 **Turno 1 (Marauder)** ✅ done (2026-05-01). 3 nuovi template + matchers + test signature:
@@ -242,6 +242,17 @@ Baseline 509 test verdi / 91 mypy / 89 format.
 NOTA matcher ordering: `_matches_skill("blade vortex")` deve venire **prima** di `_matches_skill("vortex")` perché "vortex" è substring di "blade vortex". Sezione registry "Casters" riordinata di conseguenza.
 
 Baseline 512 test verdi / 91 mypy / 89 format.
+
+**Turno 9 (Shadow Tricksters)** ✅ done (2026-05-01). Shadow coverage 4/7 → 7/7 (chiusa). 3 nuovi template + 2 matcher splits:
+- `ColdDotTricksterTemplate` (matcher "cold snap") — pure cold DoT alternativo a Vortex Occultist, Patient Reaper + Soul Drinker, Cold Snap of Power transfigured opzionale.
+- `BladeBlastTricksterTemplate` (matcher "blade blast") — detona Blade Fall blades, Escape Artist + Patient Reaper, dual-wield daggers spell skill.
+- `SoulrendTricksterTemplate` (matcher "soulrend") — chaos+cold projectile DoT spell, Patient Reaper + Soul Drinker, Wither/Despair curse setup.
+
+**Matcher refactor**:
+- `_matches_skill("vortex", "cold snap")` → split in 2: `_matches_skill("cold snap")` per ColdDotTrickster + `_matches_skill("vortex")` per VortexOccultist (più puro).
+- `_matches_skill("bone spear", "soulrend")` → split in 2: `_matches_skill("soulrend")` per SoulrendTrickster + `_matches_skill("bone spear")` per BoneSpearNecro.
+
+Baseline 515 test verdi / 91 mypy / 89 format.
 
 Turni successivi pianificati:
 - T8-T9 Shadow: Poison BV Assassin, Cobra Lash Assassin, Pyroclast Mines Sab, Cold DoT Trickster, Blade Blast Trickster, Soulrend Trickster *(richiede split del matcher BoneSpearNecro)* (6)
