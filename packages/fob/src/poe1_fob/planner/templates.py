@@ -2585,6 +2585,195 @@ class ShrapnelBallistaDeadeyeTemplate(GenericTemplate):
 
 
 # ---------------------------------------------------------------------------
+# Scion / Hybrid templates
+# ---------------------------------------------------------------------------
+
+
+class CocCospriCycloneScionTemplate(GenericTemplate):
+    """Cast on Crit Cospri Cyclone Scion — channel cyclone trigger spells.
+
+    Cyclone canalizzato come crit trigger source per spell socketed in
+    Cospri's Malice (sword) e/o Mjolner. Spell tipiche: Frostbolt + Ice
+    Nova combo (Frost), Ball Lightning + Lightning Conduit (lightning),
+    Spark for clear. Scion Ascendant Champion + Assassin (crit + impale)
+    o Inquisitor + Assassin (consecrated). Awakened CoC + +1/+2 socketed
+    sword endgame.
+    """
+
+    name: str = "coc_cospri_cyclone_scion"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Frost Blades come levelling pre-Cyclone.",
+                    "Atto 3: Cyclone sblocca; setup 4L con Faster Attacks + Inspiration + Fortify.",
+                    "Niente CoC ancora: prima del lab + Cospri's Malice non vale la pena.",
+                ],
+                rationale_override=(
+                    "CoC Cospri richiede crit cap + cooldown reduction + Cospri's Malice. "
+                    "In atto 1-3 niente di tutto questo: si livella Cyclone vanilla e si "
+                    "switcha a CoC dopo il primo lab + drop o purchase di Cospri's Malice."
+                ),
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Champion + Assassin (Scion Ascendant) per crit + impale + over-leech.",
+                    "Cyclone + Awakened Cast on Critical Strike (cheap) + Frostbolt + Ice Nova + Inspiration + Fortify.",
+                    "Hatred + Herald of Ice + Precision aura.",
+                ],
+                tree_changes=[
+                    "Cluster crit chance + spell crit + sword damage.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Cyclone + Awakened CoC + Frostbolt + Ice Nova + Inspiration + Fortify.",
+                    "Cospri's Malice 1H sword (~3-10 div): trigger gratis Frostbolt + Ice Nova socketed.",
+                    "Mjolner (~10-30 div) come offhand alternativo per double trigger lightning.",
+                ],
+                tree_changes=[
+                    "Watcher's Eye Hatred 'Cold Pen' + Precision 'crit chance'.",
+                    "Cospri's Malice ha '~10% chance to trigger socketed cold spell on melee crit' + 'Trigger socketed cold spell on melee crit'.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Cast on Critical Strike 5 (~80-120 div).",
+                    "Awakened Cold Pen 5 + Awakened Spell Echo NO (CoC non ammette Spell Echo).",
+                    "21/20 Cyclone corrupted + Vaal Ice Nova for boss burst.",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh: combo Champion + Assassin doppio-ascendancy.",
+                    "+1 to socketed gems Cospri's Malice corrupted.",
+                    "Helmet enchant: Ice Nova damage o Cyclone crit chance.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class PowerSiphonScionTemplate(GenericTemplate):
+    """Power Siphon Scion — wand attack skill con Power Charges + crit.
+
+    Power Siphon spara projectile con power charge generation on hit
+    (e crit con Power Charge stack). Scion Ascendant Deadeye + Assassin
+    (crit + projectile) o Pathfinder per flask uptime. Dual-wield wand
+    +2/+3 ele wand. Awakened GMP + Awakened Added Lightning + Inspiration.
+    Vaal Power Siphon per single-target burst.
+    """
+
+    name: str = "power_siphon_scion"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Caustic Arrow / Storm Brand come levelling pre-Power Siphon.",
+                    "Atto 3 reward: Power Siphon sblocca; setup 4L con Faster Attacks + Added Lightning + Onslaught.",
+                    "Wand + shield Lifesprig come transition.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Deadeye + Assassin (Scion Ascendant) per +projectile + crit.",
+                    "Power Siphon + Awakened Greater Multiple Projectiles (cheap) + Awakened Added Lightning (cheap) + Inspiration + Trinity + Elemental Damage with Attacks.",
+                    "Wrath + Herald of Thunder + Precision.",
+                ],
+                tree_changes=[
+                    "Wand cluster: Wandslinger + Storm Drinker + Pure Power.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Power Siphon + Awakened GMP + Awakened Added Lightning + Trinity + Inspiration + Awakened Elemental Damage with Attacks.",
+                    "Dual-wield +2 lightning wand craft (~20-40 div) o Doryani's Catalyst variant.",
+                    "Vaal Power Siphon 4L laterale per boss burst.",
+                ],
+                tree_changes=[
+                    "Watcher's Eye Wrath 'Lightning Pen' + Precision 'crit chance'.",
+                    "Cluster jewel: Replica Conqueror's Efficiency + Pure Power.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened GMP 5 + Awakened Added Lightning 5 + Awakened Elemental Damage with Attacks 5.",
+                    "21/20 Power Siphon corrupted + Inspiration 21/20.",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh: combo Deadeye + Assassin doppio-ascendancy.",
+                    "Mageblood (~250-300 div): Diamond + Sulphur + Quartz permanenti.",
+                    "Helmet enchant: Power Siphon +1 chain o increased damage.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class StormBrandScionTemplate(GenericTemplate):
+    """Storm Brand Scion — chain lightning brand caster.
+
+    Storm Brand è un brand caster che chain tra nemici emettendo beam
+    lightning. Scion Ascendant Inquisitor + Elementalist (ele pen +
+    shaper of storms) o Inquisitor + Hierophant (charge generation).
+    Awakened Brand Recall + Awakened Lightning Pen + +1 power charge body.
+    Build versatile mappable + bossable.
+    """
+
+    name: str = "storm_brand_scion"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Storm Brand dalla quest 'Mercy Mission' — main skill day-1.",
+                    "Setup 4L: Storm Brand + Brand Recall + Added Lightning + Faster Casting.",
+                    "Wand + shield Lifesprig, Wrath low-level.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Inquisitor + Elementalist (Scion Ascendant): Inevitable Judgment + Shaper of Storms.",
+                    "Storm Brand + Brand Recall + Awakened Lightning Pen (cheap) + Concentrated Effect + Awakened Spell Echo (cheap) + Empower 3.",
+                    "Wrath + Herald of Thunder + Skitterbots.",
+                ],
+                tree_changes=[
+                    "Brand area: Brand Loyalty cluster + Storm Drinker.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Storm Brand + Awakened Brand Recall + Awakened Lightning Pen + Concentrated Effect + Awakened Spell Echo + Empower.",
+                    "+1 Spell Skill / +1 Lightning Spell sceptre o staff (~10-30 div).",
+                ],
+                tree_changes=[
+                    "Cluster jewel: Brand Loyalty + Storm Drinker + Wandslinger.",
+                    "Watcher's Eye Wrath 'Lightning Penetration' (~30-60 div).",
+                    "+1 power charge / +2 power charge body craft per crit cap.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Brand Recall 5 + Awakened Lightning Pen 5 + Awakened Spell Echo 5.",
+                    "Concentrated Effect 21/20 corrupted + Empower 4.",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh: combo Inquisitor + Elementalist doppio.",
+                    "+2 spell skill staff custom craft (~50-100 div).",
+                    "Helmet enchant: Storm Brand 25% increased damage.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+# ---------------------------------------------------------------------------
 # Registry & dispatch
 # ---------------------------------------------------------------------------
 
@@ -2642,6 +2831,18 @@ _AURA_GEMS: frozenset[str] = frozenset(
 )
 
 
+def _matches_coc_cospri(build: Build) -> bool:
+    """Match Cast on Crit Cospri builds: any key_item is Cospri's Malice.
+
+    CoC Cospri characters carry main_skill='Cyclone' (the channel skill)
+    but the build identity is the unique sword. Skill-keyed dispatch alone
+    would route them to CycloneSlayerTemplate; this item-keyed matcher
+    intercepts them before that. Same pattern as :func:`_matches_aurabot`.
+    """
+
+    return any("cospri's malice" in (ki.item.name or "").casefold() for ki in build.key_items)
+
+
 def _matches_aurabot(build: Build) -> bool:
     """Match aurabot builds: 5+ aura gems carried as supports.
 
@@ -2669,6 +2870,9 @@ TEMPLATE_REGISTRY: list[tuple[Callable[[Build], bool], BuildTemplate]] = [
     # a throwaway Smite/Spark/Arc as DPS, but the build identity is the
     # aura stack, not the skill.
     (_matches_aurabot, AurabotGuardianTemplate()),
+    # CoC Cospri — item-keyed matcher, must come before "cyclone" matcher
+    # because CoC Cospri builds carry main_skill='Cyclone'.
+    (_matches_coc_cospri, CocCospriCycloneScionTemplate()),
     # Slam / Marauder
     (_matches_skill("boneshatter"), BoneshatterTemplate()),
     (_matches_skill("earthshatter"), EarthshatterJuggTemplate()),
@@ -2685,6 +2889,9 @@ TEMPLATE_REGISTRY: list[tuple[Callable[[Build], bool], BuildTemplate]] = [
     (_matches_skill("spark"), SparkInquisitorTemplate()),
     (_matches_skill("penance brand"), PenanceBrandInquisitorTemplate()),
     (_matches_skill("crackling lance"), CracklingLanceInquisitorTemplate()),
+    # Storm Brand must come BEFORE Arc (no substring collision but keep
+    # all brand templates grouped for readability).
+    (_matches_skill("storm brand"), StormBrandScionTemplate()),
     (_matches_skill("arc"), ArcHierophantTemplate()),
     (_matches_skill("smite"), SmiteGuardianTemplate()),
     # Soulrend split off BoneSpearNecro: Soulrend → Trickster, Bone Spear → Necro.
@@ -2709,6 +2916,7 @@ TEMPLATE_REGISTRY: list[tuple[Callable[[Build], bool], BuildTemplate]] = [
     (_matches_skill("ice shot"), IceShotDeadeyeTemplate()),
     (_matches_skill("poisonous concoction"), PoisonousConcoctionPathfinderTemplate()),
     (_matches_skill("toxic rain"), ToxicRainPathfinderTemplate()),
+    (_matches_skill("power siphon"), PowerSiphonScionTemplate()),
     # Minions
     (_matches_skill("raise spectre", "spectre"), SpectreNecroTemplate()),
     (
@@ -2765,6 +2973,7 @@ __all__ = [
     "BoneshatterTemplate",
     "BuildTemplate",
     "CobraLashAssassinTemplate",
+    "CocCospriCycloneScionTemplate",
     "ColdDotTricksterTemplate",
     "CracklingLanceInquisitorTemplate",
     "CycloneSlayerTemplate",
@@ -2782,6 +2991,7 @@ __all__ = [
     "PenanceBrandInquisitorTemplate",
     "PoisonBladeVortexAssassinTemplate",
     "PoisonousConcoctionPathfinderTemplate",
+    "PowerSiphonScionTemplate",
     "PyroclastMinesSaboteurTemplate",
     "ReaveSlayerTemplate",
     "RfPohxTemplate",
@@ -2795,6 +3005,7 @@ __all__ = [
     "SplittingSteelGladiatorTemplate",
     "StagePlanContent",
     "StaticStrikeGladiatorTemplate",
+    "StormBrandScionTemplate",
     "SunderChampionTemplate",
     "TectonicSlamChieftainTemplate",
     "TornadoShotDeadeyeTemplate",

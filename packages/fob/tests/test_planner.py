@@ -1131,6 +1131,8 @@ def test_template_registry_covers_popular_skills() -> None:
         "Cold Snap": "cold_dot_trickster",
         "Blade Blast": "blade_blast_trickster",
         "Soulrend": "soulrend_trickster",
+        "Power Siphon": "power_siphon_scion",
+        "Storm Brand": "storm_brand_scion",
     }
     base_build = _make_build(key_items=[])
     for skill, expected in canonical.items():
@@ -1570,6 +1572,75 @@ async def test_soulrend_template_emits_signature_advice() -> None:
     end_map = plan.stages[4]
     assert any("Patient Reaper" in g for g in mid.gem_changes)
     assert any("Awakened Added Chaos" in g for g in end_map.gem_changes)
+
+
+def test_coc_cospri_matcher_routes_on_unique_sword() -> None:
+    """CoC Cospri matcher catches builds carrying the unique sword.
+
+    A vanilla 'Cyclone' build with no Cospri's Malice routes to
+    CycloneSlayerTemplate. Add the unique sword as a key_item and the
+    same build routes to CocCospriCycloneScionTemplate instead.
+    """
+
+    from poe1_fob.planner import pick_template
+
+    base = _make_build(key_items=[]).model_copy(update={"main_skill": "Cyclone"})
+    assert pick_template(base).name == "cyclone_slayer"
+
+    cospri = _key_item(
+        "Cospri's Malice",
+        base_type="Jewelled Foil",
+        slot=ItemSlot.WEAPON_MAIN,
+    )
+    coc_build = base.model_copy(update={"key_items": [cospri]})
+    assert pick_template(coc_build).name == "coc_cospri_cyclone_scion"
+
+
+async def test_coc_cospri_template_emits_signature_advice() -> None:
+    """CoC Cospri template hits Awakened CoC + Frostbolt+Ice Nova trigger."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    cospri = _key_item(
+        "Cospri's Malice",
+        base_type="Jewelled Foil",
+        slot=ItemSlot.WEAPON_MAIN,
+    )
+    build = _make_build(key_items=[cospri]).model_copy(update={"main_skill": "Cyclone"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    early_map = plan.stages[3]
+    assert any("Awakened Cast on Critical Strike" in g for g in mid.gem_changes)
+    assert any("Cospri's Malice" in g for g in early_map.gem_changes)
+
+
+async def test_power_siphon_template_emits_signature_advice() -> None:
+    """Power Siphon Scion template hits Deadeye+Assassin + dual wand."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Power Siphon"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    early_map = plan.stages[3]
+    assert any("Deadeye + Assassin" in g for g in mid.gem_changes)
+    assert any("lightning wand" in g or "Doryani's Catalyst" in g for g in early_map.gem_changes)
+
+
+async def test_storm_brand_template_emits_signature_advice() -> None:
+    """Storm Brand Scion template hits Inquisitor+Elementalist + Brand Recall."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Storm Brand"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    end_map = plan.stages[4]
+    assert any("Inquisitor + Elementalist" in g for g in mid.gem_changes)
+    assert any("Awakened Brand Recall" in g for g in end_map.gem_changes)
 
 
 async def test_spectre_template_routes_to_minion_setup() -> None:
