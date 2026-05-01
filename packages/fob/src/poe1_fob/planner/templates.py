@@ -1203,6 +1203,182 @@ class SplittingSteelGladiatorTemplate(GenericTemplate):
         return super().for_stage(stage, build)
 
 
+class SunderChampionTemplate(GenericTemplate):
+    """Sunder Champion — slam phys signature Champion build.
+
+    Sunder è il classico league-starter Marauder/Champion: 2H mace,
+    Resolute Technique, Brutality. Champion Worthy Foe + Inspirational
+    per single-target multi e party damage. Marohi Erqi → +2 to Slam
+    Skills 2H mace endgame. Pride aura + War Banner. The Surrender
+    shield se vai 1H + scudo (variante Glad).
+    """
+
+    name: str = "sunder_champion"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Sunder dalla quest 'Mercy Mission' — skill day-1.",
+                    "Setup 4L: Sunder + Ruthless + Melee Phys + Pulverise.",
+                    "Leap Slam come movement, Ancestral Protector totem per attack speed.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Worthy Foe (Champion single-target multi) + Inspirational.",
+                    "Sunder + Ruthless + Awakened Brutality (cheap) + Pulverise + Melee Phys + Fortify.",
+                    "Pride + War Banner + Dread Banner per phys taken multi.",
+                ],
+                tree_changes=[
+                    "Resolute Technique area centrale (zero accuracy needed).",
+                    "Marauder area: Tireless + Heart of the Warrior + Diamond Skin.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Sunder + Awakened Melee Phys + Awakened Brutality + Ruthless + Pulverise + Awakened Fortify.",
+                    "Marohi Erqi 2H mace (~1-3 div) come transition; +2 to Slam Skills 2H mace endgame.",
+                ],
+                tree_changes=[
+                    "Cluster jewel: Quick Getaway + Fuel the Fight + Feed the Fury.",
+                    "The Surrender shield (Champion 1H+shield variant) o rare 6L body.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Melee Phys 5 + Awakened Brutality 5 + Awakened Fortify 5.",
+                    "21/20 Sunder corrupted + Pulverise 21/20.",
+                    "Considera Sunder of Earthbreaking transfigured per AoE permanente.",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh per Worthy Foe (Champion) o First to Strike (Glad) doppio.",
+                    "Watcher's Eye Pride 'Increased Phys Damage' (~50+ div).",
+                    "Helmet enchant: Sunder 40% increased damage.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class StaticStrikeGladiatorTemplate(GenericTemplate):
+    """Static Strike Gladiator — lightning melee strike + chained beams.
+
+    Static Strike colpisce localmente e crea beam tra il personaggio e i
+    nemici per un breve tempo (chains gratis). Lightning damage scaling +
+    crit. Gladiator Versatile Combatant (block spell + attack) + Painforged
+    se Sand stance. Champion Inspirational variant è altrettanto valida.
+    Saviour shield + Paradoxica/Foil per crit weapon.
+    """
+
+    name: str = "static_strike_gladiator"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Frost Blades come levelling pre-Static Strike.",
+                    "Atto 3 reward: Static Strike sblocca; setup 4L con Multistrike + Added Lightning + Inspiration.",
+                    "Whirling Blades come movement, Wrath aura.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Versatile Combatant (Glad block) o Inspirational (Champion).",
+                    "Static Strike + Multistrike + Inspiration + Added Lightning + Trinity + Elemental Damage with Attacks.",
+                    "Wrath + Herald of Thunder + Precision low-level.",
+                ],
+                tree_changes=[
+                    "Sword cluster + Resolute Technique area opzionale.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Static Strike + Awakened Multistrike + Awakened Added Lightning + Trinity + Awakened Elemental Damage with Attacks + Inspiration.",
+                    "Paradoxica 1H sword (~10-30 div) o +1/+2 socketed Foil craft.",
+                ],
+                tree_changes=[
+                    "Saviour shield (mirror minion + crit boost) per Glad — la stessa scelta del Reave.",
+                    "Cluster jewel: Pressure Points + Calamitous + Quick Getaway.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Multistrike 5 + Awakened Added Lightning 5 + Awakened Elemental Damage with Attacks 5.",
+                    "21/20 Static Strike corrupted + Inspiration 21/20.",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh per Versatile Combatant (Glad) o Worthy Foe (Champion) doppio.",
+                    "Watcher's Eye Wrath 'Lightning Pen' + Precision 'crit chance'.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class SpectralThrowChampionTemplate(GenericTemplate):
+    """Spectral Throw Champion — boomerang projectile sword/axe.
+
+    Spectral Throw lancia una weapon copy phys che torna indietro,
+    colpendo doppio sui mob in linea. Champion Worthy Foe + Inspirational
+    per boss + party. Paradoxica o +1/+2 socketed Foil/sword craft;
+    Saviour shield. Vaal Spectral Throw + Awakened GMP per bossing burst.
+    """
+
+    name: str = "spectral_throw_champion"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Spectral Throw dalla quest 'Mercy Mission' — skill day-1 Duelist.",
+                    "Setup 4L: Spectral Throw + Pierce + Faster Attacks + Brutality.",
+                    "Whirling Blades come movement, Onslaught Support.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Worthy Foe (Champion +damage taken multi) + Inspirational.",
+                    "Spectral Throw + Awakened Vicious Projectiles (cheap) + Brutality + Awakened GMP (cheap) + Inspiration + Slower Projectiles (boss).",
+                    "Pride + War Banner per phys taken multi.",
+                ],
+                tree_changes=[
+                    "Resolute Technique area centrale.",
+                    "Cluster phys + projectile area sotto Duelist.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Spectral Throw + Awakened Brutality + Awakened Vicious Projectiles + Awakened GMP + Inspiration + Slower Projectiles.",
+                    "Paradoxica o +1/+2 socketed sword/axe craft (~20-50 div).",
+                    "Vaal Spectral Throw 4L laterale per bossing burst.",
+                ],
+                tree_changes=[
+                    "Cluster jewel: Master the Fundamentals + Quick Getaway + Calamitous.",
+                    "Saviour shield + Lycosidae per accuracy + crit boost.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Brutality 5 + Awakened Vicious Projectiles 5 + Awakened GMP 5.",
+                    "21/20 Spectral Throw corrupted + Slower Projectiles 21/20.",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh per Worthy Foe doppio (Champion).",
+                    "Watcher's Eye Pride 'Increased Phys Damage' (~50+ div).",
+                    "Helmet enchant: Spectral Throw +20% damage.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
 class LightningStrikeRaiderTemplate(GenericTemplate):
     """Lightning Strike Raider/Champion — ranged melee with projectiles.
 
@@ -1687,6 +1863,9 @@ TEMPLATE_REGISTRY: list[tuple[Callable[[Build], bool], BuildTemplate]] = [
     (_matches_skill("reave"), ReaveSlayerTemplate()),
     (_matches_skill("lacerate"), LacerateGladiatorTemplate()),
     (_matches_skill("splitting steel"), SplittingSteelGladiatorTemplate()),
+    (_matches_skill("sunder"), SunderChampionTemplate()),
+    (_matches_skill("static strike"), StaticStrikeGladiatorTemplate()),
+    (_matches_skill("spectral throw"), SpectralThrowChampionTemplate()),
     (_matches_skill("lightning strike"), LightningStrikeRaiderTemplate()),
     (_matches_skill("tornado shot"), TornadoShotDeadeyeTemplate()),
     (_matches_skill("frost blades"), FrostBladesRaiderTemplate()),
@@ -1759,9 +1938,12 @@ __all__ = [
     "ShrapnelBallistaDeadeyeTemplate",
     "SkeletonMagesTemplate",
     "SparkInquisitorTemplate",
+    "SpectralThrowChampionTemplate",
     "SpectreNecroTemplate",
     "SplittingSteelGladiatorTemplate",
     "StagePlanContent",
+    "StaticStrikeGladiatorTemplate",
+    "SunderChampionTemplate",
     "TectonicSlamChieftainTemplate",
     "TornadoShotDeadeyeTemplate",
     "ToxicRainPathfinderTemplate",

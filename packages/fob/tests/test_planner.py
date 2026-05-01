@@ -1116,6 +1116,9 @@ def test_template_registry_covers_popular_skills() -> None:
         "Reave": "reave_slayer",
         "Lacerate": "lacerate_gladiator",
         "Splitting Steel": "splitting_steel_gladiator",
+        "Sunder": "sunder_champion",
+        "Static Strike": "static_strike_gladiator",
+        "Spectral Throw": "spectral_throw_champion",
     }
     base_build = _make_build(key_items=[])
     for skill, expected in canonical.items():
@@ -1276,6 +1279,48 @@ async def test_splitting_steel_template_emits_signature_advice() -> None:
     mid = plan.stages[1]
     assert any("Painforged" in g or "Worthy Foe" in g for g in mid.gem_changes)
     assert any("Steel Skills" in t for t in mid.tree_changes)
+
+
+async def test_sunder_template_emits_signature_advice() -> None:
+    """Sunder template hits Worthy Foe lab + Marohi Erqi/Slam Skills crafting."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Sunder"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    early_map = plan.stages[3]
+    assert any("Worthy Foe" in g for g in mid.gem_changes)
+    assert any("Marohi" in g or "Slam Skills" in g for g in early_map.gem_changes)
+
+
+async def test_static_strike_template_emits_signature_advice() -> None:
+    """Static Strike template covers Versatile Combatant + Saviour shield."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Static Strike"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    early_map = plan.stages[3]
+    assert any("Versatile Combatant" in g or "Inspirational" in g for g in mid.gem_changes)
+    assert any("Saviour" in t for t in early_map.tree_changes)
+
+
+async def test_spectral_throw_template_emits_signature_advice() -> None:
+    """Spectral Throw template hits Worthy Foe + Vaal ST burst + GMP scaling."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Spectral Throw"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    early_map = plan.stages[3]
+    assert any("Worthy Foe" in g for g in mid.gem_changes)
+    assert any("Vaal Spectral Throw" in g for g in early_map.gem_changes)
 
 
 async def test_spectre_template_routes_to_minion_setup() -> None:

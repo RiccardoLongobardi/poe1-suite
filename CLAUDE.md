@@ -173,7 +173,7 @@ Mappa coverage attuale (post-Turno 1):
 | Classe | Count | Template registrati |
 |---|---|---|
 | Marauder | 7/7 ✅ | RF Jugg, Boneshatter, Earthshatter Jugg, Tectonic Slam Chieftain, Molten Strike Chieftain, Ground Slam Jugg, Volcanic Fissure Jugg |
-| Duelist | 4/7 | Cyclone Slayer, Reave Slayer, Lacerate Gladiator, Splitting Steel Gladiator |
+| Duelist | 7/7 ✅ | Cyclone Slayer, Reave Slayer, Lacerate Gladiator, Splitting Steel Gladiator, Sunder Champion, Static Strike Gladiator, Spectral Throw Champion |
 | Ranger | 5/7 | LS Raider, TS Deadeye, FB Raider, TR Pathfinder, Ballista Deadeye |
 | Witch | 7/7 ✅ | Vortex Occ, Bone Spear Necro, DD Necro, Bane Occ, Spectre Necro, Skel Mages, Animate Weapon (1 da swap → Elementalist) |
 | Templar | 2/7 | Spark Inq, HFT Hiero |
@@ -203,8 +203,14 @@ Baseline 495 test verdi / 91 mypy / 89 format.
 
 Baseline 498 test verdi / 91 mypy / 89 format.
 
+**Turno 4 (Duelist)** ✅ done (2026-05-01). Duelist coverage 4/7 → 7/7 (chiusa). 3 nuovi template:
+- `SunderChampionTemplate` (matcher "sunder") — slam phys signature day-1, Worthy Foe + Inspirational lab1, Marohi Erqi → +2 to Slam Skills 2H mace endgame, Sunder of Earthbreaking transfigured.
+- `StaticStrikeGladiatorTemplate` (matcher "static strike") — lightning melee + chained beams, Versatile Combatant (Glad block) o Inspirational (Champion), Saviour shield + Paradoxica/Foil crit weapon.
+- `SpectralThrowChampionTemplate` (matcher "spectral throw") — boomerang projectile day-1 Duelist, Worthy Foe + Inspirational, Awakened GMP + Slower Projectiles bossing, Vaal ST burst.
+
+Baseline 501 test verdi / 91 mypy / 89 format.
+
 Turni successivi pianificati:
-- T4 Duelist: Sunder Champion, Static Strike Gladiator, Spectral Throw Champion (3)
 - T5 Ranger: Ice Shot Deadeye, Poisonous Concoction Pathfinder (2)
 - T6-T7 Templar: Penance Brand Inq, Crackling Lance Inq, Arc Hierophant, Smite Guardian, Aurabot Guardian (5)
 - T8-T9 Shadow: Poison BV Assassin, Cobra Lash Assassin, Pyroclast Mines Sab, Cold DoT Trickster, Blade Blast Trickster, Soulrend Trickster *(richiede split del matcher BoneSpearNecro)* (6)
