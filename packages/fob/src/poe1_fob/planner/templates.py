@@ -1523,6 +1523,124 @@ class FrostBladesRaiderTemplate(GenericTemplate):
         return super().for_stage(stage, build)
 
 
+class IceShotDeadeyeTemplate(GenericTemplate):
+    """Ice Shot Deadeye — cold projectile bow con conversion phys→cold.
+
+    Ice Shot converte 60% phys → cold + spawna a cone secondary AoE on hit.
+    Deadeye Endless Munitions (+2 projectiles) + Far Shot (damage scaling
+    con distanza). Classico league-starter Ranger: setup veloce, freeze +
+    chill ovunque, scaling con +1/+2 socketed bow craft o Lioneye's Glare
+    come budget intermedio.
+    """
+
+    name: str = "ice_shot_deadeye"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Caustic Arrow come levelling pre-Ice Shot.",
+                    "Atto 4 reward: Ice Shot + Mirage Archer + Pierce + Onslaught.",
+                    "Quill Rain o Storm Cloud bow come transition.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Endless Munitions (+2 projectiles).",
+                    "Ice Shot + Mirage Archer + Greater Multiple Projectiles + Pierce + Inspiration.",
+                    "Hatred + Herald of Ice + Precision low-level.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Ice Shot + Awakened GMP + Awakened Elemental Damage with Attacks + Mirage Archer + Inspiration + Hypothermia.",
+                    "Lioneye's Glare unique bow (~3-10 div) come transition; +1/+2 socketed bow craft endgame.",
+                ],
+                tree_changes=[
+                    "Hyrri's Bite o Yoke of Suffering per ele attacks.",
+                    "Watcher's Eye Hatred 'Cold Damage as Extra' (~30-60 div).",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened GMP 5 + Awakened Elemental Damage with Attacks 5 + Awakened Cold Penetration 5.",
+                    "21/20 Ice Shot corrupted + Slower Projectiles 21/20 per single-target.",
+                ],
+                tree_changes=[
+                    "+3 bow craft (~50-100 div) o Voltaxic Rift unique.",
+                    "Forbidden Flame + Flesh per Far Shot doppio.",
+                    "Helmet enchant: Ice Shot 40% increased damage.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class PoisonousConcoctionPathfinderTemplate(GenericTemplate):
+    """Poisonous Concoction Pathfinder — flask-thrown chaos poison.
+
+    PConc lancia il flask life equipato come AoE chaos hit + applica poison
+    massiccio. Scala con flask charge generation + chaos DoT multi + poison.
+    Pathfinder Master Surgeon (flask sustain) + Nature's Reprisal (+poison
+    multi). Build 'budget' classico: zero weapon richiesta, focus su flask
+    + chaos DoT scaling.
+    """
+
+    name: str = "poisonous_concoction_pathfinder"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Caustic Arrow come levelling pre-PConc.",
+                    "Atto 3: Poisonous Concoction sblocca; setup 4L con Greater Multiple Projectiles + Lesser Poison + Void Manipulation.",
+                    "Mirage Archer non si applica (PConc non è bow); Quicksilver flask + Movement skill.",
+                ],
+                rationale_override=(
+                    "PConc non usa bow né weapon: lancia il flask life equipato come "
+                    "AoE chaos. Liberi gli slot weapon per stat sticks o shield + 1H "
+                    "spell skill. Levelling Caustic Arrow finché PConc non sblocca."
+                ),
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Master Surgeon (flask charge sustain).",
+                    "Poisonous Concoction + Greater Multiple Projectiles + Awakened Vile Toxins (cheap) + Awakened Void Manipulation (cheap) + Empower + Withering Step trigger.",
+                    "Despair self-cast o Bane low-level per curse multi.",
+                ],
+                tree_changes=[
+                    "Nature's Reprisal ascendancy (poison damage multi + duration).",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: PConc + Awakened GMP + Awakened Vile Toxins + Awakened Void Manipulation + Empower + Damage on Full Life.",
+                    "Stat stick weapons: Cold Iron Point dagger (~1 chaos) o +1 chaos / +1 spell skill weapons.",
+                ],
+                tree_changes=[
+                    "Cluster jewel chaos DoT multi (Wicked Pall + Touch of Cruelty).",
+                    "Dying Sun + Cinderswallow per +2 projectiles + life.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Vile Toxins 5 + Awakened Void Manipulation 5 + Awakened GMP 5.",
+                    "21/20 Poisonous Concoction corrupted + Empower 4.",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh per Master Surgeon o Nature's Reprisal doppio.",
+                    "Mageblood (~250-300 div): tutti i flask permanenti = PConc damage flat raddoppiato.",
+                    "Helmet enchant: Poisonous Concoction +1 projectile o increased damage.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
 class ToxicRainPathfinderTemplate(GenericTemplate):
     """Toxic Rain Pathfinder — bow chaos DoT cloud.
 
@@ -1869,6 +1987,8 @@ TEMPLATE_REGISTRY: list[tuple[Callable[[Build], bool], BuildTemplate]] = [
     (_matches_skill("lightning strike"), LightningStrikeRaiderTemplate()),
     (_matches_skill("tornado shot"), TornadoShotDeadeyeTemplate()),
     (_matches_skill("frost blades"), FrostBladesRaiderTemplate()),
+    (_matches_skill("ice shot"), IceShotDeadeyeTemplate()),
+    (_matches_skill("poisonous concoction"), PoisonousConcoctionPathfinderTemplate()),
     (_matches_skill("toxic rain"), ToxicRainPathfinderTemplate()),
     # Minions
     (_matches_skill("raise spectre", "spectre"), SpectreNecroTemplate()),
@@ -1930,9 +2050,11 @@ __all__ = [
     "GroundSlamJuggTemplate",
     "HexblastMinesTemplate",
     "HolyFlameTotemHieroTemplate",
+    "IceShotDeadeyeTemplate",
     "LacerateGladiatorTemplate",
     "LightningStrikeRaiderTemplate",
     "MoltenStrikeChieftainTemplate",
+    "PoisonousConcoctionPathfinderTemplate",
     "ReaveSlayerTemplate",
     "RfPohxTemplate",
     "ShrapnelBallistaDeadeyeTemplate",

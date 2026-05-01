@@ -1119,6 +1119,8 @@ def test_template_registry_covers_popular_skills() -> None:
         "Sunder": "sunder_champion",
         "Static Strike": "static_strike_gladiator",
         "Spectral Throw": "spectral_throw_champion",
+        "Ice Shot": "ice_shot_deadeye",
+        "Poisonous Concoction": "poisonous_concoction_pathfinder",
     }
     base_build = _make_build(key_items=[])
     for skill, expected in canonical.items():
@@ -1321,6 +1323,35 @@ async def test_spectral_throw_template_emits_signature_advice() -> None:
     early_map = plan.stages[3]
     assert any("Worthy Foe" in g for g in mid.gem_changes)
     assert any("Vaal Spectral Throw" in g for g in early_map.gem_changes)
+
+
+async def test_ice_shot_template_emits_signature_advice() -> None:
+    """Ice Shot template hits Endless Munitions + Lioneye's Glare/+3 bow path."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Ice Shot"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    end_map = plan.stages[4]
+    assert any("Endless Munitions" in g for g in mid.gem_changes)
+    assert any("+3 bow" in t or "Voltaxic Rift" in t for t in end_map.tree_changes)
+
+
+async def test_poisonous_concoction_template_emits_signature_advice() -> None:
+    """PConc template covers Master Surgeon + Nature's Reprisal + Mageblood."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Poisonous Concoction"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    end_map = plan.stages[4]
+    assert any("Master Surgeon" in g for g in mid.gem_changes)
+    assert any("Nature's Reprisal" in t for t in mid.tree_changes)
+    assert any("Mageblood" in t for t in end_map.tree_changes)
 
 
 async def test_spectre_template_routes_to_minion_setup() -> None:

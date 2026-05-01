@@ -174,7 +174,7 @@ Mappa coverage attuale (post-Turno 1):
 |---|---|---|
 | Marauder | 7/7 ✅ | RF Jugg, Boneshatter, Earthshatter Jugg, Tectonic Slam Chieftain, Molten Strike Chieftain, Ground Slam Jugg, Volcanic Fissure Jugg |
 | Duelist | 7/7 ✅ | Cyclone Slayer, Reave Slayer, Lacerate Gladiator, Splitting Steel Gladiator, Sunder Champion, Static Strike Gladiator, Spectral Throw Champion |
-| Ranger | 5/7 | LS Raider, TS Deadeye, FB Raider, TR Pathfinder, Ballista Deadeye |
+| Ranger | 7/7 ✅ | LS Raider, TS Deadeye, FB Raider, TR Pathfinder, Ballista Deadeye, Ice Shot Deadeye, Poisonous Concoction Pathfinder |
 | Witch | 7/7 ✅ | Vortex Occ, Bone Spear Necro, DD Necro, Bane Occ, Spectre Necro, Skel Mages, Animate Weapon (1 da swap → Elementalist) |
 | Templar | 2/7 | Spark Inq, HFT Hiero |
 | Shadow | 1/7 | Hexblast Mines |
@@ -210,8 +210,13 @@ Baseline 498 test verdi / 91 mypy / 89 format.
 
 Baseline 501 test verdi / 91 mypy / 89 format.
 
+**Turno 5 (Ranger)** ✅ done (2026-05-01). Ranger coverage 5/7 → 7/7 (chiusa). 2 nuovi template:
+- `IceShotDeadeyeTemplate` (matcher "ice shot") — bow phys→cold conversion + cone secondary AoE, Endless Munitions lab1, Lioneye's Glare transition → +1/+2 socketed bow craft o +3 bow + Voltaxic Rift endgame.
+- `PoisonousConcoctionPathfinderTemplate` (matcher "poisonous concoction") — flask-thrown chaos hit + poison massiccio, Master Surgeon (sustain) + Nature's Reprisal (poison multi), Mageblood endgame.
+
+Baseline 503 test verdi / 91 mypy / 89 format.
+
 Turni successivi pianificati:
-- T5 Ranger: Ice Shot Deadeye, Poisonous Concoction Pathfinder (2)
 - T6-T7 Templar: Penance Brand Inq, Crackling Lance Inq, Arc Hierophant, Smite Guardian, Aurabot Guardian (5)
 - T8-T9 Shadow: Poison BV Assassin, Cobra Lash Assassin, Pyroclast Mines Sab, Cold DoT Trickster, Blade Blast Trickster, Soulrend Trickster *(richiede split del matcher BoneSpearNecro)* (6)
 - T10-T12 Scion: CoC Cospri, Power Siphon, Storm Brand, Mjolner, Spectral Helix, Reap, Forbidden Rite (7)
