@@ -482,6 +482,183 @@ class TectonicSlamChieftainTemplate(GenericTemplate):
         return super().for_stage(stage, build)
 
 
+class MoltenStrikeChieftainTemplate(GenericTemplate):
+    """Molten Strike Chieftain — phys-to-fire melee strike + projectile.
+
+    Molten Strike colpisce localmente e spara projectile fire AoE.
+    Chieftain Tukohama, War's Herald + Ngamahu, True Flame convertono
+    100% phys → fire. Hrimsorrow / Yoke of Suffering, Avatar of Fire
+    keystone per ulteriore conversione. Build classico bossing single-target
+    con projectile clear.
+    """
+
+    name: str = "molten_strike_chieftain"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Molten Strike disponibile da subito (quest 'Mercy Mission').",
+                    "Setup 4L: Molten Strike + Ancestral Call + Multistrike + Combustion.",
+                    "Leap Slam come movement, Anger come aura.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Tukohama, War's Herald (Endurance Charge gen + life regen).",
+                    "Molten Strike + Multistrike + Awakened Fire Pen + Elemental Damage with Attacks + Combustion + Ancestral Call.",
+                    "Aspect of the Crab + Herald of Ash low-level.",
+                ],
+                tree_changes=[
+                    "Avatar of Fire keystone: 100% phys → fire conversion.",
+                    "Templar fire area: Heart of Flame + Diamond Skin.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Molten Strike + Awakened Multistrike + Awakened Fire Pen + Awakened Elemental Damage with Attacks + Combustion + Inspiration.",
+                    "Hrimsorrow gloves o Yoke of Suffering amulet per ele conversion.",
+                    "Ngamahu's Flame mace (~3-5 div) come transition weapon.",
+                ],
+                tree_changes=[
+                    "Ngamahu's Sign ring per chance per Endurance Charge on hit.",
+                    "Cluster jewel: Fuel the Fight + Burning Bright per fire damage.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Multistrike 5 + Awakened Fire Pen 5 + Awakened Elemental Damage with Attacks 5.",
+                    "21/20 Molten Strike corrupted + Inspiration 21/20.",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh per Ngamahu, True Flame doppio.",
+                    "Watcher's Eye Anger 'Increased Fire Damage' (~30-60 div).",
+                    "Helmet enchant: Molten Strike +2 projectiles.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class GroundSlamJuggTemplate(GenericTemplate):
+    """Ground Slam Juggernaut — slam phys signature Marauder.
+
+    Ground Slam (e la transfigured Ground Slam of Earthshaking) è la
+    skill Marauder day-1 più rappresentativa. Jugg Unflinching +
+    Unbreakable scala armour + life regen massivamente. Marohi Erqi
+    2H mace per damage flat enorme; transition a +2 to Slam Skills
+    crafted 2H per endgame. Resolute Technique area centrale.
+    """
+
+    name: str = "ground_slam_juggernaut"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Ground Slam dalla quest 'Mercy Mission' — skill day-1 Marauder.",
+                    "Setup 4L: Ground Slam + Ruthless + Melee Phys + Pulverise.",
+                    "Leap Slam come movement, Ancestral Protector totem.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Unflinching (Endurance Charges + max).",
+                    "Ground Slam + Ruthless + Awakened Brutality (cheap) + Pulverise + Melee Phys + Fortify.",
+                    "Pride aura + War Banner per phys taken multi.",
+                ],
+                tree_changes=[
+                    "Resolute Technique area centrale (zero accuracy needed).",
+                    "Marauder area: Tireless + Heart of the Warrior + Diamond Skin.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Ground Slam + Awakened Melee Phys + Awakened Brutality + Pulverise + Ruthless + Awakened Fortify.",
+                    "Marohi Erqi 2H mace (~1-3 div) come transition; +2 to Slam Skills 2H mace endgame.",
+                    "Considera Ground Slam of Earthshaking (transfigured) per AoE permanente raddoppiata.",
+                ],
+                tree_changes=[
+                    "Cluster jewel: Quick Getaway + Fuel the Fight + Feed the Fury.",
+                    "Brass Dome body unique o rare 6L con +1 socketed.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Melee Phys 5 + Awakened Brutality 5 + Awakened Fortify 5.",
+                    "21/20 Ground Slam (o Earthshaking) corrupted + Pulverise 21/20.",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh per Unbreakable raddoppiato (Jugg).",
+                    "Helmet enchant: Ground Slam 40% increased damage.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class VolcanicFissureJuggTemplate(GenericTemplate):
+    """Volcanic Fissure Jugg/Berserker — slam fire con fissure travelling.
+
+    Volcanic Fissure è una slam che crea una fissure di fuoco che viaggia
+    e detona ripetutamente. Scala con slam tag + fire damage + AoE.
+    Viable sia Jugg (tank) sia Berserker (damage). Avatar of Fire opzionale
+    se vuoi pure fire conversion + Anger/Determination aura. Combustion
+    per fire pen extra sui boss.
+    """
+
+    name: str = "volcanic_fissure_juggernaut"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Sunder o Ground Slam come levelling.",
+                    "Atto 3 reward: Volcanic Fissure sblocca; metti su 4L con Multistrike + Combustion + Fire Pen.",
+                    "Leap Slam + Anger low-level.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Unflinching (Jugg) o Crave the Slaughter (Berserker).",
+                    "Volcanic Fissure + Multistrike + Combustion + Fire Pen + Awakened Brutality (cheap) + Pulverise.",
+                    "Anger + Determination + Herald of Ash.",
+                ],
+                tree_changes=[
+                    "Avatar of Fire opzionale: 100% phys → fire (libera scaling fire-only).",
+                    "Cluster phys/fire damage area sotto Marauder start.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Volcanic Fissure + Awakened Fire Pen + Awakened Brutality + Combustion + Awakened Melee Phys + Multistrike.",
+                    "+2 to Strike/Slam 2H mace o axe craft (~10-30 div).",
+                ],
+                tree_changes=[
+                    "Cluster jewel: Burning Bright + Fuel the Fight per fire damage + attack speed.",
+                    "Stampede boots per movement consistente sui terrain difficili.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Fire Pen 5 + Awakened Brutality 5 + Awakened Melee Phys 5.",
+                    "21/20 Volcanic Fissure corrupted + Combustion 21/20.",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh per Unflinching (Jugg) o Aspect of Carnage (Berserker) doppio.",
+                    "Watcher's Eye Anger 'Increased Fire Damage' (~30-60 div).",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
 # ---------------------------------------------------------------------------
 # Caster spell DPS templates
 # ---------------------------------------------------------------------------
@@ -1318,6 +1495,9 @@ TEMPLATE_REGISTRY: list[tuple[Callable[[Build], bool], BuildTemplate]] = [
     (_matches_skill("boneshatter"), BoneshatterTemplate()),
     (_matches_skill("earthshatter"), EarthshatterJuggTemplate()),
     (_matches_skill("tectonic slam"), TectonicSlamChieftainTemplate()),
+    (_matches_skill("molten strike"), MoltenStrikeChieftainTemplate()),
+    (_matches_skill("ground slam"), GroundSlamJuggTemplate()),
+    (_matches_skill("volcanic fissure"), VolcanicFissureJuggTemplate()),
     # Casters
     (_matches_skill("vortex", "cold snap"), VortexOccultistTemplate()),
     (_matches_skill("spark"), SparkInquisitorTemplate()),
@@ -1388,9 +1568,11 @@ __all__ = [
     "EarthshatterJuggTemplate",
     "FrostBladesRaiderTemplate",
     "GenericTemplate",
+    "GroundSlamJuggTemplate",
     "HexblastMinesTemplate",
     "HolyFlameTotemHieroTemplate",
     "LightningStrikeRaiderTemplate",
+    "MoltenStrikeChieftainTemplate",
     "RfPohxTemplate",
     "ShrapnelBallistaDeadeyeTemplate",
     "SkeletonMagesTemplate",
@@ -1400,6 +1582,7 @@ __all__ = [
     "TectonicSlamChieftainTemplate",
     "TornadoShotDeadeyeTemplate",
     "ToxicRainPathfinderTemplate",
+    "VolcanicFissureJuggTemplate",
     "VortexOccultistTemplate",
     "pick_template",
 ]

@@ -1110,6 +1110,9 @@ def test_template_registry_covers_popular_skills() -> None:
         "Boneshatter": "boneshatter_marauder",
         "Earthshatter": "earthshatter_juggernaut",
         "Tectonic Slam": "tectonic_slam_chieftain",
+        "Molten Strike": "molten_strike_chieftain",
+        "Ground Slam": "ground_slam_juggernaut",
+        "Volcanic Fissure": "volcanic_fissure_juggernaut",
     }
     base_build = _make_build(key_items=[])
     for skill, expected in canonical.items():
@@ -1189,6 +1192,47 @@ async def test_tectonic_slam_template_emits_signature_advice() -> None:
     early_map = plan.stages[3]
     assert any("Tukohama" in g for g in mid.gem_changes)
     assert any("Endurance Charge" in t or "Kaom's Way" in t for t in early_map.tree_changes)
+
+
+async def test_molten_strike_template_emits_signature_advice() -> None:
+    """Molten Strike template hits Tukohama lab + Avatar of Fire keystone."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Molten Strike"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    assert any("Tukohama" in g for g in mid.gem_changes)
+    assert any("Avatar of Fire" in t for t in mid.tree_changes)
+
+
+async def test_ground_slam_template_emits_signature_advice() -> None:
+    """Ground Slam template covers day-1 pickup + Marohi/Slam crafting path."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Ground Slam"})
+    plan = await svc.plan(build)
+
+    early = plan.stages[0]
+    early_map = plan.stages[3]
+    assert any("Ground Slam" in g for g in early.gem_changes)
+    assert any("Marohi" in g or "Slam Skills" in g for g in early_map.gem_changes)
+
+
+async def test_volcanic_fissure_template_emits_signature_advice() -> None:
+    """Volcanic Fissure template mentions Avatar of Fire + Forbidden Flame/Flesh."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Volcanic Fissure"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    end_map = plan.stages[4]
+    assert any("Avatar of Fire" in t for t in mid.tree_changes)
+    assert any("Forbidden" in t for t in end_map.tree_changes)
 
 
 async def test_spectre_template_routes_to_minion_setup() -> None:

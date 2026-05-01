@@ -172,7 +172,7 @@ Mappa coverage attuale (post-Turno 1):
 
 | Classe | Count | Template registrati |
 |---|---|---|
-| Marauder | 4/7 | RF Jugg, Boneshatter, Earthshatter Jugg, Tectonic Slam Chieftain |
+| Marauder | 7/7 ✅ | RF Jugg, Boneshatter, Earthshatter Jugg, Tectonic Slam Chieftain, Molten Strike Chieftain, Ground Slam Jugg, Volcanic Fissure Jugg |
 | Duelist | 1/7 | Cyclone Slayer |
 | Ranger | 5/7 | LS Raider, TS Deadeye, FB Raider, TR Pathfinder, Ballista Deadeye |
 | Witch | 7/7 ✅ | Vortex Occ, Bone Spear Necro, DD Necro, Bane Occ, Spectre Necro, Skel Mages, Animate Weapon (1 da swap → Elementalist) |
@@ -187,8 +187,16 @@ Mappa coverage attuale (post-Turno 1):
 
 Baseline 492 test verdi / 91 mypy / 89 format.
 
+**Turno 2 (Marauder)** ✅ done (2026-05-01). Marauder coverage 4/7 → 7/7 (chiusa). 3 nuovi template:
+- `MoltenStrikeChieftainTemplate` (matcher "molten strike") — phys-to-fire melee strike + projectile, Tukohama War's Herald lab1, Avatar of Fire keystone, Hrimsorrow + Ngamahu's Flame transition.
+- `GroundSlamJuggTemplate` (matcher "ground slam") — slam phys signature day-1 Marauder, Resolute Technique, Marohi Erqi 2H → +2 to Slam Skills craft, Ground Slam of Earthshaking transfigured variant.
+- `VolcanicFissureJuggTemplate` (matcher "volcanic fissure") — slam fire travelling fissure, Avatar of Fire opzionale, Combustion + Awakened Fire Pen endgame.
+
+NOTA: in Turno 2 swappato il pianificato "Ngamahu Cyclone Chieftain" con `VolcanicFissureJuggTemplate` perché il matcher su `main_skill` non distingue Ngamahu Cyclone (item-keyed) dal generico Cyclone Slayer (skill-keyed) — sarebbe servito un refactor del matcher per guardare anche `key_items`.
+
+Baseline 495 test verdi / 91 mypy / 89 format.
+
 Turni successivi pianificati:
-- T2 Marauder: Molten Strike Chieftain, Ground Slam Jugg, Vaal Ancestral Warchief o Ngamahu Cyclone Chieftain (3)
 - T3 Duelist: Reave Slayer, Lacerate Gladiator, Splitting Steel Gladiator (3)
 - T4 Duelist: Sunder Champion, Boneshatter Champion *(skill collision con T1 → meglio Spectral Throw Champion o Static Strike Gladiator)*, Static Strike Gladiator (3)
 - T5 Ranger: Ice Shot Deadeye, Poisonous Concoction Pathfinder (2)
