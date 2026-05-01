@@ -1104,9 +1104,38 @@ def test_template_registry_covers_popular_skills() -> None:
         "Toxic Rain": "toxic_rain_pathfinder",
         "Raise Spectre": "spectre_necromancer",
         "Summon Skeletons": "skeleton_mages_necromancer",
-        "Animate Weapon": "animate_weapon_necromancer",
         "Holy Flame Totem": "holy_flame_totem_hierophant",
         "Shrapnel Ballista": "ballista_totem_deadeye",
+        "Boneshatter": "boneshatter_marauder",
+        "Earthshatter": "earthshatter_juggernaut",
+        "Tectonic Slam": "tectonic_slam_chieftain",
+        "Molten Strike": "molten_strike_chieftain",
+        "Ground Slam": "ground_slam_juggernaut",
+        "Volcanic Fissure": "volcanic_fissure_juggernaut",
+        "Reave": "reave_slayer",
+        "Lacerate": "lacerate_gladiator",
+        "Splitting Steel": "splitting_steel_gladiator",
+        "Sunder": "sunder_champion",
+        "Static Strike": "static_strike_gladiator",
+        "Spectral Throw": "spectral_throw_champion",
+        "Ice Shot": "ice_shot_deadeye",
+        "Poisonous Concoction": "poisonous_concoction_pathfinder",
+        "Penance Brand": "penance_brand_inquisitor",
+        "Crackling Lance": "crackling_lance_inquisitor",
+        "Arc": "arc_hierophant",
+        "Smite": "smite_guardian",
+        "Blade Vortex": "poison_blade_vortex_assassin",
+        "Cobra Lash": "cobra_lash_assassin",
+        "Pyroclast Mine": "pyroclast_mines_saboteur",
+        "Cold Snap": "cold_dot_trickster",
+        "Blade Blast": "blade_blast_trickster",
+        "Soulrend": "soulrend_trickster",
+        "Power Siphon": "power_siphon_scion",
+        "Storm Brand": "storm_brand_scion",
+        "Spectral Helix": "spectral_helix_scion",
+        "Forbidden Rite": "forbidden_rite_scion",
+        "Ball Lightning": "ball_lightning_elementalist",
+        "Wave of Conviction": "wave_of_conviction_scion",
     }
     base_build = _make_build(key_items=[])
     for skill, expected in canonical.items():
@@ -1143,6 +1172,574 @@ async def test_cyclone_template_emits_signature_advice() -> None:
     end_map = plan.stages[4]
     assert any("Cyclone" in g for g in mid.gem_changes)
     assert any("Atziri's Disfavour" in t for t in end_map.tree_changes)
+
+
+async def test_boneshatter_template_emits_signature_advice() -> None:
+    """Boneshatter template advice mentions trauma stack mechanic + lab pick."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Boneshatter"})
+    plan = await svc.plan(build)
+
+    early = plan.stages[0]
+    mid = plan.stages[1]
+    # Early uses Sunder/Ground Slam pre-skill-unlock.
+    assert any("Sunder" in g or "Ground Slam" in g for g in early.gem_changes)
+    # Mid Campaign: Unflinching (Jugg) o Crave the Slaughter (Berserker).
+    assert any("Unflinching" in g or "Crave the Slaughter" in g for g in mid.gem_changes)
+
+
+async def test_earthshatter_template_emits_signature_advice() -> None:
+    """Earthshatter template hits Slam Skills crafting + Tukohama's Coffer."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Earthshatter"})
+    plan = await svc.plan(build)
+
+    early_map = plan.stages[3]
+    assert any("Slam" in g for g in early_map.gem_changes)
+    assert any("Tukohama" in t or "+1 socketed" in t for t in early_map.tree_changes)
+
+
+async def test_tectonic_slam_template_emits_signature_advice() -> None:
+    """Tectonic Slam template mentions Tukohama War's Herald + EC mechanic."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Tectonic Slam"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    early_map = plan.stages[3]
+    assert any("Tukohama" in g for g in mid.gem_changes)
+    assert any("Endurance Charge" in t or "Kaom's Way" in t for t in early_map.tree_changes)
+
+
+async def test_molten_strike_template_emits_signature_advice() -> None:
+    """Molten Strike template hits Tukohama lab + Avatar of Fire keystone."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Molten Strike"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    assert any("Tukohama" in g for g in mid.gem_changes)
+    assert any("Avatar of Fire" in t for t in mid.tree_changes)
+
+
+async def test_ground_slam_template_emits_signature_advice() -> None:
+    """Ground Slam template covers day-1 pickup + Marohi/Slam crafting path."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Ground Slam"})
+    plan = await svc.plan(build)
+
+    early = plan.stages[0]
+    early_map = plan.stages[3]
+    assert any("Ground Slam" in g for g in early.gem_changes)
+    assert any("Marohi" in g or "Slam Skills" in g for g in early_map.gem_changes)
+
+
+async def test_volcanic_fissure_template_emits_signature_advice() -> None:
+    """Volcanic Fissure template mentions Avatar of Fire + Forbidden Flame/Flesh."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Volcanic Fissure"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    end_map = plan.stages[4]
+    assert any("Avatar of Fire" in t for t in mid.tree_changes)
+    assert any("Forbidden" in t for t in end_map.tree_changes)
+
+
+async def test_reave_template_emits_signature_advice() -> None:
+    """Reave template hits Headsman lab + Paradoxica weapon path."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Reave"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    early_map = plan.stages[3]
+    assert any("Headsman" in g for g in mid.gem_changes)
+    assert any("Paradoxica" in g or "Foil" in g for g in early_map.gem_changes)
+
+
+async def test_lacerate_template_emits_signature_advice() -> None:
+    """Lacerate template covers Painforged + corpse explode + Crimson Dance."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Lacerate"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    assert any("Painforged" in g for g in mid.gem_changes)
+    assert any("Crimson Dance" in t for t in mid.tree_changes)
+
+
+async def test_splitting_steel_template_emits_signature_advice() -> None:
+    """Splitting Steel template covers Steel Skills + impale + Painforged/Champion."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Splitting Steel"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    assert any("Painforged" in g or "Worthy Foe" in g for g in mid.gem_changes)
+    assert any("Steel Skills" in t for t in mid.tree_changes)
+
+
+async def test_sunder_template_emits_signature_advice() -> None:
+    """Sunder template hits Worthy Foe lab + Marohi Erqi/Slam Skills crafting."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Sunder"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    early_map = plan.stages[3]
+    assert any("Worthy Foe" in g for g in mid.gem_changes)
+    assert any("Marohi" in g or "Slam Skills" in g for g in early_map.gem_changes)
+
+
+async def test_static_strike_template_emits_signature_advice() -> None:
+    """Static Strike template covers Versatile Combatant + Saviour shield."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Static Strike"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    early_map = plan.stages[3]
+    assert any("Versatile Combatant" in g or "Inspirational" in g for g in mid.gem_changes)
+    assert any("Saviour" in t for t in early_map.tree_changes)
+
+
+async def test_spectral_throw_template_emits_signature_advice() -> None:
+    """Spectral Throw template hits Worthy Foe + Vaal ST burst + GMP scaling."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Spectral Throw"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    early_map = plan.stages[3]
+    assert any("Worthy Foe" in g for g in mid.gem_changes)
+    assert any("Vaal Spectral Throw" in g for g in early_map.gem_changes)
+
+
+async def test_ice_shot_template_emits_signature_advice() -> None:
+    """Ice Shot template hits Endless Munitions + Lioneye's Glare/+3 bow path."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Ice Shot"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    end_map = plan.stages[4]
+    assert any("Endless Munitions" in g for g in mid.gem_changes)
+    assert any("+3 bow" in t or "Voltaxic Rift" in t for t in end_map.tree_changes)
+
+
+async def test_poisonous_concoction_template_emits_signature_advice() -> None:
+    """PConc template covers Master Surgeon + Nature's Reprisal + Mageblood."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Poisonous Concoction"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    end_map = plan.stages[4]
+    assert any("Master Surgeon" in g for g in mid.gem_changes)
+    assert any("Nature's Reprisal" in t for t in mid.tree_changes)
+    assert any("Mageblood" in t for t in end_map.tree_changes)
+
+
+async def test_penance_brand_template_emits_signature_advice() -> None:
+    """Penance Brand template hits Inevitable Judgment + Brand Recall + Pious Path."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Penance Brand"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    assert any("Inevitable Judgment" in g for g in mid.gem_changes)
+    assert any("Pious Path" in t for t in mid.tree_changes)
+
+
+async def test_crackling_lance_template_emits_signature_advice() -> None:
+    """Crackling Lance template covers Augury of Penitence + Slower Projectiles boss."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Crackling Lance"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    end_map = plan.stages[4]
+    assert any("Inevitable Judgment" in g for g in mid.gem_changes)
+    assert any("Augury of Penitence" in t for t in mid.tree_changes)
+    assert any("Slower Projectiles" in g for g in end_map.gem_changes)
+
+
+async def test_arc_template_emits_signature_advice() -> None:
+    """Arc Hierophant template hits Conviction of Power + MoM + Arcane Cloak."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Arc"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    assert any("Conviction of Power" in g for g in mid.gem_changes)
+    assert any("Mind Over Matter" in t for t in mid.tree_changes)
+
+
+async def test_smite_template_emits_signature_advice() -> None:
+    """Smite Guardian template hits Radiant Crusade + Aegis Aurora + Sublime Vision."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Smite"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    early_map = plan.stages[3]
+    assert any("Radiant Crusade" in g for g in mid.gem_changes)
+    assert any("Aegis Aurora" in g for g in early_map.gem_changes)
+    assert any("Sublime Vision" in t for t in early_map.tree_changes)
+
+
+def test_aurabot_matcher_routes_on_aura_count() -> None:
+    """A build with 5+ aura supports routes to AurabotGuardianTemplate.
+
+    Aurabot is identified by aura stack, not main_skill — a Smite Guardian
+    with only 2 auras still goes to SmiteGuardianTemplate, but a build
+    with 5+ auras (regardless of main_skill) goes to Aurabot.
+    """
+
+    from poe1_fob.planner import pick_template
+
+    base = _make_build(key_items=[])
+    aurabot = base.model_copy(
+        update={
+            "main_skill": "Smite",  # throwaway DPS
+            "support_gems": [
+                "Wrath",
+                "Anger",
+                "Hatred",
+                "Determination",
+                "Discipline",
+                "Vitality",
+            ],
+        }
+    )
+    template = pick_template(aurabot)
+    assert template.name == "aurabot_guardian"
+
+    # 2 auras only → still smite_guardian.
+    smite = base.model_copy(
+        update={
+            "main_skill": "Smite",
+            "support_gems": ["Wrath", "Determination", "Multistrike"],
+        }
+    )
+    assert pick_template(smite).name == "smite_guardian"
+
+
+async def test_aurabot_template_emits_signature_advice() -> None:
+    """Aurabot template covers Radiant Crusade + Generosity + Crown of the Tyrant."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    aurabot = _make_build(key_items=[]).model_copy(
+        update={
+            "main_skill": "Smite",
+            "support_gems": [
+                "Wrath",
+                "Anger",
+                "Hatred",
+                "Determination",
+                "Discipline",
+                "Pride",
+            ],
+        }
+    )
+    plan = await svc.plan(aurabot)
+
+    mid = plan.stages[1]
+    early_map = plan.stages[3]
+    end_map = plan.stages[4]
+    assert any("Radiant Crusade" in g for g in mid.gem_changes)
+    assert any("Generosity" in g for g in mid.gem_changes)
+    assert any("Crown of the Tyrant" in t for t in early_map.tree_changes)
+    assert any("Generosity" in g for g in end_map.gem_changes)
+
+
+async def test_poison_blade_vortex_template_emits_signature_advice() -> None:
+    """Poison BV Assassin template hits Mistwalker + Cospri's Will + Cold Iron Point."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Blade Vortex"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    early_map = plan.stages[3]
+    assert any("Mistwalker" in g for g in mid.gem_changes)
+    assert any("Cospri's Will" in g for g in early_map.gem_changes)
+    assert any("Cold Iron Point" in g for g in early_map.gem_changes)
+
+
+async def test_cobra_lash_template_emits_signature_advice() -> None:
+    """Cobra Lash Assassin template covers Toxic Delivery + Awakened Chain."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Cobra Lash"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    early_map = plan.stages[3]
+    assert any("Toxic Delivery" in t for t in mid.tree_changes)
+    assert any("Awakened Chain" in g for g in early_map.gem_changes)
+
+
+async def test_pyroclast_mines_template_emits_signature_advice() -> None:
+    """Pyroclast Mines Saboteur template covers Pyromaniac + Bombardier + Bottled Faith."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Pyroclast Mine"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    early_map = plan.stages[3]
+    assert any("Pyromaniac" in g for g in mid.gem_changes)
+    assert any("Bombardier" in t for t in mid.tree_changes)
+    assert any("Bottled Faith" in t for t in early_map.tree_changes)
+
+
+async def test_cold_dot_trickster_template_emits_signature_advice() -> None:
+    """Cold Snap DoT Trickster template hits Patient Reaper + Soul Drinker."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Cold Snap"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    assert any("Patient Reaper" in g for g in mid.gem_changes)
+    assert any("Soul Drinker" in t for t in mid.tree_changes)
+
+
+async def test_blade_blast_template_emits_signature_advice() -> None:
+    """Blade Blast Trickster template covers Patient Reaper + Escape Artist + Blade Fall trigger."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Blade Blast"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    early_map = plan.stages[3]
+    assert any("Patient Reaper" in g for g in mid.gem_changes)
+    assert any("Blade Fall" in g for g in mid.gem_changes)
+    assert any("Escape Artist" in t for t in early_map.tree_changes)
+
+
+async def test_soulrend_template_emits_signature_advice() -> None:
+    """Soulrend Trickster template hits Patient Reaper + Awakened Added Chaos."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Soulrend"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    end_map = plan.stages[4]
+    assert any("Patient Reaper" in g for g in mid.gem_changes)
+    assert any("Awakened Added Chaos" in g for g in end_map.gem_changes)
+
+
+def test_coc_cospri_matcher_routes_on_unique_sword() -> None:
+    """CoC Cospri matcher catches builds carrying the unique sword.
+
+    A vanilla 'Cyclone' build with no Cospri's Malice routes to
+    CycloneSlayerTemplate. Add the unique sword as a key_item and the
+    same build routes to CocCospriCycloneScionTemplate instead.
+    """
+
+    from poe1_fob.planner import pick_template
+
+    base = _make_build(key_items=[]).model_copy(update={"main_skill": "Cyclone"})
+    assert pick_template(base).name == "cyclone_slayer"
+
+    cospri = _key_item(
+        "Cospri's Malice",
+        base_type="Jewelled Foil",
+        slot=ItemSlot.WEAPON_MAIN,
+    )
+    coc_build = base.model_copy(update={"key_items": [cospri]})
+    assert pick_template(coc_build).name == "coc_cospri_cyclone_scion"
+
+
+async def test_coc_cospri_template_emits_signature_advice() -> None:
+    """CoC Cospri template hits Awakened CoC + Frostbolt+Ice Nova trigger."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    cospri = _key_item(
+        "Cospri's Malice",
+        base_type="Jewelled Foil",
+        slot=ItemSlot.WEAPON_MAIN,
+    )
+    build = _make_build(key_items=[cospri]).model_copy(update={"main_skill": "Cyclone"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    early_map = plan.stages[3]
+    assert any("Awakened Cast on Critical Strike" in g for g in mid.gem_changes)
+    assert any("Cospri's Malice" in g for g in early_map.gem_changes)
+
+
+async def test_power_siphon_template_emits_signature_advice() -> None:
+    """Power Siphon Scion template hits Deadeye+Assassin + dual wand."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Power Siphon"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    early_map = plan.stages[3]
+    assert any("Deadeye + Assassin" in g for g in mid.gem_changes)
+    assert any("lightning wand" in g or "Doryani's Catalyst" in g for g in early_map.gem_changes)
+
+
+async def test_storm_brand_template_emits_signature_advice() -> None:
+    """Storm Brand Scion template hits Inquisitor+Elementalist + Brand Recall."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Storm Brand"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    end_map = plan.stages[4]
+    assert any("Inquisitor + Elementalist" in g for g in mid.gem_changes)
+    assert any("Awakened Brand Recall" in g for g in end_map.gem_changes)
+
+
+def test_mjolner_matcher_routes_on_unique_mace() -> None:
+    """Mjolner matcher catches builds carrying the unique mace.
+
+    A vanilla 'Cyclone' build with no Mjolner routes to CycloneSlayer.
+    Add the unique mace as a key_item and the same build routes to
+    MjolnerDischargeScionTemplate.
+    """
+
+    from poe1_fob.planner import pick_template
+
+    base = _make_build(key_items=[]).model_copy(update={"main_skill": "Cyclone"})
+    assert pick_template(base).name == "cyclone_slayer"
+
+    mjolner = _key_item(
+        "Mjolner",
+        base_type="Gavel",
+        slot=ItemSlot.WEAPON_MAIN,
+    )
+    mjolner_build = base.model_copy(update={"key_items": [mjolner]})
+    assert pick_template(mjolner_build).name == "mjolner_discharge_scion"
+
+
+async def test_mjolner_template_emits_signature_advice() -> None:
+    """Mjolner template hits CWDT trigger setup + Discharge endgame."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    mjolner = _key_item(
+        "Mjolner",
+        base_type="Gavel",
+        slot=ItemSlot.WEAPON_MAIN,
+    )
+    build = _make_build(key_items=[mjolner]).model_copy(update={"main_skill": "Cyclone"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    early_map = plan.stages[3]
+    assert any("CWDT" in g or "Cast When Damage Taken" in g for g in mid.gem_changes)
+    assert any("Mjolner" in g for g in early_map.gem_changes)
+
+
+async def test_spectral_helix_template_emits_signature_advice() -> None:
+    """Spectral Helix Scion template hits Slayer+Deadeye + Saviour shield."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Spectral Helix"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    early_map = plan.stages[3]
+    assert any("Slayer + Deadeye" in g for g in mid.gem_changes)
+    assert any("Saviour" in g for g in early_map.gem_changes)
+
+
+async def test_forbidden_rite_template_emits_signature_advice() -> None:
+    """Forbidden Rite Scion template hits Pathfinder+Trickster + Pain Attunement."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Forbidden Rite"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    early_map = plan.stages[3]
+    assert any("Pathfinder + Trickster" in g for g in mid.gem_changes)
+    assert any("Shavronne's Wrappings" in g or "Solaris Lorica" in g for g in early_map.gem_changes)
+
+
+async def test_ball_lightning_template_emits_signature_advice() -> None:
+    """Ball Lightning Elementalist hits Shaper of Storms + Mastermind of Discord."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Ball Lightning"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    assert any("Shaper of Storms" in g for g in mid.gem_changes)
+    assert any("Mastermind of Discord" in t for t in mid.tree_changes)
+
+
+async def test_wave_of_conviction_template_emits_signature_advice() -> None:
+    """Wave of Conviction Scion hits Inquisitor+Elementalist + Awakened Fire Pen."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Wave of Conviction"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    end_map = plan.stages[4]
+    assert any("Inquisitor + Elementalist" in g for g in mid.gem_changes)
+    assert any("Awakened Fire Pen" in g for g in end_map.gem_changes)
 
 
 async def test_spectre_template_routes_to_minion_setup() -> None:

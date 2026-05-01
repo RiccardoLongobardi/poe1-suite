@@ -293,6 +293,373 @@ class RfPohxTemplate(GenericTemplate):
 
 
 # ---------------------------------------------------------------------------
+# Slam / Marauder templates
+# ---------------------------------------------------------------------------
+
+
+class BoneshatterTemplate(GenericTemplate):
+    """Boneshatter Juggernaut/Berserker — phys melee strike con trauma stack.
+
+    Boneshatter accumula trauma stack che aumentano il danno preso ma anche
+    quello inflitto. Levelling con Sunder/Ground Slam fino allo sblocco a
+    level 28 (atto 4 reward). Jugg gioca Unstoppable + Unbreakable per
+    sopravvivere agli stack alti; Berserker accelera con Crave the Slaughter
+    + Aspect of Carnage. Heatshiver helmet + Hatred = variant cold-conversion
+    per scalare Hatred + Watcher's Eye.
+    """
+
+    name: str = "boneshatter_marauder"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Sunder (quest 'Mercy Mission') o Ground Slam come levelling.",
+                    "Atto 4 (level ~28): Boneshatter sblocca; switch su 4L con Multistrike + Melee Phys + Pulverise.",
+                    "Leap Slam come movement, Ancestral Protector totem per attack speed.",
+                ],
+                rationale_override=(
+                    "Boneshatter scala con stack di trauma: ogni colpo aumenta il danno "
+                    "preso ma anche quello inflitto. In atto 1-3 il setup non c'è ancora "
+                    "(servono life regen + armour), quindi Sunder/Ground Slam sono più "
+                    "comodi fino al primo lab."
+                ),
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Unflinching (Jugg) o Crave the Slaughter (Berserker).",
+                    "Boneshatter + Multistrike + Brutality + Pulverise + Melee Phys + Fortify.",
+                    "Pride aura + War Banner per phys taken multi sui mob.",
+                ],
+                tree_changes=[
+                    "Cluster phys melee + life clusters dal Marauder start.",
+                    "Brightbeak come transition weapon (1H phys + +50% attack speed).",
+                ],
+                rationale_override=(
+                    "Switch a Boneshatter dopo Unflinching: gli Endurance Charges "
+                    "compensano il phys taken multi degli stack. Berserker invece corre "
+                    "alti stack con Aspect of Carnage."
+                ),
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Boneshatter + Awakened Multistrike + Awakened Melee Phys + Awakened Brutality + Pulverise + Fortify.",
+                    "+1 to Strike Skills 1H mace o axe +2 socketed (~10-30 div).",
+                    "Heatshiver helmet variant (~3-5 div): chill = cold conversion per Hatred scaling.",
+                ],
+                tree_changes=[
+                    "Cluster jewel: Fuel the Fight + Feed the Fury per attack speed.",
+                    "Brass Dome body unique (massive armour) o rare 6L con +1 socketed.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Melee Phys 5 + Awakened Brutality 5 + Awakened Multistrike 5.",
+                    "21/20 Boneshatter corrupted + Awakened Fortify 5 (~30 div).",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh per Unstoppable (Jugg) o Aspect of Carnage (Berserker) raddoppiato.",
+                    "Watcher's Eye Pride 'increased phys damage taken' (~80+ div).",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class EarthshatterJuggTemplate(GenericTemplate):
+    """Earthshatter Juggernaut — slam phys con detonazione spikes.
+
+    Earthshatter pianta spikes nel terreno che esplodono al prossimo slam,
+    raddoppiando il damage AoE. Scala con slam/warcry tags + Brutality.
+    Jugg Unflinching + Unstoppable + Unbreakable = build slam tank classico.
+    Tukohama's Coffer body per +X to Slam socketed o craft +2 to Slam Skills.
+    """
+
+    name: str = "earthshatter_juggernaut"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Sunder + Ancestral Protector + Leap Slam dalle quest.",
+                    "Atto 3 (Library Siosa): Earthshatter sblocca; metti su 4L con Multistrike + Melee Phys + Pulverise.",
+                    "Aggiungi Rallying Cry o Ancestral Cry per warcry damage multi.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Unflinching + Endurance Charge generation.",
+                    "Earthshatter + Multistrike + Awakened Brutality (cheap) + Pulverise + Melee Phys + Fortify.",
+                    "Aggiungi Seismic Cry: warcry → +slam damage al colpo successivo.",
+                ],
+                tree_changes=[
+                    "Resolute Technique area dal tree centrale (zero crit/accuracy needed).",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Earthshatter + Awakened Brutality + Awakened Melee Phys + Pulverise + Multistrike + Awakened Fortify.",
+                    "+2 to Slam Skills 2H mace craft (~10-30 div) o Marohi Erqi unique 2H.",
+                ],
+                tree_changes=[
+                    "Tukohama's Coffer body o rare 6L con +1 socketed gems.",
+                    "Cluster jewel: Fuel the Fight + Quick Getaway + Feed the Fury.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Brutality 5 + Awakened Melee Phys 5 + Awakened Fortify 5.",
+                    "21/20 Earthshatter corrupted + Pulverise 21/20.",
+                ],
+                tree_changes=[
+                    "Hands of the High Templar custom craft (Curse on Hit + +1 Slam socketed).",
+                    "Helmet enchant: Earthshatter increased damage 40%.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class TectonicSlamChieftainTemplate(GenericTemplate):
+    """Tectonic Slam Chieftain — fire slam consumando Endurance Charges.
+
+    Tectonic Slam consuma Endurance Charges per emettere fissures di fuoco.
+    Chieftain Tukohama, War's Herald + Ngamahu, True Flame convertono phys
+    → fire e generano EC. The Magnate belt + Kaom's Way ring per charge
+    generation infinita; Combustion + Awakened Fire Pen per pen finale.
+    """
+
+    name: str = "tectonic_slam_chieftain"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Sunder + Leap Slam + Ancestral Protector.",
+                    "Atto 3 reward: Tectonic Slam sblocca; metti su 4L con Multistrike + Combustion + Fire Pen.",
+                    "Anger + Herald of Ash low-level per damage scaling.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Tukohama, War's Herald (Endurance Charge gen + life regen).",
+                    "Tectonic Slam + Multistrike + Combustion + Fire Pen + Awakened Brutality (cheap) + Pulverise.",
+                    "Aspect of the Crab per phys mitigation extra.",
+                ],
+                tree_changes=[
+                    "Marauder area: Tireless + Heart of Flame + Diamond Skin.",
+                    "The Magnate belt unique per +1 Endurance Charge from items.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Tectonic + Awakened Fire Pen + Awakened Brutality + Combustion + Awakened Melee Phys + Multistrike.",
+                    "+2 to Strike/Slam mace o axe craft (~10-30 div).",
+                    "Stampede boots per movement speed indipendente da modificatori.",
+                ],
+                tree_changes=[
+                    "Kaom's Way rings (1-2): +1 Endurance Charge ognuno.",
+                    "Cluster jewel: fire damage + slam.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Fire Pen 5 + Awakened Brutality 5 + Awakened Melee Phys 5.",
+                    "21/20 Tectonic Slam corrupted + Combustion 21/20.",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh per Ngamahu, True Flame doppio (full phys → fire).",
+                    "Helmet enchant: Tectonic Slam 30% increased damage.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class MoltenStrikeChieftainTemplate(GenericTemplate):
+    """Molten Strike Chieftain — phys-to-fire melee strike + projectile.
+
+    Molten Strike colpisce localmente e spara projectile fire AoE.
+    Chieftain Tukohama, War's Herald + Ngamahu, True Flame convertono
+    100% phys → fire. Hrimsorrow / Yoke of Suffering, Avatar of Fire
+    keystone per ulteriore conversione. Build classico bossing single-target
+    con projectile clear.
+    """
+
+    name: str = "molten_strike_chieftain"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Molten Strike disponibile da subito (quest 'Mercy Mission').",
+                    "Setup 4L: Molten Strike + Ancestral Call + Multistrike + Combustion.",
+                    "Leap Slam come movement, Anger come aura.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Tukohama, War's Herald (Endurance Charge gen + life regen).",
+                    "Molten Strike + Multistrike + Awakened Fire Pen + Elemental Damage with Attacks + Combustion + Ancestral Call.",
+                    "Aspect of the Crab + Herald of Ash low-level.",
+                ],
+                tree_changes=[
+                    "Avatar of Fire keystone: 100% phys → fire conversion.",
+                    "Templar fire area: Heart of Flame + Diamond Skin.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Molten Strike + Awakened Multistrike + Awakened Fire Pen + Awakened Elemental Damage with Attacks + Combustion + Inspiration.",
+                    "Hrimsorrow gloves o Yoke of Suffering amulet per ele conversion.",
+                    "Ngamahu's Flame mace (~3-5 div) come transition weapon.",
+                ],
+                tree_changes=[
+                    "Ngamahu's Sign ring per chance per Endurance Charge on hit.",
+                    "Cluster jewel: Fuel the Fight + Burning Bright per fire damage.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Multistrike 5 + Awakened Fire Pen 5 + Awakened Elemental Damage with Attacks 5.",
+                    "21/20 Molten Strike corrupted + Inspiration 21/20.",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh per Ngamahu, True Flame doppio.",
+                    "Watcher's Eye Anger 'Increased Fire Damage' (~30-60 div).",
+                    "Helmet enchant: Molten Strike +2 projectiles.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class GroundSlamJuggTemplate(GenericTemplate):
+    """Ground Slam Juggernaut — slam phys signature Marauder.
+
+    Ground Slam (e la transfigured Ground Slam of Earthshaking) è la
+    skill Marauder day-1 più rappresentativa. Jugg Unflinching +
+    Unbreakable scala armour + life regen massivamente. Marohi Erqi
+    2H mace per damage flat enorme; transition a +2 to Slam Skills
+    crafted 2H per endgame. Resolute Technique area centrale.
+    """
+
+    name: str = "ground_slam_juggernaut"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Ground Slam dalla quest 'Mercy Mission' — skill day-1 Marauder.",
+                    "Setup 4L: Ground Slam + Ruthless + Melee Phys + Pulverise.",
+                    "Leap Slam come movement, Ancestral Protector totem.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Unflinching (Endurance Charges + max).",
+                    "Ground Slam + Ruthless + Awakened Brutality (cheap) + Pulverise + Melee Phys + Fortify.",
+                    "Pride aura + War Banner per phys taken multi.",
+                ],
+                tree_changes=[
+                    "Resolute Technique area centrale (zero accuracy needed).",
+                    "Marauder area: Tireless + Heart of the Warrior + Diamond Skin.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Ground Slam + Awakened Melee Phys + Awakened Brutality + Pulverise + Ruthless + Awakened Fortify.",
+                    "Marohi Erqi 2H mace (~1-3 div) come transition; +2 to Slam Skills 2H mace endgame.",
+                    "Considera Ground Slam of Earthshaking (transfigured) per AoE permanente raddoppiata.",
+                ],
+                tree_changes=[
+                    "Cluster jewel: Quick Getaway + Fuel the Fight + Feed the Fury.",
+                    "Brass Dome body unique o rare 6L con +1 socketed.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Melee Phys 5 + Awakened Brutality 5 + Awakened Fortify 5.",
+                    "21/20 Ground Slam (o Earthshaking) corrupted + Pulverise 21/20.",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh per Unbreakable raddoppiato (Jugg).",
+                    "Helmet enchant: Ground Slam 40% increased damage.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class VolcanicFissureJuggTemplate(GenericTemplate):
+    """Volcanic Fissure Jugg/Berserker — slam fire con fissure travelling.
+
+    Volcanic Fissure è una slam che crea una fissure di fuoco che viaggia
+    e detona ripetutamente. Scala con slam tag + fire damage + AoE.
+    Viable sia Jugg (tank) sia Berserker (damage). Avatar of Fire opzionale
+    se vuoi pure fire conversion + Anger/Determination aura. Combustion
+    per fire pen extra sui boss.
+    """
+
+    name: str = "volcanic_fissure_juggernaut"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Sunder o Ground Slam come levelling.",
+                    "Atto 3 reward: Volcanic Fissure sblocca; metti su 4L con Multistrike + Combustion + Fire Pen.",
+                    "Leap Slam + Anger low-level.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Unflinching (Jugg) o Crave the Slaughter (Berserker).",
+                    "Volcanic Fissure + Multistrike + Combustion + Fire Pen + Awakened Brutality (cheap) + Pulverise.",
+                    "Anger + Determination + Herald of Ash.",
+                ],
+                tree_changes=[
+                    "Avatar of Fire opzionale: 100% phys → fire (libera scaling fire-only).",
+                    "Cluster phys/fire damage area sotto Marauder start.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Volcanic Fissure + Awakened Fire Pen + Awakened Brutality + Combustion + Awakened Melee Phys + Multistrike.",
+                    "+2 to Strike/Slam 2H mace o axe craft (~10-30 div).",
+                ],
+                tree_changes=[
+                    "Cluster jewel: Burning Bright + Fuel the Fight per fire damage + attack speed.",
+                    "Stampede boots per movement consistente sui terrain difficili.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Fire Pen 5 + Awakened Brutality 5 + Awakened Melee Phys 5.",
+                    "21/20 Volcanic Fissure corrupted + Combustion 21/20.",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh per Unflinching (Jugg) o Aspect of Carnage (Berserker) doppio.",
+                    "Watcher's Eye Anger 'Increased Fire Damage' (~30-60 div).",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+# ---------------------------------------------------------------------------
 # Caster spell DPS templates
 # ---------------------------------------------------------------------------
 
@@ -411,6 +778,372 @@ class SparkInquisitorTemplate(GenericTemplate):
         return super().for_stage(stage, build)
 
 
+class PenanceBrandInquisitorTemplate(GenericTemplate):
+    """Penance Brand Inquisitor — brand caster lightning/phys.
+
+    Penance Brand attacca un brand al nemico che accumula stack di phys
+    damage e poi esplode rilasciando energy pulse lightning. Inquisitor
+    Inevitable Judgment ignora lightning res; Pious Path / Augury of
+    Penitence per damage multi consacrated. Build by Cold Iron Point /
+    +1/+2 spell skill weapon, Awakened Brand Recall + Awakened Lightning
+    Pen endgame.
+    """
+
+    name: str = "penance_brand_inquisitor"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Storm Brand (quest 'Mercy Mission') per il levelling iniziale.",
+                    "Atto 4 reward: Penance Brand sblocca; setup 4L con Brand Recall + Combustion + Faster Casting.",
+                    "Wand+shield setup con Lifesprig.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Inevitable Judgment (ignore lightning res).",
+                    "Penance Brand + Brand Recall + Awakened Lightning Pen (cheap) + Concentrated Effect + Awakened Spell Echo + Empower.",
+                    "Wrath aura + Herald of Thunder + Skitterbots low-level.",
+                ],
+                tree_changes=[
+                    "Pious Path (Inq) per area damage consacrato.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Penance Brand + Awakened Brand Recall + Awakened Lightning Pen + Concentrated Effect + Awakened Spell Echo + Empower 3.",
+                    "+1 Spell Skill / +1 Lightning Spell sceptre o staff (~10-30 div).",
+                ],
+                tree_changes=[
+                    "Cluster jewel: Brand Loyalty + Storm Drinker + Wandslinger.",
+                    "Watcher's Eye Wrath 'Lightning Penetration' (~30-60 div).",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Brand Recall 5 + Awakened Lightning Pen 5 + Awakened Spell Echo 5.",
+                    "Concentrated Effect 21/20 corrupted + Empower 4.",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh per Inevitable Judgment doppio.",
+                    "+2 spell skill staff custom craft (~50-100 div).",
+                    "Helmet enchant: Penance Brand 25% increased damage.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class CracklingLanceInquisitorTemplate(GenericTemplate):
+    """Crackling Lance Inquisitor — lightning beam multistage hit.
+
+    Crackling Lance lancia un raggio lightning che colpisce a stadi
+    multipli (ogni stadio aumenta il danno). Inquisitor Inevitable
+    Judgment + Augury of Penitence per consacrated ground damage multi.
+    Scala con cast speed + spell crit + lightning pen. Replica Conqueror's
+    Efficiency per cost reduction; +1 power charge body.
+    """
+
+    name: str = "crackling_lance_inquisitor"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Storm Brand come levelling pre-Crackling Lance.",
+                    "Atto 4 reward: Crackling Lance sblocca; setup 4L con Faster Casting + Added Lightning + Spell Echo.",
+                    "Wand+shield Lifesprig per +1 spell skill.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Inevitable Judgment (ignore lightning res).",
+                    "Crackling Lance + Awakened Spell Echo (cheap) + Lightning Penetration + Inspiration + Slower Projectiles + Awakened Added Lightning (cheap).",
+                    "Wrath + Herald of Thunder + Skitterbots.",
+                ],
+                tree_changes=[
+                    "Augury of Penitence per damage consacrated.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Crackling Lance + Awakened Spell Echo + Awakened Lightning Pen + Inspiration + Slower Projectiles + Awakened Added Lightning.",
+                    "+1 Spell Skill / +1 Lightning Spell staff o sceptre+focus (~10-30 div).",
+                ],
+                tree_changes=[
+                    "Replica Conqueror's Efficiency jewel (mana cost reduction).",
+                    "+1 power charge / +2 power charge body craft per crit cap.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Spell Echo 5 + Awakened Lightning Pen 5 + Awakened Added Lightning 5.",
+                    "Slower Projectiles 21/20 corrupted (boss DPS x2).",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh per Augury of Penitence doppio.",
+                    "+2 spell skill staff custom craft + +1 power charge.",
+                    "Helmet enchant: Crackling Lance 25% increased damage.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class ArcHierophantTemplate(GenericTemplate):
+    """Arc Hierophant — chain lightning spell con Conviction of Power.
+
+    Arc è il chain lightning iconico Templar. Hierophant Conviction of
+    Power dà permanent power+endurance charges; Sign of the Sin Eater /
+    Sanctuary of Thought per mana scaling. Viable con Mind Over Matter
+    keystone + Arcane Cloak guard skill. Build di mana stacking endgame
+    via Battlemage's Cry o The Agnostic keystone.
+    """
+
+    name: str = "arc_hierophant"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Arc dalla quest 'Breaking Some Eggs' — main skill day-1 Templar.",
+                    "Setup 4L: Arc + Faster Casting + Added Lightning + Onslaught.",
+                    "Wand+shield Lifesprig, Wrath aura.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Conviction of Power (permanent power + endurance charges).",
+                    "Arc + Awakened Spell Echo (cheap) + Awakened Lightning Pen (cheap) + Awakened Chain (cheap) + Inspiration + Empower 3.",
+                    "Wrath + Discipline + Herald of Thunder + Arcane Cloak.",
+                ],
+                tree_changes=[
+                    "Mind Over Matter keystone + mana clusters.",
+                    "Sanctuary of Thought ascendancy per mana → spell damage.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Arc + Awakened Spell Echo + Awakened Lightning Pen + Awakened Chain + Inspiration + Empower.",
+                    "+1 Spell Skill / +1 Lightning Spell staff endgame (~30-50 div).",
+                    "Battlemage's Cry warcry trigger su Mind Over Matter.",
+                ],
+                tree_changes=[
+                    "Watcher's Eye Wrath 'Lightning Penetration' (~30-60 div).",
+                    "Cluster jewel: Storm Drinker + Wandslinger + Pure Power.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Spell Echo 5 + Awakened Lightning Pen 5 + Awakened Chain 5.",
+                    "21/20 Arc corrupted + Empower 4.",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh per Conviction of Power doppio.",
+                    "Cospri's Will / Inpulsa's Broken Heart body per shock + explode.",
+                    "Helmet enchant: Arc 40% increased damage.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class SmiteGuardianTemplate(GenericTemplate):
+    """Smite Guardian — lightning melee strike + aura buff radius.
+
+    Smite colpisce un nemico in melee e crea un'aura nearby che buffa il
+    party (lightning damage + chance to shock). Guardian Radiant Crusade
+    (minion damage aura propagata) + Time of Need (+life regen) + Unwavering
+    Crusade (life on hit). Aegis Aurora shield + Sublime Vision per ulteriore
+    aura scaling. Build party-friendly + viable solo a budget medio.
+    """
+
+    name: str = "smite_guardian"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Sunder o Frost Blades come levelling pre-Smite.",
+                    "Atto 4 reward: Smite sblocca; setup 4L con Multistrike + Added Lightning + Inspiration.",
+                    "Wrath aura + Herald of Thunder low-level.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Radiant Crusade (Guardian aura propagation).",
+                    "Smite + Multistrike + Awakened Added Lightning (cheap) + Trinity + Inspiration + Awakened Elemental Damage with Attacks (cheap).",
+                    "Wrath + Determination + Herald of Thunder + Skitterbots.",
+                ],
+                tree_changes=[
+                    "Aura cluster sotto Templar start: Charisma + aura effect.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Smite + Awakened Multistrike + Awakened Added Lightning + Trinity + Awakened Elemental Damage with Attacks + Inspiration.",
+                    "Aegis Aurora shield (~1-3 div): es-on-block massive sustain.",
+                    "+1 Lightning Spell sceptre o +1/+2 socketed Foil.",
+                ],
+                tree_changes=[
+                    "Sublime Vision unique amulet (~5-15 div): aura scaling triplo.",
+                    "Time of Need ascendancy per +life regen tank.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Multistrike 5 + Awakened Added Lightning 5 + Awakened Elemental Damage with Attacks 5.",
+                    "21/20 Smite corrupted + Inspiration 21/20.",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh per Unwavering Crusade doppio (Guardian).",
+                    "Watcher's Eye Wrath 'Lightning Pen' + Determination 'phys reduction'.",
+                    "Helmet enchant: Smite 40% increased damage.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class AurabotGuardianTemplate(GenericTemplate):
+    """Aurabot Guardian — support build aura stacking party.
+
+    L'Aurabot non è un build DPS: è un personaggio support per group play
+    con 8-12 auras attive contemporaneamente. Guardian Unwavering Crusade
+    + Radiant Crusade + Time of Need per buff aura propagati. Items chiave:
+    Sublime Vision (single aura tripled), Aegis Aurora, Crown of the Tyrant
+    (helmet aura effect), Skin of the Lords con Pain Attunement / Eldritch
+    Battery.
+    """
+
+    name: str = "aurabot_guardian"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Smite o un attack qualunque come throwaway DPS.",
+                    "Da subito: Wrath / Anger / Hatred / Determination — 3-4 auras low-level.",
+                    "Discipline + Clarity per ES + mana sustain.",
+                ],
+                rationale_override=(
+                    "Aurabot non è un build solo. È un support per party che gioca "
+                    "in gruppo. In campaign si livella con uno qualsiasi attack/spell, "
+                    "le auras sono il vero contenuto del build."
+                ),
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Radiant Crusade (aura propagation a alleati).",
+                    "Aggiungi Vitality + Skitterbots + Pride + Malevolence (mana costs gestiti).",
+                    "Generosity Support su tutte le auras non-self (massimizza buff agli alleati).",
+                ],
+                tree_changes=[
+                    "Aura cluster massivo sotto Templar: Charisma + Sovereignty + aura effect notable.",
+                    "Mind Over Matter keystone se vai life-stacking.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body Skin of the Lords con keystone utile (Pain Attunement / Eldritch Battery).",
+                    "Aegis Aurora shield (~1-3 div): ES-on-block sustain.",
+                    "Sublime Vision (~5-15 div): single aura scelta tripla effect.",
+                ],
+                tree_changes=[
+                    "Crown of the Tyrant helmet (~10-20 div): aura effect + 35% increased to all auras.",
+                    "Time of Need ascendancy per +life regen propagato party.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Generosity Support su tutte le auras → +30% effect agli alleati.",
+                    "Tutti gli aura gem 21/20 corrupted (~3-5 div ognuno).",
+                    "Empower 4-5 sui slot aura per +level.",
+                ],
+                tree_changes=[
+                    "Unwavering Crusade ascendancy: aura buff durano 100% più sugli alleati.",
+                    "Forbidden Flame + Flesh per Unwavering Crusade o Time of Need doppio.",
+                    "Cluster jewel: Sovereignty + Pure Power + Veteran Defender (aura effect + reservation).",
+                ],
+                rationale_override=(
+                    "Endgame Aurabot: 12 auras attive simultanee, Crown of the Tyrant + "
+                    "Sublime Vision + Awakened Generosity ovunque. I numeri di buff agli "
+                    "alleati raddoppiano rispetto al mid-mapping."
+                ),
+            )
+        return super().for_stage(stage, build)
+
+
+class BallLightningElementalistTemplate(GenericTemplate):
+    """Ball Lightning Elementalist — slow lightning orb + Shaper of Storms shock.
+
+    Ball Lightning crea un orb lightning che attraversa lentamente l'area
+    facendo hit ripetuti. Elementalist Shaper of Storms (max shock) +
+    Mastermind of Discord (lightning exposure) + Heart of Destruction
+    (per shock effect alto). Build classico mapper Elementalist alternativo
+    a Spark; scaling Wrath + cast speed + lightning pen.
+    """
+
+    name: str = "ball_lightning_elementalist"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Storm Brand come levelling pre-Ball Lightning.",
+                    "Atto 3 reward: Ball Lightning sblocca; setup 4L con Faster Casting + Added Lightning + Spell Echo.",
+                    "Wand+shield Lifesprig, Wrath aura + Herald of Thunder.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Shaper of Storms (Elementalist: max shock 50%) + Heart of Destruction.",
+                    "Ball Lightning + Awakened Spell Echo (cheap) + Awakened Lightning Pen (cheap) + Slower Projectiles + Inspiration + Awakened Added Lightning (cheap).",
+                    "Wrath + Herald of Thunder + Skitterbots aura.",
+                ],
+                tree_changes=[
+                    "Mastermind of Discord ascendancy: lightning exposure on hit.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Ball Lightning + Awakened Spell Echo + Awakened Lightning Pen + Slower Projectiles + Inspiration + Awakened Added Lightning.",
+                    "+1 Spell Skill / +1 Lightning Spell sceptre o staff (~10-30 div).",
+                ],
+                tree_changes=[
+                    "Cluster jewel: Storm Drinker + Wandslinger + Pure Power.",
+                    "Watcher's Eye Wrath 'Lightning Penetration' (~30-60 div).",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Spell Echo 5 + Awakened Lightning Pen 5 + Awakened Added Lightning 5.",
+                    "Slower Projectiles 21/20 corrupted (boss DPS x2).",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh: combo Shaper of Storms + Mastermind of Discord doppio.",
+                    "+2 spell skill staff custom craft (~50-100 div).",
+                    "Helmet enchant: Ball Lightning 40% increased damage.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
 class BoneSpearNecroTemplate(GenericTemplate):
     """Bone Spear / Soulrend hit caster Necromancer.
 
@@ -504,6 +1237,356 @@ class HexblastMinesTemplate(GenericTemplate):
                 gem_changes=[
                     "Awakened Cluster Traps + Awakened Cast On Critical Strike (per Withering Step trigger).",
                     "Vaal Hexblast 21/20 per pinnacle bossing.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class PoisonBladeVortexAssassinTemplate(GenericTemplate):
+    """Poison Blade Vortex Assassin — chaos blade orbit + poison stacking.
+
+    BV crea fino a 10 blade orbit attorno al personaggio che colpiscono
+    in AoE. Assassin Mistwalker + Noxious Strike + Toxic Delivery scalano
+    poison + crit + cull strike. Cospri's Will body (double curse on hit
+    Despair + Wither). Cold Iron Point dagger (~1 chaos, +30% spell phys).
+    Build dei boss-killer chaos signature.
+    """
+
+    name: str = "poison_blade_vortex_assassin"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Caustic Arrow come levelling pre-BV.",
+                    "Atto 3: Blade Vortex sblocca; setup 4L con Unleash + Lesser Poison + Spell Echo.",
+                    "Whirling Blades + Quicksilver come movement.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Mistwalker (smoke cloud + crit) + Noxious Strike (cull on poison).",
+                    "BV + Awakened Spell Echo (cheap) + Awakened Vile Toxins (cheap) + Awakened Void Manipulation (cheap) + Empower 3 + Withering Step.",
+                    "Despair self-cast o Bane low-level per curse.",
+                ],
+                tree_changes=[
+                    "Toxic Delivery ascendancy: chaos damage on poison + culling.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body Cospri's Will (~5-15 div): cursed by Despair + Wither on hit.",
+                    "Body 6L: BV + Awakened Spell Echo + Awakened Vile Toxins + Awakened Void Manipulation + Empower + Withering Step.",
+                    "Cold Iron Point dagger (~1 chaos) + offhand stat stick.",
+                ],
+                tree_changes=[
+                    "Cluster jewel chaos DoT multi: Wicked Pall + Touch of Cruelty + Sadist.",
+                    "Watcher's Eye Malevolence 'DoT damage' (~50+ div).",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Vile Toxins 5 + Awakened Void Manipulation 5 + Awakened Spell Echo 5.",
+                    "21/20 Blade Vortex corrupted + Empower 4.",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh per Toxic Delivery doppio.",
+                    "Mageblood (~250-300 div): Dying Sun + Bottled Faith permanenti.",
+                    "Helmet enchant: Blade Vortex 40% increased damage.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class CobraLashAssassinTemplate(GenericTemplate):
+    """Cobra Lash Assassin — chaos projectile chain + poison.
+
+    Cobra Lash spara un proietto chaos che chain tra i nemici, applicando
+    poison massive. Assassin Toxic Delivery + Noxious Strike + Mistwalker.
+    Mark of the Elder ring + +1 dex amulet variant; oppure dual-wield daggers
+    standard. Endgame con Awakened Chain + Awakened Vile Toxins, Vaal Cobra
+    Lash per single-target burst.
+    """
+
+    name: str = "cobra_lash_assassin"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Caustic Arrow come levelling pre-Cobra Lash.",
+                    "Atto 3: Cobra Lash sblocca; setup 4L con Pierce + Lesser Poison + Faster Attacks.",
+                    "Whirling Blades come movement, Despair self-cast.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Mistwalker + Noxious Strike (Assassin).",
+                    "Cobra Lash + Awakened Chain (cheap) + Awakened Vile Toxins (cheap) + Awakened Void Manipulation (cheap) + Inspiration + Withering Step.",
+                    "Bane / Despair / Wither setup curse.",
+                ],
+                tree_changes=[
+                    "Toxic Delivery ascendancy + chaos damage area.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Cobra Lash + Awakened Chain + Awakened Vile Toxins + Awakened Void Manipulation + Inspiration + Withering Step.",
+                    "Dual-wield daggers Cold Iron Point (cheap) + +1/+2 socketed dagger craft o Mark of the Elder + +1 dex amulet variant.",
+                ],
+                tree_changes=[
+                    "Cluster jewel: Wicked Pall + Touch of Cruelty + Sadist.",
+                    "Cospri's Will body alternativo per double curse on hit.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Chain 5 + Awakened Vile Toxins 5 + Awakened Void Manipulation 5.",
+                    "21/20 Cobra Lash corrupted + Vaal Cobra Lash 4L laterale per single-target.",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh per Toxic Delivery doppio.",
+                    "Watcher's Eye Malevolence 'DoT damage' (~50+ div).",
+                    "Helmet enchant: Cobra Lash +2 projectiles.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class PyroclastMinesSaboteurTemplate(GenericTemplate):
+    """Pyroclast Mines Saboteur — fire AoE mine bossing burst.
+
+    Pyroclast Mine throws a mine that erupts in fire AoE explosions.
+    Saboteur Pyromaniac (life regen + mine throw speed) + Bombardier
+    (extra mines per throw) + Demolitions Specialist. Build classico
+    bossing single-target — un detonate combo distrugge ogni boss in
+    un colpo. Cospri's Malice / +X Fire Spell mines weapon.
+    """
+
+    name: str = "pyroclast_mines_saboteur"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Explosive Trap (quest 'Breaking Some Eggs') per levelling iniziale.",
+                    "Atto 3+: Pyroclast Mine sblocca; metti su 4L con High-Impact Mine + Trap & Mine Damage + Combustion.",
+                    "Smoke Mine come movement skill.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Pyromaniac (mine throw speed + life regen).",
+                    "Pyroclast Mine + High-Impact Mine + Awakened Trap & Mine Damage (cheap) + Combustion + Concentrated Effect + Awakened Fire Pen (cheap).",
+                    "Skitterbots aura per shock + chill bonus.",
+                ],
+                tree_changes=[
+                    "Demolitions Specialist + Bombardier ascendancy.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Pyroclast Mine + High-Impact Mine + Awakened Trap & Mine Damage + Combustion + Concentrated Effect + Awakened Fire Pen.",
+                    "Cospri's Malice (~3-5 div) o +X to Fire Spell mines weapon.",
+                ],
+                tree_changes=[
+                    "Cluster mine throwing speed + fire damage (Sleepless Sentries + Calamitous).",
+                    "Bottled Faith flask (~30-50 div): consacrated ground = damage multi.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Trap & Mine Damage 5 + Awakened Fire Pen 5 + Awakened Burning Damage 5.",
+                    "21/20 Pyroclast Mine corrupted + High-Impact Mine 21/20.",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh per Bombardier doppio (Saboteur).",
+                    "Watcher's Eye Anger 'Increased Fire Damage' (~30-60 div).",
+                    "Helmet enchant: Pyroclast Mine 40% increased damage.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class ColdDotTricksterTemplate(GenericTemplate):
+    """Cold Snap DoT Trickster — pure cold DoT alternative al Vortex Occultist.
+
+    Cold Snap (specialmente Cold Snap of Power transfigured) è il main DoT
+    skill. Trickster Patient Reaper (kill on hit + life regen) + Soul
+    Drinker + One Step Ahead per movement immunity. Differente dal Vortex
+    Occultist: niente explode, ma tank tramite ES/EB Trickster + speed.
+    Dybella's Heel + The Devouring Diadem variant per dual-DoT.
+    """
+
+    name: str = "cold_dot_trickster"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Freezing Pulse + Frostblink dalla quest 'The Caged Brute'.",
+                    "Atto 3: Cold Snap diventa la skill principale; setup 4L con Bonechill + Hypothermia + Efficacy.",
+                    "Aura: Hatred (level ~24) + Herald of Ice.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Patient Reaper (Trickster: kill = life/ES regen).",
+                    "Cold Snap + Bonechill + Hypothermia + Awakened Cold Penetration (cheap) + Efficacy + Empower 3.",
+                    "Vortex 4L laterale come chill on-cast.",
+                ],
+                tree_changes=[
+                    "Soul Drinker ascendancy: ES sustain on kill.",
+                    "Cluster cold DoT multi sotto Witch start (anche se siamo Shadow, accessibile via routing).",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Cold Snap + Awakened Cold Pen + Awakened Hextouch + Bonechill + Empower + Hypothermia.",
+                    "Considera Cold Snap of Power transfigured per Hierophant-style scaling (controllo).",
+                    "+2/+3 cold spell wand + offhand stat stick.",
+                ],
+                tree_changes=[
+                    "Watcher's Eye Hatred 'Adds Cold Damage' (~20-50 div).",
+                    "Cluster cold DoT (Sadist + Wicked Pall) + ES cluster.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Cold Pen 5 + Awakened Hextouch 5 + Awakened Empower 4.",
+                    "21/20 Cold Snap corrupted + Vortex 21/20 secondary.",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh per Patient Reaper o Escape Artist doppio (Trickster).",
+                    "+1 spell skill staff o The Whispering Ice unique evolved (~30-50 div).",
+                    "Helmet enchant: Cold Snap 40% increased damage.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class BladeBlastTricksterTemplate(GenericTemplate):
+    """Blade Blast Trickster — detona Blade Fall blades for AoE phys/spell.
+
+    Blade Blast detona blade lasciate da Blade Fall, con damage scaling
+    aggressivo. Trickster Patient Reaper + Soul Drinker per ES sustain;
+    One Step Ahead + Escape Artist per movement immunity. Build hit
+    aggressivo con detonate massiccio. Dual-wield daggers + +1/+2 socketed
+    spell skill weapon endgame.
+    """
+
+    name: str = "blade_blast_trickster"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Freezing Pulse o Frost Blades come levelling pre-Blade Blast.",
+                    "Atto 3: Blade Fall + Blade Blast sblocca; setup 4L con Inspiration + Spell Echo + Concentrated Effect.",
+                    "Whirling Blades come movement, Hatred aura.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Patient Reaper (Trickster) + Soul Drinker per ES sustain.",
+                    "Blade Blast + Awakened Spell Echo (cheap) + Inspiration + Concentrated Effect + Hypothermia + Awakened Added Cold (cheap).",
+                    "Blade Fall trigger setup (4L laterale).",
+                ],
+                tree_changes=[
+                    "Cluster spell damage + ES sotto Shadow start.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Blade Blast + Awakened Spell Echo + Inspiration + Concentrated Effect + Hypothermia + Awakened Added Cold.",
+                    "Dual-wield +1/+2 socketed spell skill daggers o sceptre+focus craft (~10-30 div).",
+                ],
+                tree_changes=[
+                    "Cluster jewel: Pressure Points + Calamitous + Quick Getaway.",
+                    "One Step Ahead + Escape Artist ascendancy per phys → ES.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Spell Echo 5 + Awakened Added Cold 5 + Awakened Cold Pen 5.",
+                    "21/20 Blade Blast corrupted + Concentrated Effect 21/20.",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh per Patient Reaper doppio (Trickster).",
+                    "Watcher's Eye Hatred 'Adds Cold Damage' o Discipline 'ES recharge'.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class SoulrendTricksterTemplate(GenericTemplate):
+    """Soulrend Trickster — chaos+cold projectile spell DoT.
+
+    Soulrend è uno spell projectile chaos+cold che applica DoT on hit.
+    Trickster Patient Reaper + Soul Drinker per ES + life sustain;
+    Escape Artist per phys → ES. Niente Bone Spear: questo template è
+    distinto dal BoneSpearNecro (che ha Necro ascendancy). Soulrend si
+    fa anche su Trickster con scaling chaos+cold ibrido.
+    """
+
+    name: str = "soulrend_trickster"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Freezing Pulse come levelling pre-Soulrend.",
+                    "Atto 3: Soulrend sblocca; setup 4L con Pierce + Faster Casting + Awakened Added Chaos.",
+                    "Whirling Blades come movement, Malevolence + Discipline.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Patient Reaper (Trickster) + Soul Drinker per ES regen.",
+                    "Soulrend + Pierce + Awakened Added Chaos (cheap) + Awakened Void Manipulation (cheap) + Empower 3 + Faster Projectiles.",
+                    "Wither + Despair self-cast o Bane setup curse.",
+                ],
+                tree_changes=[
+                    "Cluster chaos DoT multi (Wicked Pall + Touch of Cruelty).",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Soulrend + Awakened Added Chaos + Awakened Void Manipulation + Pierce + Empower + Faster Projectiles.",
+                    "+1 chaos / +1 spell skill staff o The Whispering Ice unique.",
+                ],
+                tree_changes=[
+                    "Watcher's Eye Malevolence 'DoT damage' (~50+ div).",
+                    "Cluster ES + Sadist (DoT multi).",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Added Chaos 5 + Awakened Void Manipulation 5 + Awakened Empower 4.",
+                    "21/20 Soulrend corrupted + Faster Projectiles 21/20.",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh per Escape Artist o Patient Reaper doppio.",
+                    "+2 spell skill staff custom craft (~50-100 div).",
+                    "Helmet enchant: Soulrend +1 projectile o increased damage.",
                 ],
             )
         return super().for_stage(stage, build)
@@ -659,6 +1742,359 @@ class CycloneSlayerTemplate(GenericTemplate):
         return super().for_stage(stage, build)
 
 
+class ReaveSlayerTemplate(GenericTemplate):
+    """Reave Slayer — sword strike con phantom blade stacks AoE.
+
+    Reave colpisce localmente e accumula stack che aumentano l'AoE.
+    Slayer Headsman dà over-leech + cannot be stunned while leeching;
+    Bane of Legends raddoppia il damage on first hit dei rare/unique.
+    Paradoxica (1H sword +100% phys as ele) o Foil base + +1/+2 socketed
+    sono le weapon endgame. Vaal Reave per single-target burst.
+    """
+
+    name: str = "reave_slayer"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Frost Blades o Caustic Arrow come levelling pre-Reave.",
+                    "Atto 3: Reave sblocca; metti su 4L con Multistrike + Faster Attacks + Added Lightning.",
+                    "Whirling Blades come movement, Onslaught Support per attack speed.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Headsman (Slayer over-leech + cull strike).",
+                    "Reave + Multistrike + Inspiration + Added Cold/Lightning + Trinity + Elemental Damage with Attacks.",
+                    "Wrath + Herald of Ice + Precision low-level.",
+                ],
+                tree_changes=[
+                    "Sword cluster + Resolute Technique area opzionale (zero accuracy needed).",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Reave + Awakened Multistrike + Awakened Added Lightning + Trinity + Awakened Elemental Damage with Attacks + Inspiration.",
+                    "Paradoxica 1H sword (~10-30 div) o +1/+2 socketed Foil craft.",
+                    "Vaal Reave 4L laterale per single-target boss burst.",
+                ],
+                tree_changes=[
+                    "Cluster jewel: Pressure Points + Quick Getaway + Calamitous.",
+                    "Saviour shield (mirror minion + crit boost) o Lycosidae per accuracy.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Multistrike 5 + Awakened Added Lightning 5 + Awakened Elemental Damage with Attacks 5.",
+                    "21/20 Reave corrupted + Inspiration 21/20.",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh per Bane of Legends doppio.",
+                    "Watcher's Eye Wrath 'Lightning Pen' + Precision 'crit chance'.",
+                    "Helmet enchant: Reave +40 stage maximum.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class LacerateGladiatorTemplate(GenericTemplate):
+    """Lacerate Gladiator — sword 2H/DW slash + bleed stacking.
+
+    Lacerate spara due onde phys (bleed sui critici). Gladiator Painforged
+    + Gratuitous Violence trasforma i corpses in explode chain. Crimson
+    Dance keystone permette bleed stack (variante DW). Endgame con +1/+2
+    socketed weapon e Awakened Brutality + Awakened Vicious Projectiles
+    (sì, anche se è melee, il proj è splitting wave).
+    """
+
+    name: str = "lacerate_gladiator"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Sunder o Frost Blades come levelling pre-Lacerate.",
+                    "Atto 3 reward: Lacerate sblocca; setup 4L con Melee Phys + Brutality + Multistrike.",
+                    "Leap Slam + Blood Rage low-level per attack speed.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Painforged + Gratuitous Violence (corpse explode chain).",
+                    "Lacerate + Multistrike + Brutality + Awakened Melee Phys (cheap) + Pulverise + Fortify.",
+                    "Pride + Blood and Sand stance on Sand per AoE.",
+                ],
+                tree_changes=[
+                    "Crimson Dance keystone (DW variant) per bleed stacking.",
+                    "Cluster phys melee + bleed area sotto Duelist start.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Lacerate + Awakened Brutality + Awakened Melee Phys + Multistrike + Pulverise + Awakened Fortify.",
+                    "DW +1/+2 socketed gems sword/axe craft o Paradoxica + Beltimber Blade.",
+                ],
+                tree_changes=[
+                    "Cluster jewel: Master the Fundamentals + Quick Getaway + Feed the Fury.",
+                    "The Surrender shield (Gladiator) o rare 6L body con +1 socketed.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Brutality 5 + Awakened Melee Phys 5 + Awakened Fortify 5.",
+                    "21/20 Lacerate corrupted + Pulverise 21/20.",
+                    "Considera Lacerate of Haemorrhage (transfigured) per pure bleed scaling.",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh per Painforged doppio.",
+                    "Watcher's Eye Pride 'Increased Phys Damage' (~50+ div).",
+                    "Helmet enchant: Lacerate 40% increased damage.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class SplittingSteelGladiatorTemplate(GenericTemplate):
+    """Splitting Steel Gladiator — phys ranged-melee con secondary projectiles.
+
+    Splitting Steel lancia un proietto phys che si splitta in 2-3 secondari
+    on hit, applicando Impale. Gladiator Painforged + Gratuitous Violence
+    aggiunge corpse explode; Champion Worthy Foe + Inspirational variant
+    è altrettanto popolare. Sword/axe weapon, Steel Skills cluster jewel.
+    """
+
+    name: str = "splitting_steel_gladiator"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Sunder o Caustic Arrow come levelling.",
+                    "Atto 3 reward: Splitting Steel sblocca; setup 4L con Multistrike + Impale + Brutality.",
+                    "Leap Slam + Blood and Sand stance.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Painforged + Gratuitous Violence (Gladiator) o Worthy Foe + Inspirational (Champion).",
+                    "Splitting Steel + Multistrike + Impale + Brutality + Awakened Melee Phys (cheap) + Trinity (NO — solo phys).",
+                    "Pride + War Banner per impale + phys taken multi.",
+                ],
+                tree_changes=[
+                    "Steel Skills threshold/notable area per +secondary projectiles.",
+                    "Cluster phys melee + impale area sotto Duelist.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Splitting Steel + Awakened Brutality + Awakened Melee Phys + Multistrike + Impale + Awakened Vicious Projectiles.",
+                    "Paradoxica o +1/+2 socketed sword/axe craft (~20-50 div).",
+                ],
+                tree_changes=[
+                    "Cluster jewel: Fuel the Fight + Master the Fundamentals + Quick Getaway.",
+                    "The Surrender shield + Lycosidae per accuracy + block.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Brutality 5 + Awakened Melee Phys 5 + Awakened Vicious Projectiles 5.",
+                    "21/20 Splitting Steel corrupted + Impale 21/20.",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh per Painforged doppio (Gladiator) o Inspirational (Champion).",
+                    "Watcher's Eye Pride 'Increased Phys Damage' + Precision 'crit chance'.",
+                    "Helmet enchant: Splitting Steel +1 secondary projectile.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class SunderChampionTemplate(GenericTemplate):
+    """Sunder Champion — slam phys signature Champion build.
+
+    Sunder è il classico league-starter Marauder/Champion: 2H mace,
+    Resolute Technique, Brutality. Champion Worthy Foe + Inspirational
+    per single-target multi e party damage. Marohi Erqi → +2 to Slam
+    Skills 2H mace endgame. Pride aura + War Banner. The Surrender
+    shield se vai 1H + scudo (variante Glad).
+    """
+
+    name: str = "sunder_champion"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Sunder dalla quest 'Mercy Mission' — skill day-1.",
+                    "Setup 4L: Sunder + Ruthless + Melee Phys + Pulverise.",
+                    "Leap Slam come movement, Ancestral Protector totem per attack speed.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Worthy Foe (Champion single-target multi) + Inspirational.",
+                    "Sunder + Ruthless + Awakened Brutality (cheap) + Pulverise + Melee Phys + Fortify.",
+                    "Pride + War Banner + Dread Banner per phys taken multi.",
+                ],
+                tree_changes=[
+                    "Resolute Technique area centrale (zero accuracy needed).",
+                    "Marauder area: Tireless + Heart of the Warrior + Diamond Skin.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Sunder + Awakened Melee Phys + Awakened Brutality + Ruthless + Pulverise + Awakened Fortify.",
+                    "Marohi Erqi 2H mace (~1-3 div) come transition; +2 to Slam Skills 2H mace endgame.",
+                ],
+                tree_changes=[
+                    "Cluster jewel: Quick Getaway + Fuel the Fight + Feed the Fury.",
+                    "The Surrender shield (Champion 1H+shield variant) o rare 6L body.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Melee Phys 5 + Awakened Brutality 5 + Awakened Fortify 5.",
+                    "21/20 Sunder corrupted + Pulverise 21/20.",
+                    "Considera Sunder of Earthbreaking transfigured per AoE permanente.",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh per Worthy Foe (Champion) o First to Strike (Glad) doppio.",
+                    "Watcher's Eye Pride 'Increased Phys Damage' (~50+ div).",
+                    "Helmet enchant: Sunder 40% increased damage.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class StaticStrikeGladiatorTemplate(GenericTemplate):
+    """Static Strike Gladiator — lightning melee strike + chained beams.
+
+    Static Strike colpisce localmente e crea beam tra il personaggio e i
+    nemici per un breve tempo (chains gratis). Lightning damage scaling +
+    crit. Gladiator Versatile Combatant (block spell + attack) + Painforged
+    se Sand stance. Champion Inspirational variant è altrettanto valida.
+    Saviour shield + Paradoxica/Foil per crit weapon.
+    """
+
+    name: str = "static_strike_gladiator"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Frost Blades come levelling pre-Static Strike.",
+                    "Atto 3 reward: Static Strike sblocca; setup 4L con Multistrike + Added Lightning + Inspiration.",
+                    "Whirling Blades come movement, Wrath aura.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Versatile Combatant (Glad block) o Inspirational (Champion).",
+                    "Static Strike + Multistrike + Inspiration + Added Lightning + Trinity + Elemental Damage with Attacks.",
+                    "Wrath + Herald of Thunder + Precision low-level.",
+                ],
+                tree_changes=[
+                    "Sword cluster + Resolute Technique area opzionale.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Static Strike + Awakened Multistrike + Awakened Added Lightning + Trinity + Awakened Elemental Damage with Attacks + Inspiration.",
+                    "Paradoxica 1H sword (~10-30 div) o +1/+2 socketed Foil craft.",
+                ],
+                tree_changes=[
+                    "Saviour shield (mirror minion + crit boost) per Glad — la stessa scelta del Reave.",
+                    "Cluster jewel: Pressure Points + Calamitous + Quick Getaway.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Multistrike 5 + Awakened Added Lightning 5 + Awakened Elemental Damage with Attacks 5.",
+                    "21/20 Static Strike corrupted + Inspiration 21/20.",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh per Versatile Combatant (Glad) o Worthy Foe (Champion) doppio.",
+                    "Watcher's Eye Wrath 'Lightning Pen' + Precision 'crit chance'.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class SpectralThrowChampionTemplate(GenericTemplate):
+    """Spectral Throw Champion — boomerang projectile sword/axe.
+
+    Spectral Throw lancia una weapon copy phys che torna indietro,
+    colpendo doppio sui mob in linea. Champion Worthy Foe + Inspirational
+    per boss + party. Paradoxica o +1/+2 socketed Foil/sword craft;
+    Saviour shield. Vaal Spectral Throw + Awakened GMP per bossing burst.
+    """
+
+    name: str = "spectral_throw_champion"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Spectral Throw dalla quest 'Mercy Mission' — skill day-1 Duelist.",
+                    "Setup 4L: Spectral Throw + Pierce + Faster Attacks + Brutality.",
+                    "Whirling Blades come movement, Onslaught Support.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Worthy Foe (Champion +damage taken multi) + Inspirational.",
+                    "Spectral Throw + Awakened Vicious Projectiles (cheap) + Brutality + Awakened GMP (cheap) + Inspiration + Slower Projectiles (boss).",
+                    "Pride + War Banner per phys taken multi.",
+                ],
+                tree_changes=[
+                    "Resolute Technique area centrale.",
+                    "Cluster phys + projectile area sotto Duelist.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Spectral Throw + Awakened Brutality + Awakened Vicious Projectiles + Awakened GMP + Inspiration + Slower Projectiles.",
+                    "Paradoxica o +1/+2 socketed sword/axe craft (~20-50 div).",
+                    "Vaal Spectral Throw 4L laterale per bossing burst.",
+                ],
+                tree_changes=[
+                    "Cluster jewel: Master the Fundamentals + Quick Getaway + Calamitous.",
+                    "Saviour shield + Lycosidae per accuracy + crit boost.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Brutality 5 + Awakened Vicious Projectiles 5 + Awakened GMP 5.",
+                    "21/20 Spectral Throw corrupted + Slower Projectiles 21/20.",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh per Worthy Foe doppio (Champion).",
+                    "Watcher's Eye Pride 'Increased Phys Damage' (~50+ div).",
+                    "Helmet enchant: Spectral Throw +20% damage.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
 class LightningStrikeRaiderTemplate(GenericTemplate):
     """Lightning Strike Raider/Champion — ranged melee with projectiles.
 
@@ -798,6 +2234,124 @@ class FrostBladesRaiderTemplate(GenericTemplate):
                 gem_changes=[
                     "Awakened Added Cold 5 (~30 div) + Awakened Multistrike 5.",
                     "21/20 Frost Blades corrupted + Trinity 21.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class IceShotDeadeyeTemplate(GenericTemplate):
+    """Ice Shot Deadeye — cold projectile bow con conversion phys→cold.
+
+    Ice Shot converte 60% phys → cold + spawna a cone secondary AoE on hit.
+    Deadeye Endless Munitions (+2 projectiles) + Far Shot (damage scaling
+    con distanza). Classico league-starter Ranger: setup veloce, freeze +
+    chill ovunque, scaling con +1/+2 socketed bow craft o Lioneye's Glare
+    come budget intermedio.
+    """
+
+    name: str = "ice_shot_deadeye"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Caustic Arrow come levelling pre-Ice Shot.",
+                    "Atto 4 reward: Ice Shot + Mirage Archer + Pierce + Onslaught.",
+                    "Quill Rain o Storm Cloud bow come transition.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Endless Munitions (+2 projectiles).",
+                    "Ice Shot + Mirage Archer + Greater Multiple Projectiles + Pierce + Inspiration.",
+                    "Hatred + Herald of Ice + Precision low-level.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Ice Shot + Awakened GMP + Awakened Elemental Damage with Attacks + Mirage Archer + Inspiration + Hypothermia.",
+                    "Lioneye's Glare unique bow (~3-10 div) come transition; +1/+2 socketed bow craft endgame.",
+                ],
+                tree_changes=[
+                    "Hyrri's Bite o Yoke of Suffering per ele attacks.",
+                    "Watcher's Eye Hatred 'Cold Damage as Extra' (~30-60 div).",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened GMP 5 + Awakened Elemental Damage with Attacks 5 + Awakened Cold Penetration 5.",
+                    "21/20 Ice Shot corrupted + Slower Projectiles 21/20 per single-target.",
+                ],
+                tree_changes=[
+                    "+3 bow craft (~50-100 div) o Voltaxic Rift unique.",
+                    "Forbidden Flame + Flesh per Far Shot doppio.",
+                    "Helmet enchant: Ice Shot 40% increased damage.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class PoisonousConcoctionPathfinderTemplate(GenericTemplate):
+    """Poisonous Concoction Pathfinder — flask-thrown chaos poison.
+
+    PConc lancia il flask life equipato come AoE chaos hit + applica poison
+    massiccio. Scala con flask charge generation + chaos DoT multi + poison.
+    Pathfinder Master Surgeon (flask sustain) + Nature's Reprisal (+poison
+    multi). Build 'budget' classico: zero weapon richiesta, focus su flask
+    + chaos DoT scaling.
+    """
+
+    name: str = "poisonous_concoction_pathfinder"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Caustic Arrow come levelling pre-PConc.",
+                    "Atto 3: Poisonous Concoction sblocca; setup 4L con Greater Multiple Projectiles + Lesser Poison + Void Manipulation.",
+                    "Mirage Archer non si applica (PConc non è bow); Quicksilver flask + Movement skill.",
+                ],
+                rationale_override=(
+                    "PConc non usa bow né weapon: lancia il flask life equipato come "
+                    "AoE chaos. Liberi gli slot weapon per stat sticks o shield + 1H "
+                    "spell skill. Levelling Caustic Arrow finché PConc non sblocca."
+                ),
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Master Surgeon (flask charge sustain).",
+                    "Poisonous Concoction + Greater Multiple Projectiles + Awakened Vile Toxins (cheap) + Awakened Void Manipulation (cheap) + Empower + Withering Step trigger.",
+                    "Despair self-cast o Bane low-level per curse multi.",
+                ],
+                tree_changes=[
+                    "Nature's Reprisal ascendancy (poison damage multi + duration).",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: PConc + Awakened GMP + Awakened Vile Toxins + Awakened Void Manipulation + Empower + Damage on Full Life.",
+                    "Stat stick weapons: Cold Iron Point dagger (~1 chaos) o +1 chaos / +1 spell skill weapons.",
+                ],
+                tree_changes=[
+                    "Cluster jewel chaos DoT multi (Wicked Pall + Touch of Cruelty).",
+                    "Dying Sun + Cinderswallow per +2 projectiles + life.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Vile Toxins 5 + Awakened Void Manipulation 5 + Awakened GMP 5.",
+                    "21/20 Poisonous Concoction corrupted + Empower 4.",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh per Master Surgeon o Nature's Reprisal doppio.",
+                    "Mageblood (~250-300 div): tutti i flask permanenti = PConc damage flat raddoppiato.",
+                    "Helmet enchant: Poisonous Concoction +1 projectile o increased damage.",
                 ],
             )
         return super().for_stage(stage, build)
@@ -953,46 +2507,6 @@ class SkeletonMagesTemplate(GenericTemplate):
         return super().for_stage(stage, build)
 
 
-class AnimateWeaponNecroTemplate(GenericTemplate):
-    """Animate Weapon Necromancer — Earendel's Embrace + scrappy weapons."""
-
-    name: str = "animate_weapon_necromancer"
-
-    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
-        if stage.key == "early_campaign":
-            return StagePlanContent(
-                gem_changes=[
-                    "Atto 1: Skeletons + Zombie + Raise Spectre baseline.",
-                    "Atto 3+: Animate Weapon sblocca; usa weapon vendor scraps.",
-                ],
-            )
-        if stage.key == "mid_campaign":
-            return StagePlanContent(
-                gem_changes=[
-                    "Primo lab: Mindless Aggression + Mistress of Sacrifice.",
-                    "Animate Weapon + Minion Damage + Multistrike + Melee Phys + Brutality + Impale.",
-                ],
-            )
-        if stage.key == "early_mapping":
-            return StagePlanContent(
-                gem_changes=[
-                    "Body 6L: AW + Awakened Multistrike + Awakened Melee Phys + Brutality + Impale + Empower.",
-                    "Earendel's Embrace per +Spell skill animation.",
-                ],
-                tree_changes=[
-                    "Wings of Entropy / Aukuna's Will ring per evocation gratis.",
-                ],
-            )
-        if stage.key == "end_mapping":
-            return StagePlanContent(
-                gem_changes=[
-                    "Awakened Melee Phys 5 + Awakened Multistrike 5.",
-                    "Animate Weapon 21/20 corrupted.",
-                ],
-            )
-        return super().for_stage(stage, build)
-
-
 # ---------------------------------------------------------------------------
 # Totem templates
 # ---------------------------------------------------------------------------
@@ -1089,6 +2603,437 @@ class ShrapnelBallistaDeadeyeTemplate(GenericTemplate):
 
 
 # ---------------------------------------------------------------------------
+# Scion / Hybrid templates
+# ---------------------------------------------------------------------------
+
+
+class CocCospriCycloneScionTemplate(GenericTemplate):
+    """Cast on Crit Cospri Cyclone Scion — channel cyclone trigger spells.
+
+    Cyclone canalizzato come crit trigger source per spell socketed in
+    Cospri's Malice (sword) e/o Mjolner. Spell tipiche: Frostbolt + Ice
+    Nova combo (Frost), Ball Lightning + Lightning Conduit (lightning),
+    Spark for clear. Scion Ascendant Champion + Assassin (crit + impale)
+    o Inquisitor + Assassin (consecrated). Awakened CoC + +1/+2 socketed
+    sword endgame.
+    """
+
+    name: str = "coc_cospri_cyclone_scion"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Frost Blades come levelling pre-Cyclone.",
+                    "Atto 3: Cyclone sblocca; setup 4L con Faster Attacks + Inspiration + Fortify.",
+                    "Niente CoC ancora: prima del lab + Cospri's Malice non vale la pena.",
+                ],
+                rationale_override=(
+                    "CoC Cospri richiede crit cap + cooldown reduction + Cospri's Malice. "
+                    "In atto 1-3 niente di tutto questo: si livella Cyclone vanilla e si "
+                    "switcha a CoC dopo il primo lab + drop o purchase di Cospri's Malice."
+                ),
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Champion + Assassin (Scion Ascendant) per crit + impale + over-leech.",
+                    "Cyclone + Awakened Cast on Critical Strike (cheap) + Frostbolt + Ice Nova + Inspiration + Fortify.",
+                    "Hatred + Herald of Ice + Precision aura.",
+                ],
+                tree_changes=[
+                    "Cluster crit chance + spell crit + sword damage.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Cyclone + Awakened CoC + Frostbolt + Ice Nova + Inspiration + Fortify.",
+                    "Cospri's Malice 1H sword (~3-10 div): trigger gratis Frostbolt + Ice Nova socketed.",
+                    "Mjolner (~10-30 div) come offhand alternativo per double trigger lightning.",
+                ],
+                tree_changes=[
+                    "Watcher's Eye Hatred 'Cold Pen' + Precision 'crit chance'.",
+                    "Cospri's Malice ha '~10% chance to trigger socketed cold spell on melee crit' + 'Trigger socketed cold spell on melee crit'.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Cast on Critical Strike 5 (~80-120 div).",
+                    "Awakened Cold Pen 5 + Awakened Spell Echo NO (CoC non ammette Spell Echo).",
+                    "21/20 Cyclone corrupted + Vaal Ice Nova for boss burst.",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh: combo Champion + Assassin doppio-ascendancy.",
+                    "+1 to socketed gems Cospri's Malice corrupted.",
+                    "Helmet enchant: Ice Nova damage o Cyclone crit chance.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class PowerSiphonScionTemplate(GenericTemplate):
+    """Power Siphon Scion — wand attack skill con Power Charges + crit.
+
+    Power Siphon spara projectile con power charge generation on hit
+    (e crit con Power Charge stack). Scion Ascendant Deadeye + Assassin
+    (crit + projectile) o Pathfinder per flask uptime. Dual-wield wand
+    +2/+3 ele wand. Awakened GMP + Awakened Added Lightning + Inspiration.
+    Vaal Power Siphon per single-target burst.
+    """
+
+    name: str = "power_siphon_scion"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Caustic Arrow / Storm Brand come levelling pre-Power Siphon.",
+                    "Atto 3 reward: Power Siphon sblocca; setup 4L con Faster Attacks + Added Lightning + Onslaught.",
+                    "Wand + shield Lifesprig come transition.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Deadeye + Assassin (Scion Ascendant) per +projectile + crit.",
+                    "Power Siphon + Awakened Greater Multiple Projectiles (cheap) + Awakened Added Lightning (cheap) + Inspiration + Trinity + Elemental Damage with Attacks.",
+                    "Wrath + Herald of Thunder + Precision.",
+                ],
+                tree_changes=[
+                    "Wand cluster: Wandslinger + Storm Drinker + Pure Power.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Power Siphon + Awakened GMP + Awakened Added Lightning + Trinity + Inspiration + Awakened Elemental Damage with Attacks.",
+                    "Dual-wield +2 lightning wand craft (~20-40 div) o Doryani's Catalyst variant.",
+                    "Vaal Power Siphon 4L laterale per boss burst.",
+                ],
+                tree_changes=[
+                    "Watcher's Eye Wrath 'Lightning Pen' + Precision 'crit chance'.",
+                    "Cluster jewel: Replica Conqueror's Efficiency + Pure Power.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened GMP 5 + Awakened Added Lightning 5 + Awakened Elemental Damage with Attacks 5.",
+                    "21/20 Power Siphon corrupted + Inspiration 21/20.",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh: combo Deadeye + Assassin doppio-ascendancy.",
+                    "Mageblood (~250-300 div): Diamond + Sulphur + Quartz permanenti.",
+                    "Helmet enchant: Power Siphon +1 chain o increased damage.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class StormBrandScionTemplate(GenericTemplate):
+    """Storm Brand Scion — chain lightning brand caster.
+
+    Storm Brand è un brand caster che chain tra nemici emettendo beam
+    lightning. Scion Ascendant Inquisitor + Elementalist (ele pen +
+    shaper of storms) o Inquisitor + Hierophant (charge generation).
+    Awakened Brand Recall + Awakened Lightning Pen + +1 power charge body.
+    Build versatile mappable + bossable.
+    """
+
+    name: str = "storm_brand_scion"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Storm Brand dalla quest 'Mercy Mission' — main skill day-1.",
+                    "Setup 4L: Storm Brand + Brand Recall + Added Lightning + Faster Casting.",
+                    "Wand + shield Lifesprig, Wrath low-level.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Inquisitor + Elementalist (Scion Ascendant): Inevitable Judgment + Shaper of Storms.",
+                    "Storm Brand + Brand Recall + Awakened Lightning Pen (cheap) + Concentrated Effect + Awakened Spell Echo (cheap) + Empower 3.",
+                    "Wrath + Herald of Thunder + Skitterbots.",
+                ],
+                tree_changes=[
+                    "Brand area: Brand Loyalty cluster + Storm Drinker.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Storm Brand + Awakened Brand Recall + Awakened Lightning Pen + Concentrated Effect + Awakened Spell Echo + Empower.",
+                    "+1 Spell Skill / +1 Lightning Spell sceptre o staff (~10-30 div).",
+                ],
+                tree_changes=[
+                    "Cluster jewel: Brand Loyalty + Storm Drinker + Wandslinger.",
+                    "Watcher's Eye Wrath 'Lightning Penetration' (~30-60 div).",
+                    "+1 power charge / +2 power charge body craft per crit cap.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Brand Recall 5 + Awakened Lightning Pen 5 + Awakened Spell Echo 5.",
+                    "Concentrated Effect 21/20 corrupted + Empower 4.",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh: combo Inquisitor + Elementalist doppio.",
+                    "+2 spell skill staff custom craft (~50-100 div).",
+                    "Helmet enchant: Storm Brand 25% increased damage.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class MjolnerDischargeScionTemplate(GenericTemplate):
+    """Mjolner Discharge Scion — channel + Mjolner trigger Discharge.
+
+    Mjolner unique mace triggera spell socketed on melee hit. Build classico:
+    Cyclone (o Static Strike) + Mjolner trigger Discharge + Ball Lightning.
+    Genera Power+Endurance+Frenzy charges via CWDT setup. Scion Ascendant
+    Inquisitor + Champion. Endgame con +1/+2 socketed Mjolner corrupted
+    (~150-300 div).
+    """
+
+    name: str = "mjolner_discharge_scion"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Storm Brand o Frost Blades come levelling pre-Mjolner.",
+                    "Atto 3: Cyclone sblocca; vanilla Cyclone con Faster Attacks + Inspiration.",
+                    "Niente Mjolner ancora: serve level 60+ per equiparlo (str+int requirements alti).",
+                ],
+                rationale_override=(
+                    "Mjolner ha requirements stat alti (200 str + 200 int) e cooldown "
+                    "reduction needed. In atto si livella vanilla Cyclone fino a level 60+, "
+                    "poi switch a Mjolner trigger setup."
+                ),
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Inquisitor + Champion (Scion Ascendant) per ele pen + impale.",
+                    "Cyclone + Awakened Cast When Damage Taken (low level CWDT setup) + Discharge + Ball Lightning + Inspiration.",
+                    "Wrath + Herald of Thunder + Discipline aura.",
+                ],
+                tree_changes=[
+                    "Cluster: Charge generation (Voices of the Vaal / Doryani's Lesson).",
+                    "Resolute Technique area se vuoi semplicità accuracy.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Mjolner mace (~30-60 div): trigger socketed lightning spell on melee hit.",
+                    "Body 6L: Cyclone + CWDT + Inspiration + Fortify + supporto charge gen.",
+                    "Mjolner socketato 6S: Discharge + Ball Lightning + Awakened Lightning Pen + Concentrated Effect + Power Charge On Critical + Endurance Charge On Melee Stun.",
+                ],
+                tree_changes=[
+                    "Watcher's Eye Wrath 'Lightning Pen' + Discipline 'ES recharge'.",
+                    "+1 power charge body craft per crit cap.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Lightning Pen 5 + Awakened Added Lightning 5.",
+                    "21/20 Discharge corrupted + 21/20 Ball Lightning.",
+                    "Mjolner +1/+2 socketed gems corrupted (~150-300 div).",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh: combo Inquisitor + Champion doppio-ascendancy.",
+                    "Romira's Banquet ring (gain power charge on hit no crit) + The Saviour shield.",
+                    "Helmet enchant: Discharge 40% increased damage.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class SpectralHelixScionTemplate(GenericTemplate):
+    """Spectral Helix Scion — sword/axe boomerang projectile con curva.
+
+    Spectral Helix lancia una weapon copy che curva e torna con AoE
+    massive. Distinto da Spectral Throw: traiettoria sinusoidale + multi-
+    hit. Scion Ascendant Slayer + Deadeye (over-leech + projectile)
+    o Slayer + Champion (impale). Paradoxica + Saviour shield endgame.
+    """
+
+    name: str = "spectral_helix_scion"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Spectral Throw o Frost Blades come levelling pre-Spectral Helix.",
+                    "Atto 4 reward: Spectral Helix sblocca; setup 4L con Brutality + Faster Attacks + Pierce.",
+                    "Whirling Blades come movement, Pride aura.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Slayer + Deadeye (Scion Ascendant): over-leech + Endless Munitions.",
+                    "Spectral Helix + Awakened Brutality (cheap) + Awakened Vicious Projectiles (cheap) + Pierce + Inspiration + Slower Projectiles (boss).",
+                    "Pride + War Banner + Dread Banner.",
+                ],
+                tree_changes=[
+                    "Cluster jewel sword + projectile damage.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Spectral Helix + Awakened Brutality + Awakened Vicious Projectiles + Pierce + Inspiration + Slower Projectiles.",
+                    "Paradoxica 1H sword (~10-30 div) o +1/+2 socketed Foil craft.",
+                    "Saviour shield (~30-50 div) per mirror minion + crit boost.",
+                ],
+                tree_changes=[
+                    "Cluster: Master the Fundamentals + Quick Getaway + Calamitous.",
+                    "Lycosidae shield budget alternativo (accuracy gratis).",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Brutality 5 + Awakened Vicious Projectiles 5 + Awakened Fortify 5.",
+                    "21/20 Spectral Helix corrupted + Slower Projectiles 21/20.",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh: combo Slayer + Deadeye doppio-ascendancy.",
+                    "Watcher's Eye Pride 'Increased Phys Damage' (~50+ div).",
+                    "Helmet enchant: Spectral Helix +20% damage.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class WaveOfConvictionScionTemplate(GenericTemplate):
+    """Wave of Conviction Scion — fire+lightning wave AoE con exposure.
+
+    Wave of Conviction è una spell che spara una wave fire+lightning
+    espandente, applicando exposure (riduzione res ele). Scaling con
+    spell damage + ele pen + cast speed. Scion Ascendant Inquisitor +
+    Elementalist (ele pen + exposure stacking) o Inquisitor + Hierophant.
+    Build versatile mapper-bosser; Awakened Elemental Focus + Awakened
+    Fire/Lightning Pen endgame.
+    """
+
+    name: str = "wave_of_conviction_scion"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Storm Brand come levelling pre-Wave of Conviction.",
+                    "Atto 3 reward: Wave of Conviction sblocca; setup 4L con Faster Casting + Combustion + Spell Echo.",
+                    "Wand+shield Lifesprig, Anger + Wrath low-level.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Inquisitor + Elementalist (Scion Ascendant): Inevitable Judgment + Mastermind of Discord exposure.",
+                    "Wave of Conviction + Awakened Spell Echo (cheap) + Awakened Elemental Focus (cheap) + Combustion + Inspiration + Awakened Fire Pen (cheap).",
+                    "Wrath + Anger + Herald of Thunder.",
+                ],
+                tree_changes=[
+                    "Cluster spell damage + ele pen sotto Witch start.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Wave of Conviction + Awakened Spell Echo + Awakened Elemental Focus + Combustion + Inspiration + Awakened Fire Pen.",
+                    "+1 Spell Skill / +1 Fire Spell o +1 Lightning Spell staff (~10-30 div).",
+                ],
+                tree_changes=[
+                    "Watcher's Eye Wrath 'Lightning Pen' o Anger 'Fire Damage' (~30-60 div).",
+                    "Cluster jewel: Pure Power + Storm Drinker + Wandslinger.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Spell Echo 5 + Awakened Elemental Focus 5 + Awakened Fire Pen 5.",
+                    "21/20 Wave of Conviction corrupted + Combustion 21/20.",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh: combo Inquisitor + Elementalist doppio-ascendancy.",
+                    "+2 spell skill staff custom craft (~50-100 div).",
+                    "Helmet enchant: Wave of Conviction 25% increased damage.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class ForbiddenRiteScionTemplate(GenericTemplate):
+    """Forbidden Rite Scion — chaos+ele self-cast spell con life cost.
+
+    Forbidden Rite spara projectile ele+chaos che passano oltre i target,
+    consuma life flat per cast. Build classico Low Life via Pain Attunement
+    (50% increased spell damage). Scion Ascendant Pathfinder + Trickster
+    (flask uptime + life regen) o Pathfinder + Inquisitor. Endgame con
+    Awakened Spell Echo + Awakened Added Chaos + +2 spell skill staff.
+    """
+
+    name: str = "forbidden_rite_scion"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Storm Brand come levelling pre-Forbidden Rite.",
+                    "Atto 4 reward: Forbidden Rite sblocca; setup 4L con Pierce + Faster Casting + Awakened Added Chaos (cheap).",
+                    "Wand+shield Lifesprig per +1 spell skill.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Pathfinder + Trickster (Scion Ascendant): flask uptime + ES sustain.",
+                    "Forbidden Rite + Pierce + Awakened Spell Echo (cheap) + Awakened Added Chaos (cheap) + Awakened Void Manipulation (cheap) + Inspiration.",
+                    "Malevolence + Discipline + Skitterbots.",
+                ],
+                tree_changes=[
+                    "Pain Attunement keystone (Low Life setup, 50% increased spell damage).",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Forbidden Rite + Awakened Spell Echo + Awakened Added Chaos + Awakened Void Manipulation + Inspiration + Pierce.",
+                    "+1 Spell Skill / +1 Chaos Spell staff (~10-30 div).",
+                    "Shavronne's Wrappings body (Low Life setup) o Solaris Lorica.",
+                ],
+                tree_changes=[
+                    "Cluster jewel: Wicked Pall + Touch of Cruelty + Sadist.",
+                    "Watcher's Eye Discipline 'ES recharge' (Low Life sustain).",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Spell Echo 5 + Awakened Added Chaos 5 + Awakened Void Manipulation 5.",
+                    "21/20 Forbidden Rite corrupted + Inspiration 21/20.",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh: combo Pathfinder + Trickster doppio.",
+                    "+2 spell skill staff custom craft (~50-100 div).",
+                    "Helmet enchant: Forbidden Rite 25% increased damage.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+# ---------------------------------------------------------------------------
 # Registry & dispatch
 # ---------------------------------------------------------------------------
 
@@ -1117,6 +3062,75 @@ def _matches_rf(build: Build) -> bool:
     return "righteous fire" in skill or skill == "rf"
 
 
+# Aura gem names (low-cased) used to identify Aurabot builds.
+# An Aurabot doesn't have a damage main_skill — it's identified by
+# carrying 5+ aura supports. Reservation auras are listed here; Vaal
+# variants share the base name (matched via casefold-substring below).
+_AURA_GEMS: frozenset[str] = frozenset(
+    {
+        "anger",
+        "wrath",
+        "hatred",
+        "determination",
+        "grace",
+        "vitality",
+        "purity of fire",
+        "purity of cold",
+        "purity of lightning",
+        "purity of elements",
+        "discipline",
+        "clarity",
+        "haste",
+        "malevolence",
+        "pride",
+        "zealotry",
+        "skitterbots",
+        "summon skitterbots",
+        "envy",
+    }
+)
+
+
+def _matches_coc_cospri(build: Build) -> bool:
+    """Match Cast on Crit Cospri builds: any key_item is Cospri's Malice.
+
+    CoC Cospri characters carry main_skill='Cyclone' (the channel skill)
+    but the build identity is the unique sword. Skill-keyed dispatch alone
+    would route them to CycloneSlayerTemplate; this item-keyed matcher
+    intercepts them before that. Same pattern as :func:`_matches_aurabot`.
+    """
+
+    return any("cospri's malice" in (ki.item.name or "").casefold() for ki in build.key_items)
+
+
+def _matches_mjolner(build: Build) -> bool:
+    """Match Mjolner Discharge / CoMK builds: any key_item is Mjolner.
+
+    Mjolner triggers socketed lightning spell on melee hit. Build identity
+    is the unique mace; main_skill is usually 'Cyclone' or 'Static Strike'
+    (the channel/strike that hits). Skill-keyed dispatch alone would route
+    to CycloneSlayer/StaticStrikeGladiator.
+    """
+
+    return any("mjolner" in (ki.item.name or "").casefold() for ki in build.key_items)
+
+
+def _matches_aurabot(build: Build) -> bool:
+    """Match aurabot builds: 5+ aura gems carried as supports.
+
+    Aurabots don't fit the skill-keyed dispatch — they identify by the
+    sheer number of reservation auras stacked. Counts ``support_gems``
+    entries whose case-folded form matches a known aura name (substring
+    is enough so Vaal variants land too).
+    """
+
+    needle_set = _AURA_GEMS
+    auras = sum(
+        1 for g in build.support_gems if any(needle in g.casefold() for needle in needle_set)
+    )
+    return auras >= 5
+
+
 # Each registry entry pairs a matcher with its template instance. Order
 # matters: the first matching entry wins. Put more specific matchers
 # first — e.g. RF (which contains "fire") is listed before fire-totem
@@ -1124,26 +3138,71 @@ def _matches_rf(build: Build) -> bool:
 TEMPLATE_REGISTRY: list[tuple[Callable[[Build], bool], BuildTemplate]] = [
     # Most-specific first.
     (_matches_rf, RfPohxTemplate()),
-    # Casters
-    (_matches_skill("vortex", "cold snap"), VortexOccultistTemplate()),
+    # Aurabot must come before any skill matcher: an aurabot might carry
+    # a throwaway Smite/Spark/Arc as DPS, but the build identity is the
+    # aura stack, not the skill.
+    (_matches_aurabot, AurabotGuardianTemplate()),
+    # Mjolner — item-keyed, before any cyclone/static-strike skill matcher.
+    # Mjolner triggers socketed lightning spell on melee hit; the build
+    # identity is the unique mace, not the channel skill.
+    (_matches_mjolner, MjolnerDischargeScionTemplate()),
+    # CoC Cospri — item-keyed matcher, must come before "cyclone" matcher
+    # because CoC Cospri builds carry main_skill='Cyclone'.
+    (_matches_coc_cospri, CocCospriCycloneScionTemplate()),
+    # Slam / Marauder
+    (_matches_skill("boneshatter"), BoneshatterTemplate()),
+    (_matches_skill("earthshatter"), EarthshatterJuggTemplate()),
+    (_matches_skill("tectonic slam"), TectonicSlamChieftainTemplate()),
+    (_matches_skill("molten strike"), MoltenStrikeChieftainTemplate()),
+    (_matches_skill("ground slam"), GroundSlamJuggTemplate()),
+    (_matches_skill("volcanic fissure"), VolcanicFissureJuggTemplate()),
+    # Casters — Blade Vortex must come BEFORE Vortex (substring collision).
+    (_matches_skill("blade vortex"), PoisonBladeVortexAssassinTemplate()),
+    (_matches_skill("blade blast"), BladeBlastTricksterTemplate()),
+    # Cold Snap split off Vortex Occultist: Cold Snap → Trickster, Vortex → Occultist.
+    (_matches_skill("cold snap"), ColdDotTricksterTemplate()),
+    (_matches_skill("vortex"), VortexOccultistTemplate()),
     (_matches_skill("spark"), SparkInquisitorTemplate()),
-    (_matches_skill("bone spear", "soulrend"), BoneSpearNecroTemplate()),
+    (_matches_skill("ball lightning"), BallLightningElementalistTemplate()),
+    (_matches_skill("penance brand"), PenanceBrandInquisitorTemplate()),
+    (_matches_skill("crackling lance"), CracklingLanceInquisitorTemplate()),
+    # Storm Brand must come BEFORE Arc (no substring collision but keep
+    # all brand templates grouped for readability).
+    (_matches_skill("storm brand"), StormBrandScionTemplate()),
+    (_matches_skill("arc"), ArcHierophantTemplate()),
+    (_matches_skill("smite"), SmiteGuardianTemplate()),
+    # Soulrend split off BoneSpearNecro: Soulrend → Trickster, Bone Spear → Necro.
+    (_matches_skill("soulrend"), SoulrendTricksterTemplate()),
+    (_matches_skill("bone spear"), BoneSpearNecroTemplate()),
     (_matches_skill("hexblast"), HexblastMinesTemplate()),
+    (_matches_skill("cobra lash"), CobraLashAssassinTemplate()),
+    (_matches_skill("pyroclast"), PyroclastMinesSaboteurTemplate()),
     (_matches_skill("detonate dead", "volatile dead"), DetonateDeadNecroTemplate()),
     (_matches_skill("bane", "essence drain", "contagion"), BaneOccultistTemplate()),
     # Attacks
     (_matches_skill("cyclone"), CycloneSlayerTemplate()),
+    (_matches_skill("reave"), ReaveSlayerTemplate()),
+    (_matches_skill("lacerate"), LacerateGladiatorTemplate()),
+    (_matches_skill("splitting steel"), SplittingSteelGladiatorTemplate()),
+    (_matches_skill("sunder"), SunderChampionTemplate()),
+    (_matches_skill("static strike"), StaticStrikeGladiatorTemplate()),
+    (_matches_skill("spectral throw"), SpectralThrowChampionTemplate()),
+    (_matches_skill("spectral helix"), SpectralHelixScionTemplate()),
     (_matches_skill("lightning strike"), LightningStrikeRaiderTemplate()),
     (_matches_skill("tornado shot"), TornadoShotDeadeyeTemplate()),
     (_matches_skill("frost blades"), FrostBladesRaiderTemplate()),
+    (_matches_skill("ice shot"), IceShotDeadeyeTemplate()),
+    (_matches_skill("poisonous concoction"), PoisonousConcoctionPathfinderTemplate()),
     (_matches_skill("toxic rain"), ToxicRainPathfinderTemplate()),
+    (_matches_skill("power siphon"), PowerSiphonScionTemplate()),
+    (_matches_skill("forbidden rite"), ForbiddenRiteScionTemplate()),
+    (_matches_skill("wave of conviction"), WaveOfConvictionScionTemplate()),
     # Minions
     (_matches_skill("raise spectre", "spectre"), SpectreNecroTemplate()),
     (
         _matches_skill("summon skeletons", "skeleton"),
         SkeletonMagesTemplate(),
     ),
-    (_matches_skill("animate weapon"), AnimateWeaponNecroTemplate()),
     # Totems (after RF so non-RF Holy Flame Totem matches here)
     (_matches_skill("holy flame totem"), HolyFlameTotemHieroTemplate()),
     (
@@ -1184,25 +3243,57 @@ __all__ = [
     "HIGH_INVESTMENT",
     "MID_CAMPAIGN",
     "TEMPLATE_REGISTRY",
-    "AnimateWeaponNecroTemplate",
+    "ArcHierophantTemplate",
+    "AurabotGuardianTemplate",
+    "BallLightningElementalistTemplate",
     "BaneOccultistTemplate",
+    "BladeBlastTricksterTemplate",
     "BoneSpearNecroTemplate",
+    "BoneshatterTemplate",
     "BuildTemplate",
+    "CobraLashAssassinTemplate",
+    "CocCospriCycloneScionTemplate",
+    "ColdDotTricksterTemplate",
+    "CracklingLanceInquisitorTemplate",
     "CycloneSlayerTemplate",
     "DetonateDeadNecroTemplate",
+    "EarthshatterJuggTemplate",
+    "ForbiddenRiteScionTemplate",
     "FrostBladesRaiderTemplate",
     "GenericTemplate",
+    "GroundSlamJuggTemplate",
     "HexblastMinesTemplate",
     "HolyFlameTotemHieroTemplate",
+    "IceShotDeadeyeTemplate",
+    "LacerateGladiatorTemplate",
     "LightningStrikeRaiderTemplate",
+    "MjolnerDischargeScionTemplate",
+    "MoltenStrikeChieftainTemplate",
+    "PenanceBrandInquisitorTemplate",
+    "PoisonBladeVortexAssassinTemplate",
+    "PoisonousConcoctionPathfinderTemplate",
+    "PowerSiphonScionTemplate",
+    "PyroclastMinesSaboteurTemplate",
+    "ReaveSlayerTemplate",
     "RfPohxTemplate",
     "ShrapnelBallistaDeadeyeTemplate",
     "SkeletonMagesTemplate",
+    "SmiteGuardianTemplate",
+    "SoulrendTricksterTemplate",
     "SparkInquisitorTemplate",
+    "SpectralHelixScionTemplate",
+    "SpectralThrowChampionTemplate",
     "SpectreNecroTemplate",
+    "SplittingSteelGladiatorTemplate",
     "StagePlanContent",
+    "StaticStrikeGladiatorTemplate",
+    "StormBrandScionTemplate",
+    "SunderChampionTemplate",
+    "TectonicSlamChieftainTemplate",
     "TornadoShotDeadeyeTemplate",
     "ToxicRainPathfinderTemplate",
+    "VolcanicFissureJuggTemplate",
     "VortexOccultistTemplate",
+    "WaveOfConvictionScionTemplate",
     "pick_template",
 ]

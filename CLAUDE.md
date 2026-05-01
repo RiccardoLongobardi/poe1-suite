@@ -164,11 +164,131 @@ Step 13.B — Watcher's Eye combo pricing via Trade.
 
 Baseline: 489 test verdi / 91 mypy / 89 format.
 
+## Step 13.D completo
+
+Step 13.D (Templates per ogni classe) chiuso. **49 template totali nel registry**, 7 per ognuna delle 7 classi PoE1 (Marauder / Duelist / Ranger / Witch / Templar / Shadow / Scion). Iniziato da 17 template (T1) → +32 template in 12 turni.
+
+Pattern matcher esteso oltre lo skill-keyed `_matches_skill(*needles)`:
+- **Predicate-keyed** (count/heuristic su Build): `_matches_aurabot` (≥5 auras in support_gems).
+- **Item-keyed** (lookup in `key_items`): `_matches_coc_cospri` (Cospri's Malice), `_matches_mjolner` (Mjolner). Stessa firma `Callable[[Build], bool]`, registrati prima dei matcher skill perché build item-keyed (CoC, Mjolner) carry main_skill come Cyclone/Static Strike che andrebbe a template skill-keyed sbagliato.
+
+Lessons learned sui matcher (catturati dal gate durante i turni):
+- Substring greedy: matcher "vortex" cattura "Blade Vortex"; "cyclone" cattura "Ngamahu Cyclone"; "reap" cattura "Summon Reaper". Mitigazione: matcher più specifici prima nel registry, oppure sostituzione con skill alternativa (Reap → Forbidden Rite).
+- Stesso skill su più classi (Boneshatter Jugg/Berserker/Champion, Cyclone Slayer/Berserker): un singolo template che menziona tutte le ascendancy nelle advice è più robusto del routing per ascendancy (matcher non guarda `Build.ascendancy`).
+
+Mappa coverage attuale (post-Turno 1):
+
+| Classe | Count | Template registrati |
+|---|---|---|
+| Marauder | 7/7 ✅ | RF Jugg, Boneshatter, Earthshatter Jugg, Tectonic Slam Chieftain, Molten Strike Chieftain, Ground Slam Jugg, Volcanic Fissure Jugg |
+| Duelist | 7/7 ✅ | Cyclone Slayer, Reave Slayer, Lacerate Gladiator, Splitting Steel Gladiator, Sunder Champion, Static Strike Gladiator, Spectral Throw Champion |
+| Ranger | 7/7 ✅ | LS Raider, TS Deadeye, FB Raider, TR Pathfinder, Ballista Deadeye, Ice Shot Deadeye, Poisonous Concoction Pathfinder |
+| Witch | 7/7 ✅ | Vortex Occ, Bone Spear Necro, DD Necro, Bane Occ, Spectre Necro, Skel Mages, Ball Lightning Elementalist |
+| Templar | 7/7 ✅ | Spark Inq, HFT Hiero, Penance Brand Inq, Crackling Lance Inq, Arc Hierophant, Smite Guardian, Aurabot Guardian |
+| Shadow | 7/7 ✅ | Hexblast Mines, Poison BV Assassin, Cobra Lash Assassin, Pyroclast Mines Saboteur, Cold DoT Trickster, Blade Blast Trickster, Soulrend Trickster |
+| Scion | 7/7 ✅ | CoC Cospri Cyclone, Power Siphon, Storm Brand, Mjolner Discharge, Spectral Helix, Forbidden Rite, Wave of Conviction |
+
+**Turno 1 (Marauder)** ✅ done (2026-05-01). 3 nuovi template + matchers + test signature:
+- `BoneshatterTemplate` (matcher "boneshatter") — Jugg/Berserker, trauma stack mechanic, Sunder/Ground Slam levelling → switch a level 28, Heatshiver cold-conv variant.
+- `EarthshatterJuggTemplate` (matcher "earthshatter") — slam phys + spike detonation, Tukohama's Coffer, +2 to Slam Skills crafting.
+- `TectonicSlamChieftainTemplate` (matcher "tectonic slam") — fire slam consumando EC, Tukohama War's Herald + Ngamahu True Flame, Magnate belt + Kaom's Way ring.
+
+Baseline 492 test verdi / 91 mypy / 89 format.
+
+**Turno 2 (Marauder)** ✅ done (2026-05-01). Marauder coverage 4/7 → 7/7 (chiusa). 3 nuovi template:
+- `MoltenStrikeChieftainTemplate` (matcher "molten strike") — phys-to-fire melee strike + projectile, Tukohama War's Herald lab1, Avatar of Fire keystone, Hrimsorrow + Ngamahu's Flame transition.
+- `GroundSlamJuggTemplate` (matcher "ground slam") — slam phys signature day-1 Marauder, Resolute Technique, Marohi Erqi 2H → +2 to Slam Skills craft, Ground Slam of Earthshaking transfigured variant.
+- `VolcanicFissureJuggTemplate` (matcher "volcanic fissure") — slam fire travelling fissure, Avatar of Fire opzionale, Combustion + Awakened Fire Pen endgame.
+
+NOTA: in Turno 2 swappato il pianificato "Ngamahu Cyclone Chieftain" con `VolcanicFissureJuggTemplate` perché il matcher su `main_skill` non distingue Ngamahu Cyclone (item-keyed) dal generico Cyclone Slayer (skill-keyed) — sarebbe servito un refactor del matcher per guardare anche `key_items`.
+
+Baseline 495 test verdi / 91 mypy / 89 format.
+
+**Turno 3 (Duelist)** ✅ done (2026-05-01). Duelist coverage 1/7 → 4/7. 3 nuovi template:
+- `ReaveSlayerTemplate` (matcher "reave") — sword phantom blade stacks AoE, Headsman lab1, Paradoxica/Foil endgame, Vaal Reave per single-target burst.
+- `LacerateGladiatorTemplate` (matcher "lacerate") — sword 2H/DW slash + bleed, Painforged + Gratuitous Violence corpse explode, Crimson Dance keystone (DW variant), Lacerate of Haemorrhage transfigured opzionale.
+- `SplittingSteelGladiatorTemplate` (matcher "splitting steel") — phys ranged-melee con secondary projectiles, Steel Skills cluster, Painforged (Glad) o Worthy Foe + Inspirational (Champion).
+
+Baseline 498 test verdi / 91 mypy / 89 format.
+
+**Turno 4 (Duelist)** ✅ done (2026-05-01). Duelist coverage 4/7 → 7/7 (chiusa). 3 nuovi template:
+- `SunderChampionTemplate` (matcher "sunder") — slam phys signature day-1, Worthy Foe + Inspirational lab1, Marohi Erqi → +2 to Slam Skills 2H mace endgame, Sunder of Earthbreaking transfigured.
+- `StaticStrikeGladiatorTemplate` (matcher "static strike") — lightning melee + chained beams, Versatile Combatant (Glad block) o Inspirational (Champion), Saviour shield + Paradoxica/Foil crit weapon.
+- `SpectralThrowChampionTemplate` (matcher "spectral throw") — boomerang projectile day-1 Duelist, Worthy Foe + Inspirational, Awakened GMP + Slower Projectiles bossing, Vaal ST burst.
+
+Baseline 501 test verdi / 91 mypy / 89 format.
+
+**Turno 5 (Ranger)** ✅ done (2026-05-01). Ranger coverage 5/7 → 7/7 (chiusa). 2 nuovi template:
+- `IceShotDeadeyeTemplate` (matcher "ice shot") — bow phys→cold conversion + cone secondary AoE, Endless Munitions lab1, Lioneye's Glare transition → +1/+2 socketed bow craft o +3 bow + Voltaxic Rift endgame.
+- `PoisonousConcoctionPathfinderTemplate` (matcher "poisonous concoction") — flask-thrown chaos hit + poison massiccio, Master Surgeon (sustain) + Nature's Reprisal (poison multi), Mageblood endgame.
+
+Baseline 503 test verdi / 91 mypy / 89 format.
+
+**Turno 6 (Templar)** ✅ done (2026-05-01). Templar coverage 2/7 → 5/7. 3 nuovi template:
+- `PenanceBrandInquisitorTemplate` (matcher "penance brand") — brand caster phys/lightning, Inevitable Judgment + Pious Path, Awakened Brand Recall + Awakened Lightning Pen endgame.
+- `CracklingLanceInquisitorTemplate` (matcher "crackling lance") — lightning beam multistage, Inevitable Judgment + Augury of Penitence, Replica Conqueror's Efficiency + +1 power charge body.
+- `ArcHierophantTemplate` (matcher "arc") — chain lightning day-1 Templar, Conviction of Power + Sanctuary of Thought, Mind Over Matter + Arcane Cloak, Awakened Chain endgame.
+
+NOTA: matcher "arc" è una substring potenzialmente collisiva (matcherebbe "Arctic Breath", "Arctic Armour" se mai apparissero come main_skill). Tollerabile in pratica perché Arctic Armour è una buff aura (mai main_skill DPS) e Arctic Breath è skill morta. Se in futuro serve distinguere, mettere matcher più specifico prima di "arc".
+
+Baseline 506 test verdi / 91 mypy / 89 format.
+
+**Turno 7 (Templar)** ✅ done (2026-05-01). Templar coverage 5/7 → 7/7 (chiusa). 2 nuovi template + nuova sliding-rule matcher:
+- `SmiteGuardianTemplate` (matcher "smite") — lightning melee + party aura buff radius, Radiant Crusade lab1, Aegis Aurora shield + Sublime Vision amulet, Time of Need ascendancy.
+- `AurabotGuardianTemplate` (matcher CUSTOM `_matches_aurabot`) — support build aura stacking party, Radiant Crusade + Time of Need + Unwavering Crusade, Crown of the Tyrant + Sublime Vision + Awakened Generosity ovunque, Skin of the Lords + Aegis Aurora.
+- Nuovo helper `_matches_aurabot(build)` che conta gli aura nei `support_gems` (≥5 → aurabot). Frozenset `_AURA_GEMS` con 19 nomi base. Registrato PRIMA dei matcher skill, perché un Aurabot con throwaway Smite/Spark va comunque a AurabotGuardian.
+
+Pattern di matcher esteso: oltre allo skill-keyed `_matches_skill(*needles)`, ora supportiamo predicate-keyed (es. count auras). Utile per future match item-keyed (CoC Cospri, Mjolner) tramite `key_items` lookup.
+
+Baseline 509 test verdi / 91 mypy / 89 format.
+
+**Turno 8 (Shadow)** ✅ done (2026-05-01). Shadow coverage 1/7 → 4/7. 3 nuovi template:
+- `PoisonBladeVortexAssassinTemplate` (matcher "blade vortex") — chaos blade orbit + poison stack, Mistwalker + Noxious Strike + Toxic Delivery, Cospri's Will body + Cold Iron Point dagger.
+- `CobraLashAssassinTemplate` (matcher "cobra lash") — chaos projectile chain + poison, Toxic Delivery, Awakened Chain + Awakened Vile Toxins endgame, Vaal Cobra Lash boss.
+- `PyroclastMinesSaboteurTemplate` (matcher "pyroclast") — fire AoE mines bossing, Pyromaniac + Bombardier + Demolitions Specialist, Bottled Faith consacrated ground.
+
+NOTA matcher ordering: `_matches_skill("blade vortex")` deve venire **prima** di `_matches_skill("vortex")` perché "vortex" è substring di "blade vortex". Sezione registry "Casters" riordinata di conseguenza.
+
+Baseline 512 test verdi / 91 mypy / 89 format.
+
+**Turno 9 (Shadow Tricksters)** ✅ done (2026-05-01). Shadow coverage 4/7 → 7/7 (chiusa). 3 nuovi template + 2 matcher splits:
+- `ColdDotTricksterTemplate` (matcher "cold snap") — pure cold DoT alternativo a Vortex Occultist, Patient Reaper + Soul Drinker, Cold Snap of Power transfigured opzionale.
+- `BladeBlastTricksterTemplate` (matcher "blade blast") — detona Blade Fall blades, Escape Artist + Patient Reaper, dual-wield daggers spell skill.
+- `SoulrendTricksterTemplate` (matcher "soulrend") — chaos+cold projectile DoT spell, Patient Reaper + Soul Drinker, Wither/Despair curse setup.
+
+**Matcher refactor**:
+- `_matches_skill("vortex", "cold snap")` → split in 2: `_matches_skill("cold snap")` per ColdDotTrickster + `_matches_skill("vortex")` per VortexOccultist (più puro).
+- `_matches_skill("bone spear", "soulrend")` → split in 2: `_matches_skill("soulrend")` per SoulrendTrickster + `_matches_skill("bone spear")` per BoneSpearNecro.
+
+Baseline 515 test verdi / 91 mypy / 89 format.
+
+**Turno 10 (Scion)** ✅ done (2026-05-01). Scion coverage 0/7 → 3/7. 3 nuovi template + nuovo matcher item-keyed:
+- `CocCospriCycloneScionTemplate` (matcher CUSTOM `_matches_coc_cospri`) — Cyclone CoC trigger Frostbolt+Ice Nova socketed in Cospri's Malice. Matcher cerca "Cospri's Malice" in `key_items`. Registrato PRIMA di `_matches_skill("cyclone")` perché i build CoC carry main_skill='Cyclone'.
+- `PowerSiphonScionTemplate` (matcher "power siphon") — wand attack + Power Charges + crit, Deadeye + Assassin Ascendant, dual +2 lightning wand craft endgame.
+- `StormBrandScionTemplate` (matcher "storm brand") — chain lightning brand caster, Inquisitor + Elementalist Ascendant, +1 power charge body. Registrato prima di "arc" per leggibilità (nessuna substring collision effettiva).
+
+Pattern matcher esteso a item-keyed (`_matches_coc_cospri`): stessa firma `Callable[[Build], bool]` di `_matches_aurabot`, ma legge `build.key_items[*].item.name`. Riutilizzabile per Mjolner Discharge (T11).
+
+Baseline 519 test verdi / 91 mypy / 89 format.
+
+**Turno 11 (Scion)** ✅ done (2026-05-01). Scion coverage 3/7 → 6/7. 3 nuovi template + nuovo matcher item-keyed:
+- `MjolnerDischargeScionTemplate` (matcher CUSTOM `_matches_mjolner`) — Mjolner unique mace triggera spell on melee hit, Cyclone + CWDT + Discharge + Ball Lightning, Inquisitor + Champion Ascendant. Stesso pattern di `_matches_coc_cospri`.
+- `SpectralHelixScionTemplate` (matcher "spectral helix") — sword/axe boomerang con curva sinusoidale, Slayer + Deadeye Ascendant, Paradoxica + Saviour shield endgame.
+- `ForbiddenRiteScionTemplate` (matcher "forbidden rite") — chaos+ele self-cast spell con life cost, Low Life Pain Attunement, Pathfinder + Trickster Ascendant, Shavronne's Wrappings o Solaris Lorica.
+
+NOTA cambio piano: invece di "Reap" (matcher "reap" collisivo con "Summon Reaper" minion skill) ho usato Forbidden Rite — distinto e altrettanto iconico Scion.
+
+Baseline 523 test verdi / 91 mypy / 89 format.
+
+**Turno 12 finale (Scion +1 + Witch swap)** ✅ done (2026-05-01). Step 13.D **chiuso 7×7 = 49 template** ✅. 2 nuovi + 1 rimosso:
+- `WaveOfConvictionScionTemplate` (matcher "wave of conviction") — fire+lightning wave AoE con exposure stacking, Inquisitor + Elementalist Ascendant. Chiude Scion 7/7.
+- `BallLightningElementalistTemplate` (matcher "ball lightning") — slow lightning orb + Shaper of Storms shock + Mastermind of Discord. Sostituisce AnimateWeaponNecro nel set Witch (porta diversità con un Elementalist; prima 7 ma tutti Occultist/Necro).
+- **Rimosso**: `AnimateWeaponNecroTemplate` (classe + matcher + `__all__` + dict canonical entry).
+
+Coverage finale: tutte 7 classi a 7/7 ✅. Baseline 525 verdi / 91 mypy / 89 format.
+
 ## What comes after (Step 13+)
-- **Step 13.D — Templates per ogni classe** (almeno 3 build per Duelist / Witch / Marauder / Templar / Shadow / Ranger / Scion). Obiettivo: dato un endgame PoB, FOB ha sempre un piano coerente per la classe corrispondente. ~21 template totali nel registry.
 - **Step 13.C — Reverse-progression engine** (final endgame del progetto): derivare custom upgrade ladder dal PoB endgame anziché dai template hardcoded.
-- Templates ulteriori per skill emergenti (Penance Brand, Crackling Lance, Storm Brand, Forbidden Rite, ecc.) man mano che escono mete nuove.
-- **Step 11 — UI overhaul** — tema astrale viola, welcome page animata, home page dashboard, modale donation PayPal (paypal.me/riclong). Refactor a `react-router-dom`.
 - **Faustus flipper** — package `poe1-faustus` per flip di valuta basato su poe.ninja bulk trades. Strumento separato. UX: arbitraggi "X chaos → Y div → Z chaos → profit %".
 - **App unica raggruppante** — navbar per tool (FOB, Faustus, …) quando arriva il secondo tool.
 
