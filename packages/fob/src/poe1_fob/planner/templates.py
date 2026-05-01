@@ -955,6 +955,137 @@ class ArcHierophantTemplate(GenericTemplate):
         return super().for_stage(stage, build)
 
 
+class SmiteGuardianTemplate(GenericTemplate):
+    """Smite Guardian — lightning melee strike + aura buff radius.
+
+    Smite colpisce un nemico in melee e crea un'aura nearby che buffa il
+    party (lightning damage + chance to shock). Guardian Radiant Crusade
+    (minion damage aura propagata) + Time of Need (+life regen) + Unwavering
+    Crusade (life on hit). Aegis Aurora shield + Sublime Vision per ulteriore
+    aura scaling. Build party-friendly + viable solo a budget medio.
+    """
+
+    name: str = "smite_guardian"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Sunder o Frost Blades come levelling pre-Smite.",
+                    "Atto 4 reward: Smite sblocca; setup 4L con Multistrike + Added Lightning + Inspiration.",
+                    "Wrath aura + Herald of Thunder low-level.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Radiant Crusade (Guardian aura propagation).",
+                    "Smite + Multistrike + Awakened Added Lightning (cheap) + Trinity + Inspiration + Awakened Elemental Damage with Attacks (cheap).",
+                    "Wrath + Determination + Herald of Thunder + Skitterbots.",
+                ],
+                tree_changes=[
+                    "Aura cluster sotto Templar start: Charisma + aura effect.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Smite + Awakened Multistrike + Awakened Added Lightning + Trinity + Awakened Elemental Damage with Attacks + Inspiration.",
+                    "Aegis Aurora shield (~1-3 div): es-on-block massive sustain.",
+                    "+1 Lightning Spell sceptre o +1/+2 socketed Foil.",
+                ],
+                tree_changes=[
+                    "Sublime Vision unique amulet (~5-15 div): aura scaling triplo.",
+                    "Time of Need ascendancy per +life regen tank.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Multistrike 5 + Awakened Added Lightning 5 + Awakened Elemental Damage with Attacks 5.",
+                    "21/20 Smite corrupted + Inspiration 21/20.",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh per Unwavering Crusade doppio (Guardian).",
+                    "Watcher's Eye Wrath 'Lightning Pen' + Determination 'phys reduction'.",
+                    "Helmet enchant: Smite 40% increased damage.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class AurabotGuardianTemplate(GenericTemplate):
+    """Aurabot Guardian — support build aura stacking party.
+
+    L'Aurabot non è un build DPS: è un personaggio support per group play
+    con 8-12 auras attive contemporaneamente. Guardian Unwavering Crusade
+    + Radiant Crusade + Time of Need per buff aura propagati. Items chiave:
+    Sublime Vision (single aura tripled), Aegis Aurora, Crown of the Tyrant
+    (helmet aura effect), Skin of the Lords con Pain Attunement / Eldritch
+    Battery.
+    """
+
+    name: str = "aurabot_guardian"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Smite o un attack qualunque come throwaway DPS.",
+                    "Da subito: Wrath / Anger / Hatred / Determination — 3-4 auras low-level.",
+                    "Discipline + Clarity per ES + mana sustain.",
+                ],
+                rationale_override=(
+                    "Aurabot non è un build solo. È un support per party che gioca "
+                    "in gruppo. In campaign si livella con uno qualsiasi attack/spell, "
+                    "le auras sono il vero contenuto del build."
+                ),
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Radiant Crusade (aura propagation a alleati).",
+                    "Aggiungi Vitality + Skitterbots + Pride + Malevolence (mana costs gestiti).",
+                    "Generosity Support su tutte le auras non-self (massimizza buff agli alleati).",
+                ],
+                tree_changes=[
+                    "Aura cluster massivo sotto Templar: Charisma + Sovereignty + aura effect notable.",
+                    "Mind Over Matter keystone se vai life-stacking.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body Skin of the Lords con keystone utile (Pain Attunement / Eldritch Battery).",
+                    "Aegis Aurora shield (~1-3 div): ES-on-block sustain.",
+                    "Sublime Vision (~5-15 div): single aura scelta tripla effect.",
+                ],
+                tree_changes=[
+                    "Crown of the Tyrant helmet (~10-20 div): aura effect + 35% increased to all auras.",
+                    "Time of Need ascendancy per +life regen propagato party.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Generosity Support su tutte le auras → +30% effect agli alleati.",
+                    "Tutti gli aura gem 21/20 corrupted (~3-5 div ognuno).",
+                    "Empower 4-5 sui slot aura per +level.",
+                ],
+                tree_changes=[
+                    "Unwavering Crusade ascendancy: aura buff durano 100% più sugli alleati.",
+                    "Forbidden Flame + Flesh per Unwavering Crusade o Time of Need doppio.",
+                    "Cluster jewel: Sovereignty + Pure Power + Veteran Defender (aura effect + reservation).",
+                ],
+                rationale_override=(
+                    "Endgame Aurabot: 12 auras attive simultanee, Crown of the Tyrant + "
+                    "Sublime Vision + Awakened Generosity ovunque. I numeri di buff agli "
+                    "alleati raddoppiano rispetto al mid-mapping."
+                ),
+            )
+        return super().for_stage(stage, build)
+
+
 class BoneSpearNecroTemplate(GenericTemplate):
     """Bone Spear / Soulrend hit caster Necromancer.
 
@@ -2132,6 +2263,51 @@ def _matches_rf(build: Build) -> bool:
     return "righteous fire" in skill or skill == "rf"
 
 
+# Aura gem names (low-cased) used to identify Aurabot builds.
+# An Aurabot doesn't have a damage main_skill — it's identified by
+# carrying 5+ aura supports. Reservation auras are listed here; Vaal
+# variants share the base name (matched via casefold-substring below).
+_AURA_GEMS: frozenset[str] = frozenset(
+    {
+        "anger",
+        "wrath",
+        "hatred",
+        "determination",
+        "grace",
+        "vitality",
+        "purity of fire",
+        "purity of cold",
+        "purity of lightning",
+        "purity of elements",
+        "discipline",
+        "clarity",
+        "haste",
+        "malevolence",
+        "pride",
+        "zealotry",
+        "skitterbots",
+        "summon skitterbots",
+        "envy",
+    }
+)
+
+
+def _matches_aurabot(build: Build) -> bool:
+    """Match aurabot builds: 5+ aura gems carried as supports.
+
+    Aurabots don't fit the skill-keyed dispatch — they identify by the
+    sheer number of reservation auras stacked. Counts ``support_gems``
+    entries whose case-folded form matches a known aura name (substring
+    is enough so Vaal variants land too).
+    """
+
+    needle_set = _AURA_GEMS
+    auras = sum(
+        1 for g in build.support_gems if any(needle in g.casefold() for needle in needle_set)
+    )
+    return auras >= 5
+
+
 # Each registry entry pairs a matcher with its template instance. Order
 # matters: the first matching entry wins. Put more specific matchers
 # first — e.g. RF (which contains "fire") is listed before fire-totem
@@ -2139,6 +2315,10 @@ def _matches_rf(build: Build) -> bool:
 TEMPLATE_REGISTRY: list[tuple[Callable[[Build], bool], BuildTemplate]] = [
     # Most-specific first.
     (_matches_rf, RfPohxTemplate()),
+    # Aurabot must come before any skill matcher: an aurabot might carry
+    # a throwaway Smite/Spark/Arc as DPS, but the build identity is the
+    # aura stack, not the skill.
+    (_matches_aurabot, AurabotGuardianTemplate()),
     # Slam / Marauder
     (_matches_skill("boneshatter"), BoneshatterTemplate()),
     (_matches_skill("earthshatter"), EarthshatterJuggTemplate()),
@@ -2152,6 +2332,7 @@ TEMPLATE_REGISTRY: list[tuple[Callable[[Build], bool], BuildTemplate]] = [
     (_matches_skill("penance brand"), PenanceBrandInquisitorTemplate()),
     (_matches_skill("crackling lance"), CracklingLanceInquisitorTemplate()),
     (_matches_skill("arc"), ArcHierophantTemplate()),
+    (_matches_skill("smite"), SmiteGuardianTemplate()),
     (_matches_skill("bone spear", "soulrend"), BoneSpearNecroTemplate()),
     (_matches_skill("hexblast"), HexblastMinesTemplate()),
     (_matches_skill("detonate dead", "volatile dead"), DetonateDeadNecroTemplate()),
@@ -2219,6 +2400,7 @@ __all__ = [
     "TEMPLATE_REGISTRY",
     "AnimateWeaponNecroTemplate",
     "ArcHierophantTemplate",
+    "AurabotGuardianTemplate",
     "BaneOccultistTemplate",
     "BoneSpearNecroTemplate",
     "BoneshatterTemplate",
@@ -2242,6 +2424,7 @@ __all__ = [
     "RfPohxTemplate",
     "ShrapnelBallistaDeadeyeTemplate",
     "SkeletonMagesTemplate",
+    "SmiteGuardianTemplate",
     "SparkInquisitorTemplate",
     "SpectralThrowChampionTemplate",
     "SpectreNecroTemplate",

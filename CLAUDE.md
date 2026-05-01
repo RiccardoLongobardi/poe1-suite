@@ -176,7 +176,7 @@ Mappa coverage attuale (post-Turno 1):
 | Duelist | 7/7 ✅ | Cyclone Slayer, Reave Slayer, Lacerate Gladiator, Splitting Steel Gladiator, Sunder Champion, Static Strike Gladiator, Spectral Throw Champion |
 | Ranger | 7/7 ✅ | LS Raider, TS Deadeye, FB Raider, TR Pathfinder, Ballista Deadeye, Ice Shot Deadeye, Poisonous Concoction Pathfinder |
 | Witch | 7/7 ✅ | Vortex Occ, Bone Spear Necro, DD Necro, Bane Occ, Spectre Necro, Skel Mages, Animate Weapon (1 da swap → Elementalist) |
-| Templar | 5/7 | Spark Inq, HFT Hiero, Penance Brand Inq, Crackling Lance Inq, Arc Hierophant |
+| Templar | 7/7 ✅ | Spark Inq, HFT Hiero, Penance Brand Inq, Crackling Lance Inq, Arc Hierophant, Smite Guardian, Aurabot Guardian |
 | Shadow | 1/7 | Hexblast Mines |
 | Scion | 0/7 | — |
 
@@ -224,6 +224,15 @@ Baseline 503 test verdi / 91 mypy / 89 format.
 NOTA: matcher "arc" è una substring potenzialmente collisiva (matcherebbe "Arctic Breath", "Arctic Armour" se mai apparissero come main_skill). Tollerabile in pratica perché Arctic Armour è una buff aura (mai main_skill DPS) e Arctic Breath è skill morta. Se in futuro serve distinguere, mettere matcher più specifico prima di "arc".
 
 Baseline 506 test verdi / 91 mypy / 89 format.
+
+**Turno 7 (Templar)** ✅ done (2026-05-01). Templar coverage 5/7 → 7/7 (chiusa). 2 nuovi template + nuova sliding-rule matcher:
+- `SmiteGuardianTemplate` (matcher "smite") — lightning melee + party aura buff radius, Radiant Crusade lab1, Aegis Aurora shield + Sublime Vision amulet, Time of Need ascendancy.
+- `AurabotGuardianTemplate` (matcher CUSTOM `_matches_aurabot`) — support build aura stacking party, Radiant Crusade + Time of Need + Unwavering Crusade, Crown of the Tyrant + Sublime Vision + Awakened Generosity ovunque, Skin of the Lords + Aegis Aurora.
+- Nuovo helper `_matches_aurabot(build)` che conta gli aura nei `support_gems` (≥5 → aurabot). Frozenset `_AURA_GEMS` con 19 nomi base. Registrato PRIMA dei matcher skill, perché un Aurabot con throwaway Smite/Spark va comunque a AurabotGuardian.
+
+Pattern di matcher esteso: oltre allo skill-keyed `_matches_skill(*needles)`, ora supportiamo predicate-keyed (es. count auras). Utile per future match item-keyed (CoC Cospri, Mjolner) tramite `key_items` lookup.
+
+Baseline 509 test verdi / 91 mypy / 89 format.
 
 Turni successivi pianificati:
 - T8-T9 Shadow: Poison BV Assassin, Cobra Lash Assassin, Pyroclast Mines Sab, Cold DoT Trickster, Blade Blast Trickster, Soulrend Trickster *(richiede split del matcher BoneSpearNecro)* (6)

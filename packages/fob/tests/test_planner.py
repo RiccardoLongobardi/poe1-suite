@@ -1124,6 +1124,7 @@ def test_template_registry_covers_popular_skills() -> None:
         "Penance Brand": "penance_brand_inquisitor",
         "Crackling Lance": "crackling_lance_inquisitor",
         "Arc": "arc_hierophant",
+        "Smite": "smite_guardian",
     }
     base_build = _make_build(key_items=[])
     for skill, expected in canonical.items():
@@ -1396,6 +1397,87 @@ async def test_arc_template_emits_signature_advice() -> None:
     mid = plan.stages[1]
     assert any("Conviction of Power" in g for g in mid.gem_changes)
     assert any("Mind Over Matter" in t for t in mid.tree_changes)
+
+
+async def test_smite_template_emits_signature_advice() -> None:
+    """Smite Guardian template hits Radiant Crusade + Aegis Aurora + Sublime Vision."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Smite"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    early_map = plan.stages[3]
+    assert any("Radiant Crusade" in g for g in mid.gem_changes)
+    assert any("Aegis Aurora" in g for g in early_map.gem_changes)
+    assert any("Sublime Vision" in t for t in early_map.tree_changes)
+
+
+def test_aurabot_matcher_routes_on_aura_count() -> None:
+    """A build with 5+ aura supports routes to AurabotGuardianTemplate.
+
+    Aurabot is identified by aura stack, not main_skill — a Smite Guardian
+    with only 2 auras still goes to SmiteGuardianTemplate, but a build
+    with 5+ auras (regardless of main_skill) goes to Aurabot.
+    """
+
+    from poe1_fob.planner import pick_template
+
+    base = _make_build(key_items=[])
+    aurabot = base.model_copy(
+        update={
+            "main_skill": "Smite",  # throwaway DPS
+            "support_gems": [
+                "Wrath",
+                "Anger",
+                "Hatred",
+                "Determination",
+                "Discipline",
+                "Vitality",
+            ],
+        }
+    )
+    template = pick_template(aurabot)
+    assert template.name == "aurabot_guardian"
+
+    # 2 auras only → still smite_guardian.
+    smite = base.model_copy(
+        update={
+            "main_skill": "Smite",
+            "support_gems": ["Wrath", "Determination", "Multistrike"],
+        }
+    )
+    assert pick_template(smite).name == "smite_guardian"
+
+
+async def test_aurabot_template_emits_signature_advice() -> None:
+    """Aurabot template covers Radiant Crusade + Generosity + Crown of the Tyrant."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    aurabot = _make_build(key_items=[]).model_copy(
+        update={
+            "main_skill": "Smite",
+            "support_gems": [
+                "Wrath",
+                "Anger",
+                "Hatred",
+                "Determination",
+                "Discipline",
+                "Pride",
+            ],
+        }
+    )
+    plan = await svc.plan(aurabot)
+
+    mid = plan.stages[1]
+    early_map = plan.stages[3]
+    end_map = plan.stages[4]
+    assert any("Radiant Crusade" in g for g in mid.gem_changes)
+    assert any("Generosity" in g for g in mid.gem_changes)
+    assert any("Crown of the Tyrant" in t for t in early_map.tree_changes)
+    assert any("Generosity" in g for g in end_map.gem_changes)
 
 
 async def test_spectre_template_routes_to_minion_setup() -> None:
