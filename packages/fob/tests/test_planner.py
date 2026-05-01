@@ -1133,6 +1133,8 @@ def test_template_registry_covers_popular_skills() -> None:
         "Soulrend": "soulrend_trickster",
         "Power Siphon": "power_siphon_scion",
         "Storm Brand": "storm_brand_scion",
+        "Spectral Helix": "spectral_helix_scion",
+        "Forbidden Rite": "forbidden_rite_scion",
     }
     base_build = _make_build(key_items=[])
     for skill, expected in canonical.items():
@@ -1641,6 +1643,75 @@ async def test_storm_brand_template_emits_signature_advice() -> None:
     end_map = plan.stages[4]
     assert any("Inquisitor + Elementalist" in g for g in mid.gem_changes)
     assert any("Awakened Brand Recall" in g for g in end_map.gem_changes)
+
+
+def test_mjolner_matcher_routes_on_unique_mace() -> None:
+    """Mjolner matcher catches builds carrying the unique mace.
+
+    A vanilla 'Cyclone' build with no Mjolner routes to CycloneSlayer.
+    Add the unique mace as a key_item and the same build routes to
+    MjolnerDischargeScionTemplate.
+    """
+
+    from poe1_fob.planner import pick_template
+
+    base = _make_build(key_items=[]).model_copy(update={"main_skill": "Cyclone"})
+    assert pick_template(base).name == "cyclone_slayer"
+
+    mjolner = _key_item(
+        "Mjolner",
+        base_type="Gavel",
+        slot=ItemSlot.WEAPON_MAIN,
+    )
+    mjolner_build = base.model_copy(update={"key_items": [mjolner]})
+    assert pick_template(mjolner_build).name == "mjolner_discharge_scion"
+
+
+async def test_mjolner_template_emits_signature_advice() -> None:
+    """Mjolner template hits CWDT trigger setup + Discharge endgame."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    mjolner = _key_item(
+        "Mjolner",
+        base_type="Gavel",
+        slot=ItemSlot.WEAPON_MAIN,
+    )
+    build = _make_build(key_items=[mjolner]).model_copy(update={"main_skill": "Cyclone"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    early_map = plan.stages[3]
+    assert any("CWDT" in g or "Cast When Damage Taken" in g for g in mid.gem_changes)
+    assert any("Mjolner" in g for g in early_map.gem_changes)
+
+
+async def test_spectral_helix_template_emits_signature_advice() -> None:
+    """Spectral Helix Scion template hits Slayer+Deadeye + Saviour shield."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Spectral Helix"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    early_map = plan.stages[3]
+    assert any("Slayer + Deadeye" in g for g in mid.gem_changes)
+    assert any("Saviour" in g for g in early_map.gem_changes)
+
+
+async def test_forbidden_rite_template_emits_signature_advice() -> None:
+    """Forbidden Rite Scion template hits Pathfinder+Trickster + Pain Attunement."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Forbidden Rite"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    early_map = plan.stages[3]
+    assert any("Pathfinder + Trickster" in g for g in mid.gem_changes)
+    assert any("Shavronne's Wrappings" in g or "Solaris Lorica" in g for g in early_map.gem_changes)
 
 
 async def test_spectre_template_routes_to_minion_setup() -> None:

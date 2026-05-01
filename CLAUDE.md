@@ -178,7 +178,7 @@ Mappa coverage attuale (post-Turno 1):
 | Witch | 7/7 ✅ | Vortex Occ, Bone Spear Necro, DD Necro, Bane Occ, Spectre Necro, Skel Mages, Animate Weapon (1 da swap → Elementalist) |
 | Templar | 7/7 ✅ | Spark Inq, HFT Hiero, Penance Brand Inq, Crackling Lance Inq, Arc Hierophant, Smite Guardian, Aurabot Guardian |
 | Shadow | 7/7 ✅ | Hexblast Mines, Poison BV Assassin, Cobra Lash Assassin, Pyroclast Mines Saboteur, Cold DoT Trickster, Blade Blast Trickster, Soulrend Trickster |
-| Scion | 3/7 | CoC Cospri Cyclone, Power Siphon, Storm Brand |
+| Scion | 6/7 | CoC Cospri Cyclone, Power Siphon, Storm Brand, Mjolner Discharge, Spectral Helix, Forbidden Rite |
 
 **Turno 1 (Marauder)** ✅ done (2026-05-01). 3 nuovi template + matchers + test signature:
 - `BoneshatterTemplate` (matcher "boneshatter") — Jugg/Berserker, trauma stack mechanic, Sunder/Ground Slam levelling → switch a level 28, Heatshiver cold-conv variant.
@@ -262,6 +262,15 @@ Baseline 515 test verdi / 91 mypy / 89 format.
 Pattern matcher esteso a item-keyed (`_matches_coc_cospri`): stessa firma `Callable[[Build], bool]` di `_matches_aurabot`, ma legge `build.key_items[*].item.name`. Riutilizzabile per Mjolner Discharge (T11).
 
 Baseline 519 test verdi / 91 mypy / 89 format.
+
+**Turno 11 (Scion)** ✅ done (2026-05-01). Scion coverage 3/7 → 6/7. 3 nuovi template + nuovo matcher item-keyed:
+- `MjolnerDischargeScionTemplate` (matcher CUSTOM `_matches_mjolner`) — Mjolner unique mace triggera spell on melee hit, Cyclone + CWDT + Discharge + Ball Lightning, Inquisitor + Champion Ascendant. Stesso pattern di `_matches_coc_cospri`.
+- `SpectralHelixScionTemplate` (matcher "spectral helix") — sword/axe boomerang con curva sinusoidale, Slayer + Deadeye Ascendant, Paradoxica + Saviour shield endgame.
+- `ForbiddenRiteScionTemplate` (matcher "forbidden rite") — chaos+ele self-cast spell con life cost, Low Life Pain Attunement, Pathfinder + Trickster Ascendant, Shavronne's Wrappings o Solaris Lorica.
+
+NOTA cambio piano: invece di "Reap" (matcher "reap" collisivo con "Summon Reaper" minion skill) ho usato Forbidden Rite — distinto e altrettanto iconico Scion.
+
+Baseline 523 test verdi / 91 mypy / 89 format.
 
 Turni successivi pianificati:
 - T8-T9 Shadow: Poison BV Assassin, Cobra Lash Assassin, Pyroclast Mines Sab, Cold DoT Trickster, Blade Blast Trickster, Soulrend Trickster *(richiede split del matcher BoneSpearNecro)* (6)

@@ -2773,6 +2773,189 @@ class StormBrandScionTemplate(GenericTemplate):
         return super().for_stage(stage, build)
 
 
+class MjolnerDischargeScionTemplate(GenericTemplate):
+    """Mjolner Discharge Scion — channel + Mjolner trigger Discharge.
+
+    Mjolner unique mace triggera spell socketed on melee hit. Build classico:
+    Cyclone (o Static Strike) + Mjolner trigger Discharge + Ball Lightning.
+    Genera Power+Endurance+Frenzy charges via CWDT setup. Scion Ascendant
+    Inquisitor + Champion. Endgame con +1/+2 socketed Mjolner corrupted
+    (~150-300 div).
+    """
+
+    name: str = "mjolner_discharge_scion"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Storm Brand o Frost Blades come levelling pre-Mjolner.",
+                    "Atto 3: Cyclone sblocca; vanilla Cyclone con Faster Attacks + Inspiration.",
+                    "Niente Mjolner ancora: serve level 60+ per equiparlo (str+int requirements alti).",
+                ],
+                rationale_override=(
+                    "Mjolner ha requirements stat alti (200 str + 200 int) e cooldown "
+                    "reduction needed. In atto si livella vanilla Cyclone fino a level 60+, "
+                    "poi switch a Mjolner trigger setup."
+                ),
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Inquisitor + Champion (Scion Ascendant) per ele pen + impale.",
+                    "Cyclone + Awakened Cast When Damage Taken (low level CWDT setup) + Discharge + Ball Lightning + Inspiration.",
+                    "Wrath + Herald of Thunder + Discipline aura.",
+                ],
+                tree_changes=[
+                    "Cluster: Charge generation (Voices of the Vaal / Doryani's Lesson).",
+                    "Resolute Technique area se vuoi semplicità accuracy.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Mjolner mace (~30-60 div): trigger socketed lightning spell on melee hit.",
+                    "Body 6L: Cyclone + CWDT + Inspiration + Fortify + supporto charge gen.",
+                    "Mjolner socketato 6S: Discharge + Ball Lightning + Awakened Lightning Pen + Concentrated Effect + Power Charge On Critical + Endurance Charge On Melee Stun.",
+                ],
+                tree_changes=[
+                    "Watcher's Eye Wrath 'Lightning Pen' + Discipline 'ES recharge'.",
+                    "+1 power charge body craft per crit cap.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Lightning Pen 5 + Awakened Added Lightning 5.",
+                    "21/20 Discharge corrupted + 21/20 Ball Lightning.",
+                    "Mjolner +1/+2 socketed gems corrupted (~150-300 div).",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh: combo Inquisitor + Champion doppio-ascendancy.",
+                    "Romira's Banquet ring (gain power charge on hit no crit) + The Saviour shield.",
+                    "Helmet enchant: Discharge 40% increased damage.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class SpectralHelixScionTemplate(GenericTemplate):
+    """Spectral Helix Scion — sword/axe boomerang projectile con curva.
+
+    Spectral Helix lancia una weapon copy che curva e torna con AoE
+    massive. Distinto da Spectral Throw: traiettoria sinusoidale + multi-
+    hit. Scion Ascendant Slayer + Deadeye (over-leech + projectile)
+    o Slayer + Champion (impale). Paradoxica + Saviour shield endgame.
+    """
+
+    name: str = "spectral_helix_scion"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Spectral Throw o Frost Blades come levelling pre-Spectral Helix.",
+                    "Atto 4 reward: Spectral Helix sblocca; setup 4L con Brutality + Faster Attacks + Pierce.",
+                    "Whirling Blades come movement, Pride aura.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Slayer + Deadeye (Scion Ascendant): over-leech + Endless Munitions.",
+                    "Spectral Helix + Awakened Brutality (cheap) + Awakened Vicious Projectiles (cheap) + Pierce + Inspiration + Slower Projectiles (boss).",
+                    "Pride + War Banner + Dread Banner.",
+                ],
+                tree_changes=[
+                    "Cluster jewel sword + projectile damage.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Spectral Helix + Awakened Brutality + Awakened Vicious Projectiles + Pierce + Inspiration + Slower Projectiles.",
+                    "Paradoxica 1H sword (~10-30 div) o +1/+2 socketed Foil craft.",
+                    "Saviour shield (~30-50 div) per mirror minion + crit boost.",
+                ],
+                tree_changes=[
+                    "Cluster: Master the Fundamentals + Quick Getaway + Calamitous.",
+                    "Lycosidae shield budget alternativo (accuracy gratis).",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Brutality 5 + Awakened Vicious Projectiles 5 + Awakened Fortify 5.",
+                    "21/20 Spectral Helix corrupted + Slower Projectiles 21/20.",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh: combo Slayer + Deadeye doppio-ascendancy.",
+                    "Watcher's Eye Pride 'Increased Phys Damage' (~50+ div).",
+                    "Helmet enchant: Spectral Helix +20% damage.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class ForbiddenRiteScionTemplate(GenericTemplate):
+    """Forbidden Rite Scion — chaos+ele self-cast spell con life cost.
+
+    Forbidden Rite spara projectile ele+chaos che passano oltre i target,
+    consuma life flat per cast. Build classico Low Life via Pain Attunement
+    (50% increased spell damage). Scion Ascendant Pathfinder + Trickster
+    (flask uptime + life regen) o Pathfinder + Inquisitor. Endgame con
+    Awakened Spell Echo + Awakened Added Chaos + +2 spell skill staff.
+    """
+
+    name: str = "forbidden_rite_scion"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Storm Brand come levelling pre-Forbidden Rite.",
+                    "Atto 4 reward: Forbidden Rite sblocca; setup 4L con Pierce + Faster Casting + Awakened Added Chaos (cheap).",
+                    "Wand+shield Lifesprig per +1 spell skill.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Pathfinder + Trickster (Scion Ascendant): flask uptime + ES sustain.",
+                    "Forbidden Rite + Pierce + Awakened Spell Echo (cheap) + Awakened Added Chaos (cheap) + Awakened Void Manipulation (cheap) + Inspiration.",
+                    "Malevolence + Discipline + Skitterbots.",
+                ],
+                tree_changes=[
+                    "Pain Attunement keystone (Low Life setup, 50% increased spell damage).",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Forbidden Rite + Awakened Spell Echo + Awakened Added Chaos + Awakened Void Manipulation + Inspiration + Pierce.",
+                    "+1 Spell Skill / +1 Chaos Spell staff (~10-30 div).",
+                    "Shavronne's Wrappings body (Low Life setup) o Solaris Lorica.",
+                ],
+                tree_changes=[
+                    "Cluster jewel: Wicked Pall + Touch of Cruelty + Sadist.",
+                    "Watcher's Eye Discipline 'ES recharge' (Low Life sustain).",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Spell Echo 5 + Awakened Added Chaos 5 + Awakened Void Manipulation 5.",
+                    "21/20 Forbidden Rite corrupted + Inspiration 21/20.",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh: combo Pathfinder + Trickster doppio.",
+                    "+2 spell skill staff custom craft (~50-100 div).",
+                    "Helmet enchant: Forbidden Rite 25% increased damage.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
 # ---------------------------------------------------------------------------
 # Registry & dispatch
 # ---------------------------------------------------------------------------
@@ -2843,6 +3026,18 @@ def _matches_coc_cospri(build: Build) -> bool:
     return any("cospri's malice" in (ki.item.name or "").casefold() for ki in build.key_items)
 
 
+def _matches_mjolner(build: Build) -> bool:
+    """Match Mjolner Discharge / CoMK builds: any key_item is Mjolner.
+
+    Mjolner triggers socketed lightning spell on melee hit. Build identity
+    is the unique mace; main_skill is usually 'Cyclone' or 'Static Strike'
+    (the channel/strike that hits). Skill-keyed dispatch alone would route
+    to CycloneSlayer/StaticStrikeGladiator.
+    """
+
+    return any("mjolner" in (ki.item.name or "").casefold() for ki in build.key_items)
+
+
 def _matches_aurabot(build: Build) -> bool:
     """Match aurabot builds: 5+ aura gems carried as supports.
 
@@ -2870,6 +3065,10 @@ TEMPLATE_REGISTRY: list[tuple[Callable[[Build], bool], BuildTemplate]] = [
     # a throwaway Smite/Spark/Arc as DPS, but the build identity is the
     # aura stack, not the skill.
     (_matches_aurabot, AurabotGuardianTemplate()),
+    # Mjolner — item-keyed, before any cyclone/static-strike skill matcher.
+    # Mjolner triggers socketed lightning spell on melee hit; the build
+    # identity is the unique mace, not the channel skill.
+    (_matches_mjolner, MjolnerDischargeScionTemplate()),
     # CoC Cospri — item-keyed matcher, must come before "cyclone" matcher
     # because CoC Cospri builds carry main_skill='Cyclone'.
     (_matches_coc_cospri, CocCospriCycloneScionTemplate()),
@@ -2910,6 +3109,7 @@ TEMPLATE_REGISTRY: list[tuple[Callable[[Build], bool], BuildTemplate]] = [
     (_matches_skill("sunder"), SunderChampionTemplate()),
     (_matches_skill("static strike"), StaticStrikeGladiatorTemplate()),
     (_matches_skill("spectral throw"), SpectralThrowChampionTemplate()),
+    (_matches_skill("spectral helix"), SpectralHelixScionTemplate()),
     (_matches_skill("lightning strike"), LightningStrikeRaiderTemplate()),
     (_matches_skill("tornado shot"), TornadoShotDeadeyeTemplate()),
     (_matches_skill("frost blades"), FrostBladesRaiderTemplate()),
@@ -2917,6 +3117,7 @@ TEMPLATE_REGISTRY: list[tuple[Callable[[Build], bool], BuildTemplate]] = [
     (_matches_skill("poisonous concoction"), PoisonousConcoctionPathfinderTemplate()),
     (_matches_skill("toxic rain"), ToxicRainPathfinderTemplate()),
     (_matches_skill("power siphon"), PowerSiphonScionTemplate()),
+    (_matches_skill("forbidden rite"), ForbiddenRiteScionTemplate()),
     # Minions
     (_matches_skill("raise spectre", "spectre"), SpectreNecroTemplate()),
     (
@@ -2979,6 +3180,7 @@ __all__ = [
     "CycloneSlayerTemplate",
     "DetonateDeadNecroTemplate",
     "EarthshatterJuggTemplate",
+    "ForbiddenRiteScionTemplate",
     "FrostBladesRaiderTemplate",
     "GenericTemplate",
     "GroundSlamJuggTemplate",
@@ -2987,6 +3189,7 @@ __all__ = [
     "IceShotDeadeyeTemplate",
     "LacerateGladiatorTemplate",
     "LightningStrikeRaiderTemplate",
+    "MjolnerDischargeScionTemplate",
     "MoltenStrikeChieftainTemplate",
     "PenanceBrandInquisitorTemplate",
     "PoisonBladeVortexAssassinTemplate",
@@ -3000,6 +3203,7 @@ __all__ = [
     "SmiteGuardianTemplate",
     "SoulrendTricksterTemplate",
     "SparkInquisitorTemplate",
+    "SpectralHelixScionTemplate",
     "SpectralThrowChampionTemplate",
     "SpectreNecroTemplate",
     "SplittingSteelGladiatorTemplate",
