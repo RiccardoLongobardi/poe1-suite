@@ -164,11 +164,41 @@ Step 13.B — Watcher's Eye combo pricing via Trade.
 
 Baseline: 489 test verdi / 91 mypy / 89 format.
 
+## Step 13.D in corso (target 7 template per classe = 49 totali)
+
+Step 13.D in progress — copertura per classe via BuildTemplate. Target rivisto: **7 template per ogni classe** PoE1 (Marauder / Duelist / Ranger / Witch / Templar / Shadow / Scion) = **49 totali nel registry**. Currently 17 → da aggiungere ~32 template.
+
+Mappa coverage attuale (post-Turno 1):
+
+| Classe | Count | Template registrati |
+|---|---|---|
+| Marauder | 4/7 | RF Jugg, Boneshatter, Earthshatter Jugg, Tectonic Slam Chieftain |
+| Duelist | 1/7 | Cyclone Slayer |
+| Ranger | 5/7 | LS Raider, TS Deadeye, FB Raider, TR Pathfinder, Ballista Deadeye |
+| Witch | 7/7 ✅ | Vortex Occ, Bone Spear Necro, DD Necro, Bane Occ, Spectre Necro, Skel Mages, Animate Weapon (1 da swap → Elementalist) |
+| Templar | 2/7 | Spark Inq, HFT Hiero |
+| Shadow | 1/7 | Hexblast Mines |
+| Scion | 0/7 | — |
+
+**Turno 1 (Marauder)** ✅ done (2026-05-01). 3 nuovi template + matchers + test signature:
+- `BoneshatterTemplate` (matcher "boneshatter") — Jugg/Berserker, trauma stack mechanic, Sunder/Ground Slam levelling → switch a level 28, Heatshiver cold-conv variant.
+- `EarthshatterJuggTemplate` (matcher "earthshatter") — slam phys + spike detonation, Tukohama's Coffer, +2 to Slam Skills crafting.
+- `TectonicSlamChieftainTemplate` (matcher "tectonic slam") — fire slam consumando EC, Tukohama War's Herald + Ngamahu True Flame, Magnate belt + Kaom's Way ring.
+
+Baseline 492 test verdi / 91 mypy / 89 format.
+
+Turni successivi pianificati:
+- T2 Marauder: Molten Strike Chieftain, Ground Slam Jugg, Vaal Ancestral Warchief o Ngamahu Cyclone Chieftain (3)
+- T3 Duelist: Reave Slayer, Lacerate Gladiator, Splitting Steel Gladiator (3)
+- T4 Duelist: Sunder Champion, Boneshatter Champion *(skill collision con T1 → meglio Spectral Throw Champion o Static Strike Gladiator)*, Static Strike Gladiator (3)
+- T5 Ranger: Ice Shot Deadeye, Poisonous Concoction Pathfinder (2)
+- T6-T7 Templar: Penance Brand Inq, Crackling Lance Inq, Arc Hierophant, Smite Guardian, Aurabot Guardian (5)
+- T8-T9 Shadow: Poison BV Assassin, Cobra Lash Assassin, Pyroclast Mines Sab, Cold DoT Trickster, Blade Blast Trickster, Soulrend Trickster *(richiede split del matcher BoneSpearNecro)* (6)
+- T10-T12 Scion: CoC Cospri, Power Siphon, Storm Brand, Mjolner, Spectral Helix, Reap, Forbidden Rite (7)
+- T13 Witch swap: rimpiazzo di 1 template Necro (probabilmente Animate Weapon) con Ball Lightning Elementalist o equivalente.
+
 ## What comes after (Step 13+)
-- **Step 13.D — Templates per ogni classe** (almeno 3 build per Duelist / Witch / Marauder / Templar / Shadow / Ranger / Scion). Obiettivo: dato un endgame PoB, FOB ha sempre un piano coerente per la classe corrispondente. ~21 template totali nel registry.
 - **Step 13.C — Reverse-progression engine** (final endgame del progetto): derivare custom upgrade ladder dal PoB endgame anziché dai template hardcoded.
-- Templates ulteriori per skill emergenti (Penance Brand, Crackling Lance, Storm Brand, Forbidden Rite, ecc.) man mano che escono mete nuove.
-- **Step 11 — UI overhaul** — tema astrale viola, welcome page animata, home page dashboard, modale donation PayPal (paypal.me/riclong). Refactor a `react-router-dom`.
 - **Faustus flipper** — package `poe1-faustus` per flip di valuta basato su poe.ninja bulk trades. Strumento separato. UX: arbitraggi "X chaos → Y div → Z chaos → profit %".
 - **App unica raggruppante** — navbar per tool (FOB, Faustus, …) quando arriva il secondo tool.
 

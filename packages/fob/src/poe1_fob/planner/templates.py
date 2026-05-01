@@ -293,6 +293,196 @@ class RfPohxTemplate(GenericTemplate):
 
 
 # ---------------------------------------------------------------------------
+# Slam / Marauder templates
+# ---------------------------------------------------------------------------
+
+
+class BoneshatterTemplate(GenericTemplate):
+    """Boneshatter Juggernaut/Berserker — phys melee strike con trauma stack.
+
+    Boneshatter accumula trauma stack che aumentano il danno preso ma anche
+    quello inflitto. Levelling con Sunder/Ground Slam fino allo sblocco a
+    level 28 (atto 4 reward). Jugg gioca Unstoppable + Unbreakable per
+    sopravvivere agli stack alti; Berserker accelera con Crave the Slaughter
+    + Aspect of Carnage. Heatshiver helmet + Hatred = variant cold-conversion
+    per scalare Hatred + Watcher's Eye.
+    """
+
+    name: str = "boneshatter_marauder"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Sunder (quest 'Mercy Mission') o Ground Slam come levelling.",
+                    "Atto 4 (level ~28): Boneshatter sblocca; switch su 4L con Multistrike + Melee Phys + Pulverise.",
+                    "Leap Slam come movement, Ancestral Protector totem per attack speed.",
+                ],
+                rationale_override=(
+                    "Boneshatter scala con stack di trauma: ogni colpo aumenta il danno "
+                    "preso ma anche quello inflitto. In atto 1-3 il setup non c'è ancora "
+                    "(servono life regen + armour), quindi Sunder/Ground Slam sono più "
+                    "comodi fino al primo lab."
+                ),
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Unflinching (Jugg) o Crave the Slaughter (Berserker).",
+                    "Boneshatter + Multistrike + Brutality + Pulverise + Melee Phys + Fortify.",
+                    "Pride aura + War Banner per phys taken multi sui mob.",
+                ],
+                tree_changes=[
+                    "Cluster phys melee + life clusters dal Marauder start.",
+                    "Brightbeak come transition weapon (1H phys + +50% attack speed).",
+                ],
+                rationale_override=(
+                    "Switch a Boneshatter dopo Unflinching: gli Endurance Charges "
+                    "compensano il phys taken multi degli stack. Berserker invece corre "
+                    "alti stack con Aspect of Carnage."
+                ),
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Boneshatter + Awakened Multistrike + Awakened Melee Phys + Awakened Brutality + Pulverise + Fortify.",
+                    "+1 to Strike Skills 1H mace o axe +2 socketed (~10-30 div).",
+                    "Heatshiver helmet variant (~3-5 div): chill = cold conversion per Hatred scaling.",
+                ],
+                tree_changes=[
+                    "Cluster jewel: Fuel the Fight + Feed the Fury per attack speed.",
+                    "Brass Dome body unique (massive armour) o rare 6L con +1 socketed.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Melee Phys 5 + Awakened Brutality 5 + Awakened Multistrike 5.",
+                    "21/20 Boneshatter corrupted + Awakened Fortify 5 (~30 div).",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh per Unstoppable (Jugg) o Aspect of Carnage (Berserker) raddoppiato.",
+                    "Watcher's Eye Pride 'increased phys damage taken' (~80+ div).",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class EarthshatterJuggTemplate(GenericTemplate):
+    """Earthshatter Juggernaut — slam phys con detonazione spikes.
+
+    Earthshatter pianta spikes nel terreno che esplodono al prossimo slam,
+    raddoppiando il damage AoE. Scala con slam/warcry tags + Brutality.
+    Jugg Unflinching + Unstoppable + Unbreakable = build slam tank classico.
+    Tukohama's Coffer body per +X to Slam socketed o craft +2 to Slam Skills.
+    """
+
+    name: str = "earthshatter_juggernaut"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Sunder + Ancestral Protector + Leap Slam dalle quest.",
+                    "Atto 3 (Library Siosa): Earthshatter sblocca; metti su 4L con Multistrike + Melee Phys + Pulverise.",
+                    "Aggiungi Rallying Cry o Ancestral Cry per warcry damage multi.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Unflinching + Endurance Charge generation.",
+                    "Earthshatter + Multistrike + Awakened Brutality (cheap) + Pulverise + Melee Phys + Fortify.",
+                    "Aggiungi Seismic Cry: warcry → +slam damage al colpo successivo.",
+                ],
+                tree_changes=[
+                    "Resolute Technique area dal tree centrale (zero crit/accuracy needed).",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Earthshatter + Awakened Brutality + Awakened Melee Phys + Pulverise + Multistrike + Awakened Fortify.",
+                    "+2 to Slam Skills 2H mace craft (~10-30 div) o Marohi Erqi unique 2H.",
+                ],
+                tree_changes=[
+                    "Tukohama's Coffer body o rare 6L con +1 socketed gems.",
+                    "Cluster jewel: Fuel the Fight + Quick Getaway + Feed the Fury.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Brutality 5 + Awakened Melee Phys 5 + Awakened Fortify 5.",
+                    "21/20 Earthshatter corrupted + Pulverise 21/20.",
+                ],
+                tree_changes=[
+                    "Hands of the High Templar custom craft (Curse on Hit + +1 Slam socketed).",
+                    "Helmet enchant: Earthshatter increased damage 40%.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class TectonicSlamChieftainTemplate(GenericTemplate):
+    """Tectonic Slam Chieftain — fire slam consumando Endurance Charges.
+
+    Tectonic Slam consuma Endurance Charges per emettere fissures di fuoco.
+    Chieftain Tukohama, War's Herald + Ngamahu, True Flame convertono phys
+    → fire e generano EC. The Magnate belt + Kaom's Way ring per charge
+    generation infinita; Combustion + Awakened Fire Pen per pen finale.
+    """
+
+    name: str = "tectonic_slam_chieftain"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Sunder + Leap Slam + Ancestral Protector.",
+                    "Atto 3 reward: Tectonic Slam sblocca; metti su 4L con Multistrike + Combustion + Fire Pen.",
+                    "Anger + Herald of Ash low-level per damage scaling.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Tukohama, War's Herald (Endurance Charge gen + life regen).",
+                    "Tectonic Slam + Multistrike + Combustion + Fire Pen + Awakened Brutality (cheap) + Pulverise.",
+                    "Aspect of the Crab per phys mitigation extra.",
+                ],
+                tree_changes=[
+                    "Marauder area: Tireless + Heart of Flame + Diamond Skin.",
+                    "The Magnate belt unique per +1 Endurance Charge from items.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Tectonic + Awakened Fire Pen + Awakened Brutality + Combustion + Awakened Melee Phys + Multistrike.",
+                    "+2 to Strike/Slam mace o axe craft (~10-30 div).",
+                    "Stampede boots per movement speed indipendente da modificatori.",
+                ],
+                tree_changes=[
+                    "Kaom's Way rings (1-2): +1 Endurance Charge ognuno.",
+                    "Cluster jewel: fire damage + slam.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Fire Pen 5 + Awakened Brutality 5 + Awakened Melee Phys 5.",
+                    "21/20 Tectonic Slam corrupted + Combustion 21/20.",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh per Ngamahu, True Flame doppio (full phys → fire).",
+                    "Helmet enchant: Tectonic Slam 30% increased damage.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+# ---------------------------------------------------------------------------
 # Caster spell DPS templates
 # ---------------------------------------------------------------------------
 
@@ -1124,6 +1314,10 @@ def _matches_rf(build: Build) -> bool:
 TEMPLATE_REGISTRY: list[tuple[Callable[[Build], bool], BuildTemplate]] = [
     # Most-specific first.
     (_matches_rf, RfPohxTemplate()),
+    # Slam / Marauder
+    (_matches_skill("boneshatter"), BoneshatterTemplate()),
+    (_matches_skill("earthshatter"), EarthshatterJuggTemplate()),
+    (_matches_skill("tectonic slam"), TectonicSlamChieftainTemplate()),
     # Casters
     (_matches_skill("vortex", "cold snap"), VortexOccultistTemplate()),
     (_matches_skill("spark"), SparkInquisitorTemplate()),
@@ -1187,9 +1381,11 @@ __all__ = [
     "AnimateWeaponNecroTemplate",
     "BaneOccultistTemplate",
     "BoneSpearNecroTemplate",
+    "BoneshatterTemplate",
     "BuildTemplate",
     "CycloneSlayerTemplate",
     "DetonateDeadNecroTemplate",
+    "EarthshatterJuggTemplate",
     "FrostBladesRaiderTemplate",
     "GenericTemplate",
     "HexblastMinesTemplate",
@@ -1201,6 +1397,7 @@ __all__ = [
     "SparkInquisitorTemplate",
     "SpectreNecroTemplate",
     "StagePlanContent",
+    "TectonicSlamChieftainTemplate",
     "TornadoShotDeadeyeTemplate",
     "ToxicRainPathfinderTemplate",
     "VortexOccultistTemplate",

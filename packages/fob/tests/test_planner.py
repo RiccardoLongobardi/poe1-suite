@@ -1107,6 +1107,9 @@ def test_template_registry_covers_popular_skills() -> None:
         "Animate Weapon": "animate_weapon_necromancer",
         "Holy Flame Totem": "holy_flame_totem_hierophant",
         "Shrapnel Ballista": "ballista_totem_deadeye",
+        "Boneshatter": "boneshatter_marauder",
+        "Earthshatter": "earthshatter_juggernaut",
+        "Tectonic Slam": "tectonic_slam_chieftain",
     }
     base_build = _make_build(key_items=[])
     for skill, expected in canonical.items():
@@ -1143,6 +1146,49 @@ async def test_cyclone_template_emits_signature_advice() -> None:
     end_map = plan.stages[4]
     assert any("Cyclone" in g for g in mid.gem_changes)
     assert any("Atziri's Disfavour" in t for t in end_map.tree_changes)
+
+
+async def test_boneshatter_template_emits_signature_advice() -> None:
+    """Boneshatter template advice mentions trauma stack mechanic + lab pick."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Boneshatter"})
+    plan = await svc.plan(build)
+
+    early = plan.stages[0]
+    mid = plan.stages[1]
+    # Early uses Sunder/Ground Slam pre-skill-unlock.
+    assert any("Sunder" in g or "Ground Slam" in g for g in early.gem_changes)
+    # Mid Campaign: Unflinching (Jugg) o Crave the Slaughter (Berserker).
+    assert any("Unflinching" in g or "Crave the Slaughter" in g for g in mid.gem_changes)
+
+
+async def test_earthshatter_template_emits_signature_advice() -> None:
+    """Earthshatter template hits Slam Skills crafting + Tukohama's Coffer."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Earthshatter"})
+    plan = await svc.plan(build)
+
+    early_map = plan.stages[3]
+    assert any("Slam" in g for g in early_map.gem_changes)
+    assert any("Tukohama" in t or "+1 socketed" in t for t in early_map.tree_changes)
+
+
+async def test_tectonic_slam_template_emits_signature_advice() -> None:
+    """Tectonic Slam template mentions Tukohama War's Herald + EC mechanic."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Tectonic Slam"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    early_map = plan.stages[3]
+    assert any("Tukohama" in g for g in mid.gem_changes)
+    assert any("Endurance Charge" in t or "Kaom's Way" in t for t in early_map.tree_changes)
 
 
 async def test_spectre_template_routes_to_minion_setup() -> None:
