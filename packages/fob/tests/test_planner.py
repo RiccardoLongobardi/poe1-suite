@@ -1113,6 +1113,9 @@ def test_template_registry_covers_popular_skills() -> None:
         "Molten Strike": "molten_strike_chieftain",
         "Ground Slam": "ground_slam_juggernaut",
         "Volcanic Fissure": "volcanic_fissure_juggernaut",
+        "Reave": "reave_slayer",
+        "Lacerate": "lacerate_gladiator",
+        "Splitting Steel": "splitting_steel_gladiator",
     }
     base_build = _make_build(key_items=[])
     for skill, expected in canonical.items():
@@ -1233,6 +1236,46 @@ async def test_volcanic_fissure_template_emits_signature_advice() -> None:
     end_map = plan.stages[4]
     assert any("Avatar of Fire" in t for t in mid.tree_changes)
     assert any("Forbidden" in t for t in end_map.tree_changes)
+
+
+async def test_reave_template_emits_signature_advice() -> None:
+    """Reave template hits Headsman lab + Paradoxica weapon path."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Reave"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    early_map = plan.stages[3]
+    assert any("Headsman" in g for g in mid.gem_changes)
+    assert any("Paradoxica" in g or "Foil" in g for g in early_map.gem_changes)
+
+
+async def test_lacerate_template_emits_signature_advice() -> None:
+    """Lacerate template covers Painforged + corpse explode + Crimson Dance."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Lacerate"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    assert any("Painforged" in g for g in mid.gem_changes)
+    assert any("Crimson Dance" in t for t in mid.tree_changes)
+
+
+async def test_splitting_steel_template_emits_signature_advice() -> None:
+    """Splitting Steel template covers Steel Skills + impale + Painforged/Champion."""
+
+    fake = FakePricing()
+    svc = PlannerService(fake)
+    build = _make_build(key_items=[]).model_copy(update={"main_skill": "Splitting Steel"})
+    plan = await svc.plan(build)
+
+    mid = plan.stages[1]
+    assert any("Painforged" in g or "Worthy Foe" in g for g in mid.gem_changes)
+    assert any("Steel Skills" in t for t in mid.tree_changes)
 
 
 async def test_spectre_template_routes_to_minion_setup() -> None:

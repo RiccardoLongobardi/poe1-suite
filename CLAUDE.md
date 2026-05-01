@@ -173,7 +173,7 @@ Mappa coverage attuale (post-Turno 1):
 | Classe | Count | Template registrati |
 |---|---|---|
 | Marauder | 7/7 ✅ | RF Jugg, Boneshatter, Earthshatter Jugg, Tectonic Slam Chieftain, Molten Strike Chieftain, Ground Slam Jugg, Volcanic Fissure Jugg |
-| Duelist | 1/7 | Cyclone Slayer |
+| Duelist | 4/7 | Cyclone Slayer, Reave Slayer, Lacerate Gladiator, Splitting Steel Gladiator |
 | Ranger | 5/7 | LS Raider, TS Deadeye, FB Raider, TR Pathfinder, Ballista Deadeye |
 | Witch | 7/7 ✅ | Vortex Occ, Bone Spear Necro, DD Necro, Bane Occ, Spectre Necro, Skel Mages, Animate Weapon (1 da swap → Elementalist) |
 | Templar | 2/7 | Spark Inq, HFT Hiero |
@@ -196,9 +196,15 @@ NOTA: in Turno 2 swappato il pianificato "Ngamahu Cyclone Chieftain" con `Volcan
 
 Baseline 495 test verdi / 91 mypy / 89 format.
 
+**Turno 3 (Duelist)** ✅ done (2026-05-01). Duelist coverage 1/7 → 4/7. 3 nuovi template:
+- `ReaveSlayerTemplate` (matcher "reave") — sword phantom blade stacks AoE, Headsman lab1, Paradoxica/Foil endgame, Vaal Reave per single-target burst.
+- `LacerateGladiatorTemplate` (matcher "lacerate") — sword 2H/DW slash + bleed, Painforged + Gratuitous Violence corpse explode, Crimson Dance keystone (DW variant), Lacerate of Haemorrhage transfigured opzionale.
+- `SplittingSteelGladiatorTemplate` (matcher "splitting steel") — phys ranged-melee con secondary projectiles, Steel Skills cluster, Painforged (Glad) o Worthy Foe + Inspirational (Champion).
+
+Baseline 498 test verdi / 91 mypy / 89 format.
+
 Turni successivi pianificati:
-- T3 Duelist: Reave Slayer, Lacerate Gladiator, Splitting Steel Gladiator (3)
-- T4 Duelist: Sunder Champion, Boneshatter Champion *(skill collision con T1 → meglio Spectral Throw Champion o Static Strike Gladiator)*, Static Strike Gladiator (3)
+- T4 Duelist: Sunder Champion, Static Strike Gladiator, Spectral Throw Champion (3)
 - T5 Ranger: Ice Shot Deadeye, Poisonous Concoction Pathfinder (2)
 - T6-T7 Templar: Penance Brand Inq, Crackling Lance Inq, Arc Hierophant, Smite Guardian, Aurabot Guardian (5)
 - T8-T9 Shadow: Poison BV Assassin, Cobra Lash Assassin, Pyroclast Mines Sab, Cold DoT Trickster, Blade Blast Trickster, Soulrend Trickster *(richiede split del matcher BoneSpearNecro)* (6)

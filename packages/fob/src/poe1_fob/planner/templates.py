@@ -1026,6 +1026,183 @@ class CycloneSlayerTemplate(GenericTemplate):
         return super().for_stage(stage, build)
 
 
+class ReaveSlayerTemplate(GenericTemplate):
+    """Reave Slayer — sword strike con phantom blade stacks AoE.
+
+    Reave colpisce localmente e accumula stack che aumentano l'AoE.
+    Slayer Headsman dà over-leech + cannot be stunned while leeching;
+    Bane of Legends raddoppia il damage on first hit dei rare/unique.
+    Paradoxica (1H sword +100% phys as ele) o Foil base + +1/+2 socketed
+    sono le weapon endgame. Vaal Reave per single-target burst.
+    """
+
+    name: str = "reave_slayer"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Frost Blades o Caustic Arrow come levelling pre-Reave.",
+                    "Atto 3: Reave sblocca; metti su 4L con Multistrike + Faster Attacks + Added Lightning.",
+                    "Whirling Blades come movement, Onslaught Support per attack speed.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Headsman (Slayer over-leech + cull strike).",
+                    "Reave + Multistrike + Inspiration + Added Cold/Lightning + Trinity + Elemental Damage with Attacks.",
+                    "Wrath + Herald of Ice + Precision low-level.",
+                ],
+                tree_changes=[
+                    "Sword cluster + Resolute Technique area opzionale (zero accuracy needed).",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Reave + Awakened Multistrike + Awakened Added Lightning + Trinity + Awakened Elemental Damage with Attacks + Inspiration.",
+                    "Paradoxica 1H sword (~10-30 div) o +1/+2 socketed Foil craft.",
+                    "Vaal Reave 4L laterale per single-target boss burst.",
+                ],
+                tree_changes=[
+                    "Cluster jewel: Pressure Points + Quick Getaway + Calamitous.",
+                    "Saviour shield (mirror minion + crit boost) o Lycosidae per accuracy.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Multistrike 5 + Awakened Added Lightning 5 + Awakened Elemental Damage with Attacks 5.",
+                    "21/20 Reave corrupted + Inspiration 21/20.",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh per Bane of Legends doppio.",
+                    "Watcher's Eye Wrath 'Lightning Pen' + Precision 'crit chance'.",
+                    "Helmet enchant: Reave +40 stage maximum.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class LacerateGladiatorTemplate(GenericTemplate):
+    """Lacerate Gladiator — sword 2H/DW slash + bleed stacking.
+
+    Lacerate spara due onde phys (bleed sui critici). Gladiator Painforged
+    + Gratuitous Violence trasforma i corpses in explode chain. Crimson
+    Dance keystone permette bleed stack (variante DW). Endgame con +1/+2
+    socketed weapon e Awakened Brutality + Awakened Vicious Projectiles
+    (sì, anche se è melee, il proj è splitting wave).
+    """
+
+    name: str = "lacerate_gladiator"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Sunder o Frost Blades come levelling pre-Lacerate.",
+                    "Atto 3 reward: Lacerate sblocca; setup 4L con Melee Phys + Brutality + Multistrike.",
+                    "Leap Slam + Blood Rage low-level per attack speed.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Painforged + Gratuitous Violence (corpse explode chain).",
+                    "Lacerate + Multistrike + Brutality + Awakened Melee Phys (cheap) + Pulverise + Fortify.",
+                    "Pride + Blood and Sand stance on Sand per AoE.",
+                ],
+                tree_changes=[
+                    "Crimson Dance keystone (DW variant) per bleed stacking.",
+                    "Cluster phys melee + bleed area sotto Duelist start.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Lacerate + Awakened Brutality + Awakened Melee Phys + Multistrike + Pulverise + Awakened Fortify.",
+                    "DW +1/+2 socketed gems sword/axe craft o Paradoxica + Beltimber Blade.",
+                ],
+                tree_changes=[
+                    "Cluster jewel: Master the Fundamentals + Quick Getaway + Feed the Fury.",
+                    "The Surrender shield (Gladiator) o rare 6L body con +1 socketed.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Brutality 5 + Awakened Melee Phys 5 + Awakened Fortify 5.",
+                    "21/20 Lacerate corrupted + Pulverise 21/20.",
+                    "Considera Lacerate of Haemorrhage (transfigured) per pure bleed scaling.",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh per Painforged doppio.",
+                    "Watcher's Eye Pride 'Increased Phys Damage' (~50+ div).",
+                    "Helmet enchant: Lacerate 40% increased damage.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
+class SplittingSteelGladiatorTemplate(GenericTemplate):
+    """Splitting Steel Gladiator — phys ranged-melee con secondary projectiles.
+
+    Splitting Steel lancia un proietto phys che si splitta in 2-3 secondari
+    on hit, applicando Impale. Gladiator Painforged + Gratuitous Violence
+    aggiunge corpse explode; Champion Worthy Foe + Inspirational variant
+    è altrettanto popolare. Sword/axe weapon, Steel Skills cluster jewel.
+    """
+
+    name: str = "splitting_steel_gladiator"
+
+    def for_stage(self, stage: StageSpec, build: Build) -> StagePlanContent:
+        if stage.key == "early_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Atto 1: Sunder o Caustic Arrow come levelling.",
+                    "Atto 3 reward: Splitting Steel sblocca; setup 4L con Multistrike + Impale + Brutality.",
+                    "Leap Slam + Blood and Sand stance.",
+                ],
+            )
+        if stage.key == "mid_campaign":
+            return StagePlanContent(
+                gem_changes=[
+                    "Primo lab: Painforged + Gratuitous Violence (Gladiator) o Worthy Foe + Inspirational (Champion).",
+                    "Splitting Steel + Multistrike + Impale + Brutality + Awakened Melee Phys (cheap) + Trinity (NO — solo phys).",
+                    "Pride + War Banner per impale + phys taken multi.",
+                ],
+                tree_changes=[
+                    "Steel Skills threshold/notable area per +secondary projectiles.",
+                    "Cluster phys melee + impale area sotto Duelist.",
+                ],
+            )
+        if stage.key == "early_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Body 6L: Splitting Steel + Awakened Brutality + Awakened Melee Phys + Multistrike + Impale + Awakened Vicious Projectiles.",
+                    "Paradoxica o +1/+2 socketed sword/axe craft (~20-50 div).",
+                ],
+                tree_changes=[
+                    "Cluster jewel: Fuel the Fight + Master the Fundamentals + Quick Getaway.",
+                    "The Surrender shield + Lycosidae per accuracy + block.",
+                ],
+            )
+        if stage.key == "end_mapping":
+            return StagePlanContent(
+                gem_changes=[
+                    "Awakened Brutality 5 + Awakened Melee Phys 5 + Awakened Vicious Projectiles 5.",
+                    "21/20 Splitting Steel corrupted + Impale 21/20.",
+                ],
+                tree_changes=[
+                    "Forbidden Flame + Flesh per Painforged doppio (Gladiator) o Inspirational (Champion).",
+                    "Watcher's Eye Pride 'Increased Phys Damage' + Precision 'crit chance'.",
+                    "Helmet enchant: Splitting Steel +1 secondary projectile.",
+                ],
+            )
+        return super().for_stage(stage, build)
+
+
 class LightningStrikeRaiderTemplate(GenericTemplate):
     """Lightning Strike Raider/Champion — ranged melee with projectiles.
 
@@ -1507,6 +1684,9 @@ TEMPLATE_REGISTRY: list[tuple[Callable[[Build], bool], BuildTemplate]] = [
     (_matches_skill("bane", "essence drain", "contagion"), BaneOccultistTemplate()),
     # Attacks
     (_matches_skill("cyclone"), CycloneSlayerTemplate()),
+    (_matches_skill("reave"), ReaveSlayerTemplate()),
+    (_matches_skill("lacerate"), LacerateGladiatorTemplate()),
+    (_matches_skill("splitting steel"), SplittingSteelGladiatorTemplate()),
     (_matches_skill("lightning strike"), LightningStrikeRaiderTemplate()),
     (_matches_skill("tornado shot"), TornadoShotDeadeyeTemplate()),
     (_matches_skill("frost blades"), FrostBladesRaiderTemplate()),
@@ -1571,13 +1751,16 @@ __all__ = [
     "GroundSlamJuggTemplate",
     "HexblastMinesTemplate",
     "HolyFlameTotemHieroTemplate",
+    "LacerateGladiatorTemplate",
     "LightningStrikeRaiderTemplate",
     "MoltenStrikeChieftainTemplate",
+    "ReaveSlayerTemplate",
     "RfPohxTemplate",
     "ShrapnelBallistaDeadeyeTemplate",
     "SkeletonMagesTemplate",
     "SparkInquisitorTemplate",
     "SpectreNecroTemplate",
+    "SplittingSteelGladiatorTemplate",
     "StagePlanContent",
     "TectonicSlamChieftainTemplate",
     "TornadoShotDeadeyeTemplate",
