@@ -108,3 +108,23 @@ def test_analyze_pob_with_pobb_in_url(monkeypatch: pytest.MonkeyPatch, settings:
         body = r.json()
         assert body["build"]["origin_url"] == "https://pobb.in/YNQeadFwNBmX"
         assert body["snapshot"]["origin_url"] == "https://pobb.in/YNQeadFwNBmX"
+
+
+def test_plan_reverse_endpoint_is_registered(settings: Settings) -> None:
+    """Step 13.C: smoke test that POST /fob/plan/reverse is wired up.
+
+    Doesn't run pricing (poe.ninja calls are not mocked here), just
+    checks the route exists and validates input shape. Empty body
+    returns 422 (Pydantic rejection), same as /fob/plan.
+    """
+
+    app = create_app(settings)
+    with TestClient(app) as client:
+        # Empty body → 422 from PlanRequest validation.
+        r = client.post("/fob/plan/reverse", json={"input": ""})
+        assert r.status_code == 422
+
+        # Garbage input → 400 (same dispatch as /fob/plan).
+        r = client.post("/fob/plan/reverse", json={"input": "not a PoB"})
+        assert r.status_code == 400
+        assert "not recognised" in r.json()["detail"].lower()

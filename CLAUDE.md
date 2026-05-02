@@ -34,7 +34,7 @@ uv run mypy .
 uv run pytest
 ```
 
-All four must pass with zero errors. Current baseline: **489 tests green (2 skipped — integration/LLM), 91 files type-checked clean, 89 files formatted clean**.
+All four must pass with zero errors. Current baseline: **547 tests green (2 skipped — integration/LLM), 95 files type-checked clean, 93 files formatted clean**.
 
 ## What's built (state as of 2026-04-25, end of Step 8 — FOB completo)
 
@@ -287,9 +287,9 @@ Baseline 523 test verdi / 91 mypy / 89 format.
 
 Coverage finale: tutte 7 classi a 7/7 ✅. Baseline 525 verdi / 91 mypy / 89 format.
 
-## Step 13.C in corso (Reverse-progression engine)
+## Step 13.C completo (Reverse-progression engine)
 
-Step 13.C in progress — **derivare** la upgrade ladder dal PoB endgame dell'utente, anziché applicare un template hardcoded basato su main_skill (Step 13.D). Affianca il template engine, non lo sostituisce: due `KeyItem` endgame diversi sullo stesso skill ora producono advice diversi.
+Step 13.C chiuso — **derivare** la upgrade ladder dal PoB endgame dell'utente, anziché applicare un template hardcoded basato su main_skill (Step 13.D). Affianca il template engine, non lo sostituisce: due `KeyItem` endgame diversi sullo stesso skill ora producono advice diversi.
 
 **T1 — Skeleton engine** ✅ done (2026-05-01). Nuovo subpackage `packages/fob/src/poe1_fob/reverse/`:
 - `models.py` — `LadderStep` (Pydantic frozen, `stage_key + item_name + kind + budget_div_max + rationale`) e `UpgradeLadder` (target_name + tuple di rungs ordinata cheap→endgame, helper `stage_keys()` / `for_stage(spec)`).
@@ -301,12 +301,40 @@ Step 13.C in progress — **derivare** la upgrade ladder dal PoB endgame dell'ut
 
 Baseline 535 test verdi (+10 reverse) / 95 mypy (+4 nuovi file) / 91 format.
 
-**Turni successivi pianificati** (Step 13.C):
-- T2 — Integrazione `PlannerService.plan(mode='reverse')`: per ogni `KeyItem` chiama il degrader, fonde le rungs nei buckets esistenti per stage, popola `gem_changes`/`tree_changes` dai rationale dei rung. Falls back al template advice quando il degrader produce solo single-rung fallback.
-- T3 — `PoeNinjaDegrader`: degrader live che usa poe.ninja history per derivare ladder dinamicamente (cheapest comparable variant, e.g. low-roll Watcher's Eye → mid-roll → endgame target).
-- T4 — `AwakenedGemDegrader`: pattern matching su nomi gem (`Awakened * 5` → `* 4` → `* 3` → regular `Empower`/`Enlighten`/`Enhance`).
-- T5 — `ForbiddenJewelLadder` migliorato: cerca via Trade single-jewel matched (ascendancy-aware) invece del placeholder.
-- T6 — UI: in StageCard mostrare la ladder per ogni KeyItem (timeline accordion: stage 1 → stage N).
+**T2 — Integrazione `PlannerService.plan_reverse()`** ✅ done (2026-05-02). Aggiunge:
+- `PlannerService.__init__(... degrader: ItemDegrader | None = None)` — opzionale, retrocompatibile.
+- `PlannerService.plan_reverse(build, target_goal=...)` — wrapper su `plan()` baseline + post-processing: per ogni `KeyItem` chiama `degrader.degrade(ki)` → `UpgradeLadder`, indicizza i rung per `stage_key`, e per ogni `PlanStage` appende ai `gem_changes` esistenti una riga `[target_name] {rung.rationale}`. Pydantic models frozen → `model_copy(update=...)` per ricostruire il piano.
+- Helper `_stage_key_from_label(label)` per convertire `StageSpec.label` → `key` (i `PlanStage` carry il label umano, i rung il key snake_case).
+- Test: `plan_reverse` senza degrader → `ValueError` (fail-fast); con degrader appende le rationale nei stage corretti; senza key_items il piano è identico al template-only. 538 test verdi (+3 T2).
+
+**T3 — AwakenedGemDegrader + CompositeDegrader** ✅ done (2026-05-02). Aggiunge:
+- `AwakenedGemDegrader` — pattern-keyed su 36 nomi Awakened gems (frozenset `_AWAKENED_GEM_NAMES`). Ladder 3-rung: regular support gem (Mid Campaign, ~0.5 div) → Awakened level 1 entry (Early Mapping, ~2 div) → Awakened level 5 corrupted (High Investment, no cap). Strip del prefix "Awakened " per derivare il regular base name (es. "Awakened Empower" → "Empower Support"). Items non-Awakened → fallback single-rung.
+- `CompositeDegrader` — chain di degrader. Prova ognuno in ordine, ritorna il primo multi-rung match. Single-rung "endgame only" conta come miss così il prossimo degrader tenta. Costruzione tipica: `[AwakenedGemDegrader(), HardcodedDegrader()]`. 544 test verdi (+6 T3).
+
+**T4 — ForbiddenJewelLadder ascendancy-aware** ✅ done (2026-05-02). Aggiorna `_forbidden_pair_ladder` (HardcodedDegrader) per leggere il mod text e estrarre il notable allocato:
+- Riusa `keystone_allocates_resolver` da `poe1_pricing.variants` (regex "Allocates X" già canonico per il variant registry).
+- Quando il notable è estratto: il rung name + rationale lo menzionano esplicitamente (es. "Forbidden Flame matched pair (Avatar of Fire)" + "il prezzo esplode in base alla notable scelta").
+- Fallback gracioso: senza "Allocates X" mod → label "(any notable)" + copy generico originale.
+- 546 test verdi (+2 T4).
+
+**T5 — Endpoint `POST /fob/plan/reverse`** ✅ done (2026-05-02). Aggiunge:
+- Nuovo endpoint stesso shape di `POST /fob/plan` (input PoB, output `PlanResponse`), ma internamente wira un `CompositeDegrader([AwakenedGemDegrader(), HardcodedDegrader()])` e chiama `planner.plan_reverse(...)`.
+- Logging `fob_plan_reverse_ok` con `key_items` count + stage count + cost range.
+- Test integrazione in `apps/server/tests/test_fob_router.py`: smoke test che l'endpoint è registrato (rejects empty input → 422, rejects garbage → 400 stesso comportamento di `/fob/plan`).
+- 547 test verdi (+1 T5).
+
+**T6 — UI toggle reverse mode** ✅ done (2026-05-02). Aggiorna `apps/shell`:
+- Client `planBuildReverse(input, targetGoal)` in `api/fob.ts` — POST a `/fob/plan/reverse`.
+- `PlannerPage.tsx`: nuovo state `reverseMode: boolean` + `<Switch>` con tooltip esplicativo (multiline, 320px wide). Quando attivo, branch a `planBuildReverse` (non-streaming, niente progress bar — il request blocca). Quando OFF mantiene il flow SSE esistente. `useCallback` deps aggiornate.
+- Note: streaming reverse (SSE su `/fob/plan/reverse/stream`) è out of scope T6, eventualmente T7 futuro.
+
+Step 13.C **chiuso** con tutti i 6 turni. Baseline 547 test verdi / 95 mypy (95 file con i 4 nuovi reverse) / 93 format.
+
+Pattern di degrader esteso oltre il table lookup:
+- **Table-keyed** (`HardcodedDegrader`): mapping name → rung factory. Buono per uniques iconici noti.
+- **Pattern-keyed** (`AwakenedGemDegrader`): regex/frozenset match su nome. Buono per famiglie con upgrade chain ovvio.
+- **Mod-aware** (Forbidden pair): legge `Item.mods` per estrarre dettagli (notable allocato, variant, ecc.).
+- **Composite** (`CompositeDegrader`): chain multi-strategy con first-match-wins.
 
 ## What comes after (post Step 13.C)
 - **Faustus flipper** — package `poe1-faustus` per flip di valuta basato su poe.ninja bulk trades. Strumento separato. UX: arbitraggi "X chaos → Y div → Z chaos → profit %".

@@ -16,14 +16,16 @@ import {
   Progress,
   SegmentedControl,
   Stack,
+  Switch,
   Text,
   Textarea,
   ThemeIcon,
   Title,
+  Tooltip,
 } from "@mantine/core";
 import { IconClock, IconCoinFilled, IconStack3 } from "@tabler/icons-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { planBuildStream } from "../api/fob";
+import { planBuildReverse, planBuildStream } from "../api/fob";
 import type {
   Build,
   BuildPlan,
@@ -186,6 +188,7 @@ interface PlanResult {
 export function PlannerPage({ initialInput }: Props) {
   const [input, setInput] = useState(initialInput ?? "");
   const [target, setTarget] = useState<TargetGoal>("mapping_and_boss");
+  const [reverseMode, setReverseMode] = useState(false);
   const [progress, setProgress] = useState<PricingProgress | null>(null);
   const [result, setResult] = useState<PlanResult | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -207,28 +210,36 @@ export function PlannerPage({ initialInput }: Props) {
     setRunning(true);
 
     try {
-      let lastEvent: PricingProgress | null = null;
-      for await (const event of planBuildStream(input, target, ctrl.signal)) {
+      if (reverseMode) {
+        // Reverse-progression mode: non-streaming endpoint. No SSE
+        // progress; the request blocks until the server returns the
+        // enriched plan. Faster than stream for users who don't care
+        // about progress updates and need the per-item ladders.
+        const resp = await planBuildReverse(input, target);
         if (ctrl.signal.aborted) return;
-        lastEvent = event;
-        setProgress(event);
-      }
-      // The 'done' event carries the BuildPlan; we can't know the Build
-      // separately from the stream, so we render the plan with a
-      // stand-in synthesized from final_plan's source id.
-      if (lastEvent?.kind === "done" && lastEvent.final_plan) {
-        // Fetch build separately via /analyze-pob? For now we synthesize
-        // a minimal Build header from the plan's source id.
-        setResult({
-          build: {
-            source_id: lastEvent.final_plan.build_source_id,
-            character_class: "",
-            ascendancy: null,
-            main_skill: null,
-            level: 1,
-          },
-          plan: lastEvent.final_plan,
-        });
+        setResult({ build: resp.build, plan: resp.plan });
+      } else {
+        let lastEvent: PricingProgress | null = null;
+        for await (const event of planBuildStream(input, target, ctrl.signal)) {
+          if (ctrl.signal.aborted) return;
+          lastEvent = event;
+          setProgress(event);
+        }
+        // The 'done' event carries the BuildPlan; we can't know the
+        // Build separately from the stream, so we render the plan
+        // with a stand-in synthesized from final_plan's source id.
+        if (lastEvent?.kind === "done" && lastEvent.final_plan) {
+          setResult({
+            build: {
+              source_id: lastEvent.final_plan.build_source_id,
+              character_class: "",
+              ascendancy: null,
+              main_skill: null,
+              level: 1,
+            },
+            plan: lastEvent.final_plan,
+          });
+        }
       }
     } catch (err) {
       if ((err as Error).name !== "AbortError") {
@@ -237,7 +248,7 @@ export function PlannerPage({ initialInput }: Props) {
     } finally {
       setRunning(false);
     }
-  }, [input, target, running]);
+  }, [input, target, reverseMode, running]);
 
   // Auto-trigger when the page is opened with a pre-filled PoB code
   // (coming from Build Finder "Pianifica →" button).
@@ -295,6 +306,22 @@ export function PlannerPage({ initialInput }: Props) {
             Ctrl+Enter
           </Text>
         </Group>
+      </Group>
+
+      <Group gap={8}>
+        <Tooltip
+          multiline
+          w={320}
+          label="Quando attivo, ogni KeyItem endgame della tua build genera una upgrade ladder personalizzata (Mageblood → Bottled Faith → flask rare; Awakened gem 5 → 1 → support regular). Le rationale dei rung vengono mostrate nei rispettivi stage."
+          withArrow
+        >
+          <Switch
+            checked={reverseMode}
+            onChange={(e) => setReverseMode(e.currentTarget.checked)}
+            label="Modalità reverse-progression (sperimentale)"
+            size="sm"
+          />
+        </Tooltip>
       </Group>
 
       {error && (

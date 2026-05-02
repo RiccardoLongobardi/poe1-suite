@@ -200,35 +200,82 @@ def _watchers_eye_ladder(target: KeyItem) -> tuple[LadderStep, ...]:
 
 
 def _forbidden_pair_ladder(target: KeyItem) -> tuple[LadderStep, ...]:
-    """Forbidden Flame / Flesh combo — single-jewel placeholder + endgame combo."""
+    """Forbidden Flame / Flesh combo — ascendancy-aware pair ladder.
+
+    Reads the target's mod text to extract the ascendancy notable being
+    allocated (via the same regex used in
+    :func:`poe1_pricing.variants.keystone_allocates_resolver`). When the
+    notable can't be resolved, falls back to a generic "(any notable)"
+    label so the ladder still surfaces.
+    """
 
     target_name = target.item.name or "Forbidden Jewel"
+    notable = _resolve_forbidden_notable(target)
+    notable_label = notable or "(any notable)"
+
+    if notable is not None:
+        # The pair targets a specific ascendancy notable (e.g.
+        # "Avatar of Fire", "Mind Over Matter"). Surface it explicitly
+        # so the user knows which notable to chase.
+        end_map_text = (
+            f"Single Forbidden Flame OR Flesh per '{notable}': "
+            "costa 1/10 della coppia matchata ma non dà bonus da solo. "
+            "Lascia questo come marker durante End Mapping mentre cerchi "
+            "il match (la coppia + 1/2 jewel = doppia notable)."
+        )
+        endgame_text = (
+            f"Forbidden Flame + Flesh matched pair per '{notable}': la "
+            "doppia ascendancy notable. Il prezzo esplode in base alla "
+            "notable scelta (10-300+ div per la coppia)."
+        )
+    else:
+        # No notable extractable from mods — fall back to the generic
+        # phrasing the original ladder used.
+        end_map_text = (
+            "Single Forbidden Flame OR Flesh costa 1/10 della combo ma "
+            "non dà bonus: serve la coppia matchata. Lascia questo come "
+            "marker durante End Mapping mentre cerchi il match."
+        )
+        endgame_text = (
+            "Forbidden Flame + Flesh matched pair: doppia ascendancy "
+            "notable. Step endgame per ogni build moderna; il prezzo "
+            "esplode in base alla notable scelta (10-300+ div per la "
+            "coppia matchata)."
+        )
+
     return (
         LadderStep(
             stage_key="end_mapping",
-            item_name=f"{target_name} (single jewel only)",
+            item_name=f"{target_name} (single jewel — {notable_label})",
             kind="unique",
             budget_div_max=20.0,
-            rationale=(
-                "Single Forbidden Flame OR Flesh costa 1/10 della combo "
-                "ma non da bonus: serve la coppia matchata. Lascia "
-                "questo come marker durante End Mapping mentre cerchi il "
-                "match."
-            ),
+            rationale=end_map_text,
         ),
         LadderStep(
             stage_key="high_investment",
-            item_name=f"{target_name} matched pair (Flame + Flesh)",
+            item_name=f"{target_name} matched pair ({notable_label})",
             kind="unique",
             budget_div_max=None,
-            rationale=(
-                "Forbidden Flame + Flesh matched pair: doppia ascendancy "
-                "notable. Step endgame per ogni build moderna; il prezzo "
-                "esplode in base alla notable scelta (10-300+ div per la "
-                "coppia matchata)."
-            ),
+            rationale=endgame_text,
         ),
     )
+
+
+def _resolve_forbidden_notable(target: KeyItem) -> str | None:
+    """Extract the ascendancy notable from a Forbidden Jewel's mods.
+
+    Reuses the same "Allocates X" regex defined in
+    :mod:`poe1_pricing.variants` (the variant registry resolver).
+    Returns the notable display name (e.g. "Avatar of Fire") or
+    ``None`` when the mod text doesn't carry an ``Allocates`` line —
+    e.g. test fixtures with empty mods or builds where the PoB export
+    stripped the variant line.
+    """
+
+    from poe1_pricing.variants import keystone_allocates_resolver
+
+    mod_lines = tuple(m.text for m in target.item.mods)
+    return keystone_allocates_resolver(mod_lines)
 
 
 # Lookup table — keys are case-folded unique names. Values are factory
@@ -302,3 +349,171 @@ class HardcodedDegrader:
             target_name=target.item.name or "(unknown)",
             rungs=rungs,
         )
+
+
+# ---------------------------------------------------------------------------
+# Awakened-gem chain degrader
+# ---------------------------------------------------------------------------
+
+
+# Pattern matching for Awakened gem ladder construction. Awakened
+# gems have an explicit upgrade chain: Awakened * 5 → 4 → 3 → 2 → 1
+# → vanilla support. Each level drops ~50-70% in price (rough).
+# We don't price the chain here; the rationale describes what to chase.
+_AWAKENED_GEM_NAMES: frozenset[str] = frozenset(
+    {
+        "awakened added chaos",
+        "awakened added cold",
+        "awakened added fire",
+        "awakened added lightning",
+        "awakened blasphemy",
+        "awakened brand recall",
+        "awakened brutality",
+        "awakened burning damage",
+        "awakened cast on critical strike",
+        "awakened cast while channelling",
+        "awakened chain",
+        "awakened cold penetration",
+        "awakened controlled destruction",
+        "awakened deadly ailments",
+        "awakened elemental damage with attacks",
+        "awakened elemental focus",
+        "awakened empower",
+        "awakened enhance",
+        "awakened enlighten",
+        "awakened fire penetration",
+        "awakened fork",
+        "awakened generosity",
+        "awakened greater multiple projectiles",
+        "awakened hextouch",
+        "awakened lightning penetration",
+        "awakened melee physical damage",
+        "awakened melee splash",
+        "awakened minion damage",
+        "awakened multistrike",
+        "awakened spell cascade",
+        "awakened spell echo",
+        "awakened swift affliction",
+        "awakened trap and mine damage",
+        "awakened unbound ailments",
+        "awakened vicious projectiles",
+        "awakened vile toxins",
+        "awakened void manipulation",
+    }
+)
+
+
+class AwakenedGemDegrader:
+    """Degrader specialised for Awakened gem chains.
+
+    Awakened gems live in a known upgrade ladder: regular support →
+    vaal-corrupted 21/20 → Awakened level 1 → 2 → 3 → 4 → 5. Prices
+    drop sharply each step down, so a build that calls for "Awakened
+    Empower 5" naturally has "Awakened Empower 3" as a mid-tier target
+    and "Empower 4" as an early-tier one.
+
+    This degrader emits the conceptual ladder (no live pricing yet —
+    Step 13.C T3 covers data-driven enrichment). It only matches items
+    whose name appears in :data:`_AWAKENED_GEM_NAMES`; for other items
+    callers should fall through to :class:`HardcodedDegrader` or any
+    other degrader in their composite pipeline.
+
+    Returns a 3-rung ladder: regular support (Mid Campaign) → Awakened
+    level 1 / vaal corrupted (Early Mapping) → Awakened level 5 (High
+    Investment).
+    """
+
+    def degrade(self, target: KeyItem) -> UpgradeLadder:
+        name = (target.item.name or "").strip()
+        if name.casefold() not in _AWAKENED_GEM_NAMES:
+            return _endgame_only_fallback(target)
+
+        # Strip the "Awakened " prefix to derive the regular support gem
+        # name. e.g. "Awakened Empower" → "Empower Support".
+        regular_base = name.removeprefix("Awakened ").removeprefix("awakened ").strip()
+        regular_name = f"{regular_base} Support"
+
+        return UpgradeLadder(
+            target_name=name,
+            rungs=(
+                LadderStep(
+                    stage_key="mid_campaign",
+                    item_name=regular_name,
+                    kind="leveling",
+                    budget_div_max=0.5,
+                    rationale=(
+                        f"Versione regular ({regular_name}): si droppa "
+                        "in atto o si compra a 1 alteration. Il level 18 "
+                        "regge fino al primo body 6L."
+                    ),
+                ),
+                LadderStep(
+                    stage_key="early_mapping",
+                    item_name=f"{name} 1 (entry-level)",
+                    kind="unique",
+                    budget_div_max=2.0,
+                    rationale=(
+                        f"{name} level 1 (~1-3 div): primo step nella "
+                        "ladder Awakened. Il vero damage tier salta a "
+                        "level 3-4, ma level 1 è un upgrade tangibile "
+                        "rispetto al regular Vaal-corrupted 21."
+                    ),
+                ),
+                LadderStep(
+                    stage_key="high_investment",
+                    item_name=f"{name} 5",
+                    kind="unique",
+                    budget_div_max=None,
+                    rationale=(
+                        f"{name} level 5 corrupted: cap del support gem. "
+                        "Mirror-tier setup. Costo varia 30-200+ div in "
+                        "base al gem (Empower/Multistrike top, Spell "
+                        "Cascade/Brand Recall mid)."
+                    ),
+                ),
+            ),
+        )
+
+
+# ---------------------------------------------------------------------------
+# Composite degrader — chain multiple strategies
+# ---------------------------------------------------------------------------
+
+
+class CompositeDegrader:
+    """Try each :class:`ItemDegrader` in order; first match wins.
+
+    A degrader "matches" when it returns a multi-rung ladder. A
+    single-rung fallback ("no ladder hardcoded for X") counts as miss
+    so the next degrader gets a shot. This lets you stack specialised
+    degraders (gems → uniques → fallback) without each one needing to
+    know about the others.
+
+    Construction order matters: list the most specialised degraders
+    first. A reasonable default for production is::
+
+        CompositeDegrader([
+            AwakenedGemDegrader(),
+            HardcodedDegrader(),
+        ])
+    """
+
+    def __init__(self, degraders: list[ItemDegrader]) -> None:
+        if not degraders:
+            raise ValueError("CompositeDegrader requires at least one degrader")
+        self._degraders = list(degraders)
+
+    def degrade(self, target: KeyItem) -> UpgradeLadder:
+        last_fallback: UpgradeLadder | None = None
+        for degrader in self._degraders:
+            ladder = degrader.degrade(target)
+            if len(ladder.rungs) > 1:
+                # Multi-rung ladder = real match, return immediately.
+                return ladder
+            # Single-rung = fallback. Keep it as a last-resort but
+            # let later degraders try first.
+            last_fallback = ladder
+        # All degraders fell back. Return the last one's fallback so
+        # the user still sees *some* rung anchored to High Investment.
+        assert last_fallback is not None  # constructor guarantees non-empty
+        return last_fallback
