@@ -32,10 +32,17 @@ Roadmap (out of scope this turn):
 
 from __future__ import annotations
 
-from .degrader import HardcodedDegrader, ItemDegrader
+from .degrader import (
+    AwakenedGemDegrader,
+    CompositeDegrader,
+    HardcodedDegrader,
+    ItemDegrader,
+)
 from .models import LadderStep, UpgradeLadder
 
 __all__ = [
+    "AwakenedGemDegrader",
+    "CompositeDegrader",
     "HardcodedDegrader",
     "ItemDegrader",
     "LadderStep",

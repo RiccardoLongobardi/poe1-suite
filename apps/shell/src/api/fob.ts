@@ -94,6 +94,25 @@ export async function planBuild(
 }
 
 /**
+ * POST /fob/plan/reverse — reverse-progression mode (Step 13.C).
+ *
+ * Same input/output shape as `planBuild`, but the server runs each
+ * KeyItem through the reverse-progression engine: every endgame item
+ * generates an upgrade ladder of progressively cheaper predecessors,
+ * and each rung's rationale is appended to the corresponding stage's
+ * `gem_changes` list, prefixed with `[item_name]` so the UI can group.
+ */
+export async function planBuildReverse(
+  input: string,
+  targetGoal: TargetGoal = "mapping_and_boss",
+): Promise<PlanResponse> {
+  return post<PlanResponse>("/fob/plan/reverse", {
+    input,
+    target_goal: targetGoal,
+  });
+}
+
+/**
  * POST /fob/plan/stream — SSE-streamed planning.
  *
  * Yields one PricingProgress event per server-side step. The final event

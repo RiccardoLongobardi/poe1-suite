@@ -61,6 +61,7 @@ from poe1_pricing import ItemCategory, TradeQuery, VariantRegistry, build_defaul
 from poe1_shared.logging import get_logger
 
 from ..pob.rares import valuable_stat_filters_from_mods
+from ..reverse import ItemDegrader, UpgradeLadder
 from .pricing import (
     PricingPort,
     TradePort,
@@ -122,6 +123,21 @@ def _renumber_priorities(items: list[CoreItem]) -> list[CoreItem]:
 
     sorted_items = sorted(items, key=lambda c: (c.buy_priority, c.name))
     return [ci.model_copy(update={"buy_priority": i}) for i, ci in enumerate(sorted_items, start=1)]
+
+
+def _stage_key_from_label(label: str) -> str:
+    """Reverse the :class:`StageSpec.label` → ``key`` mapping.
+
+    Plan stages carry the human-readable ``label`` ("Early Campaign")
+    rather than the canonical ``key`` ("early_campaign"). Reverse-mode
+    indexing (Step 13.C) needs the key. Lookup is built once from
+    :data:`ALL_STAGES`; if a label is missing the function returns the
+    casefolded label (best-effort fallback that still matches our
+    rung stage_key values, which use snake_case).
+    """
+
+    label_to_key = {spec.label: spec.key for spec in ALL_STAGES}
+    return label_to_key.get(label, label.casefold().replace(" ", "_"))
 
 
 def _stage_content(spec: StageSpec, build: Build, template: BuildTemplate) -> StagePlanContent:
@@ -194,6 +210,7 @@ class PlannerService:
         trade: TradePort | None = None,
         variant_registry: VariantRegistry | None = None,
         template_override: BuildTemplate | None = None,
+        degrader: ItemDegrader | None = None,
     ) -> None:
         self._pricing = pricing
         self._trade = trade
@@ -202,6 +219,12 @@ class PlannerService:
         # without going through the registry. Production leaves this
         # ``None`` so :func:`pick_template` runs against each Build.
         self._template_override = template_override
+        # Step 13.C — optional reverse-progression engine. When set,
+        # :meth:`plan_reverse` is available and enriches the template
+        # output with ladder rationales derived from the build's
+        # KeyItems. Leave ``None`` to keep template-only behaviour
+        # (default for backward compatibility).
+        self._degrader = degrader
 
     # ------------------------------------------------------------------
     # Streaming entry point — yields PricingProgress as it works
@@ -380,6 +403,70 @@ class PlannerService:
         if plan is None:  # pragma: no cover — generator always emits 'done'
             raise RuntimeError("planner generator exited without emitting 'done'")
         return plan
+
+    # ------------------------------------------------------------------
+    # Step 13.C — reverse-progression entry point
+    # ------------------------------------------------------------------
+
+    async def plan_reverse(
+        self,
+        build: Build,
+        *,
+        target_goal: TargetGoal = TargetGoal.MAPPING_AND_BOSS,
+    ) -> BuildPlan:
+        """Build a plan enriched with per-item upgrade ladders.
+
+        Workflow:
+
+        1. Run the standard :meth:`plan` to get a template-based baseline
+           (pricing, bucketing, default gem/tree advice).
+        2. For every :class:`KeyItem` in the build, ask the configured
+           degrader for an :class:`UpgradeLadder` (cheap → endgame rungs).
+        3. For each stage, collect the rungs anchored to that stage and
+           append their rationales to the template's ``gem_changes``.
+           The rung's ``item_name`` is prefixed so the user sees which
+           endgame target each suggestion ladders toward.
+
+        Backward-compatible: when no degrader is configured at
+        ``__init__`` time, raises :class:`ValueError` rather than
+        silently degrading to template-only output. Use :meth:`plan`
+        for template-only.
+        """
+
+        if self._degrader is None:
+            raise ValueError(
+                "plan_reverse requires a degrader. Pass one via PlannerService(..., degrader=...)."
+            )
+
+        baseline = await self.plan(build, target_goal=target_goal)
+
+        # Build the ladders for every KeyItem. The degrader is sync and
+        # cheap (table lookup); no need to gather/await.
+        ladders: list[UpgradeLadder] = [self._degrader.degrade(ki) for ki in build.key_items]
+
+        # Index rungs by stage_key so each PlanStage update is O(1).
+        rungs_by_stage: dict[str, list[tuple[str, str]]] = {}
+        for ladder in ladders:
+            for rung in ladder.rungs:
+                rungs_by_stage.setdefault(rung.stage_key, []).append(
+                    (ladder.target_name, rung.rationale)
+                )
+
+        # Rebuild PlanStages with merged gem_changes. Pydantic models
+        # are frozen → use model_copy with update.
+        new_stages: list[PlanStage] = []
+        for stage in baseline.stages:
+            stage_key = _stage_key_from_label(stage.label)
+            extras = rungs_by_stage.get(stage_key, [])
+            if not extras:
+                new_stages.append(stage)
+                continue
+            ladder_advice = [f"[{target}] {rationale}" for target, rationale in extras]
+            new_stages.append(
+                stage.model_copy(update={"gem_changes": list(stage.gem_changes) + ladder_advice})
+            )
+
+        return baseline.model_copy(update={"stages": new_stages})
 
     # ------------------------------------------------------------------
     # Per-item pricing dispatch

@@ -327,6 +327,55 @@ def make_router(settings: Settings) -> APIRouter:
         return PlanResponse(build=build, plan=plan)
 
     @router.post(
+        "/plan/reverse",
+        response_model=PlanResponse,
+        summary=(
+            "Like /plan but enriched with per-item upgrade ladders derived "
+            "from the user's endgame KeyItems (Step 13.C — reverse-progression)."
+        ),
+    )
+    async def plan_reverse_endpoint(
+        payload: Annotated[PlanRequest, Body()],
+    ) -> PlanResponse:
+        """Reverse-mode plan: template advice + ladder rationales per stage.
+
+        Same input shape as ``/plan``. Internally:
+
+        1. Build is resolved from the PoB input (same as ``/plan``).
+        2. :class:`PlannerService` is wired with a default
+           :class:`CompositeDegrader` (AwakenedGemDegrader →
+           HardcodedDegrader). This is the same pipeline tests use; it's
+           a sensible default for production but should become
+           configurable when more degraders land (T5+).
+        3. :meth:`PlannerService.plan_reverse` runs the standard plan
+           and then merges the ladder rationales into each stage's
+           ``gem_changes`` list, prefixed with ``[target_name]`` so the
+           UI can group/filter them.
+        """
+
+        from .reverse import AwakenedGemDegrader, CompositeDegrader, HardcodedDegrader
+
+        async with HttpClient(settings) as http:
+            build, _ = await _resolve_pob_to_build(payload.input, http=http)
+
+            pricing = PricingService(http=http, league=settings.poe_league)
+            trade = TradeSource(http=http, league=settings.poe_league)
+            degrader = CompositeDegrader([AwakenedGemDegrader(), HardcodedDegrader()])
+            planner = PlannerService(pricing, trade=trade, degrader=degrader)
+            plan = await planner.plan_reverse(build, target_goal=payload.target_goal)
+
+        log.info(
+            "fob_plan_reverse_ok",
+            source_id=build.source_id,
+            target_goal=payload.target_goal.value,
+            key_items=len(build.key_items),
+            stages=len(plan.stages),
+            total_min_div=plan.total_estimated_cost.min.amount,
+            total_max_div=plan.total_estimated_cost.max.amount,
+        )
+        return PlanResponse(build=build, plan=plan)
+
+    @router.post(
         "/plan/stream",
         summary=(
             "Stream the plan generation as Server-Sent Events. Each event "
