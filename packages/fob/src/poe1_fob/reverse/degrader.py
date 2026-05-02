@@ -278,14 +278,409 @@ def _resolve_forbidden_notable(target: KeyItem) -> str | None:
     return keystone_allocates_resolver(mod_lines)
 
 
+def _loreweave_ladder() -> tuple[LadderStep, ...]:
+    """Tabula → 4L → Loreweave (cap 80% all res with 6L)."""
+
+    return (
+        LadderStep(
+            stage_key="early_campaign",
+            item_name="Tabula Rasa",
+            kind="unique",
+            budget_div_max=0.5,
+            rationale=("Tabula Rasa: 6L economico per partire. Stop-gap fino al primo body 4L."),
+        ),
+        LadderStep(
+            stage_key="end_campaign",
+            item_name="Body 4L craftato (life + 2 res alteration spam)",
+            kind="rare_craft",
+            budget_div_max=1.0,
+            rationale=(
+                "Body 4L craftato per arrivare a Kitava con 75% res cap. "
+                "Loreweave costa troppo prima del mapping."
+            ),
+        ),
+        LadderStep(
+            stage_key="end_mapping",
+            item_name="Loreweave",
+            kind="unique",
+            budget_div_max=None,
+            rationale=(
+                "Loreweave: cap 80% all res con 6L. Un upgrade di 5% res "
+                "su tutti gli elementi è enorme contro mob ele alti. "
+                "Drop-in vs Kaom's Heart se la build vuole socket."
+            ),
+        ),
+    )
+
+
+def _ashes_of_the_stars_ladder() -> tuple[LadderStep, ...]:
+    """+1 amulet base → Astramentis → Ashes of the Stars."""
+
+    return (
+        LadderStep(
+            stage_key="early_mapping",
+            item_name="+1 to Spell Skills amulet (Hinekora's Lock craft)",
+            kind="rare_craft",
+            budget_div_max=3.0,
+            rationale=(
+                "Amulet rare con +1 spell skills + life + res: budget intro. "
+                "Costa pochi div ma porta tier intermedio decoroso."
+            ),
+        ),
+        LadderStep(
+            stage_key="end_mapping",
+            item_name="Astramentis",
+            kind="unique",
+            budget_div_max=10.0,
+            rationale=(
+                "Astramentis: +80-100 a tutti gli attributi. Risolve i "
+                "requirements stat di endgame gem (Awakened Empower 5 "
+                "wants 200+ str/int) senza pivot del tree."
+            ),
+        ),
+        LadderStep(
+            stage_key="high_investment",
+            item_name="Ashes of the Stars",
+            kind="unique",
+            budget_div_max=None,
+            rationale=(
+                "Ashes of the Stars: +1 to Level of Socketed Gems su "
+                "amulet. Combinato con +2 socketed body = +9 levels totali "
+                "sui 6L. Il jolly endgame per ogni build gem-scaling."
+            ),
+        ),
+    )
+
+
+def _bottled_faith_ladder() -> tuple[LadderStep, ...]:
+    """Diamond flask → Cinderswallow → Bottled Faith."""
+
+    return (
+        LadderStep(
+            stage_key="end_campaign",
+            item_name="Diamond Flask rare (rarity + crit chance)",
+            kind="rare_craft",
+            budget_div_max=0.3,
+            rationale=(
+                "Diamond Flask con good roll: bridge low-budget per crit "
+                "scaling fino a Bottled Faith. Costo trascurabile."
+            ),
+        ),
+        LadderStep(
+            stage_key="early_mapping",
+            item_name="Cinderswallow Urn",
+            kind="unique",
+            budget_div_max=2.0,
+            rationale=(
+                "Cinderswallow Urn (~5-15 chaos): increased item rarity + "
+                "10% increased life on kill. Mid-tier pre-Bottled Faith."
+            ),
+        ),
+        LadderStep(
+            stage_key="end_mapping",
+            item_name="Bottled Faith",
+            kind="unique",
+            budget_div_max=None,
+            rationale=(
+                "Bottled Faith: spawna consacrated ground = 100% increased "
+                "crit chance + 10% more damage taken sui mob nell'area. "
+                "Build crit / consacrated scaling (Inquisitor / Pathfinder)."
+            ),
+        ),
+    )
+
+
+def _aegis_aurora_ladder() -> tuple[LadderStep, ...]:
+    """Lifesprig → Saffel's → Aegis Aurora."""
+
+    return (
+        LadderStep(
+            stage_key="early_campaign",
+            item_name="Lifesprig wand (twinned offhand)",
+            kind="unique",
+            budget_div_max=0.05,
+            rationale=(
+                "Lifesprig wand 1 chaos: +1 spell skill + life regen on "
+                "kill. Twinned (DW Lifesprig) per +2 spell skill totali."
+            ),
+        ),
+        LadderStep(
+            stage_key="mid_campaign",
+            item_name="Saffell's Frame shield",
+            kind="unique",
+            budget_div_max=0.5,
+            rationale=(
+                "Saffell's Frame: spell block + +5% max all res. Bridge "
+                "verso Aegis Aurora durante atto 6-10."
+            ),
+        ),
+        LadderStep(
+            stage_key="early_mapping",
+            item_name="Aegis Aurora",
+            kind="unique",
+            budget_div_max=None,
+            rationale=(
+                "Aegis Aurora (~1-3 div): replenish ES on block. Combinato "
+                "con block cap (Glancing Blows / Versatile Combatant) = "
+                "infinite ES sustain. Signature build difensivo Guardian / "
+                "Inquisitor / Glad."
+            ),
+        ),
+    )
+
+
+def _sublime_vision_ladder() -> tuple[LadderStep, ...]:
+    """+1 amulet → Yoke of Suffering → Sublime Vision."""
+
+    return (
+        LadderStep(
+            stage_key="early_mapping",
+            item_name="Yoke of Suffering",
+            kind="unique",
+            budget_div_max=2.0,
+            rationale=(
+                "Yoke of Suffering: ailments overlap (chill + scorch + "
+                "shock + sap stack tutti). Damage multi flat per build "
+                "ele attack."
+            ),
+        ),
+        LadderStep(
+            stage_key="end_mapping",
+            item_name="Sublime Vision",
+            kind="unique",
+            budget_div_max=None,
+            rationale=(
+                "Sublime Vision: l'aura selezionata ha effetto triplicato. "
+                "Step endgame per Aurabot / build aura-scaling. La scelta "
+                "dell'aura cambia drasticamente il prezzo (Wrath/Pride "
+                "top, Vitality/Clarity entry)."
+            ),
+        ),
+    )
+
+
+def _crown_of_tyrant_ladder() -> tuple[LadderStep, ...]:
+    """Devouring Diadem → Crown of the Tyrant (aura builds)."""
+
+    return (
+        LadderStep(
+            stage_key="early_mapping",
+            item_name="The Devouring Diadem",
+            kind="unique",
+            budget_div_max=2.0,
+            rationale=(
+                "Devouring Diadem (~1-3 div): Eldritch Battery + reservation "
+                "efficiency + auto-cast Desecrate. Bridge per build mana-"
+                "intensive + aura stacking pre-Crown of the Tyrant."
+            ),
+        ),
+        LadderStep(
+            stage_key="high_investment",
+            item_name="Crown of the Tyrant",
+            kind="unique",
+            budget_div_max=None,
+            rationale=(
+                "Crown of the Tyrant: 35% increased effect of non-curse "
+                "auras + Eldritch implicit slots = aura effect massivo. "
+                "Endgame Aurabot + build aura-stacking (Sublime Vision "
+                "synergy) — 10-30 div."
+            ),
+        ),
+    )
+
+
+def _brass_dome_ladder() -> tuple[LadderStep, ...]:
+    """4L craft → Tabula 6L → Brass Dome (armour tank builds)."""
+
+    return (
+        LadderStep(
+            stage_key="end_campaign",
+            item_name="Body armour rare 4L (life + armour + res)",
+            kind="rare_craft",
+            budget_div_max=0.5,
+            rationale=(
+                "Body 4L armour-base craftato: armour% + life + 2 res. "
+                "Bridge fino a Brass Dome o Loreweave. Affordable."
+            ),
+        ),
+        LadderStep(
+            stage_key="early_mapping",
+            item_name="Brass Dome",
+            kind="unique",
+            budget_div_max=None,
+            rationale=(
+                "Brass Dome (~1-3 div): massive armour + cannot be shocked "
+                "+ critical strikes deal no extra damage. Game-changer "
+                "per Boneshatter / slam tank builds (resistono ai loro "
+                "stessi crit ricochet)."
+            ),
+        ),
+    )
+
+
+def _shavronne_ladder() -> tuple[LadderStep, ...]:
+    """Tabula → 4L craft → Shavronne's Wrappings (Low Life builds)."""
+
+    return (
+        LadderStep(
+            stage_key="early_campaign",
+            item_name="Tabula Rasa",
+            kind="unique",
+            budget_div_max=0.5,
+            rationale=("Tabula Rasa: 6L economico per il main skill. No life ma in atto regge."),
+        ),
+        LadderStep(
+            stage_key="end_campaign",
+            item_name="Body 6L craftato (life + ES hybrid)",
+            kind="rare_craft",
+            budget_div_max=2.0,
+            rationale=(
+                "Body 6L craftato hybrid life/ES: bridge verso il setup "
+                "Low Life. Affordable e regge nel mapping iniziale."
+            ),
+        ),
+        LadderStep(
+            stage_key="end_mapping",
+            item_name="Shavronne's Wrappings",
+            kind="unique",
+            budget_div_max=None,
+            rationale=(
+                "Shavronne's Wrappings: chaos damage doesn't bypass ES. "
+                "Abilita Low Life setup (Pain Attunement = +50% spell "
+                "damage) + Shavronne's + Solaris Lorica per chaos res "
+                "infinito. Signature spell caster Low Life."
+            ),
+        ),
+    )
+
+
+def _cospri_will_ladder() -> tuple[LadderStep, ...]:
+    """Cherrubim's Maleficence → Cospri's Will (chaos DoT builds)."""
+
+    return (
+        LadderStep(
+            stage_key="early_mapping",
+            item_name="Cherrubim's Maleficence",
+            kind="unique",
+            budget_div_max=1.0,
+            rationale=(
+                "Cherrubim's Maleficence (~5-10 chaos): +5 to all chaos "
+                "skill gems + life. Bridge verso Cospri's Will per "
+                "chaos DoT scaling."
+            ),
+        ),
+        LadderStep(
+            stage_key="end_mapping",
+            item_name="Cospri's Will",
+            kind="unique",
+            budget_div_max=None,
+            rationale=(
+                "Cospri's Will (~5-15 div): cursed by Despair + Wither on "
+                "hit (gratis su nemici se cannot evade). Auto-curse + "
+                "auto-wither = DPS multiplier massiccio per chaos "
+                "DoT (BV Assassin, Bane Occ, ED+Contagion)."
+            ),
+        ),
+    )
+
+
+def _saviour_ladder() -> tuple[LadderStep, ...]:
+    """Lycosidae → +1 socketed shield → The Saviour."""
+
+    return (
+        LadderStep(
+            stage_key="early_mapping",
+            item_name="Lycosidae shield",
+            kind="unique",
+            budget_div_max=0.5,
+            rationale=(
+                "Lycosidae (~1 chaos): hits can't be evaded. Risolve il "
+                "problema accuracy per build attack senza Resolute "
+                "Technique. Step intro affordable."
+            ),
+        ),
+        LadderStep(
+            stage_key="end_mapping",
+            item_name="+1 to Socketed Gems shield craft",
+            kind="rare_craft",
+            budget_div_max=10.0,
+            rationale=(
+                "Shield rare con +1 to socketed gems + spell crit + life: "
+                "bridge intermedio prima del Saviour. Custom craft "
+                "Hinekora's Lock o Eldritch implicit."
+            ),
+        ),
+        LadderStep(
+            stage_key="high_investment",
+            item_name="The Saviour",
+            kind="unique",
+            budget_div_max=None,
+            rationale=(
+                "The Saviour (~30-50 div): triggered Reflection (mirror "
+                "minion che usa la tua weapon) + crit chance + crit multi. "
+                "Endgame crit attack signature (Reave Slayer, Static "
+                "Strike Glad, Spectral Helix Scion)."
+            ),
+        ),
+    )
+
+
+def _crystallised_omniscience_ladder() -> tuple[LadderStep, ...]:
+    """Astramentis → Crystallised Omniscience (omniscience scaling)."""
+
+    return (
+        LadderStep(
+            stage_key="end_mapping",
+            item_name="Astramentis",
+            kind="unique",
+            budget_div_max=10.0,
+            rationale=(
+                "Astramentis: +80-100 a tutti gli attributi. Bridge verso "
+                "Crystallised Omniscience: ti dà gli attributi necessari "
+                "per equip stat-heavy items mentre raccogli i res da gear."
+            ),
+        ),
+        LadderStep(
+            stage_key="high_investment",
+            item_name="Crystallised Omniscience",
+            kind="unique",
+            budget_div_max=None,
+            rationale=(
+                "Crystallised Omniscience: tutti i res ele convertiti in "
+                "Omniscience (stat). Scaling esponenziale: +1 to all "
+                "attributes per ogni 15 omniscience. Endgame stat-stack "
+                "(50-150+ div). Richiede res cap già da gear/passive."
+            ),
+        ),
+    )
+
+
 # Lookup table — keys are case-folded unique names. Values are factory
 # functions that build the rung tuple for that target. Some take the
 # target as input (Watcher's Eye, Forbidden) so they can substitute the
 # specific variant name into the rationale; static ones ignore it.
 _LADDER_TABLE: dict[str, object] = {
+    # Body armours
+    "kaom's heart": _kaom_heart_ladder,
+    "loreweave": _loreweave_ladder,
+    "brass dome": _brass_dome_ladder,
+    "shavronne's wrappings": _shavronne_ladder,
+    "cospri's will": _cospri_will_ladder,
+    # Belts
     "mageblood": _mageblood_ladder,
     "headhunter": _headhunter_ladder,
-    "kaom's heart": _kaom_heart_ladder,
+    # Helmets
+    "crown of the tyrant": _crown_of_tyrant_ladder,
+    # Amulets
+    "ashes of the stars": _ashes_of_the_stars_ladder,
+    "sublime vision": _sublime_vision_ladder,
+    "crystallised omniscience": _crystallised_omniscience_ladder,
+    # Shields
+    "aegis aurora": _aegis_aurora_ladder,
+    "the saviour": _saviour_ladder,
+    # Flasks
+    "bottled faith": _bottled_faith_ladder,
+    # Jewels
     "watcher's eye": _watchers_eye_ladder,
     "forbidden flame": _forbidden_pair_ladder,
     "forbidden flesh": _forbidden_pair_ladder,

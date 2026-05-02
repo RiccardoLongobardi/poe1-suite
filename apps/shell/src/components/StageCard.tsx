@@ -27,6 +27,7 @@ import {
   IconCoin,
   IconHourglass,
   IconSearch,
+  IconStairsUp,
 } from "@tabler/icons-react";
 import { useState } from "react";
 import type {
@@ -210,25 +211,90 @@ export function StageCard({ stage, index }: Props) {
           />
         )}
 
-        {stage.gem_changes.length > 0 && (
-          <Stack gap={4}>
-            <Group gap={6}>
-              <IconBolt size={14} />
-              <Text size="sm" fw={600}>
-                Gem
-              </Text>
-            </Group>
-            <List size="sm" spacing={2} icon={
-              <ThemeIcon size={14} radius="xl" color={accent} variant="light">
-                <IconCheck size={10} />
-              </ThemeIcon>
-            }>
-              {stage.gem_changes.map((g, i) => (
-                <List.Item key={i}>{g}</List.Item>
-              ))}
-            </List>
-          </Stack>
-        )}
+        {(() => {
+          // Step 13.C: gem_changes can include reverse-mode ladder rungs
+          // tagged with `[target_name] rationale`. Split them out so the
+          // template advice and the per-item ladder advice render in
+          // visually distinct blocks (template = clean bullets, ladder
+          // = grouped by target).
+          const LADDER_RE = /^\[([^\]]+)\]\s*(.*)$/;
+          const templateLines: string[] = [];
+          const ladderByTarget = new Map<string, string[]>();
+          for (const line of stage.gem_changes) {
+            const m = line.match(LADDER_RE);
+            if (m) {
+              const target = m[1];
+              const body = m[2];
+              if (!ladderByTarget.has(target)) ladderByTarget.set(target, []);
+              ladderByTarget.get(target)!.push(body);
+            } else {
+              templateLines.push(line);
+            }
+          }
+          return (
+            <>
+              {templateLines.length > 0 && (
+                <Stack gap={4}>
+                  <Group gap={6}>
+                    <IconBolt size={14} />
+                    <Text size="sm" fw={600}>
+                      Gem
+                    </Text>
+                  </Group>
+                  <List
+                    size="sm"
+                    spacing={2}
+                    icon={
+                      <ThemeIcon
+                        size={14}
+                        radius="xl"
+                        color={accent}
+                        variant="light"
+                      >
+                        <IconCheck size={10} />
+                      </ThemeIcon>
+                    }
+                  >
+                    {templateLines.map((g, i) => (
+                      <List.Item key={i}>{g}</List.Item>
+                    ))}
+                  </List>
+                </Stack>
+              )}
+              {ladderByTarget.size > 0 && (
+                <Stack gap={6}>
+                  <Group gap={6}>
+                    <IconStairsUp size={14} />
+                    <Text size="sm" fw={600}>
+                      Upgrade ladder
+                    </Text>
+                  </Group>
+                  <Stack gap={6}>
+                    {Array.from(ladderByTarget.entries()).map(
+                      ([target, bodies]) => (
+                        <Stack key={target} gap={2}>
+                          <Badge
+                            size="sm"
+                            variant="light"
+                            color={accent}
+                            radius="sm"
+                          >
+                            {target}
+                          </Badge>
+                          <List size="xs" spacing={2} ml={6}>
+                            {bodies.map((b, i) => (
+                              <List.Item key={i}>{b}</List.Item>
+                            ))}
+                          </List>
+                        </Stack>
+                      ),
+                    )}
+                  </Stack>
+                </Stack>
+              )}
+            </>
+          );
+        })()}
 
         {stage.tree_changes.length > 0 && (
           <Stack gap={4}>

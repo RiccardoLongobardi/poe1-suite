@@ -34,7 +34,7 @@ uv run mypy .
 uv run pytest
 ```
 
-All four must pass with zero errors. Current baseline: **547 tests green (2 skipped — integration/LLM), 95 files type-checked clean, 93 files formatted clean**.
+All four must pass with zero errors. Current baseline: **549 tests green (2 skipped — integration/LLM), 95 files type-checked clean, 93 files formatted clean**. Frontend build 510 KB / 160 KB gzip.
 
 ## What's built (state as of 2026-04-25, end of Step 8 — FOB completo)
 
@@ -330,6 +330,12 @@ Baseline 535 test verdi (+10 reverse) / 95 mypy (+4 nuovi file) / 91 format.
 
 Step 13.C **chiuso** con tutti i 6 turni. Baseline 547 test verdi / 95 mypy (95 file con i 4 nuovi reverse) / 93 format.
 
+**Migliorie post-T6** ✅ done (2026-05-02):
+- **A — Espansione `_LADDER_TABLE`**: aggiunti 11 uniques (Loreweave, Ashes of the Stars, Bottled Faith, Aegis Aurora, Sublime Vision, Crown of the Tyrant, Brass Dome, Shavronne's Wrappings, Cospri's Will, The Saviour, Crystallised Omniscience). Tabella ora copre 17 uniques. 1 nuovo test smoke che verifica multi-rung su tutti gli 11.
+- **B — UI grouping ladder per stage**: in `StageCard.tsx` separati i `[target] rationale` (reverse mode) dal template gem advice. Sub-block "Upgrade ladder" con `IconStairsUp`, raggruppa per `target_name` con Mantine `Badge`. Render solo quando ci sono rung tag.
+- **C — Test E2E reverse mode con PoB reale**: in `apps/server/tests/test_fob_router.py` nuovo test `test_plan_reverse_e2e_with_real_pob` che monkey-patcha `HttpClient.__aenter__` con `MockTransport`. Stub minimo per `/data/index-state` (lega Standard) + `{"lines": []}` su `/economy/stash/.../overview` + Trade API stub. Verifica shape 6-stage + main_skill + char class + presence di gem advice. 549 verdi (+2 da 547).
+- **E — Frontend smoke build**: `npm install` + `npm run build` verde. Bundle finale 510 KB / 160 KB gzip (+2 KB vs baseline pre-T6).
+
 Pattern di degrader esteso oltre il table lookup:
 - **Table-keyed** (`HardcodedDegrader`): mapping name → rung factory. Buono per uniques iconici noti.
 - **Pattern-keyed** (`AwakenedGemDegrader`): regex/frozenset match su nome. Buono per famiglie con upgrade chain ovvio.
@@ -337,8 +343,12 @@ Pattern di degrader esteso oltre il table lookup:
 - **Composite** (`CompositeDegrader`): chain multi-strategy con first-match-wins.
 
 ## What comes after (post Step 13.C)
-- **Faustus flipper** — package `poe1-faustus` per flip di valuta basato su poe.ninja bulk trades. Strumento separato. UX: arbitraggi "X chaos → Y div → Z chaos → profit %".
-- **App unica raggruppante** — navbar per tool (FOB, Faustus, …) quando arriva il secondo tool.
+
+Focus singolo: **FOB**. Niente altri tool nello scope di poe1-suite.
+
+Prossime fasi:
+1. **Migliorie FOB** — quality-of-life sui flussi esistenti (ladder estesa, UI grouping reverse mode, streaming reverse, fix UX, etc).
+2. **Production deploy** — hosting backend (FastAPI) + frontend (Vite SPA) per uso multi-utente. Serve: Dockerfile, env config production, CORS, rate limiting client-friendly su poe.ninja/Trade, dominio + HTTPS.
 
 ## Project-specific gotchas (learned the hard way)
 
