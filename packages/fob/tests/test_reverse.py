@@ -419,6 +419,43 @@ def test_forbidden_ladder_extracts_notable_from_mods() -> None:
     assert "Avatar of Fire" in high_inv.rationale
 
 
+def test_extended_ladder_table_covers_popular_uniques() -> None:
+    """Spot-check that the Step 13.C-followup expansion of _LADDER_TABLE
+    actually surfaces multi-rung ladders for ~10 popular uniques.
+
+    Each entry should produce ≥ 2 rungs (anything less means it fell
+    through to the fallback). Doesn't validate the rung content — that's
+    smoke-testing the table membership only.
+    """
+
+    degrader = HardcodedDegrader()
+    expansion_targets = [
+        "Loreweave",
+        "Ashes of the Stars",
+        "Bottled Faith",
+        "Aegis Aurora",
+        "Sublime Vision",
+        "Crown of the Tyrant",
+        "Brass Dome",
+        "Shavronne's Wrappings",
+        "Cospri's Will",
+        "The Saviour",
+        "Crystallised Omniscience",
+    ]
+
+    for name in expansion_targets:
+        target = _key_item(name)
+        ladder = degrader.degrade(target)
+        assert len(ladder.rungs) >= 2, (
+            f"{name!r}: expected ≥2 rungs, got {len(ladder.rungs)} "
+            f"(probably fell through to fallback). "
+            f"Rationale: {ladder.rungs[0].rationale[:60]!r}"
+        )
+        # Final rung is endgame target (no budget cap, name match).
+        assert ladder.rungs[-1].budget_div_max is None
+        assert name.casefold() in ladder.rungs[-1].item_name.casefold()
+
+
 def test_forbidden_ladder_falls_back_when_no_allocates_mod() -> None:
     """No 'Allocates X' line → ladder still produces 2 rungs with generic copy."""
 
