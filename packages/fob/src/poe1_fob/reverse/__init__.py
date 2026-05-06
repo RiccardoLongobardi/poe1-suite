@@ -36,6 +36,7 @@ from .degrader import (
     AwakenedGemDegrader,
     CompositeDegrader,
     HardcodedDegrader,
+    InfluenceItemDegrader,
     ItemDegrader,
 )
 from .models import LadderStep, UpgradeLadder
@@ -44,6 +45,7 @@ __all__ = [
     "AwakenedGemDegrader",
     "CompositeDegrader",
     "HardcodedDegrader",
+    "InfluenceItemDegrader",
     "ItemDegrader",
     "LadderStep",
     "UpgradeLadder",

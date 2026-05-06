@@ -21,6 +21,7 @@ from poe1_fob.reverse import (
     AwakenedGemDegrader,
     CompositeDegrader,
     HardcodedDegrader,
+    InfluenceItemDegrader,
     LadderStep,
     UpgradeLadder,
 )
@@ -247,6 +248,66 @@ async def test_plan_reverse_appends_ladder_rationale_per_stage() -> None:
     assert any("[Mageblood]" in g and "Mageblood" in g for g in high_inv.gem_changes)
 
 
+async def test_plan_reverse_with_progress_emits_lifecycle_events() -> None:
+    """SSE generator yields start → item events → done with merged plan.
+
+    Reverse-mode streaming has the same event lifecycle as
+    plan_with_progress; the only difference is that the final 'done'
+    event carries a plan post-processed with ladder rationales.
+    """
+
+    from poe1_fob.planner import PlannerService
+    from poe1_fob.planner.progress import PricingProgress
+
+    from .test_planner import FakePricing, _make_build
+
+    mageblood = KeyItem(
+        slot=ItemSlot.BELT,
+        item=Item(
+            name="Mageblood",
+            base_type="Heavy Belt",
+            rarity=ItemRarity.UNIQUE,
+            slot=ItemSlot.BELT,
+        ),
+        importance=5,
+    )
+    build = _make_build(key_items=[mageblood])
+
+    fake = FakePricing()
+    svc = PlannerService(fake, degrader=HardcodedDegrader())
+
+    events: list[PricingProgress] = []
+    async for event in svc.plan_reverse_with_progress(build):
+        events.append(event)
+
+    # At least one start, one done.
+    assert events[0].kind == "start"
+    assert events[-1].kind == "done"
+    assert events[-1].final_plan is not None
+
+    # The merged plan in the done event has [Mageblood] ladder rungs.
+    plan = events[-1].final_plan
+    assert plan is not None
+    high_inv = plan.stages[5]
+    assert any("[Mageblood]" in g for g in high_inv.gem_changes)
+
+
+async def test_plan_reverse_with_progress_requires_degrader() -> None:
+    """Streaming variant fail-fast same as silent variant."""
+
+    from poe1_fob.planner import PlannerService
+
+    from .test_planner import FakePricing, _make_build
+
+    fake = FakePricing()
+    svc = PlannerService(fake)  # no degrader
+    build = _make_build(key_items=[])
+
+    with pytest.raises(ValueError, match="degrader"):
+        async for _ in svc.plan_reverse_with_progress(build):
+            pass
+
+
 async def test_plan_reverse_preserves_template_gem_changes() -> None:
     """Reverse mode doesn't replace template advice — it appends to it."""
 
@@ -375,6 +436,100 @@ def test_composite_degrader_returns_fallback_when_all_miss() -> None:
 def test_composite_degrader_requires_non_empty_list() -> None:
     with pytest.raises(ValueError, match="at least one"):
         CompositeDegrader([])
+
+
+# ---------------------------------------------------------------------------
+# InfluenceItemDegrader (F)
+# ---------------------------------------------------------------------------
+
+
+def _influenced_rare(slot: ItemSlot, influences: list[str]) -> KeyItem:
+    """Build a rare KeyItem with influence tags."""
+
+    return KeyItem(
+        slot=slot,
+        item=Item(
+            name="",
+            base_type="Astral Plate",
+            rarity=ItemRarity.RARE,
+            slot=slot,
+            influence=influences,
+        ),
+        importance=4,
+    )
+
+
+def test_influence_degrader_returns_three_rungs_for_supported_slot() -> None:
+    """Body armour with Crusader+Warlord influences → 3-rung ladder."""
+
+    degrader = InfluenceItemDegrader()
+    target = _influenced_rare(ItemSlot.BODY_ARMOUR, ["crusader", "warlord"])
+
+    ladder = degrader.degrade(target)
+
+    assert len(ladder.rungs) == 3
+    assert ladder.stage_keys() == ("mid_campaign", "early_mapping", "high_investment")
+    # Influence label surfaces in early_mapping + high_investment.
+    assert "Crusader" in ladder.rungs[1].item_name
+    assert "Warlord" in ladder.rungs[1].item_name
+    # Endgame rung has no budget cap (custom craft).
+    assert ladder.rungs[-1].budget_div_max is None
+
+
+def test_influence_degrader_falls_back_for_no_influence() -> None:
+    """Plain rare without influence tags → single-rung fallback."""
+
+    degrader = InfluenceItemDegrader()
+    target = KeyItem(
+        slot=ItemSlot.BODY_ARMOUR,
+        item=Item(
+            name="",
+            base_type="Astral Plate",
+            rarity=ItemRarity.RARE,
+            slot=ItemSlot.BODY_ARMOUR,
+            influence=[],  # plain craft
+        ),
+        importance=3,
+    )
+
+    ladder = degrader.degrade(target)
+    assert len(ladder.rungs) == 1
+
+
+def test_influence_degrader_skips_unsupported_slots() -> None:
+    """JEWEL/FLASK/BELT/WEAPON slots → fallback even if influenced."""
+
+    degrader = InfluenceItemDegrader()
+    target = _influenced_rare(ItemSlot.JEWEL, ["shaper"])
+
+    ladder = degrader.degrade(target)
+    assert len(ladder.rungs) == 1
+
+
+def test_composite_with_influence_degrader_routes_correctly() -> None:
+    """Production composite: AwakenedGem → Hardcoded → Influence chain."""
+
+    composite = CompositeDegrader(
+        [
+            AwakenedGemDegrader(),
+            HardcodedDegrader(),
+            InfluenceItemDegrader(),
+        ]
+    )
+
+    # Awakened gem → AwakenedGem matches.
+    awak = _key_item("Awakened Empower", slot=ItemSlot.JEWEL)
+    assert composite.degrade(awak).rungs[0].item_name == "Empower Support"
+
+    # Mageblood → Hardcoded matches (AwakenedGem misses).
+    mageblood = _key_item("Mageblood", slot=ItemSlot.BELT)
+    assert composite.degrade(mageblood).rungs[-1].item_name == "Mageblood"
+
+    # Influenced rare body → Influence matches (others miss).
+    body = _influenced_rare(ItemSlot.BODY_ARMOUR, ["hunter"])
+    body_ladder = composite.degrade(body)
+    assert len(body_ladder.rungs) == 3
+    assert "Hunter" in body_ladder.rungs[1].item_name
 
 
 # ---------------------------------------------------------------------------

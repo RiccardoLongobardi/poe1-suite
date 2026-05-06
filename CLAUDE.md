@@ -333,8 +333,17 @@ Step 13.C **chiuso** con tutti i 6 turni. Baseline 547 test verdi / 95 mypy (95 
 **Migliorie post-T6** ✅ done (2026-05-02):
 - **A — Espansione `_LADDER_TABLE`**: aggiunti 11 uniques (Loreweave, Ashes of the Stars, Bottled Faith, Aegis Aurora, Sublime Vision, Crown of the Tyrant, Brass Dome, Shavronne's Wrappings, Cospri's Will, The Saviour, Crystallised Omniscience). Tabella ora copre 17 uniques. 1 nuovo test smoke che verifica multi-rung su tutti gli 11.
 - **B — UI grouping ladder per stage**: in `StageCard.tsx` separati i `[target] rationale` (reverse mode) dal template gem advice. Sub-block "Upgrade ladder" con `IconStairsUp`, raggruppa per `target_name` con Mantine `Badge`. Render solo quando ci sono rung tag.
-- **C — Test E2E reverse mode con PoB reale**: in `apps/server/tests/test_fob_router.py` nuovo test `test_plan_reverse_e2e_with_real_pob` che monkey-patcha `HttpClient.__aenter__` con `MockTransport`. Stub minimo per `/data/index-state` (lega Standard) + `{"lines": []}` su `/economy/stash/.../overview` + Trade API stub. Verifica shape 6-stage + main_skill + char class + presence di gem advice. 549 verdi (+2 da 547).
-- **E — Frontend smoke build**: `npm install` + `npm run build` verde. Bundle finale 510 KB / 160 KB gzip (+2 KB vs baseline pre-T6).
+- **C — Test E2E reverse mode con PoB reale**: in `apps/server/tests/test_fob_router.py` nuovo test `test_plan_reverse_e2e_with_real_pob` che monkey-patcha `HttpClient.__aenter__` con `MockTransport`. Stub minimo per `/data/index-state` (lega Standard) + `{"lines": []}` su `/economy/stash/.../overview` + Trade API stub. Verifica shape 6-stage + main_skill + char class + presence di gem advice.
+- **E — Frontend smoke build**: `npm install` + `npm run build` verde. Bundle 510 KB / 160 KB gzip.
+
+**Migliorie pre-deploy D+F+H** ✅ done (2026-05-02):
+- **D — Streaming SSE per reverse mode**: `PlannerService.plan_reverse_with_progress` async generator riusa `plan_with_progress` e applica il post-processing `_merge_ladder_advice` solo al `done` event. Nuovo endpoint `POST /fob/plan/reverse/stream` (`StreamingResponse` text/event-stream), client TS `planBuildReverseStream` + helper `streamPlanEndpoint(path, ...)` deduplica fetch+ReadableStream tra `/plan/stream` e `/plan/reverse/stream`. `PlannerPage.tsx` reverse mode ora usa SSE invece di non-streaming → progress bar + ETA anche per reverse. 2 nuovi test (lifecycle eventi + fail-fast senza degrader).
+- **F — InfluenceItemDegrader**: nuovo degrader pattern-keyed su `Item.influence` non-vuoto + slot in (helmet/body/gloves/boots/amulet/ring). Ladder 3-rung: essence craft (Mid Campaign, ~0.3 div) → single influence + +1 socketed gems (Early Mapping, ~5-15 div) → double influence custom craft (High Investment, no cap). Influences label esposto in item_name + rationale (es. "body_armour Crusader + Warlord (single influence...)"). 4 nuovi test. Default `CompositeDegrader` esteso a `[AwakenedGem, Hardcoded, Influence]` in entrambi gli endpoint reverse.
+- **H — Request coalescer in `HttpClient`**: nuovo `_inflight: dict[str, asyncio.Future[Any]]` in HttpClient. In `_cached_get`, dopo cache miss, se la stessa key ha un Future in volo, await quello invece di duplicare la call upstream. Critical per multi-utente: 5 utenti che cercano "Mageblood" in burst → 1 sola call a poe.ninja, gli altri 4 attendono lo stesso Future + scrivono cache 1 volta sola. Errori cleanup correttamente (no stuck futures). 2 nuovi test (5 concurrent → 1 upstream call, errore non blocca retry).
+
+Step 13.C migliorie chiuse. Pronti per production deploy.
+
+Baseline: 557 verdi / 95 mypy / 93 format. Frontend build 510 KB / 160 KB gzip.
 
 Pattern di degrader esteso oltre il table lookup:
 - **Table-keyed** (`HardcodedDegrader`): mapping name → rung factory. Buono per uniques iconici noti.

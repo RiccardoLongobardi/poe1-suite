@@ -120,3 +120,69 @@ async def test_outside_context_manager_raises(tmp_path: Path) -> None:
     client = HttpClient(settings)
     with pytest.raises(RuntimeError):
         await client.get_json("https://example.test/x")
+
+
+async def test_concurrent_misses_coalesce_into_one_request(tmp_path: Path) -> None:
+    """Step 13.C migliorie (H): N concurrent cacheable GETs to same URL → 1 upstream call.
+
+    The first caller fires the network request; the rest await the
+    same in-flight future. Once the request completes, all callers
+    receive the same payload, and the on-disk cache is populated so
+    later sequential calls hit it.
+    """
+
+    import asyncio
+
+    call_count = 0
+    request_started = asyncio.Event()
+    release_request = asyncio.Event()
+
+    async def slow_handler(_request: httpx.Request) -> httpx.Response:
+        nonlocal call_count
+        call_count += 1
+        request_started.set()
+        await release_request.wait()
+        return httpx.Response(200, json={"ok": True, "n": call_count})
+
+    settings = _make_settings(tmp_path)
+    client = await _make_client(settings, httpx.MockTransport(slow_handler))
+    try:
+        url = "https://example.test/coalesce"
+
+        async def caller() -> object:
+            return await client.get_json(url)
+
+        tasks = [asyncio.create_task(caller()) for _ in range(5)]
+        await request_started.wait()
+        release_request.set()
+
+        results = await asyncio.gather(*tasks)
+        assert all(r == {"ok": True, "n": 1} for r in results)
+        # Only ONE upstream call happened, not five.
+        assert call_count == 1
+    finally:
+        await client.__aexit__(None, None, None)
+
+
+async def test_inflight_cleared_on_error(tmp_path: Path) -> None:
+    """A failed in-flight request must drop its future so retries are clean."""
+
+    call_count = 0
+
+    def failing_handler(_request: httpx.Request) -> httpx.Response:
+        nonlocal call_count
+        call_count += 1
+        return httpx.Response(500, text="boom")
+
+    settings = _make_settings(tmp_path, http_max_retries=0)
+    client = await _make_client(settings, httpx.MockTransport(failing_handler))
+    try:
+        with pytest.raises(HttpError):
+            await client.get_json("https://example.test/fail")
+        # Subsequent call must fire a new request, not return a
+        # stuck stale failure.
+        with pytest.raises(HttpError):
+            await client.get_json("https://example.test/fail")
+        assert call_count >= 2
+    finally:
+        await client.__aexit__(None, None, None)

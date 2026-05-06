@@ -408,37 +408,26 @@ class PlannerService:
     # Step 13.C — reverse-progression entry point
     # ------------------------------------------------------------------
 
-    async def plan_reverse(
-        self,
-        build: Build,
-        *,
-        target_goal: TargetGoal = TargetGoal.MAPPING_AND_BOSS,
-    ) -> BuildPlan:
-        """Build a plan enriched with per-item upgrade ladders.
+    def _merge_ladder_advice(self, build: Build, baseline: BuildPlan) -> BuildPlan:
+        """Apply the reverse-progression post-processing to a baseline plan.
 
-        Workflow:
+        Pure function on top of an already-built :class:`BuildPlan`: for
+        every :class:`KeyItem` queries the degrader for an
+        :class:`UpgradeLadder`, indexes the rungs by stage_key, and
+        appends ``[target_name] rationale`` lines to each PlanStage's
+        ``gem_changes``. Stages with no matching rungs are passed
+        through unchanged.
 
-        1. Run the standard :meth:`plan` to get a template-based baseline
-           (pricing, bucketing, default gem/tree advice).
-        2. For every :class:`KeyItem` in the build, ask the configured
-           degrader for an :class:`UpgradeLadder` (cheap → endgame rungs).
-        3. For each stage, collect the rungs anchored to that stage and
-           append their rationales to the template's ``gem_changes``.
-           The rung's ``item_name`` is prefixed so the user sees which
-           endgame target each suggestion ladders toward.
-
-        Backward-compatible: when no degrader is configured at
-        ``__init__`` time, raises :class:`ValueError` rather than
-        silently degrading to template-only output. Use :meth:`plan`
-        for template-only.
+        Shared by :meth:`plan_reverse` (silent) and
+        :meth:`plan_reverse_with_progress` (SSE) so both paths produce
+        identical output.
         """
 
         if self._degrader is None:
             raise ValueError(
-                "plan_reverse requires a degrader. Pass one via PlannerService(..., degrader=...)."
+                "reverse-mode merge requires a degrader. Pass one via "
+                "PlannerService(..., degrader=...)."
             )
-
-        baseline = await self.plan(build, target_goal=target_goal)
 
         # Build the ladders for every KeyItem. The degrader is sync and
         # cheap (table lookup); no need to gather/await.
@@ -467,6 +456,67 @@ class PlannerService:
             )
 
         return baseline.model_copy(update={"stages": new_stages})
+
+    async def plan_reverse(
+        self,
+        build: Build,
+        *,
+        target_goal: TargetGoal = TargetGoal.MAPPING_AND_BOSS,
+    ) -> BuildPlan:
+        """Build a plan enriched with per-item upgrade ladders.
+
+        Workflow:
+
+        1. Run the standard :meth:`plan` to get a template-based baseline
+           (pricing, bucketing, default gem/tree advice).
+        2. Apply :meth:`_merge_ladder_advice` to fold in the per-item
+           ladder rationales.
+
+        Backward-compatible: when no degrader is configured at
+        ``__init__`` time, raises :class:`ValueError` rather than
+        silently degrading to template-only output. Use :meth:`plan`
+        for template-only.
+        """
+
+        if self._degrader is None:
+            raise ValueError(
+                "plan_reverse requires a degrader. Pass one via PlannerService(..., degrader=...)."
+            )
+
+        baseline = await self.plan(build, target_goal=target_goal)
+        return self._merge_ladder_advice(build, baseline)
+
+    async def plan_reverse_with_progress(
+        self,
+        build: Build,
+        *,
+        target_goal: TargetGoal = TargetGoal.MAPPING_AND_BOSS,
+    ) -> AsyncIterator[PricingProgress]:
+        """Stream reverse-mode planning as :class:`PricingProgress` events.
+
+        Identical event lifecycle to :meth:`plan_with_progress` (start →
+        item_started/item_done x N → done). The reverse post-processing
+        is applied to the ``final_plan`` carried on the ``done`` event,
+        so consumers see the merged plan with ladder rationales already
+        included. Pricing/bucketing happens during the per-item events;
+        the ladder merge is a synchronous, in-memory step that adds
+        negligible time at the end.
+
+        Used by ``POST /fob/plan/reverse/stream`` (SSE consumers).
+        """
+
+        if self._degrader is None:
+            raise ValueError(
+                "plan_reverse_with_progress requires a degrader. Pass "
+                "one via PlannerService(..., degrader=...)."
+            )
+
+        async for event in self.plan_with_progress(build, target_goal=target_goal):
+            if event.kind == "done" and event.final_plan is not None:
+                merged = self._merge_ladder_advice(build, event.final_plan)
+                yield event.model_copy(update={"final_plan": merged})
+            else:
+                yield event
 
     # ------------------------------------------------------------------
     # Per-item pricing dispatch

@@ -25,7 +25,7 @@ import {
 } from "@mantine/core";
 import { IconClock, IconCoinFilled, IconStack3 } from "@tabler/icons-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { planBuildReverse, planBuildStream } from "../api/fob";
+import { planBuildReverseStream, planBuildStream } from "../api/fob";
 import type {
   Build,
   BuildPlan,
@@ -210,36 +210,32 @@ export function PlannerPage({ initialInput }: Props) {
     setRunning(true);
 
     try {
-      if (reverseMode) {
-        // Reverse-progression mode: non-streaming endpoint. No SSE
-        // progress; the request blocks until the server returns the
-        // enriched plan. Faster than stream for users who don't care
-        // about progress updates and need the per-item ladders.
-        const resp = await planBuildReverse(input, target);
+      // Both template and reverse modes stream via SSE so the UI gets
+      // per-item progress + ETA. Reverse mode's 'done' event carries
+      // the merged plan with [target] ladder rationales.
+      const stream = reverseMode
+        ? planBuildReverseStream(input, target, ctrl.signal)
+        : planBuildStream(input, target, ctrl.signal);
+      let lastEvent: PricingProgress | null = null;
+      for await (const event of stream) {
         if (ctrl.signal.aborted) return;
-        setResult({ build: resp.build, plan: resp.plan });
-      } else {
-        let lastEvent: PricingProgress | null = null;
-        for await (const event of planBuildStream(input, target, ctrl.signal)) {
-          if (ctrl.signal.aborted) return;
-          lastEvent = event;
-          setProgress(event);
-        }
-        // The 'done' event carries the BuildPlan; we can't know the
-        // Build separately from the stream, so we render the plan
-        // with a stand-in synthesized from final_plan's source id.
-        if (lastEvent?.kind === "done" && lastEvent.final_plan) {
-          setResult({
-            build: {
-              source_id: lastEvent.final_plan.build_source_id,
-              character_class: "",
-              ascendancy: null,
-              main_skill: null,
-              level: 1,
-            },
-            plan: lastEvent.final_plan,
-          });
-        }
+        lastEvent = event;
+        setProgress(event);
+      }
+      // The 'done' event carries the BuildPlan; we can't know the
+      // Build separately from the stream, so we render the plan
+      // with a stand-in synthesized from final_plan's source id.
+      if (lastEvent?.kind === "done" && lastEvent.final_plan) {
+        setResult({
+          build: {
+            source_id: lastEvent.final_plan.build_source_id,
+            character_class: "",
+            ascendancy: null,
+            main_skill: null,
+            level: 1,
+          },
+          plan: lastEvent.final_plan,
+        });
       }
     } catch (err) {
       if ((err as Error).name !== "AbortError") {
