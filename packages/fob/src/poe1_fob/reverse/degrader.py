@@ -875,6 +875,95 @@ class AwakenedGemDegrader:
 # ---------------------------------------------------------------------------
 
 
+class InfluenceItemDegrader:
+    """Degrader for rare items carrying ``influence`` tags.
+
+    Influenced rares (Crusader / Warlord / Hunter / Redeemer / Shaper /
+    Elder / Searing Exarch / Eater of Worlds / Synthesised) are
+    endgame-tier crafts. Unique-targeted degraders (Hardcoded) miss them
+    because the item ``name`` is empty for rares; this degrader keys on
+    ``Item.influence`` non-empty + a slot in the gear set instead.
+
+    Emits a generic 3-rung ladder: essence/alteration craft (Mid Campaign,
+    cheap chaos) → +1 socketed influence craft (Early Mapping, ~5-10 div)
+    → double-influence custom craft (High Investment, ~50-300+ div).
+    Item-specific rationales reference the actual influences carried.
+
+    Non-influenced rares (the majority of leveling gear) fall through
+    to the single-rung fallback so :class:`CompositeDegrader` can route
+    them to the next degrader.
+    """
+
+    # Slots where influence rares are meaningful endgame upgrades. Skips
+    # JEWEL/FLASK/BELT (different ladder shape) and weapon (handled by
+    # specific weapon-craft templates).
+    _SUPPORTED_SLOTS: frozenset[str] = frozenset(
+        {"helmet", "body_armour", "gloves", "boots", "amulet", "ring"}
+    )
+
+    def degrade(self, target: KeyItem) -> UpgradeLadder:
+        item = target.item
+        # Only match rares with at least one influence tag.
+        if not item.influence:
+            return _endgame_only_fallback(target)
+        # Skip slots we don't have a sensible ladder for.
+        slot_value = target.slot.value if target.slot else ""
+        if slot_value not in self._SUPPORTED_SLOTS:
+            return _endgame_only_fallback(target)
+
+        influences_label = " + ".join(inf.replace("_", " ").title() for inf in item.influence)
+        slot_label = slot_value.replace("_", " ")
+        target_name = item.name or item.base_type or f"{slot_label} rare"
+
+        return UpgradeLadder(
+            target_name=target_name,
+            rungs=(
+                LadderStep(
+                    stage_key="mid_campaign",
+                    item_name=f"{slot_label} essence craft (life + 2 res)",
+                    kind="rare_craft",
+                    budget_div_max=0.3,
+                    rationale=(
+                        f"Rare {slot_label} via essence spam (Greed / "
+                        "Anger / Wrath a seconda dello slot): life + 2 "
+                        "resistance + uno stat utile. Costo ~10-30 chaos. "
+                        "Bridge fino a Early Mapping prima del rare "
+                        "influenza-tagged."
+                    ),
+                ),
+                LadderStep(
+                    stage_key="early_mapping",
+                    item_name=(
+                        f"{slot_label} {influences_label} (single influence, +1 socketed gems)"
+                    ),
+                    kind="rare_craft",
+                    budget_div_max=15.0,
+                    rationale=(
+                        f"Rare {slot_label} con singolo {influences_label} "
+                        "+ +1 socketed gems / +life / spell crit (a seconda "
+                        "della build). Bridge intermedio: 5-15 div in "
+                        "league mature. Conserva il base + roll degli "
+                        "stat utili."
+                    ),
+                ),
+                LadderStep(
+                    stage_key="high_investment",
+                    item_name=f"{slot_label} {influences_label} (double influence, +2 socketed)",
+                    kind="rare_craft",
+                    budget_div_max=None,
+                    rationale=(
+                        f"Custom craft endgame: {influences_label} su "
+                        f"{slot_label} con +2 to Level of Socketed Gems "
+                        "+ T1 life + suppression / spell suppression / "
+                        "elemental res. Hinekora's Lock + Eldritch implicit "
+                        "+ Awakener's Orb se serve combo influence. 50-300+ "
+                        "div in base alle stat raggiunte."
+                    ),
+                ),
+            ),
+        )
+
+
 class CompositeDegrader:
     """Try each :class:`ItemDegrader` in order; first match wins.
 

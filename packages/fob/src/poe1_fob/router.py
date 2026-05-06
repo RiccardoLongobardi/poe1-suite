@@ -353,14 +353,25 @@ def make_router(settings: Settings) -> APIRouter:
            UI can group/filter them.
         """
 
-        from .reverse import AwakenedGemDegrader, CompositeDegrader, HardcodedDegrader
+        from .reverse import (
+            AwakenedGemDegrader,
+            CompositeDegrader,
+            HardcodedDegrader,
+            InfluenceItemDegrader,
+        )
 
         async with HttpClient(settings) as http:
             build, _ = await _resolve_pob_to_build(payload.input, http=http)
 
             pricing = PricingService(http=http, league=settings.poe_league)
             trade = TradeSource(http=http, league=settings.poe_league)
-            degrader = CompositeDegrader([AwakenedGemDegrader(), HardcodedDegrader()])
+            degrader = CompositeDegrader(
+                [
+                    AwakenedGemDegrader(),
+                    HardcodedDegrader(),
+                    InfluenceItemDegrader(),
+                ]
+            )
             planner = PlannerService(pricing, trade=trade, degrader=degrader)
             plan = await planner.plan_reverse(build, target_goal=payload.target_goal)
 
@@ -424,6 +435,69 @@ def make_router(settings: Settings) -> APIRouter:
             media_type="text/event-stream",
             headers={
                 # Disable proxy buffering so events flush immediately.
+                "Cache-Control": "no-cache",
+                "X-Accel-Buffering": "no",
+            },
+        )
+
+    @router.post(
+        "/plan/reverse/stream",
+        summary=(
+            "Stream the reverse-progression plan as Server-Sent Events. "
+            "Same shape as /plan/stream, but the final 'done' event's "
+            "BuildPlan carries per-item ladder rationales (Step 13.C)."
+        ),
+    )
+    async def plan_reverse_stream_endpoint(
+        payload: Annotated[PlanRequest, Body()],
+    ) -> StreamingResponse:
+        """SSE-streamed reverse-progression planning.
+
+        Same input/event shape as ``/plan/stream``: one progress event
+        per :class:`KeyItem` priced + start/done bookends. The ``done``
+        event's ``final_plan`` is post-processed via
+        :meth:`PlannerService._merge_ladder_advice` so consumers see the
+        merged plan with ``[target] rationale`` lines in
+        ``gem_changes`` already included — no second round-trip.
+        """
+
+        from .reverse import (
+            AwakenedGemDegrader,
+            CompositeDegrader,
+            HardcodedDegrader,
+            InfluenceItemDegrader,
+        )
+
+        async with HttpClient(settings) as http:
+            build, _ = await _resolve_pob_to_build(payload.input, http=http)
+
+        async def event_source() -> AsyncIterator[str]:
+            async with HttpClient(settings) as http:
+                pricing = PricingService(http=http, league=settings.poe_league)
+                trade = TradeSource(http=http, league=settings.poe_league)
+                degrader = CompositeDegrader(
+                    [
+                        AwakenedGemDegrader(),
+                        HardcodedDegrader(),
+                        InfluenceItemDegrader(),
+                    ]
+                )
+                planner = PlannerService(pricing, trade=trade, degrader=degrader)
+                async for event in planner.plan_reverse_with_progress(
+                    build, target_goal=payload.target_goal
+                ):
+                    yield _sse_format(event)
+                log.info(
+                    "fob_plan_reverse_stream_ok",
+                    source_id=build.source_id,
+                    target_goal=payload.target_goal.value,
+                    key_items=len(build.key_items),
+                )
+
+        return StreamingResponse(
+            event_source(),
+            media_type="text/event-stream",
+            headers={
                 "Cache-Control": "no-cache",
                 "X-Accel-Buffering": "no",
             },

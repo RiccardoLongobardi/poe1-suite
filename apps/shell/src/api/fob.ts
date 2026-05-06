@@ -127,7 +127,42 @@ export async function* planBuildStream(
   targetGoal: TargetGoal = "mapping_and_boss",
   signal?: AbortSignal,
 ): AsyncGenerator<PricingProgress, void, void> {
-  const res = await fetch(`${BASE}/fob/plan/stream`, {
+  yield* streamPlanEndpoint("/fob/plan/stream", input, targetGoal, signal);
+}
+
+/**
+ * POST /fob/plan/reverse/stream — SSE-streamed reverse-progression planning.
+ *
+ * Identical event lifecycle to planBuildStream, but the final 'done'
+ * event's BuildPlan carries per-item ladder rationales tagged
+ * [target_name] in the appropriate stages' gem_changes (Step 13.C).
+ */
+export async function* planBuildReverseStream(
+  input: string,
+  targetGoal: TargetGoal = "mapping_and_boss",
+  signal?: AbortSignal,
+): AsyncGenerator<PricingProgress, void, void> {
+  yield* streamPlanEndpoint(
+    "/fob/plan/reverse/stream",
+    input,
+    targetGoal,
+    signal,
+  );
+}
+
+/**
+ * Shared SSE consumer for /fob/plan/stream and /fob/plan/reverse/stream.
+ *
+ * fetch + ReadableStream because EventSource only supports GET. The
+ * signal lets the caller cancel mid-stream (e.g. component unmount).
+ */
+async function* streamPlanEndpoint(
+  path: string,
+  input: string,
+  targetGoal: TargetGoal,
+  signal?: AbortSignal,
+): AsyncGenerator<PricingProgress, void, void> {
+  const res = await fetch(`${BASE}${path}`, {
     method: "POST",
     headers: { "Content-Type": "application/json", Accept: "text/event-stream" },
     body: JSON.stringify({ input, target_goal: targetGoal }),
