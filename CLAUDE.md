@@ -361,6 +361,20 @@ Test: +6 in `test_config.py` (environment default/prod, cors csv parse, cors emp
 
 Baseline: 565 verdi (+8 da 557) / 95 mypy / 93 format.
 
+## Production deploy — Fase 2: containerization ✅ done (2026-05-02)
+
+Aggiunto Dockerfile multi-stage + `.dockerignore` + `docs/DEPLOY.md`:
+
+- **`Dockerfile`** in repo root, due stage:
+  - **Builder**: `python:3.12-slim-bookworm` + uv 0.5.4 statico via `ghcr.io/astral-sh/uv`. `uv sync --locked --no-dev` installa il workspace completo. Cache mount su `/root/.cache/uv` per build veloci ripetuti.
+  - **Runtime**: stessa base slim, copia `.venv` + `packages/` + `apps/server/` dal builder. User non-root (`app`, uid 1000). Default env: `HOST=0.0.0.0 PORT=8080 ENVIRONMENT=production LOG_FORMAT=json CACHE_DIR=/data/.cache_http`. EXPOSE 8080. HEALTHCHECK Docker-native via stdlib `urllib` (no curl/wget needed).
+  - CMD: `["poe1-server"]` — la console script registrata da `apps/server/pyproject.toml` (chiama `run()` che legge HOST/PORT da env).
+- **`.dockerignore`** strict: esclude `.venv/`, `.cache_http/`, `**/__pycache__/`, `apps/shell/`, `**/node_modules/`, `**/dist/`, `**/tests/`, `**/test_*.py`, `**/conftest.py`, `.git/`, `.github/`, `.vscode/`, build artifacts, `.env*` (whitelist `.env.example` + `.env.production.example`), `.claude/`. Build context piccolo, image piccola.
+- **`docs/DEPLOY.md`**: playbook operazionale completo per Fly.io (backend) + Vercel (frontend). Include: install flyctl, `fly launch --no-deploy --copy-config --name fob-api --region fra`, `fly secrets set ENVIRONMENT=production LOG_FORMAT=json POE_LEAGUE=Mirage CORS_ALLOWED_ORIGINS=https://fob.vercel.app`, optional persistent volume mount per cache, `fly deploy`. Vercel: import repo + Vite framework preset + root `apps/shell` + env `VITE_API_BASE`. Custom domain wireup ($10/anno opzionale). Smoke test checklist + rollback procedure.
+- **`README.md`**: aggiunto link a `DEPLOY.md` + comandi quick local Docker check.
+
+NB: build Docker locale non testato (Docker Desktop non installato in shell). Sarà testato direttamente da Fly.io builder remoto in Fase 3.
+
 Pattern di degrader esteso oltre il table lookup:
 - **Table-keyed** (`HardcodedDegrader`): mapping name → rung factory. Buono per uniques iconici noti.
 - **Pattern-keyed** (`AwakenedGemDegrader`): regex/frozenset match su nome. Buono per famiglie con upgrade chain ovvio.
