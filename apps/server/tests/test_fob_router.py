@@ -32,9 +32,55 @@ def settings(tmp_path: Path) -> Settings:
 def test_health_and_version_endpoints(settings: Settings) -> None:
     app = create_app(settings)
     with TestClient(app) as client:
-        assert client.get("/health").status_code == 200
+        health = client.get("/health").json()
+        # Production hardening (Fase 1): /health is enriched with env,
+        # league, version, uptime so monitors can probe meaningful state.
+        assert health["status"] == "ok"
+        assert health["environment"] == "development"
+        assert health["league"] == settings.poe_league
+        assert "version" in health
+        assert health["uptime_seconds"] >= 0
+        assert "timestamp" in health
+
         v = client.get("/version").json()
         assert "fob" in v
+
+
+def test_cors_disabled_when_origins_empty(settings: Settings) -> None:
+    """No CORS middleware when ``cors_allowed_origins`` is empty.
+
+    Dev frontend uses Vite proxy so cross-origin headers aren't needed.
+    Empty list = mw not mounted = no Access-Control-Allow-Origin in
+    OPTIONS response.
+    """
+
+    app = create_app(settings)
+    with TestClient(app) as client:
+        r = client.options(
+            "/health",
+            headers={"Origin": "https://malicious.example"},
+        )
+        assert "access-control-allow-origin" not in {k.lower() for k in r.headers}
+
+
+def test_cors_enabled_when_origins_configured(tmp_path: Path) -> None:
+    """CORS middleware is mounted and reflects the configured origins."""
+
+    settings = Settings(
+        cache_dir=tmp_path / "cache",
+        http_cache_ttl_seconds=0,
+        cors_allowed_origins=["https://fob.vercel.app"],
+    )
+    app = create_app(settings)
+    with TestClient(app) as client:
+        r = client.options(
+            "/health",
+            headers={
+                "Origin": "https://fob.vercel.app",
+                "Access-Control-Request-Method": "GET",
+            },
+        )
+        assert r.headers.get("access-control-allow-origin") == "https://fob.vercel.app"
 
 
 def test_analyze_pob_rejects_missing_input(settings: Settings) -> None:

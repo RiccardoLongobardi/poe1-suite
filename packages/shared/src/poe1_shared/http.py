@@ -103,6 +103,12 @@ class HttpClient:
         # search the same item in a burst. Keyed on the same
         # ``_cache_key`` used by the on-disk cache.
         self._inflight: dict[str, asyncio.Future[Any]] = {}
+        # Production hardening (Fase 1): per-host concurrency limit.
+        # Multi-user deployments need a hard cap on outbound requests
+        # per upstream host so we don't burst-saturate poe.ninja or
+        # the GGG Trade API with N user-driven plan requests at once.
+        # The semaphore is created lazily per host in ``_host_sema``.
+        self._host_semaphores: dict[str, asyncio.Semaphore] = {}
 
     async def __aenter__(self) -> Self:
         self._cache = diskcache.Cache(str(self._settings.ensure_cache_dir()))
@@ -129,6 +135,7 @@ class HttpClient:
         # CancelledError, which is what they'd get on a normal exit
         # anyway).
         self._inflight.clear()
+        self._host_semaphores.clear()
 
     # ------------------------------------------------------------------
     # Public API
@@ -261,16 +268,18 @@ class HttpClient:
             reraise=True,
         )
 
+        sema = self._host_sema(url)
         try:
             async for attempt in retryer:
                 with attempt:
-                    response = await self._client.request(
-                        method,
-                        url,
-                        params=params,
-                        json=json_body,
-                        headers=headers,
-                    )
+                    async with sema:
+                        response = await self._client.request(
+                            method,
+                            url,
+                            params=params,
+                            json=json_body,
+                            headers=headers,
+                        )
                     try:
                         response.raise_for_status()
                     except httpx.HTTPStatusError as err:
@@ -385,10 +394,12 @@ class HttpClient:
             reraise=True,
         )
 
+        sema = self._host_sema(url)
         try:
             async for attempt in retryer:
                 with attempt:
-                    response = await self._client.get(url, params=params)
+                    async with sema:
+                        response = await self._client.get(url, params=params)
                     try:
                         response.raise_for_status()
                     except httpx.HTTPStatusError as err:
@@ -413,3 +424,24 @@ class HttpClient:
 
         # Unreachable: AsyncRetrying always yields at least once.
         raise HttpError("unreachable retry exit", url=url)  # pragma: no cover
+
+    def _host_sema(self, url: str) -> asyncio.Semaphore:
+        """Lazy-create one Semaphore per upstream host.
+
+        Multi-user safety: caps the number of in-flight requests per
+        host to ``settings.http_max_concurrent_per_host`` (default 4).
+        Without this, N concurrent users planning builds would each
+        send a burst of poe.ninja calls, easily blowing the public
+        rate-limit budget.
+
+        Keyed on hostname only (not full URL) so different paths on
+        the same upstream share the budget — which is the correct
+        unit for rate-limiting purposes.
+        """
+
+        host = httpx.URL(url).host or url  # fallback for malformed URLs
+        sema = self._host_semaphores.get(host)
+        if sema is None:
+            sema = asyncio.Semaphore(self._settings.http_max_concurrent_per_host)
+            self._host_semaphores[host] = sema
+        return sema
