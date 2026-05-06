@@ -34,7 +34,7 @@ uv run mypy .
 uv run pytest
 ```
 
-All four must pass with zero errors. Current baseline: **549 tests green (2 skipped — integration/LLM), 95 files type-checked clean, 93 files formatted clean**. Frontend build 510 KB / 160 KB gzip.
+All four must pass with zero errors. Current baseline: **565 tests green (2 skipped — integration/LLM), 95 files type-checked clean, 93 files formatted clean**. Frontend build 510 KB / 160 KB gzip.
 
 ## What's built (state as of 2026-04-25, end of Step 8 — FOB completo)
 
@@ -344,6 +344,22 @@ Step 13.C **chiuso** con tutti i 6 turni. Baseline 547 test verdi / 95 mypy (95 
 Step 13.C migliorie chiuse. Pronti per production deploy.
 
 Baseline: 557 verdi / 95 mypy / 93 format. Frontend build 510 KB / 160 KB gzip.
+
+## Production deploy — Fase 1: hardening ✅ done (2026-05-02)
+
+Applicato in `claude/brave-johnson-5eb01e` per supportare deploy multi-utente:
+
+- **`Settings.environment`** (`development` | `production`): nuovo enum. Quando `production`, `create_app` forza `log_format=json` automaticamente.
+- **`Settings.cors_allowed_origins`** (`list[str]`): comma-separated nell'env (es. `CORS_ALLOWED_ORIGINS=https://fob.vercel.app,https://fob.tools`). Il `field_validator` con `Annotated[..., NoDecode]` bypassa il default JSON parser di pydantic-settings. Empty list in dev → CORS middleware non montato (Vite proxy gestisce). Production deve listare l'URL Vercel.
+- **`Settings.http_max_concurrent_per_host`** (default 4): limit semaphore per upstream host. `HttpClient._host_sema(url)` lazy-creates one `asyncio.Semaphore(N)` per `httpx.URL(url).host`. In `_do_get` e `_request_json` le chiamate net wrappano `async with sema` solo durante la parte network (release prima del body parse). Multi-user safety: 10 utenti concorrenti che pianificano una build → max 4 calls simultanee a poe.ninja, le altre fanno coda.
+- **`/health` arricchito**: ritorna `{status, environment, league, version, uptime_seconds, timestamp}` invece del minimale `{status: "ok"}`. Sufficiente per Fly.io health checks + UptimeRobot.
+- **`run()` accetta env `HOST` e `PORT`**: defaults `127.0.0.1:8765` per dev, ma Fly.io setta `PORT=8080` e dobbiamo bind a `0.0.0.0`.
+- **CORS middleware**: mounted solo se `cors_allowed_origins` non-empty. `allow_credentials=False` (no cookies), `allow_methods=["GET","POST"]`, `allow_headers=["Content-Type","Accept"]`, `max_age=3600`.
+- **`.env.example` aggiornato + nuovo `.env.production.example`**: secrets template per Fly.io secrets set.
+
+Test: +6 in `test_config.py` (environment default/prod, cors csv parse, cors empty, cors default empty, http concurrent default/override) + +2 in `test_fob_router.py` (health enriched, cors disabled when empty, cors enabled with origin).
+
+Baseline: 565 verdi (+8 da 557) / 95 mypy / 93 format.
 
 Pattern di degrader esteso oltre il table lookup:
 - **Table-keyed** (`HardcodedDegrader`): mapping name → rung factory. Buono per uniques iconici noti.
