@@ -561,6 +561,18 @@ def make_router(settings: Settings) -> APIRouter:
             try:
                 search_id, _hashes, total = await trade.search(query)
             except HttpError as err:
+                # 429 Too Many Requests is GGG's strict per-IP rate
+                # limit (~5 searches/min). Surface a user-friendly
+                # message instead of the raw HTTPx error.
+                if err.status_code == 429:
+                    raise HTTPException(
+                        status_code=429,
+                        detail=(
+                            "Trade GGG ti ha temporaneamente bloccato per "
+                            "troppe richieste. Aspetta 30-60 secondi e "
+                            "riprova."
+                        ),
+                    ) from err
                 raise HTTPException(
                     status_code=502,
                     detail=f"GGG Trade search failed: {err}",

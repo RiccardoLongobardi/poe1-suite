@@ -192,6 +192,63 @@ ALL_STAGES: tuple[StageSpec, ...] = (
 )
 
 
+def stages_for_target_goal(target: object) -> tuple[StageSpec, ...]:
+    """Return the stage tuple appropriate for a TargetGoal.
+
+    * ``mapping_only`` — drop High Investment (uber-tier crafts not
+      worth showing for someone who only wants T16 maps).
+    * ``mapping_and_boss`` — full 6-stage layout (default).
+    * ``uber_capable`` — full 6-stage layout, with the High
+      Investment rationale rephrased to emphasise mirror-tier crafts.
+
+    The ``target`` is typed loosely to avoid a circular import on
+    :class:`poe1_core.TargetGoal`; the caller passes the enum value
+    or its string. Unknown / None values fall back to all 6 stages.
+    """
+
+    value = getattr(target, "value", target)
+    if value == "mapping_only":
+        return (
+            EARLY_CAMPAIGN,
+            MID_CAMPAIGN,
+            END_CAMPAIGN,
+            EARLY_MAPPING,
+            END_MAPPING,
+        )
+    if value == "uber_capable":
+        # Replace the High Investment stage with a uber-flavoured
+        # rationale. Same budget band, just stronger framing of why
+        # each upgrade matters at this tier.
+        uber_high_investment = StageSpec(
+            key=HIGH_INVESTMENT.key,
+            label=HIGH_INVESTMENT.label,
+            floor_div=HIGH_INVESTMENT.floor_div,
+            ceiling_div=HIGH_INVESTMENT.ceiling_div,
+            rationale=(
+                "Uber pinnacle: la build deve fare 1-shot Maven memory "
+                "game, Uber Sirus, Uber Eater, Uber Exarch, Uber Maven. "
+                "Mageblood obbligatorio (250-300 div) per flask scaling, "
+                "Awakened 6 corrupted (~80-200 div), Mirror-tier body "
+                "+2 socketed con suppression/life/res. Forbidden Flame+"
+                "Flesh combo per ascendancy notable +1 al damage o "
+                "defensive layer. Hands of the High Templar custom. "
+                "Costo totale endgame: 800-1500+ div."
+            ),
+            next_trigger=HIGH_INVESTMENT.next_trigger,
+            expected_content=(*HIGH_INVESTMENT.expected_content, ContentFocus.UBERS),
+        )
+        return (
+            EARLY_CAMPAIGN,
+            MID_CAMPAIGN,
+            END_CAMPAIGN,
+            EARLY_MAPPING,
+            END_MAPPING,
+            uber_high_investment,
+        )
+    # Default = mapping_and_boss → all 6 stages unchanged.
+    return ALL_STAGES
+
+
 # ---------------------------------------------------------------------------
 # Bucketing
 # ---------------------------------------------------------------------------
