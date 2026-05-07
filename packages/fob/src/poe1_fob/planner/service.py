@@ -353,6 +353,7 @@ class PlannerService:
             stages.append(
                 PlanStage(
                     label=spec.label,
+                    stage_key=spec.key,
                     budget_range=stage_budget(buckets[spec], spec, chaos_per_divine=rate),
                     expected_content=list(spec.expected_content),
                     core_items=buckets[spec],
@@ -390,6 +391,8 @@ class PlannerService:
             eta_seconds=0.0,
             status=f"Piano pronto ({priced_count}/{n_items} prezzati)",
             final_plan=plan,
+            template_name=template.name,
+            build=build,
         )
 
     # ------------------------------------------------------------------

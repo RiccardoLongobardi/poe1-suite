@@ -54,6 +54,7 @@ from .pob import (
     PobParseError,
     PobSnapshot,
     decode_export,
+    encode_pob_code,
     load_pob,
     parse_snapshot,
     snapshot_to_build,
@@ -311,6 +312,8 @@ def make_router(settings: Settings) -> APIRouter:
         unified.
         """
 
+        from .planner.templates import pick_template
+
         async with HttpClient(settings) as http:
             build, _ = await _resolve_pob_to_build(payload.input, http=http)
 
@@ -318,16 +321,18 @@ def make_router(settings: Settings) -> APIRouter:
             trade = TradeSource(http=http, league=settings.poe_league)
             planner = PlannerService(pricing, trade=trade)
             plan = await planner.plan(build, target_goal=payload.target_goal)
+            template_name = pick_template(build).name
 
         log.info(
             "fob_plan_ok",
             source_id=build.source_id,
             target_goal=payload.target_goal.value,
+            template_name=template_name,
             stages=len(plan.stages),
             total_min_div=plan.total_estimated_cost.min.amount,
             total_max_div=plan.total_estimated_cost.max.amount,
         )
-        return PlanResponse(build=build, plan=plan)
+        return PlanResponse(build=build, plan=plan, template_name=template_name)
 
     @router.post(
         "/plan/reverse",
@@ -356,6 +361,7 @@ def make_router(settings: Settings) -> APIRouter:
            UI can group/filter them.
         """
 
+        from .planner.templates import pick_template
         from .reverse import (
             AwakenedGemDegrader,
             CompositeDegrader,
@@ -377,17 +383,19 @@ def make_router(settings: Settings) -> APIRouter:
             )
             planner = PlannerService(pricing, trade=trade, degrader=degrader)
             plan = await planner.plan_reverse(build, target_goal=payload.target_goal)
+            template_name = pick_template(build).name
 
         log.info(
             "fob_plan_reverse_ok",
             source_id=build.source_id,
             target_goal=payload.target_goal.value,
+            template_name=template_name,
             key_items=len(build.key_items),
             stages=len(plan.stages),
             total_min_div=plan.total_estimated_cost.min.amount,
             total_max_div=plan.total_estimated_cost.max.amount,
         )
-        return PlanResponse(build=build, plan=plan)
+        return PlanResponse(build=build, plan=plan, template_name=template_name)
 
     @router.post(
         "/plan/stream",
@@ -699,6 +707,61 @@ def make_router(settings: Settings) -> APIRouter:
             found=prog is not None,
         )
         return prog
+
+    @router.get(
+        "/stage-export/{template_name}/{stage_key}",
+        summary=(
+            "Build a PathOfBuilding-importable code combining the tree, gear "
+            "and gem-link progressions for a single stage of a template."
+        ),
+    )
+    async def stage_export_endpoint(
+        template_name: str,
+        stage_key: str,
+        character_class: str = "Marauder",
+        ascendancy: str | None = None,
+        level: int = 90,
+    ) -> dict[str, str | None]:
+        """Compose a Step 14 PoB export code for one stage.
+
+        Looks up the registered TreeProgression / GearProgression /
+        GemProgression for ``template_name``, finds the slice for
+        ``stage_key`` in each, and pipes them through the encoder.
+        Returns ``{"code": null}`` when the template has no tree
+        progression yet (tree is the only required input — gear and
+        gems are optional and gracefully omitted when missing).
+        """
+
+        tree_prog = progression_for(template_name)
+        if tree_prog is None:
+            return {"code": None, "stage_key": stage_key, "template_name": template_name}
+        stage_tree = tree_prog.for_stage(stage_key)
+        if stage_tree is None:
+            return {"code": None, "stage_key": stage_key, "template_name": template_name}
+
+        gear_prog = gear_progression_for(template_name)
+        stage_gear = gear_prog.for_stage(stage_key) if gear_prog is not None else None
+
+        gem_prog = gem_progression_for(template_name)
+        stage_gems = gem_prog.for_stage(stage_key) if gem_prog is not None else None
+
+        code = encode_pob_code(
+            character_class=character_class,
+            ascendancy=ascendancy,
+            tree=stage_tree,
+            gear=stage_gear,
+            gems=stage_gems,
+            level=level,
+        )
+        log.info(
+            "fob_stage_export_ok",
+            template_name=template_name,
+            stage_key=stage_key,
+            character_class=character_class,
+            has_gear=stage_gear is not None,
+            has_gems=stage_gems is not None,
+        )
+        return {"code": code, "stage_key": stage_key, "template_name": template_name}
 
     @router.post(
         "/extract-trade-mods",

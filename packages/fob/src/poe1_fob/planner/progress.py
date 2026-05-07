@@ -33,7 +33,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from poe1_core.models import BuildPlan
+from poe1_core.models import Build, BuildPlan
 
 # Per-item time budgets (seconds). Calibrated against typical 2026-Q2
 # poe.ninja and GGG Trade behaviour:
@@ -85,6 +85,15 @@ class PricingProgress(BaseModel):
 
     # Only set on ``done`` — saves the SSE consumer one round-trip.
     final_plan: BuildPlan | None = None
+
+    # Identifier of the BuildTemplate the planner picked. Only set on
+    # ``done``. The UI uses it to call /fob/stage-export and the
+    # tree/gear/gem progression endpoints (Step 14 T5).
+    template_name: str | None = None
+
+    # Build summary so the UI has character_class/ascendancy/main_skill
+    # without a second analyze-pob round-trip. Only set on ``done``.
+    build: Build | None = None
 
 
 def estimate_total_seconds(*, n_ninja: int, n_trade: int) -> float:

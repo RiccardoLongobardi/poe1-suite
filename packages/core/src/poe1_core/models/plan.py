@@ -48,6 +48,15 @@ class PlanStage(BaseModel):
     model_config = ConfigDict(frozen=True)
 
     label: str = Field(..., min_length=1)
+    stage_key: str | None = Field(
+        default=None,
+        description=(
+            "Snake-case key identifying the stage spec (e.g. "
+            "'early_campaign', 'high_investment'). Optional for "
+            "backward compatibility with plans serialised before "
+            "Step 14 T5; the planner always populates it now."
+        ),
+    )
     budget_range: PriceRange
     expected_content: list[ContentFocus] = Field(default_factory=list)
     core_items: list[CoreItem] = Field(default_factory=list)

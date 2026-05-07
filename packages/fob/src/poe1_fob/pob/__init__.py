@@ -17,6 +17,7 @@ import from this package, never from the submodules directly.
 
 from __future__ import annotations
 
+from .encode import encode_minimal_tree_pob, encode_pob_code
 from .ingest import PobInputError, load_pob
 from .mapper import snapshot_to_build
 from .models import (
@@ -59,6 +60,8 @@ __all__ = [
     "clean_mod_lines",
     "clean_mods",
     "decode_export",
+    "encode_minimal_tree_pob",
+    "encode_pob_code",
     "extract_mods",
     "load_pob",
     "parse_snapshot",

@@ -56,6 +56,15 @@ class PlanResponse(BaseModel):
 
     build: Build
     plan: BuildPlan
+    template_name: str | None = Field(
+        default=None,
+        description=(
+            "Identifier of the BuildTemplate the planner picked for this "
+            "build. Surfaced so the UI can call /fob/stage-export, "
+            "/fob/tree-progression, etc. None when the generic fallback "
+            "template is used."
+        ),
+    )
 
 
 # ---------------------------------------------------------------------------
