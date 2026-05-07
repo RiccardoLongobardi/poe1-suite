@@ -183,6 +183,8 @@ interface Props {
 interface PlanResult {
   build: Build;
   plan: BuildPlan;
+  /** Identifier of the template the planner picked (Step 14 T5+). */
+  templateName: string | null;
 }
 
 export function PlannerPage({ initialInput }: Props) {
@@ -222,19 +224,22 @@ export function PlannerPage({ initialInput }: Props) {
         lastEvent = event;
         setProgress(event);
       }
-      // The 'done' event carries the BuildPlan; we can't know the
-      // Build separately from the stream, so we render the plan
-      // with a stand-in synthesized from final_plan's source id.
+      // The 'done' event carries the BuildPlan + (Step 14 T5+) the
+      // analyzed Build summary and the picked template name. Older
+      // server versions return only `final_plan`, so we still
+      // synthesize a stub Build when those fields are missing.
       if (lastEvent?.kind === "done" && lastEvent.final_plan) {
+        const stubBuild: Build = {
+          source_id: lastEvent.final_plan.build_source_id,
+          character_class: "",
+          ascendancy: null,
+          main_skill: null,
+          level: 1,
+        };
         setResult({
-          build: {
-            source_id: lastEvent.final_plan.build_source_id,
-            character_class: "",
-            ascendancy: null,
-            main_skill: null,
-            level: 1,
-          },
+          build: lastEvent.build ?? stubBuild,
           plan: lastEvent.final_plan,
+          templateName: lastEvent.template_name ?? null,
         });
       }
     } catch (err) {
@@ -335,7 +340,14 @@ export function PlannerPage({ initialInput }: Props) {
           <Divider my="xs" label="Stage" labelPosition="center" />
           <Stack gap="md">
             {result.plan.stages.map((s, i) => (
-              <StageCard key={s.label} stage={s} index={i} />
+              <StageCard
+                key={s.label}
+                stage={s}
+                index={i}
+                templateName={result.templateName}
+                characterClass={result.build.character_class || null}
+                ascendancy={result.build.ascendancy ?? null}
+              />
             ))}
           </Stack>
         </>

@@ -312,6 +312,8 @@ def make_router(settings: Settings) -> APIRouter:
         unified.
         """
 
+        from .planner.templates import pick_template
+
         async with HttpClient(settings) as http:
             build, _ = await _resolve_pob_to_build(payload.input, http=http)
 
@@ -319,16 +321,18 @@ def make_router(settings: Settings) -> APIRouter:
             trade = TradeSource(http=http, league=settings.poe_league)
             planner = PlannerService(pricing, trade=trade)
             plan = await planner.plan(build, target_goal=payload.target_goal)
+            template_name = pick_template(build).name
 
         log.info(
             "fob_plan_ok",
             source_id=build.source_id,
             target_goal=payload.target_goal.value,
+            template_name=template_name,
             stages=len(plan.stages),
             total_min_div=plan.total_estimated_cost.min.amount,
             total_max_div=plan.total_estimated_cost.max.amount,
         )
-        return PlanResponse(build=build, plan=plan)
+        return PlanResponse(build=build, plan=plan, template_name=template_name)
 
     @router.post(
         "/plan/reverse",
@@ -357,6 +361,7 @@ def make_router(settings: Settings) -> APIRouter:
            UI can group/filter them.
         """
 
+        from .planner.templates import pick_template
         from .reverse import (
             AwakenedGemDegrader,
             CompositeDegrader,
@@ -378,17 +383,19 @@ def make_router(settings: Settings) -> APIRouter:
             )
             planner = PlannerService(pricing, trade=trade, degrader=degrader)
             plan = await planner.plan_reverse(build, target_goal=payload.target_goal)
+            template_name = pick_template(build).name
 
         log.info(
             "fob_plan_reverse_ok",
             source_id=build.source_id,
             target_goal=payload.target_goal.value,
+            template_name=template_name,
             key_items=len(build.key_items),
             stages=len(plan.stages),
             total_min_div=plan.total_estimated_cost.min.amount,
             total_max_div=plan.total_estimated_cost.max.amount,
         )
-        return PlanResponse(build=build, plan=plan)
+        return PlanResponse(build=build, plan=plan, template_name=template_name)
 
     @router.post(
         "/plan/stream",

@@ -9,13 +9,17 @@ import type {
   AnalyzePobResponse,
   ApiError,
   BuildIntent,
+  GearProgression,
+  GemProgression,
   PlanResponse,
   PricingProgress,
   RecommendResponse,
+  StageExportResponse,
   TargetGoal,
   TradeModExtractResponse,
   TradeSearchRequest,
   TradeSearchResponse,
+  TreeProgression,
 } from "./types";
 
 // In dev: empty string → same origin; vite.config.ts proxies /fob → 8765.
@@ -30,6 +34,17 @@ async function post<T>(path: string, body: unknown): Promise<T> {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
+  if (!res.ok) {
+    const err: ApiError = (await res.json().catch(() => ({
+      detail: res.statusText,
+    }))) as ApiError;
+    throw new Error(err.detail ?? `HTTP ${res.status}`);
+  }
+  return res.json() as Promise<T>;
+}
+
+async function get<T>(path: string): Promise<T> {
+  const res = await fetch(`${BASE}${path}`);
   if (!res.ok) {
     const err: ApiError = (await res.json().catch(() => ({
       detail: res.statusText,
@@ -151,6 +166,59 @@ export async function* planBuildReverseStream(
     input,
     targetGoal,
     signal,
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Step 14 — per-stage progressions (Pohx-style stage builds)
+// ---------------------------------------------------------------------------
+
+/** GET /fob/tree-progression/{template_name} — null when no progression exists. */
+export async function fetchTreeProgression(
+  templateName: string,
+): Promise<TreeProgression | null> {
+  return get<TreeProgression | null>(
+    `/fob/tree-progression/${encodeURIComponent(templateName)}`,
+  );
+}
+
+/** GET /fob/gear-progression/{template_name} — null when no progression exists. */
+export async function fetchGearProgression(
+  templateName: string,
+): Promise<GearProgression | null> {
+  return get<GearProgression | null>(
+    `/fob/gear-progression/${encodeURIComponent(templateName)}`,
+  );
+}
+
+/** GET /fob/gem-progression/{template_name} — null when no progression exists. */
+export async function fetchGemProgression(
+  templateName: string,
+): Promise<GemProgression | null> {
+  return get<GemProgression | null>(
+    `/fob/gem-progression/${encodeURIComponent(templateName)}`,
+  );
+}
+
+/**
+ * GET /fob/stage-export/{template}/{stage_key} — PoB-importable code for one stage.
+ *
+ * Returns `{ code: null }` when the template has no tree progression yet.
+ */
+export async function fetchStageExport(
+  templateName: string,
+  stageKey: string,
+  characterClass: string,
+  ascendancy: string | null,
+  level = 90,
+): Promise<StageExportResponse> {
+  const params = new URLSearchParams({
+    character_class: characterClass,
+    level: String(level),
+  });
+  if (ascendancy) params.set("ascendancy", ascendancy);
+  return get<StageExportResponse>(
+    `/fob/stage-export/${encodeURIComponent(templateName)}/${encodeURIComponent(stageKey)}?${params.toString()}`,
   );
 }
 
