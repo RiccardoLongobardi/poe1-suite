@@ -9,7 +9,7 @@ multiple users. It assumes the source is already on `main` at
 ```
                     ┌──────────────────┐
    user (browser) ──┤  Vercel CDN      │ ←  apps/shell (Vite SPA, ~510 KB gzipped)
-                    │  fob.vercel.app  │
+                    │ fob-ten.vercel… │
                     └────────┬─────────┘
                              │ HTTPS (CORS)
                              ▼
@@ -53,7 +53,7 @@ without changing the source.
      ENVIRONMENT=production \
      LOG_FORMAT=json \
      POE_LEAGUE=Mirage \
-     CORS_ALLOWED_ORIGINS=https://fob.vercel.app
+     CORS_ALLOWED_ORIGINS=https://fob-ten.vercel.app
    ```
    See `.env.production.example` for the full list.
 

@@ -2,6 +2,8 @@
 
 A mono-repo of Path of Exile 1 tools. Each tool is a Python package under `packages/`, composed at runtime by `apps/server/` (FastAPI) and a shared frontend `apps/shell/` (React + Vite + Mantine).
 
+🌐 **Live FOB**: https://fob-ten.vercel.app · API: https://fob-api.fly.dev/health
+
 > Path of Exile is a trademark of Grinding Gear Games. This project is an independent fan-made utility.
 
 ## Tools in this repo
