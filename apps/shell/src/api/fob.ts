@@ -18,7 +18,11 @@ import type {
   TradeSearchResponse,
 } from "./types";
 
-const BASE = ""; // same origin; vite.config.ts proxies /fob → 8765
+// In dev: empty string → same origin; vite.config.ts proxies /fob → 8765.
+// In production: VITE_API_BASE points at the deployed backend
+// (e.g. https://fob-api.fly.dev). The trailing slash is stripped to keep
+// path concatenation predictable.
+const BASE = (import.meta.env.VITE_API_BASE ?? "").replace(/\/+$/, "");
 
 async function post<T>(path: string, body: unknown): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {

@@ -78,7 +78,42 @@ class SourceAggregator:
             league=league,
             refs=len(snapshot.refs),
         )
-        return snapshot.refs
+
+        # Hydrate top-N candidates by DPS so the ranking engine actually
+        # sees ``main_skill``. The protobuf list endpoint does not expose
+        # the skills dictionary, so without hydration every ref carries
+        # ``main_skill = None`` and the score_damage / score_playstyle
+        # dimensions degenerate to neutral.
+        # Cap kept low (50) because each detail fetch is one upstream
+        # call; 50 x concurrency=4 ~= 12 s with a warm cache. Top by
+        # ``dps`` gives a reasonable proxy for "popular endgame builds"
+        # which is what the ranker should be looking at anyway.
+        sorted_refs = sorted(snapshot.refs, key=lambda r: r.dps or 0, reverse=True)
+        top_refs = tuple(sorted_refs[:50])
+        if not top_refs:
+            return ()
+
+        try:
+            full_builds = await asyncio.wait_for(
+                svc.hydrate(top_refs, concurrency=4),
+                timeout=timeout,
+            )
+        except TimeoutError:
+            log.warning("source_aggregator_hydrate_timeout", refs=len(top_refs))
+            return top_refs  # fall back to refs without main_skill
+
+        # Replace each ref's ``main_skill`` field with the hydrated value
+        # so the ranking engine can score on it.
+        enriched: list[RemoteBuildRef] = []
+        for ref, build in zip(top_refs, full_builds, strict=True):
+            skill = BuildsService.main_skill_of(build)
+            enriched.append(ref.model_copy(update={"main_skill": skill}))
+        log.info(
+            "source_aggregator_hydrated",
+            hydrated=len(enriched),
+            with_skill=sum(1 for r in enriched if r.main_skill),
+        )
+        return tuple(enriched)
 
 
 __all__ = ["SourceAggregator"]
