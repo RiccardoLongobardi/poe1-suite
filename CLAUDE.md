@@ -443,6 +443,32 @@ Note tecniche:
 
 **Prossimi turni**: T2 gear suite per stage, T3 gem links structured, T4 PoB XML encoder, T5 UI tabs StageCard, T6+ estensione altri template.
 
+**T1.5 — Capture node IDs reali da fixture** ✅ done (2026-05-07).
+
+Il PoB fixture esistente (`packages/fob/tests/fixtures/pob_YNQeadFwNBmX.txt`, Marauder Chieftain con 143 nodes Spectre Necro) è stato usato per derivare la nuova `SPECTRE_NECRO_PROGRESSION`:
+- 143 node IDs **reali** importati dal PoB import → split monotone in 6 sub-set (22, 40, 70, 95, 120, 143).
+- Stage chunks scelti per match canonico Pohx-style chunking.
+- `_stage_chunk(n)` helper per consistenza.
+- I node IDs sono GARANTITI di caricare in PoE perché vengono da un import reale → URL pathofexile.com generated è valido copy-paste.
+- Registry estesa: `spectre_necromancer` template ora ha progressione viva.
+
+`RF_POHX_PROGRESSION` resta con node IDs placeholder (per ora) — sostituire con un PoB RF reale è un follow-up T1.6.
+
+**T2 — Gear suite per stage + endpoint** ✅ done (2026-05-07).
+
+Nuovo subpackage `packages/fob/src/poe1_fob/gear/`:
+- `models.py` — `StageGearSlot` (Pydantic frozen, slot+item_name+kind+notes+budget_cap), `GearKind` Literal (`unique`/`rare_craft`/`leveling`/`skip`), `StageGearSet` (stage_key + tuple slots + overall_notes), `GearProgression` (target_name + tuple stages, validator unique stage_keys).
+- `progressions.py` — `RF_POHX_GEAR_PROGRESSION` 6-stage hand-curated. Ogni stage ha 8-10 slots completi: helmet/body/gloves/boots/belt/amulet/ring/weapon_main/weapon_offhand + jewel a high investment. Notes italiane Pohx-style (es. "Springleaf shield essenziale post-RF switch", "+8% max fire res permette over-cap 89%").
+- `_slot()` helper per readability nelle hand-curated stages.
+- 9 nuovi test (slot lookup, kind validation, registry hit, RF endgame include Mageblood, RF early include Tabula).
+
+Endpoint:
+- `GET /fob/gear-progression/{template_name}` → `GearProgression | null`.
+
+Baseline: 585 verdi (+9 da T1) / 104 mypy file / 102 format file.
+
+**Prossimo: T3 gem links structured + RfPohx**, poi T4 PoB encoder.
+
 Pattern di degrader esteso oltre il table lookup:
 - **Table-keyed** (`HardcodedDegrader`): mapping name → rung factory. Buono per uniques iconici noti.
 - **Pattern-keyed** (`AwakenedGemDegrader`): regex/frozenset match su nome. Buono per famiglie con upgrade chain ovvio.
