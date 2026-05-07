@@ -375,6 +375,33 @@ Aggiunto Dockerfile multi-stage + `.dockerignore` + `docs/DEPLOY.md`:
 
 NB: build Docker locale non testato (Docker Desktop non installato in shell). Sarà testato direttamente da Fly.io builder remoto in Fase 3.
 
+## Production deploy — Fase 3: live ✅ done (2026-05-07)
+
+FOB **live in production**:
+
+- **Backend**: https://fob-api.fly.dev (Fly.io app `fob-api`, region `fra` Frankfurt, shared-cpu-1x 256MB free tier, auto-stop quando idle)
+- **Frontend**: https://fob-ten.vercel.app (Vercel free hobby tier, build automatica al push su main, ~510 KB gzip)
+- **CORS**: `access-control-allow-origin: https://fob-ten.vercel.app` allow-listed lato Fly
+- **HTTPS**: Let's Encrypt automatico su entrambi
+- **Costo**: $0/mese
+
+Setup:
+- `fly.toml` al root del repo: app=fob-api, region=fra, internal_port=8080, http_service health probe /health, auto_stop_machines='stop' per risparmiare free-tier hours.
+- Dockerfile: uv 0.5.4 → 0.11.7 (la 0.5.4 ha un bug nel verificare `--locked` contro lockfile prodotto da uv recenti — il build remote falliva).
+- Vercel: Framework=Vite, Root=`apps/shell`, Build=`npm run build` (dopo aver rimosso un override `nmp` typo'd), env `VITE_API_BASE=https://fob-api.fly.dev`.
+- Default branch GitHub: cambiato da `claude/friendly-kowalevski-9d17f8` a `main` perché Vercel seguiva il default branch del remote.
+
+Fly secrets set:
+- `POE_LEAGUE=Mirage` (cambiabile con `fly secrets set POE_LEAGUE=...`)
+- `CORS_ALLOWED_ORIGINS=https://fob-ten.vercel.app`
+
+Smoke test risultati:
+- `/health` 200 OK con env=production, league=Mirage, uptime tracking ok
+- `/version` ritorna mappa sub-package versions
+- CORS preflight ritorna `access-control-allow-origin` corretto
+
+`docs/DEPLOY.md` aggiornato con URL reali. README.md ha link live in alto.
+
 Pattern di degrader esteso oltre il table lookup:
 - **Table-keyed** (`HardcodedDegrader`): mapping name → rung factory. Buono per uniques iconici noti.
 - **Pattern-keyed** (`AwakenedGemDegrader`): regex/frozenset match su nome. Buono per famiglie con upgrade chain ovvio.
