@@ -36,6 +36,7 @@ from poe1_shared.http import HttpClient, HttpError
 from poe1_shared.logging import get_logger
 
 from .gear import GearProgression, gear_progression_for
+from .gems import GemProgression, gem_progression_for
 from .intent import IntentLlmError, extract_intent
 from .planner import (
     ExtractedTradeMod,
@@ -663,16 +664,37 @@ def make_router(settings: Settings) -> APIRouter:
     async def gear_progression_endpoint(
         template_name: str,
     ) -> GearProgression | None:
-        """Look up the hand-curated gear progression for a template.
-
-        Returns null when no progression has been authored for
-        ``template_name`` — the frontend falls back to the existing
-        KeyItem list extracted from the user's PoB.
-        """
+        """Look up the hand-curated gear progression for a template."""
 
         prog = gear_progression_for(template_name)
         log.info(
             "fob_gear_progression_lookup",
+            template_name=template_name,
+            found=prog is not None,
+        )
+        return prog
+
+    @router.get(
+        "/gem-progression/{template_name}",
+        response_model=GemProgression | None,
+        summary=(
+            "Return the per-stage gem-link progression for a build template "
+            "(Step 14 T3 — Pohx-style stage gem setup)."
+        ),
+    )
+    async def gem_progression_endpoint(
+        template_name: str,
+    ) -> GemProgression | None:
+        """Look up the hand-curated gem progression for a template.
+
+        Returns null when no progression has been authored. The frontend
+        falls back to the free-form ``gem_changes`` strings already on
+        each PlanStage.
+        """
+
+        prog = gem_progression_for(template_name)
+        log.info(
+            "fob_gem_progression_lookup",
             template_name=template_name,
             found=prog is not None,
         )
