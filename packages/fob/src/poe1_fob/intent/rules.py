@@ -408,6 +408,78 @@ def _match_all(norm: str, table: list[tuple[object, list[str]]]) -> list[object]
 # ---------------------------------------------------------------------------
 
 
+# Skill name → exact poe.ninja in-game gem name. Pattern matched on
+# the normalised query; longer phrases win (so "righteous fire" beats
+# "fire" before "fire" gets a chance to match anything else).
+# Order matters in this list — first hit wins.
+_SKILL_NAMES: tuple[tuple[str, tuple[str, ...]], ...] = (
+    ("Righteous Fire", ("righteous fire", "rf jugg", "rf chieftain")),
+    ("Holy Flame Totem", ("holy flame totem", "hft", "holy flame totems")),
+    ("Tornado Shot", ("tornado shot",)),
+    ("Lightning Strike", ("lightning strike",)),
+    ("Frost Blades", ("frost blades",)),
+    ("Toxic Rain", ("toxic rain", "tr ", "toxic rain pathfinder")),
+    ("Cyclone", ("cyclone",)),
+    ("Reave", ("reave",)),
+    ("Lacerate", ("lacerate",)),
+    ("Splitting Steel", ("splitting steel",)),
+    ("Sunder", ("sunder",)),
+    ("Static Strike", ("static strike",)),
+    ("Spectral Throw", ("spectral throw",)),
+    ("Spectral Helix", ("spectral helix",)),
+    ("Boneshatter", ("boneshatter",)),
+    ("Earthshatter", ("earthshatter",)),
+    ("Tectonic Slam", ("tectonic slam",)),
+    ("Molten Strike", ("molten strike",)),
+    ("Ground Slam", ("ground slam",)),
+    ("Volcanic Fissure", ("volcanic fissure",)),
+    ("Ice Shot", ("ice shot",)),
+    ("Poisonous Concoction", ("poisonous concoction", "pconc")),
+    ("Penance Brand", ("penance brand",)),
+    ("Crackling Lance", ("crackling lance",)),
+    ("Spark", ("spark",)),
+    ("Arc", ("arc ",)),  # trailing space avoids matching "arctic"
+    ("Smite", ("smite",)),
+    ("Vortex", ("vortex",)),
+    ("Cold Snap", ("cold snap",)),
+    ("Bone Spear", ("bone spear",)),
+    ("Soulrend", ("soulrend",)),
+    ("Hexblast", ("hexblast",)),
+    ("Volatile Dead", ("volatile dead", "detonate dead", " dd ")),
+    ("Bane", ("bane", "essence drain", "contagion")),
+    (
+        "Raise Spectre",
+        (
+            "raise spectre",
+            "spectre",
+        ),
+    ),
+    ("Summon Skeletons", ("summon skeletons", "skeleton mages")),
+    ("Blade Vortex", ("blade vortex", "bv ")),
+    ("Cobra Lash", ("cobra lash",)),
+    ("Pyroclast Mine", ("pyroclast mine",)),
+    ("Blade Blast", ("blade blast",)),
+    ("Power Siphon", ("power siphon",)),
+    ("Storm Brand", ("storm brand",)),
+    ("Forbidden Rite", ("forbidden rite",)),
+    ("Wave of Conviction", ("wave of conviction", "woc")),
+    ("Ball Lightning", ("ball lightning",)),
+)
+
+
+def _extract_main_skill(norm: str) -> str | None:
+    """Return the canonical skill name if the query mentions one."""
+
+    # Pad with spaces so word-boundary matching catches edge cases at
+    # the start/end of the string ("rf" alone, etc.).
+    padded = f" {norm} "
+    for canonical, patterns in _SKILL_NAMES:
+        for pat in patterns:
+            if pat in padded:
+                return canonical
+    return None
+
+
 def rule_based_extract(raw: str) -> tuple[BuildIntent, float]:
     """Parse *raw* with synonym tables.  Returns ``(intent, confidence)``."""
     norm = _normalise(raw)
@@ -451,6 +523,9 @@ def rule_based_extract(raw: str) -> tuple[BuildIntent, float]:
     # --- hard constraints ---
     constraints = set(_match_all(norm, _CONSTRAINTS))  # type: ignore[arg-type]
 
+    # --- main_skill_hint (specific skill name in query) ---
+    main_skill_hint = _extract_main_skill(norm)
+
     # --- confidence ---
     conf = 0.0
     if damage_profile is not None:
@@ -465,6 +540,8 @@ def rule_based_extract(raw: str) -> tuple[BuildIntent, float]:
         conf += _W_COMPLEXITY
     if defense is not None:
         conf += _W_DEFENSE
+    if main_skill_hint is not None:
+        conf += 0.15  # specific skill ID is a strong signal
     confidence = round(min(1.0, conf), 4)
 
     intent = BuildIntent(
@@ -477,6 +554,7 @@ def rule_based_extract(raw: str) -> tuple[BuildIntent, float]:
         complexity_cap=complexity,  # type: ignore[arg-type]
         defense_profile=defense,  # type: ignore[arg-type]
         hard_constraints=constraints,  # type: ignore[arg-type]
+        main_skill_hint=main_skill_hint,
         confidence=confidence,
         raw_input=raw,
         parser_origin=ParserOrigin.RULE_BASED,
