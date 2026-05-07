@@ -402,6 +402,27 @@ Smoke test risultati:
 
 `docs/DEPLOY.md` aggiornato con URL reali. README.md ha link live in alto.
 
+## Bug bash post-launch (2026-05-07)
+
+Round 1-3 di fix dopo il deploy live:
+- `apps/shell/src/api/builds.ts` BASE='' hardcoded (uguale al bug fob.ts) → `import.meta.env.VITE_API_BASE`. Main gems lazy fetch ora funziona.
+- Aggregator.fetch_candidates: pool top-25 DPS + top-25 EHP (40 unique dedup) per intercettare sia bossing-tier sia DoT-degen builds. Concurrency 8→3 per non bucare il rate-limit poe.ninja /character endpoint.
+- BuildCard: nuovo bottone "Apri PoB" (`IconExternalLink`, color blue) che apre poe.ninja profile in tab nuova. "Copia link" da subtle→light per visibilità.
+- BuildCard.useEffect: rimossi `detailLoading` e `detailGroups` dalle deps — race condition causava loader infinito (setDetailLoading re-fired effect, cleanup cancellava la promise).
+- BuildIntent.main_skill_hint nuovo campo + 45 skill canonical pattern matcher in rules.py + ninja source forwarda BuildFilter.main_skill come server-side `skills=` param. Query "righteous fire" → solo RF builds. Skill matching server-side reduces pool to ~20 ref → no hydrate needed → ~1s response.
+- ninja.py decoder: quando filter `skills=` attivo, poe.ninja rinomina la colonna `dps` in `dps-<SkillName>`. Fallback search per qualsiasi `vl.id.startswith("dps-")`.
+- IntentCard: nuovo Badge grape `skill: <hint>` quando intent.main_skill_hint set.
+- ContentFocus.BOSSING synonyms estesi: aggiunti `bosser`, `ammazza boss`, `single target`.
+- vercel.json esplicito framework="vite" per disambiguare auto-detect Python (Vercel CLI 51.6.1 vede pyproject.toml e tenta build come app Python). Aggiunto rewrites `/((?!assets/).*) → /index.html` per SPA routing direct-URL su /finder, /planner, /analyze.
+- Trade router: 429 catturato e tradotto in messaggio user-friendly italiano "aspetta 30-60 secondi".
+- Planner stages.py: `stages_for_target_goal()` modula stage layout — `mapping_only` skippa High Investment, `uber_capable` rephraseggia per mirror-tier crafts. PlannerService legge `target_goal` e usa solo le stage attive.
+
+Baseline post-bugbash: 565 verdi / 95 mypy / 93 format.
+
+## Step 14 — Pohx-style stage-by-stage build (in progettazione)
+
+Big upgrade del planner: per ogni stage l'utente vede una build COMPLETA — items su ogni slot, skill tree allocato, gem links, note, e il risultato è un **PoB code importabile**. Vedi `docs/STEP14-pohx-style-planner.md` per design + 7-turni roadmap. Stima ~16-20 ore di lavoro spalmate su più sessioni. Inizio: T1 = TreeProgression model + RfPohxTemplate.for_stage_tree.
+
 Pattern di degrader esteso oltre il table lookup:
 - **Table-keyed** (`HardcodedDegrader`): mapping name → rung factory. Buono per uniques iconici noti.
 - **Pattern-keyed** (`AwakenedGemDegrader`): regex/frozenset match su nome. Buono per famiglie con upgrade chain ovvio.

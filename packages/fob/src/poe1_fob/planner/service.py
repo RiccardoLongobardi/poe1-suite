@@ -75,7 +75,7 @@ from .progress import (
     estimate_total_seconds,
     recompute_eta,
 )
-from .stages import ALL_STAGES, StageSpec, stage_budget, stage_for_amount
+from .stages import ALL_STAGES, StageSpec, stage_budget, stage_for_amount, stages_for_target_goal
 from .templates import BuildTemplate, StagePlanContent, pick_template
 
 log = get_logger(__name__)
@@ -276,7 +276,15 @@ class PlannerService:
             status=f"Avvio pricing di {n_items} item...",
         )
 
-        buckets: dict[StageSpec, list[CoreItem]] = {s: [] for s in ALL_STAGES}
+        # Pick the stage layout based on target_goal: mapping_only
+        # drops the High Investment stage; uber_capable rephrases it
+        # for mirror-tier crafts; mapping_and_boss is the default.
+        active_stages = stages_for_target_goal(target_goal)
+        buckets: dict[StageSpec, list[CoreItem]] = {s: [] for s in active_stages}
+        # Items priced above the active stages still need a home — bucket
+        # them into the last active stage (so a Mageblood doesn't get
+        # dropped silently for a mapping_only build).
+        last_stage = active_stages[-1]
         priced_count = 0
 
         for idx, ki in enumerate(build.key_items):
@@ -307,6 +315,11 @@ class PlannerService:
                 priced_count += 1
             div_amount = price_range_to_divines(price, rate)
             stage = stage_for_amount(div_amount)
+            # If the bucketed stage was filtered out by target_goal
+            # (e.g. mapping_only drops High Investment), fall back to
+            # the last active stage so the item still surfaces.
+            if stage not in buckets:
+                stage = last_stage
             buckets[stage].append(_key_item_to_core_item(ki, price=price))
 
             elapsed = monotonic() - started_at
@@ -330,12 +343,12 @@ class PlannerService:
             )
 
         # Stable 1..N priority within each stage.
-        for spec in ALL_STAGES:
+        for spec in active_stages:
             buckets[spec] = _renumber_priorities(buckets[spec])
 
         # Materialise PlanStage objects via the resolved template.
         stages: list[PlanStage] = []
-        for spec in ALL_STAGES:
+        for spec in active_stages:
             content = _stage_content(spec, build, template)
             stages.append(
                 PlanStage(
