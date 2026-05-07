@@ -467,7 +467,20 @@ Endpoint:
 
 Baseline: 585 verdi (+9 da T1) / 104 mypy file / 102 format file.
 
-**Prossimo: T3 gem links structured + RfPohx**, poi T4 PoB encoder.
+**T3 — Gem links structured + RfPohx + endpoint** ✅ done (2026-05-07).
+
+Nuovo subpackage `packages/fob/src/poe1_fob/gems/`:
+- `models.py` — `GemSpec` (name + level 1-40 + quality 0-23 + alt_quality `divergent`/`phantasmal`/`anomalous`/None + is_support + notes), `GemLink` (slot + sockets 1-6 + color_pattern R/G/B/W + ordered gems + validator socket_count==len(gems) + color_pattern.length==sockets), `StageGemLinks` (stage_key + tuple links + notes per stage banner), `GemProgression` (validator unique stage_keys).
+- `progressions.py` — `RF_POHX_GEM_PROGRESSION` 6-stage Pohx-style. Ogni stage ha 3-5 link group (body 4L→6L, helm 4L, gloves 4L CWDT, boots 4L aura, weapon 4L). Progressione: Holy Flame Totem 4L (early) → RF 6L (mid lab+1) → Awakened Burn 2 (end campaign) → 21/20 corrupted (early mapping) → Awakened 5 (end mapping) → Awakened 5 corrupted Divergent + Mirror-tier body+ Ashes (high investment, level effettivo 33+).
+- `_g()` helper compatto.
+- 12 nuovi test (model defaults, alt_quality + quality validation, sockets/color_pattern validators, link_for_slot lookup, RF endgame include Awakened Burning Damage + Empower, unknown returns None).
+
+Endpoint:
+- `GET /fob/gem-progression/{template_name}` → `GemProgression | null`.
+
+Baseline: 597 verdi (+12 da T2) / 108 mypy file / 106 format file.
+
+**Prossimo: T4 PoB XML encoder** (build → PoB code importabile in PathOfBuilding desktop).
 
 Pattern di degrader esteso oltre il table lookup:
 - **Table-keyed** (`HardcodedDegrader`): mapping name → rung factory. Buono per uniques iconici noti.
