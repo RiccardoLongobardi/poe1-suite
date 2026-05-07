@@ -158,27 +158,40 @@ export function TradeSearchDialog({
 
   async function handleSearch() {
     setError(null);
+
+    const filters: TradeSearchModFilter[] = rows
+      .filter((r) => r.enabled)
+      .map((r) => {
+        const min = r.mod.rolled_value * (r.strictness / 100);
+        // Round to 1 decimal for cleanliness on the trade site.
+        return {
+          stat_id: r.mod.stat_id,
+          min: Math.max(1, Math.round(min * 10) / 10),
+          max: null,
+        };
+      });
+
+    if (!itemName && !itemType && filters.length === 0) {
+      setError(
+        "Niente da cercare: attiva almeno un mod o specifica un nome/base.",
+      );
+      return;
+    }
+
+    // Open the new tab SYNCHRONOUSLY in the click handler. Browsers
+    // block window.open() called after an `await` because they
+    // consider it not-user-initiated. We open a placeholder
+    // immediately and swap the URL once the search completes.
+    const tab = window.open("about:blank", "_blank", "noopener,noreferrer");
+    if (!tab) {
+      setError(
+        "Il browser ha bloccato l'apertura della scheda. Disabilita il popup blocker per fob-ten.vercel.app e riprova.",
+      );
+      return;
+    }
+
     setLoading(true);
     try {
-      const filters: TradeSearchModFilter[] = rows
-        .filter((r) => r.enabled)
-        .map((r) => {
-          const min = r.mod.rolled_value * (r.strictness / 100);
-          // Round to 1 decimal for cleanliness on the trade site.
-          return {
-            stat_id: r.mod.stat_id,
-            min: Math.max(1, Math.round(min * 10) / 10),
-            max: null,
-          };
-        });
-
-      if (!itemName && !itemType && filters.length === 0) {
-        setError(
-          "Niente da cercare: attiva almeno un mod o specifica un nome/base.",
-        );
-        return;
-      }
-
       const resp = await tradeSearch({
         item_name: itemName ?? null,
         item_type: itemType ?? null,
@@ -187,10 +200,10 @@ export function TradeSearchDialog({
         min_links: requireLinks ? linkCount : null,
       });
 
-      // Open the official trade page in a new tab.
-      window.open(resp.url, "_blank", "noopener,noreferrer");
+      tab.location.href = resp.url;
       onClose();
     } catch (err) {
+      tab.close();  // close the empty placeholder tab
       setError((err as Error).message);
     } finally {
       setLoading(false);

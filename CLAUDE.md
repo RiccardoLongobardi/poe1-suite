@@ -419,9 +419,29 @@ Round 1-3 di fix dopo il deploy live:
 
 Baseline post-bugbash: 565 verdi / 95 mypy / 93 format.
 
-## Step 14 — Pohx-style stage-by-stage build (in progettazione)
+## Step 14 — Pohx-style stage-by-stage build (in corso)
 
-Big upgrade del planner: per ogni stage l'utente vede una build COMPLETA — items su ogni slot, skill tree allocato, gem links, note, e il risultato è un **PoB code importabile**. Vedi `docs/STEP14-pohx-style-planner.md` per design + 7-turni roadmap. Stima ~16-20 ore di lavoro spalmate su più sessioni. Inizio: T1 = TreeProgression model + RfPohxTemplate.for_stage_tree.
+Big upgrade del planner: per ogni stage l'utente vede una build COMPLETA — items su ogni slot, skill tree allocato, gem links, note, e il risultato è un **PoB code importabile**. Vedi `docs/STEP14-pohx-style-planner.md` per design + 7-turni roadmap.
+
+**T1 — Tree progression model + RfPohx + endpoint** ✅ done (2026-05-07).
+
+Nuovo subpackage `packages/fob/src/poe1_fob/tree/`:
+- `models.py` — `StageTree` (Pydantic frozen, `stage_key + node_ids + notables + ascendancy_nodes + pob_url`) auto-sort/dedup. `TreeProgression` (target_name + tuple stages, validator monotone strict + unique stage_keys).
+- `pob_url.py` — `encode_pob_tree_url(node_ids, character_class, ascendancy)` produce URL `https://www.pathofexile.com/passive-skill-tree/<urlsafe-b64>`. Formato v6: header u32+u8+u8 + node-section u16be each + zero trailing. Deterministic, class+asc-aware.
+- `progressions.py` — `RF_POHX_PROGRESSION` 6-stage hand-curated (placeholder node IDs da rifinire in T1.5 con cattura tree fixture). Registry `PROGRESSION_REGISTRY` + `progression_for(template_name)`.
+- 11 nuovi test (StageTree dedup/frozen, TreeProgression monotone/unique/lookup, encode URL deterministic+class-aware+asc-aware+empty-edge).
+
+Endpoint:
+- `GET /fob/tree-progression/{template_name}` → `TreeProgression | null`. Falls back to null per template senza progressione.
+- `GET /fob/tree-progression/{template_name}/{stage_key}/url?character_class=X&ascendancy=Y` → `{url: string | null}` con tree URL pronto per pathofexile.com.
+
+Baseline: 576 verdi (+11 da 565) / 100 mypy file / 99 format file.
+
+Note tecniche:
+- Node IDs in `RF_POHX_PROGRESSION` sono placeholder integers che seguono la numerazione canonica PoE 1; **non verificati live**. T1.5 catturerà i veri node IDs da un PoB export reale per produrre URL importabili in PoE.
+- Cluster jewel + mastery encoding (v7+) non supportati — il tree URL v6 carry solo regular passive nodes. Gli step T4 (PoB XML encoder) li gestiranno via PoB desktop format.
+
+**Prossimi turni**: T2 gear suite per stage, T3 gem links structured, T4 PoB XML encoder, T5 UI tabs StageCard, T6+ estensione altri template.
 
 Pattern di degrader esteso oltre il table lookup:
 - **Table-keyed** (`HardcodedDegrader`): mapping name → rung factory. Buono per uniques iconici noti.
