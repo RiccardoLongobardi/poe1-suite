@@ -79,24 +79,38 @@ class SourceAggregator:
             refs=len(snapshot.refs),
         )
 
-        # Hydrate top-N candidates by DPS so the ranking engine actually
-        # sees ``main_skill``. The protobuf list endpoint does not expose
-        # the skills dictionary, so without hydration every ref carries
+        # Hydrate top-N candidates so the ranking engine sees
+        # ``main_skill``. The protobuf list endpoint does not expose
+        # the skills dictionary; without hydration every ref carries
         # ``main_skill = None`` and the score_damage / score_playstyle
         # dimensions degenerate to neutral.
-        # Cap kept low (50) because each detail fetch is one upstream
-        # call; 50 x concurrency=4 ~= 12 s with a warm cache. Top by
-        # ``dps`` gives a reasonable proxy for "popular endgame builds"
-        # which is what the ranker should be looking at anyway.
-        sorted_refs = sorted(snapshot.refs, key=lambda r: r.dps or 0, reverse=True)
-        top_refs = tuple(sorted_refs[:50])
+        #
+        # Pool selection mixes top-by-DPS (catches popular bossing
+        # builds) and top-by-EHP (catches DoT/degen builds like RF
+        # whose DPS is naturally low but whose EHP is naturally high).
+        # Without the EHP slice, RF Jugg never enters the pool and
+        # the ranker can't surface it for fire+degen_aura queries.
+        #
+        # Total cap stays around 100 to keep the hydrate time under
+        # ~20 s with concurrency=8 on a warm cache.
+        by_dps = sorted(snapshot.refs, key=lambda r: r.dps or 0, reverse=True)[:60]
+        by_ehp = sorted(snapshot.refs, key=lambda r: r.ehp or 0, reverse=True)[:60]
+        # Dedup while preserving order (DPS sample first, EHP fills the rest).
+        seen: set[str] = set()
+        merged: list[RemoteBuildRef] = []
+        for ref in (*by_dps, *by_ehp):
+            if ref.source_id in seen:
+                continue
+            seen.add(ref.source_id)
+            merged.append(ref)
+        top_refs = tuple(merged[:100])
         if not top_refs:
             return ()
 
         try:
             full_builds = await asyncio.wait_for(
-                svc.hydrate(top_refs, concurrency=4),
-                timeout=timeout,
+                svc.hydrate(top_refs, concurrency=8),
+                timeout=timeout * 3,  # hydrate is slower than the list call
             )
         except TimeoutError:
             log.warning("source_aggregator_hydrate_timeout", refs=len(top_refs))
