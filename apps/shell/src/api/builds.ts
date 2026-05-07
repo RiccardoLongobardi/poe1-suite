@@ -4,7 +4,10 @@
 
 import type { ApiError } from "./types";
 
-const BASE = ""; // same origin; vite.config.ts proxies /builds → 8765
+// Dev: empty → same origin via Vite proxy. Production: VITE_API_BASE
+// points at the deployed Fly.io backend. Trailing slashes are stripped
+// to keep path concat predictable.
+const BASE = (import.meta.env.VITE_API_BASE ?? "").replace(/\/+$/, "");
 
 async function get<T>(path: string): Promise<T> {
   const res = await fetch(`${BASE}${path}`);

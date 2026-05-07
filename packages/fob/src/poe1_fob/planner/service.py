@@ -61,6 +61,7 @@ from poe1_pricing import ItemCategory, TradeQuery, VariantRegistry, build_defaul
 from poe1_shared.logging import get_logger
 
 from ..pob.rares import valuable_stat_filters_from_mods
+from ..reverse import ItemDegrader, UpgradeLadder
 from .pricing import (
     PricingPort,
     TradePort,
@@ -74,7 +75,7 @@ from .progress import (
     estimate_total_seconds,
     recompute_eta,
 )
-from .stages import ALL_STAGES, StageSpec, stage_budget, stage_for_amount
+from .stages import ALL_STAGES, StageSpec, stage_budget, stage_for_amount, stages_for_target_goal
 from .templates import BuildTemplate, StagePlanContent, pick_template
 
 log = get_logger(__name__)
@@ -122,6 +123,21 @@ def _renumber_priorities(items: list[CoreItem]) -> list[CoreItem]:
 
     sorted_items = sorted(items, key=lambda c: (c.buy_priority, c.name))
     return [ci.model_copy(update={"buy_priority": i}) for i, ci in enumerate(sorted_items, start=1)]
+
+
+def _stage_key_from_label(label: str) -> str:
+    """Reverse the :class:`StageSpec.label` → ``key`` mapping.
+
+    Plan stages carry the human-readable ``label`` ("Early Campaign")
+    rather than the canonical ``key`` ("early_campaign"). Reverse-mode
+    indexing (Step 13.C) needs the key. Lookup is built once from
+    :data:`ALL_STAGES`; if a label is missing the function returns the
+    casefolded label (best-effort fallback that still matches our
+    rung stage_key values, which use snake_case).
+    """
+
+    label_to_key = {spec.label: spec.key for spec in ALL_STAGES}
+    return label_to_key.get(label, label.casefold().replace(" ", "_"))
 
 
 def _stage_content(spec: StageSpec, build: Build, template: BuildTemplate) -> StagePlanContent:
@@ -194,6 +210,7 @@ class PlannerService:
         trade: TradePort | None = None,
         variant_registry: VariantRegistry | None = None,
         template_override: BuildTemplate | None = None,
+        degrader: ItemDegrader | None = None,
     ) -> None:
         self._pricing = pricing
         self._trade = trade
@@ -202,6 +219,12 @@ class PlannerService:
         # without going through the registry. Production leaves this
         # ``None`` so :func:`pick_template` runs against each Build.
         self._template_override = template_override
+        # Step 13.C — optional reverse-progression engine. When set,
+        # :meth:`plan_reverse` is available and enriches the template
+        # output with ladder rationales derived from the build's
+        # KeyItems. Leave ``None`` to keep template-only behaviour
+        # (default for backward compatibility).
+        self._degrader = degrader
 
     # ------------------------------------------------------------------
     # Streaming entry point — yields PricingProgress as it works
@@ -253,7 +276,15 @@ class PlannerService:
             status=f"Avvio pricing di {n_items} item...",
         )
 
-        buckets: dict[StageSpec, list[CoreItem]] = {s: [] for s in ALL_STAGES}
+        # Pick the stage layout based on target_goal: mapping_only
+        # drops the High Investment stage; uber_capable rephrases it
+        # for mirror-tier crafts; mapping_and_boss is the default.
+        active_stages = stages_for_target_goal(target_goal)
+        buckets: dict[StageSpec, list[CoreItem]] = {s: [] for s in active_stages}
+        # Items priced above the active stages still need a home — bucket
+        # them into the last active stage (so a Mageblood doesn't get
+        # dropped silently for a mapping_only build).
+        last_stage = active_stages[-1]
         priced_count = 0
 
         for idx, ki in enumerate(build.key_items):
@@ -284,6 +315,11 @@ class PlannerService:
                 priced_count += 1
             div_amount = price_range_to_divines(price, rate)
             stage = stage_for_amount(div_amount)
+            # If the bucketed stage was filtered out by target_goal
+            # (e.g. mapping_only drops High Investment), fall back to
+            # the last active stage so the item still surfaces.
+            if stage not in buckets:
+                stage = last_stage
             buckets[stage].append(_key_item_to_core_item(ki, price=price))
 
             elapsed = monotonic() - started_at
@@ -307,16 +343,17 @@ class PlannerService:
             )
 
         # Stable 1..N priority within each stage.
-        for spec in ALL_STAGES:
+        for spec in active_stages:
             buckets[spec] = _renumber_priorities(buckets[spec])
 
         # Materialise PlanStage objects via the resolved template.
         stages: list[PlanStage] = []
-        for spec in ALL_STAGES:
+        for spec in active_stages:
             content = _stage_content(spec, build, template)
             stages.append(
                 PlanStage(
                     label=spec.label,
+                    stage_key=spec.key,
                     budget_range=stage_budget(buckets[spec], spec, chaos_per_divine=rate),
                     expected_content=list(spec.expected_content),
                     core_items=buckets[spec],
@@ -354,6 +391,8 @@ class PlannerService:
             eta_seconds=0.0,
             status=f"Piano pronto ({priced_count}/{n_items} prezzati)",
             final_plan=plan,
+            template_name=template.name,
+            build=build,
         )
 
     # ------------------------------------------------------------------
@@ -380,6 +419,120 @@ class PlannerService:
         if plan is None:  # pragma: no cover — generator always emits 'done'
             raise RuntimeError("planner generator exited without emitting 'done'")
         return plan
+
+    # ------------------------------------------------------------------
+    # Step 13.C — reverse-progression entry point
+    # ------------------------------------------------------------------
+
+    def _merge_ladder_advice(self, build: Build, baseline: BuildPlan) -> BuildPlan:
+        """Apply the reverse-progression post-processing to a baseline plan.
+
+        Pure function on top of an already-built :class:`BuildPlan`: for
+        every :class:`KeyItem` queries the degrader for an
+        :class:`UpgradeLadder`, indexes the rungs by stage_key, and
+        appends ``[target_name] rationale`` lines to each PlanStage's
+        ``gem_changes``. Stages with no matching rungs are passed
+        through unchanged.
+
+        Shared by :meth:`plan_reverse` (silent) and
+        :meth:`plan_reverse_with_progress` (SSE) so both paths produce
+        identical output.
+        """
+
+        if self._degrader is None:
+            raise ValueError(
+                "reverse-mode merge requires a degrader. Pass one via "
+                "PlannerService(..., degrader=...)."
+            )
+
+        # Build the ladders for every KeyItem. The degrader is sync and
+        # cheap (table lookup); no need to gather/await.
+        ladders: list[UpgradeLadder] = [self._degrader.degrade(ki) for ki in build.key_items]
+
+        # Index rungs by stage_key so each PlanStage update is O(1).
+        rungs_by_stage: dict[str, list[tuple[str, str]]] = {}
+        for ladder in ladders:
+            for rung in ladder.rungs:
+                rungs_by_stage.setdefault(rung.stage_key, []).append(
+                    (ladder.target_name, rung.rationale)
+                )
+
+        # Rebuild PlanStages with merged gem_changes. Pydantic models
+        # are frozen → use model_copy with update.
+        new_stages: list[PlanStage] = []
+        for stage in baseline.stages:
+            stage_key = _stage_key_from_label(stage.label)
+            extras = rungs_by_stage.get(stage_key, [])
+            if not extras:
+                new_stages.append(stage)
+                continue
+            ladder_advice = [f"[{target}] {rationale}" for target, rationale in extras]
+            new_stages.append(
+                stage.model_copy(update={"gem_changes": list(stage.gem_changes) + ladder_advice})
+            )
+
+        return baseline.model_copy(update={"stages": new_stages})
+
+    async def plan_reverse(
+        self,
+        build: Build,
+        *,
+        target_goal: TargetGoal = TargetGoal.MAPPING_AND_BOSS,
+    ) -> BuildPlan:
+        """Build a plan enriched with per-item upgrade ladders.
+
+        Workflow:
+
+        1. Run the standard :meth:`plan` to get a template-based baseline
+           (pricing, bucketing, default gem/tree advice).
+        2. Apply :meth:`_merge_ladder_advice` to fold in the per-item
+           ladder rationales.
+
+        Backward-compatible: when no degrader is configured at
+        ``__init__`` time, raises :class:`ValueError` rather than
+        silently degrading to template-only output. Use :meth:`plan`
+        for template-only.
+        """
+
+        if self._degrader is None:
+            raise ValueError(
+                "plan_reverse requires a degrader. Pass one via PlannerService(..., degrader=...)."
+            )
+
+        baseline = await self.plan(build, target_goal=target_goal)
+        return self._merge_ladder_advice(build, baseline)
+
+    async def plan_reverse_with_progress(
+        self,
+        build: Build,
+        *,
+        target_goal: TargetGoal = TargetGoal.MAPPING_AND_BOSS,
+    ) -> AsyncIterator[PricingProgress]:
+        """Stream reverse-mode planning as :class:`PricingProgress` events.
+
+        Identical event lifecycle to :meth:`plan_with_progress` (start →
+        item_started/item_done x N → done). The reverse post-processing
+        is applied to the ``final_plan`` carried on the ``done`` event,
+        so consumers see the merged plan with ladder rationales already
+        included. Pricing/bucketing happens during the per-item events;
+        the ladder merge is a synchronous, in-memory step that adds
+        negligible time at the end.
+
+        Used by ``POST /fob/plan/reverse/stream`` (SSE consumers).
+        """
+
+        if self._degrader is None:
+            raise ValueError(
+                "plan_reverse_with_progress requires a degrader. Pass "
+                "one via PlannerService(..., degrader=...)."
+            )
+
+        async for event in self.plan_with_progress(build, target_goal=target_goal):
+            if event.kind == "done" and event.final_plan is not None:
+                merged = self._merge_ladder_advice(build, event.final_plan)
+                yield event.model_copy(update={"final_plan": merged})
+            else:
+                yield event
 
     # ------------------------------------------------------------------
     # Per-item pricing dispatch

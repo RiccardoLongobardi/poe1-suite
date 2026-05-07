@@ -1,0 +1,53 @@
+# =============================================================================
+# fly.toml — Fly.io app config for poe1-suite backend
+# =============================================================================
+# Region:  fra (Frankfurt) — closest free EU region for Italian users
+# Machine: shared-cpu-1x with 256 MB RAM (free tier)
+# Health:  HTTP probe on /health, returns enriched payload (see /apps/server)
+#
+# To deploy (after `fly auth login`):
+#   fly deploy
+#
+# To check logs:
+#   fly logs
+#
+# To set / view secrets:
+#   fly secrets set KEY=value
+#   fly secrets list
+
+app = "fob-api"
+primary_region = "fra"
+
+[build]
+  # Use the repo-root Dockerfile (multi-stage uv build).
+  dockerfile = "Dockerfile"
+
+[env]
+  # Non-secret defaults baked into the image; secret env vars
+  # (CORS, league override) live in `fly secrets`.
+  ENVIRONMENT = "production"
+  LOG_FORMAT = "json"
+  LOG_LEVEL = "INFO"
+  PORT = "8080"
+  HOST = "0.0.0.0"
+  CACHE_DIR = "/data/.cache_http"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "stop"      # stop when idle to save free-tier hours
+  auto_start_machines = true       # auto-start on incoming request
+  min_machines_running = 0
+  processes = ["app"]
+
+  [[http_service.checks]]
+    grace_period = "10s"
+    interval = "30s"
+    method = "GET"
+    timeout = "5s"
+    path = "/health"
+
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 1
+  memory_mb = 256

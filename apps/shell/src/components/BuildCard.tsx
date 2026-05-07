@@ -31,6 +31,7 @@ import { useDisclosure } from "@mantine/hooks";
 import {
   IconCheck,
   IconCopy,
+  IconExternalLink,
   IconListCheck,
   IconSparkles,
 } from "@tabler/icons-react";
@@ -135,6 +136,15 @@ export function BuildCard({ build, onSendToPlanner }: Props) {
   const { ref, score } = build;
 
   // Lazy-load the skill groups on first expand.
+  //
+  // Critical: ``detailLoading`` is INTENTIONALLY excluded from the deps
+  // array. Including it creates a race where setDetailLoading(true)
+  // re-fires the effect, the cleanup sets cancelled=true on the
+  // in-flight promise, and the result never lands in state →
+  // permanent "loading" loader. The same applies to ``detailGroups``
+  // when we set it to []: re-firing the effect would cancel the
+  // result before it commits. Stale-closure linting is silenced
+  // because we read those values once at effect start via the guard.
   useEffect(() => {
     if (!opened || detailGroups !== null || detailLoading) return;
     let cancelled = false;
@@ -152,7 +162,8 @@ export function BuildCard({ build, onSendToPlanner }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [opened, ref.account, ref.character, detailGroups, detailLoading]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [opened, ref.account, ref.character]);
 
   async function handlePlan(e: React.MouseEvent) {
     e.stopPropagation(); // don't toggle collapse
@@ -276,13 +287,32 @@ export function BuildCard({ build, onSendToPlanner }: Props) {
               </Button>
             )}
             <Tooltip
+              label="Apri il profilo poe.ninja in una nuova scheda"
+              withArrow
+              position="top"
+            >
+              <Button
+                size="xs"
+                variant="light"
+                color="blue"
+                leftSection={<IconExternalLink size={13} />}
+                component="a"
+                href={poeNinjaUrl(ref.league, ref.account, ref.character)}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+              >
+                Apri PoB
+              </Button>
+            </Tooltip>
+            <Tooltip
               label={linkCopied ? "Link copiato!" : "Copia link poe.ninja"}
               withArrow
               position="top"
             >
               <Button
                 size="xs"
-                variant="subtle"
+                variant="light"
                 color={linkCopied ? "teal" : "astral"}
                 leftSection={
                   linkCopied ? <IconCheck size={13} /> : <IconCopy size={13} />

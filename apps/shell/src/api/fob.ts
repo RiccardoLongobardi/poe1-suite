@@ -9,16 +9,24 @@ import type {
   AnalyzePobResponse,
   ApiError,
   BuildIntent,
+  GearProgression,
+  GemProgression,
   PlanResponse,
   PricingProgress,
   RecommendResponse,
+  StageExportResponse,
   TargetGoal,
   TradeModExtractResponse,
   TradeSearchRequest,
   TradeSearchResponse,
+  TreeProgression,
 } from "./types";
 
-const BASE = ""; // same origin; vite.config.ts proxies /fob → 8765
+// In dev: empty string → same origin; vite.config.ts proxies /fob → 8765.
+// In production: VITE_API_BASE points at the deployed backend
+// (e.g. https://fob-api.fly.dev). The trailing slash is stripped to keep
+// path concatenation predictable.
+const BASE = (import.meta.env.VITE_API_BASE ?? "").replace(/\/+$/, "");
 
 async function post<T>(path: string, body: unknown): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
@@ -26,6 +34,17 @@ async function post<T>(path: string, body: unknown): Promise<T> {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
+  if (!res.ok) {
+    const err: ApiError = (await res.json().catch(() => ({
+      detail: res.statusText,
+    }))) as ApiError;
+    throw new Error(err.detail ?? `HTTP ${res.status}`);
+  }
+  return res.json() as Promise<T>;
+}
+
+async function get<T>(path: string): Promise<T> {
+  const res = await fetch(`${BASE}${path}`);
   if (!res.ok) {
     const err: ApiError = (await res.json().catch(() => ({
       detail: res.statusText,
@@ -94,6 +113,25 @@ export async function planBuild(
 }
 
 /**
+ * POST /fob/plan/reverse — reverse-progression mode (Step 13.C).
+ *
+ * Same input/output shape as `planBuild`, but the server runs each
+ * KeyItem through the reverse-progression engine: every endgame item
+ * generates an upgrade ladder of progressively cheaper predecessors,
+ * and each rung's rationale is appended to the corresponding stage's
+ * `gem_changes` list, prefixed with `[item_name]` so the UI can group.
+ */
+export async function planBuildReverse(
+  input: string,
+  targetGoal: TargetGoal = "mapping_and_boss",
+): Promise<PlanResponse> {
+  return post<PlanResponse>("/fob/plan/reverse", {
+    input,
+    target_goal: targetGoal,
+  });
+}
+
+/**
  * POST /fob/plan/stream — SSE-streamed planning.
  *
  * Yields one PricingProgress event per server-side step. The final event
@@ -108,7 +146,95 @@ export async function* planBuildStream(
   targetGoal: TargetGoal = "mapping_and_boss",
   signal?: AbortSignal,
 ): AsyncGenerator<PricingProgress, void, void> {
-  const res = await fetch(`${BASE}/fob/plan/stream`, {
+  yield* streamPlanEndpoint("/fob/plan/stream", input, targetGoal, signal);
+}
+
+/**
+ * POST /fob/plan/reverse/stream — SSE-streamed reverse-progression planning.
+ *
+ * Identical event lifecycle to planBuildStream, but the final 'done'
+ * event's BuildPlan carries per-item ladder rationales tagged
+ * [target_name] in the appropriate stages' gem_changes (Step 13.C).
+ */
+export async function* planBuildReverseStream(
+  input: string,
+  targetGoal: TargetGoal = "mapping_and_boss",
+  signal?: AbortSignal,
+): AsyncGenerator<PricingProgress, void, void> {
+  yield* streamPlanEndpoint(
+    "/fob/plan/reverse/stream",
+    input,
+    targetGoal,
+    signal,
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Step 14 — per-stage progressions (Pohx-style stage builds)
+// ---------------------------------------------------------------------------
+
+/** GET /fob/tree-progression/{template_name} — null when no progression exists. */
+export async function fetchTreeProgression(
+  templateName: string,
+): Promise<TreeProgression | null> {
+  return get<TreeProgression | null>(
+    `/fob/tree-progression/${encodeURIComponent(templateName)}`,
+  );
+}
+
+/** GET /fob/gear-progression/{template_name} — null when no progression exists. */
+export async function fetchGearProgression(
+  templateName: string,
+): Promise<GearProgression | null> {
+  return get<GearProgression | null>(
+    `/fob/gear-progression/${encodeURIComponent(templateName)}`,
+  );
+}
+
+/** GET /fob/gem-progression/{template_name} — null when no progression exists. */
+export async function fetchGemProgression(
+  templateName: string,
+): Promise<GemProgression | null> {
+  return get<GemProgression | null>(
+    `/fob/gem-progression/${encodeURIComponent(templateName)}`,
+  );
+}
+
+/**
+ * GET /fob/stage-export/{template}/{stage_key} — PoB-importable code for one stage.
+ *
+ * Returns `{ code: null }` when the template has no tree progression yet.
+ */
+export async function fetchStageExport(
+  templateName: string,
+  stageKey: string,
+  characterClass: string,
+  ascendancy: string | null,
+  level = 90,
+): Promise<StageExportResponse> {
+  const params = new URLSearchParams({
+    character_class: characterClass,
+    level: String(level),
+  });
+  if (ascendancy) params.set("ascendancy", ascendancy);
+  return get<StageExportResponse>(
+    `/fob/stage-export/${encodeURIComponent(templateName)}/${encodeURIComponent(stageKey)}?${params.toString()}`,
+  );
+}
+
+/**
+ * Shared SSE consumer for /fob/plan/stream and /fob/plan/reverse/stream.
+ *
+ * fetch + ReadableStream because EventSource only supports GET. The
+ * signal lets the caller cancel mid-stream (e.g. component unmount).
+ */
+async function* streamPlanEndpoint(
+  path: string,
+  input: string,
+  targetGoal: TargetGoal,
+  signal?: AbortSignal,
+): AsyncGenerator<PricingProgress, void, void> {
+  const res = await fetch(`${BASE}${path}`, {
     method: "POST",
     headers: { "Content-Type": "application/json", Accept: "text/event-stream" },
     body: JSON.stringify({ input, target_goal: targetGoal }),

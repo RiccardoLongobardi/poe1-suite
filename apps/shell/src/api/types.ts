@@ -111,6 +111,7 @@ export interface BuildIntent {
   complexity_cap: ComplexityLevel | null;
   defense_profile: DefenseProfile | null;
   hard_constraints: HardConstraint[];
+  main_skill_hint: string | null;
   confidence: number;
   raw_input: string;
   parser_origin: ParserOrigin;
@@ -244,6 +245,8 @@ export interface CoreItem {
 
 export interface PlanStage {
   label: string;
+  /** Snake-case stage key (e.g. 'early_campaign'). Step 14 T5+. */
+  stage_key: string | null;
   budget_range: PriceRange;
   expected_content: ContentFocus[];
   core_items: CoreItem[];
@@ -263,6 +266,84 @@ export interface BuildPlan {
 export interface PlanResponse {
   build: Build;
   plan: BuildPlan;
+  /** Identifier of the BuildTemplate the planner picked. Step 14 T5+. */
+  template_name: string | null;
+}
+
+// ---------------------------------------------------------------------------
+// Step 14 — per-stage progressions (tree / gear / gems) + PoB stage export
+// ---------------------------------------------------------------------------
+
+export interface StageTree {
+  stage_key: string;
+  node_ids: number[];
+  notables: string[];
+  ascendancy_nodes: string[];
+  pob_url: string | null;
+}
+
+export interface TreeProgression {
+  target_name: string;
+  stages: StageTree[];
+}
+
+export type GearKind = "unique" | "rare_craft" | "leveling" | "skip";
+
+export interface StageGearSlot {
+  slot: ItemSlot;
+  item_name: string;
+  kind: GearKind;
+  notes: string;
+  budget_div_max: number | null;
+}
+
+export interface StageGearSet {
+  stage_key: string;
+  slots: StageGearSlot[];
+  overall_notes: string;
+}
+
+export interface GearProgression {
+  target_name: string;
+  stages: StageGearSet[];
+}
+
+export type AltQuality = "divergent" | "phantasmal" | "anomalous";
+
+export interface GemSpec {
+  name: string;
+  level: number;
+  quality: number;
+  alt_quality: AltQuality | null;
+  is_support: boolean;
+  notes: string;
+}
+
+export interface GemLink {
+  slot: ItemSlot;
+  sockets: number;
+  color_pattern: string | null;
+  gems: GemSpec[];
+  notes: string;
+}
+
+export interface StageGemLinks {
+  stage_key: string;
+  links: GemLink[];
+  notes: string;
+}
+
+export interface GemProgression {
+  target_name: string;
+  stages: StageGemLinks[];
+}
+
+/** GET /fob/stage-export response */
+export interface StageExportResponse {
+  template_name: string;
+  stage_key: string;
+  /** PoB-importable code, or null when the template lacks a tree progression. */
+  code: string | null;
 }
 
 // ---------------------------------------------------------------------------
@@ -332,6 +413,10 @@ export interface PricingProgress {
   status: string;
   /** Only populated on the 'done' event. */
   final_plan: BuildPlan | null;
+  /** Only populated on the 'done' event (Step 14 T5+). */
+  template_name?: string | null;
+  /** Only populated on the 'done' event (Step 14 T5+). */
+  build?: Build | null;
 }
 
 // ---------------------------------------------------------------------------

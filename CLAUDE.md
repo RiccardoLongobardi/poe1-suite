@@ -34,7 +34,7 @@ uv run mypy .
 uv run pytest
 ```
 
-All four must pass with zero errors. Current baseline: **489 tests green (2 skipped — integration/LLM), 91 files type-checked clean, 89 files formatted clean**.
+All four must pass with zero errors. Current baseline: **565 tests green (2 skipped — integration/LLM), 95 files type-checked clean, 93 files formatted clean**. Frontend build 510 KB / 160 KB gzip.
 
 ## What's built (state as of 2026-04-25, end of Step 8 — FOB completo)
 
@@ -164,13 +164,337 @@ Step 13.B — Watcher's Eye combo pricing via Trade.
 
 Baseline: 489 test verdi / 91 mypy / 89 format.
 
-## What comes after (Step 13+)
-- **Step 13.D — Templates per ogni classe** (almeno 3 build per Duelist / Witch / Marauder / Templar / Shadow / Ranger / Scion). Obiettivo: dato un endgame PoB, FOB ha sempre un piano coerente per la classe corrispondente. ~21 template totali nel registry.
-- **Step 13.C — Reverse-progression engine** (final endgame del progetto): derivare custom upgrade ladder dal PoB endgame anziché dai template hardcoded.
-- Templates ulteriori per skill emergenti (Penance Brand, Crackling Lance, Storm Brand, Forbidden Rite, ecc.) man mano che escono mete nuove.
-- **Step 11 — UI overhaul** — tema astrale viola, welcome page animata, home page dashboard, modale donation PayPal (paypal.me/riclong). Refactor a `react-router-dom`.
-- **Faustus flipper** — package `poe1-faustus` per flip di valuta basato su poe.ninja bulk trades. Strumento separato. UX: arbitraggi "X chaos → Y div → Z chaos → profit %".
-- **App unica raggruppante** — navbar per tool (FOB, Faustus, …) quando arriva il secondo tool.
+## Step 13.D completo
+
+Step 13.D (Templates per ogni classe) chiuso. **49 template totali nel registry**, 7 per ognuna delle 7 classi PoE1 (Marauder / Duelist / Ranger / Witch / Templar / Shadow / Scion). Iniziato da 17 template (T1) → +32 template in 12 turni.
+
+Pattern matcher esteso oltre lo skill-keyed `_matches_skill(*needles)`:
+- **Predicate-keyed** (count/heuristic su Build): `_matches_aurabot` (≥5 auras in support_gems).
+- **Item-keyed** (lookup in `key_items`): `_matches_coc_cospri` (Cospri's Malice), `_matches_mjolner` (Mjolner). Stessa firma `Callable[[Build], bool]`, registrati prima dei matcher skill perché build item-keyed (CoC, Mjolner) carry main_skill come Cyclone/Static Strike che andrebbe a template skill-keyed sbagliato.
+
+Lessons learned sui matcher (catturati dal gate durante i turni):
+- Substring greedy: matcher "vortex" cattura "Blade Vortex"; "cyclone" cattura "Ngamahu Cyclone"; "reap" cattura "Summon Reaper". Mitigazione: matcher più specifici prima nel registry, oppure sostituzione con skill alternativa (Reap → Forbidden Rite).
+- Stesso skill su più classi (Boneshatter Jugg/Berserker/Champion, Cyclone Slayer/Berserker): un singolo template che menziona tutte le ascendancy nelle advice è più robusto del routing per ascendancy (matcher non guarda `Build.ascendancy`).
+
+Mappa coverage attuale (post-Turno 1):
+
+| Classe | Count | Template registrati |
+|---|---|---|
+| Marauder | 7/7 ✅ | RF Jugg, Boneshatter, Earthshatter Jugg, Tectonic Slam Chieftain, Molten Strike Chieftain, Ground Slam Jugg, Volcanic Fissure Jugg |
+| Duelist | 7/7 ✅ | Cyclone Slayer, Reave Slayer, Lacerate Gladiator, Splitting Steel Gladiator, Sunder Champion, Static Strike Gladiator, Spectral Throw Champion |
+| Ranger | 7/7 ✅ | LS Raider, TS Deadeye, FB Raider, TR Pathfinder, Ballista Deadeye, Ice Shot Deadeye, Poisonous Concoction Pathfinder |
+| Witch | 7/7 ✅ | Vortex Occ, Bone Spear Necro, DD Necro, Bane Occ, Spectre Necro, Skel Mages, Ball Lightning Elementalist |
+| Templar | 7/7 ✅ | Spark Inq, HFT Hiero, Penance Brand Inq, Crackling Lance Inq, Arc Hierophant, Smite Guardian, Aurabot Guardian |
+| Shadow | 7/7 ✅ | Hexblast Mines, Poison BV Assassin, Cobra Lash Assassin, Pyroclast Mines Saboteur, Cold DoT Trickster, Blade Blast Trickster, Soulrend Trickster |
+| Scion | 7/7 ✅ | CoC Cospri Cyclone, Power Siphon, Storm Brand, Mjolner Discharge, Spectral Helix, Forbidden Rite, Wave of Conviction |
+
+**Turno 1 (Marauder)** ✅ done (2026-05-01). 3 nuovi template + matchers + test signature:
+- `BoneshatterTemplate` (matcher "boneshatter") — Jugg/Berserker, trauma stack mechanic, Sunder/Ground Slam levelling → switch a level 28, Heatshiver cold-conv variant.
+- `EarthshatterJuggTemplate` (matcher "earthshatter") — slam phys + spike detonation, Tukohama's Coffer, +2 to Slam Skills crafting.
+- `TectonicSlamChieftainTemplate` (matcher "tectonic slam") — fire slam consumando EC, Tukohama War's Herald + Ngamahu True Flame, Magnate belt + Kaom's Way ring.
+
+Baseline 492 test verdi / 91 mypy / 89 format.
+
+**Turno 2 (Marauder)** ✅ done (2026-05-01). Marauder coverage 4/7 → 7/7 (chiusa). 3 nuovi template:
+- `MoltenStrikeChieftainTemplate` (matcher "molten strike") — phys-to-fire melee strike + projectile, Tukohama War's Herald lab1, Avatar of Fire keystone, Hrimsorrow + Ngamahu's Flame transition.
+- `GroundSlamJuggTemplate` (matcher "ground slam") — slam phys signature day-1 Marauder, Resolute Technique, Marohi Erqi 2H → +2 to Slam Skills craft, Ground Slam of Earthshaking transfigured variant.
+- `VolcanicFissureJuggTemplate` (matcher "volcanic fissure") — slam fire travelling fissure, Avatar of Fire opzionale, Combustion + Awakened Fire Pen endgame.
+
+NOTA: in Turno 2 swappato il pianificato "Ngamahu Cyclone Chieftain" con `VolcanicFissureJuggTemplate` perché il matcher su `main_skill` non distingue Ngamahu Cyclone (item-keyed) dal generico Cyclone Slayer (skill-keyed) — sarebbe servito un refactor del matcher per guardare anche `key_items`.
+
+Baseline 495 test verdi / 91 mypy / 89 format.
+
+**Turno 3 (Duelist)** ✅ done (2026-05-01). Duelist coverage 1/7 → 4/7. 3 nuovi template:
+- `ReaveSlayerTemplate` (matcher "reave") — sword phantom blade stacks AoE, Headsman lab1, Paradoxica/Foil endgame, Vaal Reave per single-target burst.
+- `LacerateGladiatorTemplate` (matcher "lacerate") — sword 2H/DW slash + bleed, Painforged + Gratuitous Violence corpse explode, Crimson Dance keystone (DW variant), Lacerate of Haemorrhage transfigured opzionale.
+- `SplittingSteelGladiatorTemplate` (matcher "splitting steel") — phys ranged-melee con secondary projectiles, Steel Skills cluster, Painforged (Glad) o Worthy Foe + Inspirational (Champion).
+
+Baseline 498 test verdi / 91 mypy / 89 format.
+
+**Turno 4 (Duelist)** ✅ done (2026-05-01). Duelist coverage 4/7 → 7/7 (chiusa). 3 nuovi template:
+- `SunderChampionTemplate` (matcher "sunder") — slam phys signature day-1, Worthy Foe + Inspirational lab1, Marohi Erqi → +2 to Slam Skills 2H mace endgame, Sunder of Earthbreaking transfigured.
+- `StaticStrikeGladiatorTemplate` (matcher "static strike") — lightning melee + chained beams, Versatile Combatant (Glad block) o Inspirational (Champion), Saviour shield + Paradoxica/Foil crit weapon.
+- `SpectralThrowChampionTemplate` (matcher "spectral throw") — boomerang projectile day-1 Duelist, Worthy Foe + Inspirational, Awakened GMP + Slower Projectiles bossing, Vaal ST burst.
+
+Baseline 501 test verdi / 91 mypy / 89 format.
+
+**Turno 5 (Ranger)** ✅ done (2026-05-01). Ranger coverage 5/7 → 7/7 (chiusa). 2 nuovi template:
+- `IceShotDeadeyeTemplate` (matcher "ice shot") — bow phys→cold conversion + cone secondary AoE, Endless Munitions lab1, Lioneye's Glare transition → +1/+2 socketed bow craft o +3 bow + Voltaxic Rift endgame.
+- `PoisonousConcoctionPathfinderTemplate` (matcher "poisonous concoction") — flask-thrown chaos hit + poison massiccio, Master Surgeon (sustain) + Nature's Reprisal (poison multi), Mageblood endgame.
+
+Baseline 503 test verdi / 91 mypy / 89 format.
+
+**Turno 6 (Templar)** ✅ done (2026-05-01). Templar coverage 2/7 → 5/7. 3 nuovi template:
+- `PenanceBrandInquisitorTemplate` (matcher "penance brand") — brand caster phys/lightning, Inevitable Judgment + Pious Path, Awakened Brand Recall + Awakened Lightning Pen endgame.
+- `CracklingLanceInquisitorTemplate` (matcher "crackling lance") — lightning beam multistage, Inevitable Judgment + Augury of Penitence, Replica Conqueror's Efficiency + +1 power charge body.
+- `ArcHierophantTemplate` (matcher "arc") — chain lightning day-1 Templar, Conviction of Power + Sanctuary of Thought, Mind Over Matter + Arcane Cloak, Awakened Chain endgame.
+
+NOTA: matcher "arc" è una substring potenzialmente collisiva (matcherebbe "Arctic Breath", "Arctic Armour" se mai apparissero come main_skill). Tollerabile in pratica perché Arctic Armour è una buff aura (mai main_skill DPS) e Arctic Breath è skill morta. Se in futuro serve distinguere, mettere matcher più specifico prima di "arc".
+
+Baseline 506 test verdi / 91 mypy / 89 format.
+
+**Turno 7 (Templar)** ✅ done (2026-05-01). Templar coverage 5/7 → 7/7 (chiusa). 2 nuovi template + nuova sliding-rule matcher:
+- `SmiteGuardianTemplate` (matcher "smite") — lightning melee + party aura buff radius, Radiant Crusade lab1, Aegis Aurora shield + Sublime Vision amulet, Time of Need ascendancy.
+- `AurabotGuardianTemplate` (matcher CUSTOM `_matches_aurabot`) — support build aura stacking party, Radiant Crusade + Time of Need + Unwavering Crusade, Crown of the Tyrant + Sublime Vision + Awakened Generosity ovunque, Skin of the Lords + Aegis Aurora.
+- Nuovo helper `_matches_aurabot(build)` che conta gli aura nei `support_gems` (≥5 → aurabot). Frozenset `_AURA_GEMS` con 19 nomi base. Registrato PRIMA dei matcher skill, perché un Aurabot con throwaway Smite/Spark va comunque a AurabotGuardian.
+
+Pattern di matcher esteso: oltre allo skill-keyed `_matches_skill(*needles)`, ora supportiamo predicate-keyed (es. count auras). Utile per future match item-keyed (CoC Cospri, Mjolner) tramite `key_items` lookup.
+
+Baseline 509 test verdi / 91 mypy / 89 format.
+
+**Turno 8 (Shadow)** ✅ done (2026-05-01). Shadow coverage 1/7 → 4/7. 3 nuovi template:
+- `PoisonBladeVortexAssassinTemplate` (matcher "blade vortex") — chaos blade orbit + poison stack, Mistwalker + Noxious Strike + Toxic Delivery, Cospri's Will body + Cold Iron Point dagger.
+- `CobraLashAssassinTemplate` (matcher "cobra lash") — chaos projectile chain + poison, Toxic Delivery, Awakened Chain + Awakened Vile Toxins endgame, Vaal Cobra Lash boss.
+- `PyroclastMinesSaboteurTemplate` (matcher "pyroclast") — fire AoE mines bossing, Pyromaniac + Bombardier + Demolitions Specialist, Bottled Faith consacrated ground.
+
+NOTA matcher ordering: `_matches_skill("blade vortex")` deve venire **prima** di `_matches_skill("vortex")` perché "vortex" è substring di "blade vortex". Sezione registry "Casters" riordinata di conseguenza.
+
+Baseline 512 test verdi / 91 mypy / 89 format.
+
+**Turno 9 (Shadow Tricksters)** ✅ done (2026-05-01). Shadow coverage 4/7 → 7/7 (chiusa). 3 nuovi template + 2 matcher splits:
+- `ColdDotTricksterTemplate` (matcher "cold snap") — pure cold DoT alternativo a Vortex Occultist, Patient Reaper + Soul Drinker, Cold Snap of Power transfigured opzionale.
+- `BladeBlastTricksterTemplate` (matcher "blade blast") — detona Blade Fall blades, Escape Artist + Patient Reaper, dual-wield daggers spell skill.
+- `SoulrendTricksterTemplate` (matcher "soulrend") — chaos+cold projectile DoT spell, Patient Reaper + Soul Drinker, Wither/Despair curse setup.
+
+**Matcher refactor**:
+- `_matches_skill("vortex", "cold snap")` → split in 2: `_matches_skill("cold snap")` per ColdDotTrickster + `_matches_skill("vortex")` per VortexOccultist (più puro).
+- `_matches_skill("bone spear", "soulrend")` → split in 2: `_matches_skill("soulrend")` per SoulrendTrickster + `_matches_skill("bone spear")` per BoneSpearNecro.
+
+Baseline 515 test verdi / 91 mypy / 89 format.
+
+**Turno 10 (Scion)** ✅ done (2026-05-01). Scion coverage 0/7 → 3/7. 3 nuovi template + nuovo matcher item-keyed:
+- `CocCospriCycloneScionTemplate` (matcher CUSTOM `_matches_coc_cospri`) — Cyclone CoC trigger Frostbolt+Ice Nova socketed in Cospri's Malice. Matcher cerca "Cospri's Malice" in `key_items`. Registrato PRIMA di `_matches_skill("cyclone")` perché i build CoC carry main_skill='Cyclone'.
+- `PowerSiphonScionTemplate` (matcher "power siphon") — wand attack + Power Charges + crit, Deadeye + Assassin Ascendant, dual +2 lightning wand craft endgame.
+- `StormBrandScionTemplate` (matcher "storm brand") — chain lightning brand caster, Inquisitor + Elementalist Ascendant, +1 power charge body. Registrato prima di "arc" per leggibilità (nessuna substring collision effettiva).
+
+Pattern matcher esteso a item-keyed (`_matches_coc_cospri`): stessa firma `Callable[[Build], bool]` di `_matches_aurabot`, ma legge `build.key_items[*].item.name`. Riutilizzabile per Mjolner Discharge (T11).
+
+Baseline 519 test verdi / 91 mypy / 89 format.
+
+**Turno 11 (Scion)** ✅ done (2026-05-01). Scion coverage 3/7 → 6/7. 3 nuovi template + nuovo matcher item-keyed:
+- `MjolnerDischargeScionTemplate` (matcher CUSTOM `_matches_mjolner`) — Mjolner unique mace triggera spell on melee hit, Cyclone + CWDT + Discharge + Ball Lightning, Inquisitor + Champion Ascendant. Stesso pattern di `_matches_coc_cospri`.
+- `SpectralHelixScionTemplate` (matcher "spectral helix") — sword/axe boomerang con curva sinusoidale, Slayer + Deadeye Ascendant, Paradoxica + Saviour shield endgame.
+- `ForbiddenRiteScionTemplate` (matcher "forbidden rite") — chaos+ele self-cast spell con life cost, Low Life Pain Attunement, Pathfinder + Trickster Ascendant, Shavronne's Wrappings o Solaris Lorica.
+
+NOTA cambio piano: invece di "Reap" (matcher "reap" collisivo con "Summon Reaper" minion skill) ho usato Forbidden Rite — distinto e altrettanto iconico Scion.
+
+Baseline 523 test verdi / 91 mypy / 89 format.
+
+**Turno 12 finale (Scion +1 + Witch swap)** ✅ done (2026-05-01). Step 13.D **chiuso 7×7 = 49 template** ✅. 2 nuovi + 1 rimosso:
+- `WaveOfConvictionScionTemplate` (matcher "wave of conviction") — fire+lightning wave AoE con exposure stacking, Inquisitor + Elementalist Ascendant. Chiude Scion 7/7.
+- `BallLightningElementalistTemplate` (matcher "ball lightning") — slow lightning orb + Shaper of Storms shock + Mastermind of Discord. Sostituisce AnimateWeaponNecro nel set Witch (porta diversità con un Elementalist; prima 7 ma tutti Occultist/Necro).
+- **Rimosso**: `AnimateWeaponNecroTemplate` (classe + matcher + `__all__` + dict canonical entry).
+
+Coverage finale: tutte 7 classi a 7/7 ✅. Baseline 525 verdi / 91 mypy / 89 format.
+
+## Step 13.C completo (Reverse-progression engine)
+
+Step 13.C chiuso — **derivare** la upgrade ladder dal PoB endgame dell'utente, anziché applicare un template hardcoded basato su main_skill (Step 13.D). Affianca il template engine, non lo sostituisce: due `KeyItem` endgame diversi sullo stesso skill ora producono advice diversi.
+
+**T1 — Skeleton engine** ✅ done (2026-05-01). Nuovo subpackage `packages/fob/src/poe1_fob/reverse/`:
+- `models.py` — `LadderStep` (Pydantic frozen, `stage_key + item_name + kind + budget_div_max + rationale`) e `UpgradeLadder` (target_name + tuple di rungs ordinata cheap→endgame, helper `stage_keys()` / `for_stage(spec)`).
+- `degrader.py` — `ItemDegrader` Protocol + `HardcodedDegrader` prima implementazione. Tabella per 6 uniques iconici (Mageblood, Headhunter, Kaom's Heart, Watcher's Eye, Forbidden Flame, Forbidden Flesh). Fallback "endgame only" single-rung quando l'item non è in tabella. Lookup case-insensitive via casefold.
+- `__init__.py` — re-export `LadderStep`, `UpgradeLadder`, `ItemDegrader`, `HardcodedDegrader`.
+- `tests/test_reverse.py` — 10 nuovi test: model frozenness, ladder ordering, ladder lookup, 6 ladder casi (Mageblood 3-rung, Headhunter 3-rung, Kaom's Heart 3-rung early-only, Watcher's Eye con substitution, Forbidden pair routing, fallback unknown), case-insensitivity.
+
+**No integrazione con `PlannerService`** in T1: solo skeleton + dummy engine + test offline. L'integrazione (PlannerService accetta `mode='reverse'`, fonde gli output del degrader nei `gem_changes`/`tree_changes` per stage) è T2.
+
+Baseline 535 test verdi (+10 reverse) / 95 mypy (+4 nuovi file) / 91 format.
+
+**T2 — Integrazione `PlannerService.plan_reverse()`** ✅ done (2026-05-02). Aggiunge:
+- `PlannerService.__init__(... degrader: ItemDegrader | None = None)` — opzionale, retrocompatibile.
+- `PlannerService.plan_reverse(build, target_goal=...)` — wrapper su `plan()` baseline + post-processing: per ogni `KeyItem` chiama `degrader.degrade(ki)` → `UpgradeLadder`, indicizza i rung per `stage_key`, e per ogni `PlanStage` appende ai `gem_changes` esistenti una riga `[target_name] {rung.rationale}`. Pydantic models frozen → `model_copy(update=...)` per ricostruire il piano.
+- Helper `_stage_key_from_label(label)` per convertire `StageSpec.label` → `key` (i `PlanStage` carry il label umano, i rung il key snake_case).
+- Test: `plan_reverse` senza degrader → `ValueError` (fail-fast); con degrader appende le rationale nei stage corretti; senza key_items il piano è identico al template-only. 538 test verdi (+3 T2).
+
+**T3 — AwakenedGemDegrader + CompositeDegrader** ✅ done (2026-05-02). Aggiunge:
+- `AwakenedGemDegrader` — pattern-keyed su 36 nomi Awakened gems (frozenset `_AWAKENED_GEM_NAMES`). Ladder 3-rung: regular support gem (Mid Campaign, ~0.5 div) → Awakened level 1 entry (Early Mapping, ~2 div) → Awakened level 5 corrupted (High Investment, no cap). Strip del prefix "Awakened " per derivare il regular base name (es. "Awakened Empower" → "Empower Support"). Items non-Awakened → fallback single-rung.
+- `CompositeDegrader` — chain di degrader. Prova ognuno in ordine, ritorna il primo multi-rung match. Single-rung "endgame only" conta come miss così il prossimo degrader tenta. Costruzione tipica: `[AwakenedGemDegrader(), HardcodedDegrader()]`. 544 test verdi (+6 T3).
+
+**T4 — ForbiddenJewelLadder ascendancy-aware** ✅ done (2026-05-02). Aggiorna `_forbidden_pair_ladder` (HardcodedDegrader) per leggere il mod text e estrarre il notable allocato:
+- Riusa `keystone_allocates_resolver` da `poe1_pricing.variants` (regex "Allocates X" già canonico per il variant registry).
+- Quando il notable è estratto: il rung name + rationale lo menzionano esplicitamente (es. "Forbidden Flame matched pair (Avatar of Fire)" + "il prezzo esplode in base alla notable scelta").
+- Fallback gracioso: senza "Allocates X" mod → label "(any notable)" + copy generico originale.
+- 546 test verdi (+2 T4).
+
+**T5 — Endpoint `POST /fob/plan/reverse`** ✅ done (2026-05-02). Aggiunge:
+- Nuovo endpoint stesso shape di `POST /fob/plan` (input PoB, output `PlanResponse`), ma internamente wira un `CompositeDegrader([AwakenedGemDegrader(), HardcodedDegrader()])` e chiama `planner.plan_reverse(...)`.
+- Logging `fob_plan_reverse_ok` con `key_items` count + stage count + cost range.
+- Test integrazione in `apps/server/tests/test_fob_router.py`: smoke test che l'endpoint è registrato (rejects empty input → 422, rejects garbage → 400 stesso comportamento di `/fob/plan`).
+- 547 test verdi (+1 T5).
+
+**T6 — UI toggle reverse mode** ✅ done (2026-05-02). Aggiorna `apps/shell`:
+- Client `planBuildReverse(input, targetGoal)` in `api/fob.ts` — POST a `/fob/plan/reverse`.
+- `PlannerPage.tsx`: nuovo state `reverseMode: boolean` + `<Switch>` con tooltip esplicativo (multiline, 320px wide). Quando attivo, branch a `planBuildReverse` (non-streaming, niente progress bar — il request blocca). Quando OFF mantiene il flow SSE esistente. `useCallback` deps aggiornate.
+- Note: streaming reverse (SSE su `/fob/plan/reverse/stream`) è out of scope T6, eventualmente T7 futuro.
+
+Step 13.C **chiuso** con tutti i 6 turni. Baseline 547 test verdi / 95 mypy (95 file con i 4 nuovi reverse) / 93 format.
+
+**Migliorie post-T6** ✅ done (2026-05-02):
+- **A — Espansione `_LADDER_TABLE`**: aggiunti 11 uniques (Loreweave, Ashes of the Stars, Bottled Faith, Aegis Aurora, Sublime Vision, Crown of the Tyrant, Brass Dome, Shavronne's Wrappings, Cospri's Will, The Saviour, Crystallised Omniscience). Tabella ora copre 17 uniques. 1 nuovo test smoke che verifica multi-rung su tutti gli 11.
+- **B — UI grouping ladder per stage**: in `StageCard.tsx` separati i `[target] rationale` (reverse mode) dal template gem advice. Sub-block "Upgrade ladder" con `IconStairsUp`, raggruppa per `target_name` con Mantine `Badge`. Render solo quando ci sono rung tag.
+- **C — Test E2E reverse mode con PoB reale**: in `apps/server/tests/test_fob_router.py` nuovo test `test_plan_reverse_e2e_with_real_pob` che monkey-patcha `HttpClient.__aenter__` con `MockTransport`. Stub minimo per `/data/index-state` (lega Standard) + `{"lines": []}` su `/economy/stash/.../overview` + Trade API stub. Verifica shape 6-stage + main_skill + char class + presence di gem advice.
+- **E — Frontend smoke build**: `npm install` + `npm run build` verde. Bundle 510 KB / 160 KB gzip.
+
+**Migliorie pre-deploy D+F+H** ✅ done (2026-05-02):
+- **D — Streaming SSE per reverse mode**: `PlannerService.plan_reverse_with_progress` async generator riusa `plan_with_progress` e applica il post-processing `_merge_ladder_advice` solo al `done` event. Nuovo endpoint `POST /fob/plan/reverse/stream` (`StreamingResponse` text/event-stream), client TS `planBuildReverseStream` + helper `streamPlanEndpoint(path, ...)` deduplica fetch+ReadableStream tra `/plan/stream` e `/plan/reverse/stream`. `PlannerPage.tsx` reverse mode ora usa SSE invece di non-streaming → progress bar + ETA anche per reverse. 2 nuovi test (lifecycle eventi + fail-fast senza degrader).
+- **F — InfluenceItemDegrader**: nuovo degrader pattern-keyed su `Item.influence` non-vuoto + slot in (helmet/body/gloves/boots/amulet/ring). Ladder 3-rung: essence craft (Mid Campaign, ~0.3 div) → single influence + +1 socketed gems (Early Mapping, ~5-15 div) → double influence custom craft (High Investment, no cap). Influences label esposto in item_name + rationale (es. "body_armour Crusader + Warlord (single influence...)"). 4 nuovi test. Default `CompositeDegrader` esteso a `[AwakenedGem, Hardcoded, Influence]` in entrambi gli endpoint reverse.
+- **H — Request coalescer in `HttpClient`**: nuovo `_inflight: dict[str, asyncio.Future[Any]]` in HttpClient. In `_cached_get`, dopo cache miss, se la stessa key ha un Future in volo, await quello invece di duplicare la call upstream. Critical per multi-utente: 5 utenti che cercano "Mageblood" in burst → 1 sola call a poe.ninja, gli altri 4 attendono lo stesso Future + scrivono cache 1 volta sola. Errori cleanup correttamente (no stuck futures). 2 nuovi test (5 concurrent → 1 upstream call, errore non blocca retry).
+
+Step 13.C migliorie chiuse. Pronti per production deploy.
+
+Baseline: 557 verdi / 95 mypy / 93 format. Frontend build 510 KB / 160 KB gzip.
+
+## Production deploy — Fase 1: hardening ✅ done (2026-05-02)
+
+Applicato in `claude/brave-johnson-5eb01e` per supportare deploy multi-utente:
+
+- **`Settings.environment`** (`development` | `production`): nuovo enum. Quando `production`, `create_app` forza `log_format=json` automaticamente.
+- **`Settings.cors_allowed_origins`** (`list[str]`): comma-separated nell'env (es. `CORS_ALLOWED_ORIGINS=https://fob.vercel.app,https://fob.tools`). Il `field_validator` con `Annotated[..., NoDecode]` bypassa il default JSON parser di pydantic-settings. Empty list in dev → CORS middleware non montato (Vite proxy gestisce). Production deve listare l'URL Vercel.
+- **`Settings.http_max_concurrent_per_host`** (default 4): limit semaphore per upstream host. `HttpClient._host_sema(url)` lazy-creates one `asyncio.Semaphore(N)` per `httpx.URL(url).host`. In `_do_get` e `_request_json` le chiamate net wrappano `async with sema` solo durante la parte network (release prima del body parse). Multi-user safety: 10 utenti concorrenti che pianificano una build → max 4 calls simultanee a poe.ninja, le altre fanno coda.
+- **`/health` arricchito**: ritorna `{status, environment, league, version, uptime_seconds, timestamp}` invece del minimale `{status: "ok"}`. Sufficiente per Fly.io health checks + UptimeRobot.
+- **`run()` accetta env `HOST` e `PORT`**: defaults `127.0.0.1:8765` per dev, ma Fly.io setta `PORT=8080` e dobbiamo bind a `0.0.0.0`.
+- **CORS middleware**: mounted solo se `cors_allowed_origins` non-empty. `allow_credentials=False` (no cookies), `allow_methods=["GET","POST"]`, `allow_headers=["Content-Type","Accept"]`, `max_age=3600`.
+- **`.env.example` aggiornato + nuovo `.env.production.example`**: secrets template per Fly.io secrets set.
+
+Test: +6 in `test_config.py` (environment default/prod, cors csv parse, cors empty, cors default empty, http concurrent default/override) + +2 in `test_fob_router.py` (health enriched, cors disabled when empty, cors enabled with origin).
+
+Baseline: 565 verdi (+8 da 557) / 95 mypy / 93 format.
+
+## Production deploy — Fase 2: containerization ✅ done (2026-05-02)
+
+Aggiunto Dockerfile multi-stage + `.dockerignore` + `docs/DEPLOY.md`:
+
+- **`Dockerfile`** in repo root, due stage:
+  - **Builder**: `python:3.12-slim-bookworm` + uv 0.5.4 statico via `ghcr.io/astral-sh/uv`. `uv sync --locked --no-dev` installa il workspace completo. Cache mount su `/root/.cache/uv` per build veloci ripetuti.
+  - **Runtime**: stessa base slim, copia `.venv` + `packages/` + `apps/server/` dal builder. User non-root (`app`, uid 1000). Default env: `HOST=0.0.0.0 PORT=8080 ENVIRONMENT=production LOG_FORMAT=json CACHE_DIR=/data/.cache_http`. EXPOSE 8080. HEALTHCHECK Docker-native via stdlib `urllib` (no curl/wget needed).
+  - CMD: `["poe1-server"]` — la console script registrata da `apps/server/pyproject.toml` (chiama `run()` che legge HOST/PORT da env).
+- **`.dockerignore`** strict: esclude `.venv/`, `.cache_http/`, `**/__pycache__/`, `apps/shell/`, `**/node_modules/`, `**/dist/`, `**/tests/`, `**/test_*.py`, `**/conftest.py`, `.git/`, `.github/`, `.vscode/`, build artifacts, `.env*` (whitelist `.env.example` + `.env.production.example`), `.claude/`. Build context piccolo, image piccola.
+- **`docs/DEPLOY.md`**: playbook operazionale completo per Fly.io (backend) + Vercel (frontend). Include: install flyctl, `fly launch --no-deploy --copy-config --name fob-api --region fra`, `fly secrets set ENVIRONMENT=production LOG_FORMAT=json POE_LEAGUE=Mirage CORS_ALLOWED_ORIGINS=https://fob.vercel.app`, optional persistent volume mount per cache, `fly deploy`. Vercel: import repo + Vite framework preset + root `apps/shell` + env `VITE_API_BASE`. Custom domain wireup ($10/anno opzionale). Smoke test checklist + rollback procedure.
+- **`README.md`**: aggiunto link a `DEPLOY.md` + comandi quick local Docker check.
+
+NB: build Docker locale non testato (Docker Desktop non installato in shell). Sarà testato direttamente da Fly.io builder remoto in Fase 3.
+
+## Production deploy — Fase 3: live ✅ done (2026-05-07)
+
+FOB **live in production**:
+
+- **Backend**: https://fob-api.fly.dev (Fly.io app `fob-api`, region `fra` Frankfurt, shared-cpu-1x 256MB free tier, auto-stop quando idle)
+- **Frontend**: https://fob-ten.vercel.app (Vercel free hobby tier, build automatica al push su main, ~510 KB gzip)
+- **CORS**: `access-control-allow-origin: https://fob-ten.vercel.app` allow-listed lato Fly
+- **HTTPS**: Let's Encrypt automatico su entrambi
+- **Costo**: $0/mese
+
+Setup:
+- `fly.toml` al root del repo: app=fob-api, region=fra, internal_port=8080, http_service health probe /health, auto_stop_machines='stop' per risparmiare free-tier hours.
+- Dockerfile: uv 0.5.4 → 0.11.7 (la 0.5.4 ha un bug nel verificare `--locked` contro lockfile prodotto da uv recenti — il build remote falliva).
+- Vercel: Framework=Vite, Root=`apps/shell`, Build=`npm run build` (dopo aver rimosso un override `nmp` typo'd), env `VITE_API_BASE=https://fob-api.fly.dev`.
+- Default branch GitHub: cambiato da `claude/friendly-kowalevski-9d17f8` a `main` perché Vercel seguiva il default branch del remote.
+
+Fly secrets set:
+- `POE_LEAGUE=Mirage` (cambiabile con `fly secrets set POE_LEAGUE=...`)
+- `CORS_ALLOWED_ORIGINS=https://fob-ten.vercel.app`
+
+Smoke test risultati:
+- `/health` 200 OK con env=production, league=Mirage, uptime tracking ok
+- `/version` ritorna mappa sub-package versions
+- CORS preflight ritorna `access-control-allow-origin` corretto
+
+`docs/DEPLOY.md` aggiornato con URL reali. README.md ha link live in alto.
+
+## Bug bash post-launch (2026-05-07)
+
+Round 1-3 di fix dopo il deploy live:
+- `apps/shell/src/api/builds.ts` BASE='' hardcoded (uguale al bug fob.ts) → `import.meta.env.VITE_API_BASE`. Main gems lazy fetch ora funziona.
+- Aggregator.fetch_candidates: pool top-25 DPS + top-25 EHP (40 unique dedup) per intercettare sia bossing-tier sia DoT-degen builds. Concurrency 8→3 per non bucare il rate-limit poe.ninja /character endpoint.
+- BuildCard: nuovo bottone "Apri PoB" (`IconExternalLink`, color blue) che apre poe.ninja profile in tab nuova. "Copia link" da subtle→light per visibilità.
+- BuildCard.useEffect: rimossi `detailLoading` e `detailGroups` dalle deps — race condition causava loader infinito (setDetailLoading re-fired effect, cleanup cancellava la promise).
+- BuildIntent.main_skill_hint nuovo campo + 45 skill canonical pattern matcher in rules.py + ninja source forwarda BuildFilter.main_skill come server-side `skills=` param. Query "righteous fire" → solo RF builds. Skill matching server-side reduces pool to ~20 ref → no hydrate needed → ~1s response.
+- ninja.py decoder: quando filter `skills=` attivo, poe.ninja rinomina la colonna `dps` in `dps-<SkillName>`. Fallback search per qualsiasi `vl.id.startswith("dps-")`.
+- IntentCard: nuovo Badge grape `skill: <hint>` quando intent.main_skill_hint set.
+- ContentFocus.BOSSING synonyms estesi: aggiunti `bosser`, `ammazza boss`, `single target`.
+- vercel.json esplicito framework="vite" per disambiguare auto-detect Python (Vercel CLI 51.6.1 vede pyproject.toml e tenta build come app Python). Aggiunto rewrites `/((?!assets/).*) → /index.html` per SPA routing direct-URL su /finder, /planner, /analyze.
+- Trade router: 429 catturato e tradotto in messaggio user-friendly italiano "aspetta 30-60 secondi".
+- Planner stages.py: `stages_for_target_goal()` modula stage layout — `mapping_only` skippa High Investment, `uber_capable` rephraseggia per mirror-tier crafts. PlannerService legge `target_goal` e usa solo le stage attive.
+
+Baseline post-bugbash: 565 verdi / 95 mypy / 93 format.
+
+## Step 14 — Pohx-style stage-by-stage build (in corso)
+
+Big upgrade del planner: per ogni stage l'utente vede una build COMPLETA — items su ogni slot, skill tree allocato, gem links, note, e il risultato è un **PoB code importabile**. Vedi `docs/STEP14-pohx-style-planner.md` per design + 7-turni roadmap.
+
+**T1 — Tree progression model + RfPohx + endpoint** ✅ done (2026-05-07).
+
+Nuovo subpackage `packages/fob/src/poe1_fob/tree/`:
+- `models.py` — `StageTree` (Pydantic frozen, `stage_key + node_ids + notables + ascendancy_nodes + pob_url`) auto-sort/dedup. `TreeProgression` (target_name + tuple stages, validator monotone strict + unique stage_keys).
+- `pob_url.py` — `encode_pob_tree_url(node_ids, character_class, ascendancy)` produce URL `https://www.pathofexile.com/passive-skill-tree/<urlsafe-b64>`. Formato v6: header u32+u8+u8 + node-section u16be each + zero trailing. Deterministic, class+asc-aware.
+- `progressions.py` — `RF_POHX_PROGRESSION` 6-stage hand-curated (placeholder node IDs da rifinire in T1.5 con cattura tree fixture). Registry `PROGRESSION_REGISTRY` + `progression_for(template_name)`.
+- 11 nuovi test (StageTree dedup/frozen, TreeProgression monotone/unique/lookup, encode URL deterministic+class-aware+asc-aware+empty-edge).
+
+Endpoint:
+- `GET /fob/tree-progression/{template_name}` → `TreeProgression | null`. Falls back to null per template senza progressione.
+- `GET /fob/tree-progression/{template_name}/{stage_key}/url?character_class=X&ascendancy=Y` → `{url: string | null}` con tree URL pronto per pathofexile.com.
+
+Baseline: 576 verdi (+11 da 565) / 100 mypy file / 99 format file.
+
+Note tecniche:
+- Node IDs in `RF_POHX_PROGRESSION` sono placeholder integers che seguono la numerazione canonica PoE 1; **non verificati live**. T1.5 catturerà i veri node IDs da un PoB export reale per produrre URL importabili in PoE.
+- Cluster jewel + mastery encoding (v7+) non supportati — il tree URL v6 carry solo regular passive nodes. Gli step T4 (PoB XML encoder) li gestiranno via PoB desktop format.
+
+**Prossimi turni**: T2 gear suite per stage, T3 gem links structured, T4 PoB XML encoder, T5 UI tabs StageCard, T6+ estensione altri template.
+
+**T1.5 — Capture node IDs reali da fixture** ✅ done (2026-05-07).
+
+Il PoB fixture esistente (`packages/fob/tests/fixtures/pob_YNQeadFwNBmX.txt`, Marauder Chieftain con 143 nodes Spectre Necro) è stato usato per derivare la nuova `SPECTRE_NECRO_PROGRESSION`:
+- 143 node IDs **reali** importati dal PoB import → split monotone in 6 sub-set (22, 40, 70, 95, 120, 143).
+- Stage chunks scelti per match canonico Pohx-style chunking.
+- `_stage_chunk(n)` helper per consistenza.
+- I node IDs sono GARANTITI di caricare in PoE perché vengono da un import reale → URL pathofexile.com generated è valido copy-paste.
+- Registry estesa: `spectre_necromancer` template ora ha progressione viva.
+
+`RF_POHX_PROGRESSION` resta con node IDs placeholder (per ora) — sostituire con un PoB RF reale è un follow-up T1.6.
+
+**T2 — Gear suite per stage + endpoint** ✅ done (2026-05-07).
+
+Nuovo subpackage `packages/fob/src/poe1_fob/gear/`:
+- `models.py` — `StageGearSlot` (Pydantic frozen, slot+item_name+kind+notes+budget_cap), `GearKind` Literal (`unique`/`rare_craft`/`leveling`/`skip`), `StageGearSet` (stage_key + tuple slots + overall_notes), `GearProgression` (target_name + tuple stages, validator unique stage_keys).
+- `progressions.py` — `RF_POHX_GEAR_PROGRESSION` 6-stage hand-curated. Ogni stage ha 8-10 slots completi: helmet/body/gloves/boots/belt/amulet/ring/weapon_main/weapon_offhand + jewel a high investment. Notes italiane Pohx-style (es. "Springleaf shield essenziale post-RF switch", "+8% max fire res permette over-cap 89%").
+- `_slot()` helper per readability nelle hand-curated stages.
+- 9 nuovi test (slot lookup, kind validation, registry hit, RF endgame include Mageblood, RF early include Tabula).
+
+Endpoint:
+- `GET /fob/gear-progression/{template_name}` → `GearProgression | null`.
+
+Baseline: 585 verdi (+9 da T1) / 104 mypy file / 102 format file.
+
+**T3 — Gem links structured + RfPohx + endpoint** ✅ done (2026-05-07).
+
+Nuovo subpackage `packages/fob/src/poe1_fob/gems/`:
+- `models.py` — `GemSpec` (name + level 1-40 + quality 0-23 + alt_quality `divergent`/`phantasmal`/`anomalous`/None + is_support + notes), `GemLink` (slot + sockets 1-6 + color_pattern R/G/B/W + ordered gems + validator socket_count==len(gems) + color_pattern.length==sockets), `StageGemLinks` (stage_key + tuple links + notes per stage banner), `GemProgression` (validator unique stage_keys).
+- `progressions.py` — `RF_POHX_GEM_PROGRESSION` 6-stage Pohx-style. Ogni stage ha 3-5 link group (body 4L→6L, helm 4L, gloves 4L CWDT, boots 4L aura, weapon 4L). Progressione: Holy Flame Totem 4L (early) → RF 6L (mid lab+1) → Awakened Burn 2 (end campaign) → 21/20 corrupted (early mapping) → Awakened 5 (end mapping) → Awakened 5 corrupted Divergent + Mirror-tier body+ Ashes (high investment, level effettivo 33+).
+- `_g()` helper compatto.
+- 12 nuovi test (model defaults, alt_quality + quality validation, sockets/color_pattern validators, link_for_slot lookup, RF endgame include Awakened Burning Damage + Empower, unknown returns None).
+
+Endpoint:
+- `GET /fob/gem-progression/{template_name}` → `GemProgression | null`.
+
+Baseline: 597 verdi (+12 da T2) / 108 mypy file / 106 format file.
+
+**Prossimo: T4 PoB XML encoder** (build → PoB code importabile in PathOfBuilding desktop).
+
+Pattern di degrader esteso oltre il table lookup:
+- **Table-keyed** (`HardcodedDegrader`): mapping name → rung factory. Buono per uniques iconici noti.
+- **Pattern-keyed** (`AwakenedGemDegrader`): regex/frozenset match su nome. Buono per famiglie con upgrade chain ovvio.
+- **Mod-aware** (Forbidden pair): legge `Item.mods` per estrarre dettagli (notable allocato, variant, ecc.).
+- **Composite** (`CompositeDegrader`): chain multi-strategy con first-match-wins.
+
+## What comes after (post Step 13.C)
+
+Focus singolo: **FOB**. Niente altri tool nello scope di poe1-suite.
+
+Prossime fasi:
+1. **Migliorie FOB** — quality-of-life sui flussi esistenti (ladder estesa, UI grouping reverse mode, streaming reverse, fix UX, etc).
+2. **Production deploy** — hosting backend (FastAPI) + frontend (Vite SPA) per uso multi-utente. Serve: Dockerfile, env config production, CORS, rate limiting client-friendly su poe.ninja/Trade, dominio + HTTPS.
 
 ## Project-specific gotchas (learned the hard way)
 

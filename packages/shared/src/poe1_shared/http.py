@@ -24,6 +24,7 @@ Usage is always as an async context manager::
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import json
 from types import TracebackType
@@ -94,6 +95,20 @@ class HttpClient:
         self._settings = settings
         self._client: httpx.AsyncClient | None = None
         self._cache: diskcache.Cache | None = None
+        # Step 13.C-followup (H): request coalescer. When multiple
+        # concurrent callers request the same URL+params (cacheable
+        # GETs only), only the first one fires the network call —
+        # the rest await the same future and share the result. Cuts
+        # upstream load for multi-user deployments where N users
+        # search the same item in a burst. Keyed on the same
+        # ``_cache_key`` used by the on-disk cache.
+        self._inflight: dict[str, asyncio.Future[Any]] = {}
+        # Production hardening (Fase 1): per-host concurrency limit.
+        # Multi-user deployments need a hard cap on outbound requests
+        # per upstream host so we don't burst-saturate poe.ninja or
+        # the GGG Trade API with N user-driven plan requests at once.
+        # The semaphore is created lazily per host in ``_host_sema``.
+        self._host_semaphores: dict[str, asyncio.Semaphore] = {}
 
     async def __aenter__(self) -> Self:
         self._cache = diskcache.Cache(str(self._settings.ensure_cache_dir()))
@@ -116,6 +131,11 @@ class HttpClient:
         if self._cache is not None:
             self._cache.close()
             self._cache = None
+        # Drop any in-flight futures (callers awaiting them will see
+        # CancelledError, which is what they'd get on a normal exit
+        # anyway).
+        self._inflight.clear()
+        self._host_semaphores.clear()
 
     # ------------------------------------------------------------------
     # Public API
@@ -248,16 +268,18 @@ class HttpClient:
             reraise=True,
         )
 
+        sema = self._host_sema(url)
         try:
             async for attempt in retryer:
                 with attempt:
-                    response = await self._client.request(
-                        method,
-                        url,
-                        params=params,
-                        json=json_body,
-                        headers=headers,
-                    )
+                    async with sema:
+                        response = await self._client.request(
+                            method,
+                            url,
+                            params=params,
+                            json=json_body,
+                            headers=headers,
+                        )
                     try:
                         response.raise_for_status()
                     except httpx.HTTPStatusError as err:
@@ -316,12 +338,43 @@ class HttpClient:
                 log.debug("http_cache_hit", url=url, key=key, kind=kind)
                 return cached
 
-        data = await self._do_get(url, params=params, decode=decode)
+            # Coalesce concurrent misses: if another caller is already
+            # fetching this same URL, await their future instead of
+            # starting a duplicate request. Saves upstream rate-limit
+            # tokens when multiple users request the same item in a
+            # burst (multi-user deployment).
+            existing = self._inflight.get(key)
+            if existing is not None:
+                log.debug("http_inflight_join", url=url, key=key)
+                return await existing
 
-        if use_cache and ttl > 0:
-            self._cache.set(key, data, expire=ttl)
+            future: asyncio.Future[Any] = asyncio.get_running_loop().create_future()
+            self._inflight[key] = future
+            try:
+                data = await self._do_get(url, params=params, decode=decode)
+            except BaseException as err:
+                future.set_exception(err)
+                raise
+            else:
+                future.set_result(data)
+                return data
+            finally:
+                # Drop the future regardless of outcome. Cache write is
+                # done by the original caller below; subsequent callers
+                # will hit the disk cache.
+                self._inflight.pop(key, None)
+                if (
+                    use_cache
+                    and ttl > 0
+                    and future.done()
+                    and not future.cancelled()
+                    and future.exception() is None
+                ):
+                    self._cache.set(key, future.result(), expire=ttl)
 
-        return data
+        # Non-cacheable path: bypass coalescer (the kind of caller that
+        # passes ``use_cache=False`` doesn't expect dedup behaviour).
+        return await self._do_get(url, params=params, decode=decode)
 
     async def _do_get(
         self,
@@ -341,10 +394,12 @@ class HttpClient:
             reraise=True,
         )
 
+        sema = self._host_sema(url)
         try:
             async for attempt in retryer:
                 with attempt:
-                    response = await self._client.get(url, params=params)
+                    async with sema:
+                        response = await self._client.get(url, params=params)
                     try:
                         response.raise_for_status()
                     except httpx.HTTPStatusError as err:
@@ -369,3 +424,24 @@ class HttpClient:
 
         # Unreachable: AsyncRetrying always yields at least once.
         raise HttpError("unreachable retry exit", url=url)  # pragma: no cover
+
+    def _host_sema(self, url: str) -> asyncio.Semaphore:
+        """Lazy-create one Semaphore per upstream host.
+
+        Multi-user safety: caps the number of in-flight requests per
+        host to ``settings.http_max_concurrent_per_host`` (default 4).
+        Without this, N concurrent users planning builds would each
+        send a burst of poe.ninja calls, easily blowing the public
+        rate-limit budget.
+
+        Keyed on hostname only (not full URL) so different paths on
+        the same upstream share the budget — which is the correct
+        unit for rate-limiting purposes.
+        """
+
+        host = httpx.URL(url).host or url  # fallback for malformed URLs
+        sema = self._host_semaphores.get(host)
+        if sema is None:
+            sema = asyncio.Semaphore(self._settings.http_max_concurrent_per_host)
+            self._host_semaphores[host] = sema
+        return sema

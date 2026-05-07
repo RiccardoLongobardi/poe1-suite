@@ -86,6 +86,20 @@ class BuildIntent(BaseModel):
     # --- Constraints ---
     hard_constraints: set[HardConstraint] = Field(default_factory=set)
 
+    # --- Specific skill hint ---
+    # When the user names a specific PoE skill in their query
+    # ("righteous fire", "tornado shot"), the parser surfaces it here
+    # so the recommender can apply a hard server-side filter rather
+    # than relying on the broader damage_profile / playstyle dimensions
+    # alone. Falls back to None when no recognised skill name appears.
+    main_skill_hint: str | None = Field(
+        default=None,
+        description=(
+            "Exact in-game skill name extracted from the query, used as "
+            "a hard filter on the candidate pool when set."
+        ),
+    )
+
     # --- Provenance ---
     confidence: float = Field(..., ge=0.0, le=1.0)
     raw_input: str = Field(..., min_length=1)

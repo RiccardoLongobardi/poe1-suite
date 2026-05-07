@@ -245,6 +245,14 @@ class NinjaBuildsSource:
         params: dict[str, Any] = {"overview": league_url}
         if filt.class_:
             params["class"] = filt.class_
+        # poe.ninja accepts a server-side ``skills`` filter that mirrors
+        # what the web UI's skill picker emits. Match is exact-name on
+        # the in-game gem name; an unknown name silently no-ops (returns
+        # the full pool). We forward whatever the caller put in
+        # ``main_skill`` — the field is documented as a substring filter
+        # but in practice exact in-game names yield the tightest pool.
+        if filt.main_skill:
+            params["skills"] = filt.main_skill
         try:
             body = await self._http.get_bytes(
                 url,
@@ -413,7 +421,16 @@ def _decode_refs(
     life_vl = _value_list(search, "life")
     es_vl = _value_list(search, "energyshield")
     ehp_vl = _value_list(search, "ehp")
+    # When the search is filtered by skill, poe.ninja renames the
+    # column from ``dps`` to ``dps-<skill>`` (e.g. ``dps-Righteous
+    # Fire``). Fall back to whichever ``dps``-prefixed column exists
+    # so the per-skill DPS still surfaces.
     dps_vl = _value_list(search, "dps")
+    if dps_vl is None:
+        dps_vl = next(
+            (vl for vl in search.value_lists if vl.id.startswith("dps-")),
+            None,
+        )
 
     if names_vl is None or accounts_vl is None:
         return []

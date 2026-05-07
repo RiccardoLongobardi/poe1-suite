@@ -35,6 +35,8 @@ from poe1_shared.config import Settings
 from poe1_shared.http import HttpClient, HttpError
 from poe1_shared.logging import get_logger
 
+from .gear import GearProgression, gear_progression_for
+from .gems import GemProgression, gem_progression_for
 from .intent import IntentLlmError, extract_intent
 from .planner import (
     ExtractedTradeMod,
@@ -52,6 +54,7 @@ from .pob import (
     PobParseError,
     PobSnapshot,
     decode_export,
+    encode_pob_code,
     load_pob,
     parse_snapshot,
     snapshot_to_build,
@@ -59,6 +62,7 @@ from .pob import (
 from .pob import clean_mod_lines as _clean_mod_lines
 from .pob import extract_mods as _extract_mod_patterns
 from .ranking import RankingEngine, RecommendRequest, RecommendResponse, SourceAggregator
+from .tree import TreeProgression, encode_pob_tree_url, progression_for
 
 log = get_logger(__name__)
 
@@ -308,6 +312,8 @@ def make_router(settings: Settings) -> APIRouter:
         unified.
         """
 
+        from .planner.templates import pick_template
+
         async with HttpClient(settings) as http:
             build, _ = await _resolve_pob_to_build(payload.input, http=http)
 
@@ -315,16 +321,81 @@ def make_router(settings: Settings) -> APIRouter:
             trade = TradeSource(http=http, league=settings.poe_league)
             planner = PlannerService(pricing, trade=trade)
             plan = await planner.plan(build, target_goal=payload.target_goal)
+            template_name = pick_template(build).name
 
         log.info(
             "fob_plan_ok",
             source_id=build.source_id,
             target_goal=payload.target_goal.value,
+            template_name=template_name,
             stages=len(plan.stages),
             total_min_div=plan.total_estimated_cost.min.amount,
             total_max_div=plan.total_estimated_cost.max.amount,
         )
-        return PlanResponse(build=build, plan=plan)
+        return PlanResponse(build=build, plan=plan, template_name=template_name)
+
+    @router.post(
+        "/plan/reverse",
+        response_model=PlanResponse,
+        summary=(
+            "Like /plan but enriched with per-item upgrade ladders derived "
+            "from the user's endgame KeyItems (Step 13.C — reverse-progression)."
+        ),
+    )
+    async def plan_reverse_endpoint(
+        payload: Annotated[PlanRequest, Body()],
+    ) -> PlanResponse:
+        """Reverse-mode plan: template advice + ladder rationales per stage.
+
+        Same input shape as ``/plan``. Internally:
+
+        1. Build is resolved from the PoB input (same as ``/plan``).
+        2. :class:`PlannerService` is wired with a default
+           :class:`CompositeDegrader` (AwakenedGemDegrader →
+           HardcodedDegrader). This is the same pipeline tests use; it's
+           a sensible default for production but should become
+           configurable when more degraders land (T5+).
+        3. :meth:`PlannerService.plan_reverse` runs the standard plan
+           and then merges the ladder rationales into each stage's
+           ``gem_changes`` list, prefixed with ``[target_name]`` so the
+           UI can group/filter them.
+        """
+
+        from .planner.templates import pick_template
+        from .reverse import (
+            AwakenedGemDegrader,
+            CompositeDegrader,
+            HardcodedDegrader,
+            InfluenceItemDegrader,
+        )
+
+        async with HttpClient(settings) as http:
+            build, _ = await _resolve_pob_to_build(payload.input, http=http)
+
+            pricing = PricingService(http=http, league=settings.poe_league)
+            trade = TradeSource(http=http, league=settings.poe_league)
+            degrader = CompositeDegrader(
+                [
+                    AwakenedGemDegrader(),
+                    HardcodedDegrader(),
+                    InfluenceItemDegrader(),
+                ]
+            )
+            planner = PlannerService(pricing, trade=trade, degrader=degrader)
+            plan = await planner.plan_reverse(build, target_goal=payload.target_goal)
+            template_name = pick_template(build).name
+
+        log.info(
+            "fob_plan_reverse_ok",
+            source_id=build.source_id,
+            target_goal=payload.target_goal.value,
+            template_name=template_name,
+            key_items=len(build.key_items),
+            stages=len(plan.stages),
+            total_min_div=plan.total_estimated_cost.min.amount,
+            total_max_div=plan.total_estimated_cost.max.amount,
+        )
+        return PlanResponse(build=build, plan=plan, template_name=template_name)
 
     @router.post(
         "/plan/stream",
@@ -375,6 +446,69 @@ def make_router(settings: Settings) -> APIRouter:
             media_type="text/event-stream",
             headers={
                 # Disable proxy buffering so events flush immediately.
+                "Cache-Control": "no-cache",
+                "X-Accel-Buffering": "no",
+            },
+        )
+
+    @router.post(
+        "/plan/reverse/stream",
+        summary=(
+            "Stream the reverse-progression plan as Server-Sent Events. "
+            "Same shape as /plan/stream, but the final 'done' event's "
+            "BuildPlan carries per-item ladder rationales (Step 13.C)."
+        ),
+    )
+    async def plan_reverse_stream_endpoint(
+        payload: Annotated[PlanRequest, Body()],
+    ) -> StreamingResponse:
+        """SSE-streamed reverse-progression planning.
+
+        Same input/event shape as ``/plan/stream``: one progress event
+        per :class:`KeyItem` priced + start/done bookends. The ``done``
+        event's ``final_plan`` is post-processed via
+        :meth:`PlannerService._merge_ladder_advice` so consumers see the
+        merged plan with ``[target] rationale`` lines in
+        ``gem_changes`` already included — no second round-trip.
+        """
+
+        from .reverse import (
+            AwakenedGemDegrader,
+            CompositeDegrader,
+            HardcodedDegrader,
+            InfluenceItemDegrader,
+        )
+
+        async with HttpClient(settings) as http:
+            build, _ = await _resolve_pob_to_build(payload.input, http=http)
+
+        async def event_source() -> AsyncIterator[str]:
+            async with HttpClient(settings) as http:
+                pricing = PricingService(http=http, league=settings.poe_league)
+                trade = TradeSource(http=http, league=settings.poe_league)
+                degrader = CompositeDegrader(
+                    [
+                        AwakenedGemDegrader(),
+                        HardcodedDegrader(),
+                        InfluenceItemDegrader(),
+                    ]
+                )
+                planner = PlannerService(pricing, trade=trade, degrader=degrader)
+                async for event in planner.plan_reverse_with_progress(
+                    build, target_goal=payload.target_goal
+                ):
+                    yield _sse_format(event)
+                log.info(
+                    "fob_plan_reverse_stream_ok",
+                    source_id=build.source_id,
+                    target_goal=payload.target_goal.value,
+                    key_items=len(build.key_items),
+                )
+
+        return StreamingResponse(
+            event_source(),
+            media_type="text/event-stream",
+            headers={
                 "Cache-Control": "no-cache",
                 "X-Accel-Buffering": "no",
             },
@@ -438,6 +572,18 @@ def make_router(settings: Settings) -> APIRouter:
             try:
                 search_id, _hashes, total = await trade.search(query)
             except HttpError as err:
+                # 429 Too Many Requests is GGG's strict per-IP rate
+                # limit (~5 searches/min). Surface a user-friendly
+                # message instead of the raw HTTPx error.
+                if err.status_code == 429:
+                    raise HTTPException(
+                        status_code=429,
+                        detail=(
+                            "Trade GGG ti ha temporaneamente bloccato per "
+                            "troppe richieste. Aspetta 30-60 secondi e "
+                            "riprova."
+                        ),
+                    ) from err
                 raise HTTPException(
                     status_code=502,
                     detail=f"GGG Trade search failed: {err}",
@@ -460,6 +606,162 @@ def make_router(settings: Settings) -> APIRouter:
             url=url,
             total_listings=total,
         )
+
+    @router.get(
+        "/tree-progression/{template_name}",
+        response_model=TreeProgression | None,
+        summary=(
+            "Return the per-stage skill-tree progression for a build "
+            "template (Step 14 — Pohx-style stage builds)."
+        ),
+    )
+    async def tree_progression_endpoint(
+        template_name: str,
+    ) -> TreeProgression | None:
+        """Look up the hand-curated tree progression for a template.
+
+        Returns 404-shaped null when no progression has been authored
+        yet for ``template_name`` — the frontend treats this as
+        "tree non disponibile per questo template" and falls back
+        to the gem advice.
+        """
+
+        prog = progression_for(template_name)
+        log.info(
+            "fob_tree_progression_lookup",
+            template_name=template_name,
+            found=prog is not None,
+        )
+        return prog
+
+    @router.get(
+        "/tree-progression/{template_name}/{stage_key}/url",
+        summary=(
+            "Build a passive-skill-tree share URL for a specific stage of a template's progression."
+        ),
+    )
+    async def tree_progression_url_endpoint(
+        template_name: str,
+        stage_key: str,
+        character_class: str = "Marauder",
+        ascendancy: str | None = None,
+    ) -> dict[str, str | None]:
+        """Encode the stage's node set into a pathofexile.com tree URL."""
+
+        prog = progression_for(template_name)
+        if prog is None:
+            return {"url": None}
+        stage = prog.for_stage(stage_key)
+        if stage is None:
+            return {"url": None}
+        url = stage.pob_url or encode_pob_tree_url(
+            node_ids=stage.node_ids,
+            character_class=character_class,
+            ascendancy=ascendancy,
+        )
+        return {"url": url}
+
+    @router.get(
+        "/gear-progression/{template_name}",
+        response_model=GearProgression | None,
+        summary=(
+            "Return the per-stage gear specification for a build template "
+            "(Step 14 T2 — Pohx-style stage gear suite)."
+        ),
+    )
+    async def gear_progression_endpoint(
+        template_name: str,
+    ) -> GearProgression | None:
+        """Look up the hand-curated gear progression for a template."""
+
+        prog = gear_progression_for(template_name)
+        log.info(
+            "fob_gear_progression_lookup",
+            template_name=template_name,
+            found=prog is not None,
+        )
+        return prog
+
+    @router.get(
+        "/gem-progression/{template_name}",
+        response_model=GemProgression | None,
+        summary=(
+            "Return the per-stage gem-link progression for a build template "
+            "(Step 14 T3 — Pohx-style stage gem setup)."
+        ),
+    )
+    async def gem_progression_endpoint(
+        template_name: str,
+    ) -> GemProgression | None:
+        """Look up the hand-curated gem progression for a template.
+
+        Returns null when no progression has been authored. The frontend
+        falls back to the free-form ``gem_changes`` strings already on
+        each PlanStage.
+        """
+
+        prog = gem_progression_for(template_name)
+        log.info(
+            "fob_gem_progression_lookup",
+            template_name=template_name,
+            found=prog is not None,
+        )
+        return prog
+
+    @router.get(
+        "/stage-export/{template_name}/{stage_key}",
+        summary=(
+            "Build a PathOfBuilding-importable code combining the tree, gear "
+            "and gem-link progressions for a single stage of a template."
+        ),
+    )
+    async def stage_export_endpoint(
+        template_name: str,
+        stage_key: str,
+        character_class: str = "Marauder",
+        ascendancy: str | None = None,
+        level: int = 90,
+    ) -> dict[str, str | None]:
+        """Compose a Step 14 PoB export code for one stage.
+
+        Looks up the registered TreeProgression / GearProgression /
+        GemProgression for ``template_name``, finds the slice for
+        ``stage_key`` in each, and pipes them through the encoder.
+        Returns ``{"code": null}`` when the template has no tree
+        progression yet (tree is the only required input — gear and
+        gems are optional and gracefully omitted when missing).
+        """
+
+        tree_prog = progression_for(template_name)
+        if tree_prog is None:
+            return {"code": None, "stage_key": stage_key, "template_name": template_name}
+        stage_tree = tree_prog.for_stage(stage_key)
+        if stage_tree is None:
+            return {"code": None, "stage_key": stage_key, "template_name": template_name}
+
+        gear_prog = gear_progression_for(template_name)
+        stage_gear = gear_prog.for_stage(stage_key) if gear_prog is not None else None
+
+        gem_prog = gem_progression_for(template_name)
+        stage_gems = gem_prog.for_stage(stage_key) if gem_prog is not None else None
+
+        code = encode_pob_code(
+            character_class=character_class,
+            ascendancy=ascendancy,
+            tree=stage_tree,
+            gear=stage_gear,
+            gems=stage_gems,
+            level=level,
+        )
+        log.info(
+            "fob_stage_export_ok",
+            template_name=template_name,
+            stage_key=stage_key,
+            character_class=character_class,
+            has_gear=stage_gear is not None,
+            has_gems=stage_gems is not None,
+        )
+        return {"code": code, "stage_key": stage_key, "template_name": template_name}
 
     @router.post(
         "/extract-trade-mods",

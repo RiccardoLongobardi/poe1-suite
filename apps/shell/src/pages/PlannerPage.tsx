@@ -16,14 +16,16 @@ import {
   Progress,
   SegmentedControl,
   Stack,
+  Switch,
   Text,
   Textarea,
   ThemeIcon,
   Title,
+  Tooltip,
 } from "@mantine/core";
 import { IconClock, IconCoinFilled, IconStack3 } from "@tabler/icons-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { planBuildStream } from "../api/fob";
+import { planBuildReverseStream, planBuildStream } from "../api/fob";
 import type {
   Build,
   BuildPlan,
@@ -181,11 +183,14 @@ interface Props {
 interface PlanResult {
   build: Build;
   plan: BuildPlan;
+  /** Identifier of the template the planner picked (Step 14 T5+). */
+  templateName: string | null;
 }
 
 export function PlannerPage({ initialInput }: Props) {
   const [input, setInput] = useState(initialInput ?? "");
   const [target, setTarget] = useState<TargetGoal>("mapping_and_boss");
+  const [reverseMode, setReverseMode] = useState(false);
   const [progress, setProgress] = useState<PricingProgress | null>(null);
   const [result, setResult] = useState<PlanResult | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -207,27 +212,34 @@ export function PlannerPage({ initialInput }: Props) {
     setRunning(true);
 
     try {
+      // Both template and reverse modes stream via SSE so the UI gets
+      // per-item progress + ETA. Reverse mode's 'done' event carries
+      // the merged plan with [target] ladder rationales.
+      const stream = reverseMode
+        ? planBuildReverseStream(input, target, ctrl.signal)
+        : planBuildStream(input, target, ctrl.signal);
       let lastEvent: PricingProgress | null = null;
-      for await (const event of planBuildStream(input, target, ctrl.signal)) {
+      for await (const event of stream) {
         if (ctrl.signal.aborted) return;
         lastEvent = event;
         setProgress(event);
       }
-      // The 'done' event carries the BuildPlan; we can't know the Build
-      // separately from the stream, so we render the plan with a
-      // stand-in synthesized from final_plan's source id.
+      // The 'done' event carries the BuildPlan + (Step 14 T5+) the
+      // analyzed Build summary and the picked template name. Older
+      // server versions return only `final_plan`, so we still
+      // synthesize a stub Build when those fields are missing.
       if (lastEvent?.kind === "done" && lastEvent.final_plan) {
-        // Fetch build separately via /analyze-pob? For now we synthesize
-        // a minimal Build header from the plan's source id.
+        const stubBuild: Build = {
+          source_id: lastEvent.final_plan.build_source_id,
+          character_class: "",
+          ascendancy: null,
+          main_skill: null,
+          level: 1,
+        };
         setResult({
-          build: {
-            source_id: lastEvent.final_plan.build_source_id,
-            character_class: "",
-            ascendancy: null,
-            main_skill: null,
-            level: 1,
-          },
+          build: lastEvent.build ?? stubBuild,
           plan: lastEvent.final_plan,
+          templateName: lastEvent.template_name ?? null,
         });
       }
     } catch (err) {
@@ -237,7 +249,7 @@ export function PlannerPage({ initialInput }: Props) {
     } finally {
       setRunning(false);
     }
-  }, [input, target, running]);
+  }, [input, target, reverseMode, running]);
 
   // Auto-trigger when the page is opened with a pre-filled PoB code
   // (coming from Build Finder "Pianifica →" button).
@@ -297,6 +309,22 @@ export function PlannerPage({ initialInput }: Props) {
         </Group>
       </Group>
 
+      <Group gap={8}>
+        <Tooltip
+          multiline
+          w={320}
+          label="Quando attivo, ogni KeyItem endgame della tua build genera una upgrade ladder personalizzata (Mageblood → Bottled Faith → flask rare; Awakened gem 5 → 1 → support regular). Le rationale dei rung vengono mostrate nei rispettivi stage."
+          withArrow
+        >
+          <Switch
+            checked={reverseMode}
+            onChange={(e) => setReverseMode(e.currentTarget.checked)}
+            label="Modalità reverse-progression (sperimentale)"
+            size="sm"
+          />
+        </Tooltip>
+      </Group>
+
       {error && (
         <Alert color="red" title="Errore">
           {error}
@@ -312,7 +340,14 @@ export function PlannerPage({ initialInput }: Props) {
           <Divider my="xs" label="Stage" labelPosition="center" />
           <Stack gap="md">
             {result.plan.stages.map((s, i) => (
-              <StageCard key={s.label} stage={s} index={i} />
+              <StageCard
+                key={s.label}
+                stage={s}
+                index={i}
+                templateName={result.templateName}
+                characterClass={result.build.character_class || null}
+                ascendancy={result.build.ascendancy ?? null}
+              />
             ))}
           </Stack>
         </>
