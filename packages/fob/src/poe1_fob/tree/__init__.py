@@ -24,11 +24,17 @@ from __future__ import annotations
 
 from .models import StageTree, TreeProgression
 from .pob_url import encode_pob_tree_url
-from .progressions import PROGRESSION_REGISTRY, RF_POHX_PROGRESSION, progression_for
+from .progressions import (
+    PROGRESSION_REGISTRY,
+    RF_POHX_PROGRESSION,
+    SPECTRE_NECRO_PROGRESSION,
+    progression_for,
+)
 
 __all__ = [
     "PROGRESSION_REGISTRY",
     "RF_POHX_PROGRESSION",
+    "SPECTRE_NECRO_PROGRESSION",
     "StageTree",
     "TreeProgression",
     "encode_pob_tree_url",
