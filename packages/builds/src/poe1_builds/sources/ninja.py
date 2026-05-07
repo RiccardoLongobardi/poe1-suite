@@ -421,7 +421,16 @@ def _decode_refs(
     life_vl = _value_list(search, "life")
     es_vl = _value_list(search, "energyshield")
     ehp_vl = _value_list(search, "ehp")
+    # When the search is filtered by skill, poe.ninja renames the
+    # column from ``dps`` to ``dps-<skill>`` (e.g. ``dps-Righteous
+    # Fire``). Fall back to whichever ``dps``-prefixed column exists
+    # so the per-skill DPS still surfaces.
     dps_vl = _value_list(search, "dps")
+    if dps_vl is None:
+        dps_vl = next(
+            (vl for vl in search.value_lists if vl.id.startswith("dps-")),
+            None,
+        )
 
     if names_vl is None or accounts_vl is None:
         return []
