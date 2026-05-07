@@ -91,10 +91,12 @@ class SourceAggregator:
         # Without the EHP slice, RF Jugg never enters the pool and
         # the ranker can't surface it for fire+degen_aura queries.
         #
-        # Total cap stays around 100 to keep the hydrate time under
-        # ~20 s with concurrency=8 on a warm cache.
-        by_dps = sorted(snapshot.refs, key=lambda r: r.dps or 0, reverse=True)[:60]
-        by_ehp = sorted(snapshot.refs, key=lambda r: r.ehp or 0, reverse=True)[:60]
+        # Conservative caps: poe.ninja's character endpoint rate-limits
+        # us at 429 with bursts above ~5 RPS sustained. 40 builds @
+        # concurrency=3 ~= 14 s with a warm cache, comfortably under
+        # the threshold. Cache TTL (default 1h) makes repeats fast.
+        by_dps = sorted(snapshot.refs, key=lambda r: r.dps or 0, reverse=True)[:25]
+        by_ehp = sorted(snapshot.refs, key=lambda r: r.ehp or 0, reverse=True)[:25]
         # Dedup while preserving order (DPS sample first, EHP fills the rest).
         seen: set[str] = set()
         merged: list[RemoteBuildRef] = []
@@ -103,14 +105,14 @@ class SourceAggregator:
                 continue
             seen.add(ref.source_id)
             merged.append(ref)
-        top_refs = tuple(merged[:100])
+        top_refs = tuple(merged[:40])
         if not top_refs:
             return ()
 
         try:
             full_builds = await asyncio.wait_for(
-                svc.hydrate(top_refs, concurrency=8),
-                timeout=timeout * 3,  # hydrate is slower than the list call
+                svc.hydrate(top_refs, concurrency=3),
+                timeout=timeout * 4,  # hydrate is slower than the list call
             )
         except TimeoutError:
             log.warning("source_aggregator_hydrate_timeout", refs=len(top_refs))
