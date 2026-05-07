@@ -69,6 +69,11 @@ export function IntentCard({ intent }: Props) {
         </Group>
 
         <Group gap={6} wrap="wrap">
+          {intent.main_skill_hint && (
+            <Badge color="grape" variant="filled" tt="uppercase" size="sm">
+              skill: {intent.main_skill_hint}
+            </Badge>
+          )}
           {pill(intent.damage_profile, "orange")}
           {pill(intent.playstyle, "violet")}
           {pill(intent.defense_profile, "blue")}

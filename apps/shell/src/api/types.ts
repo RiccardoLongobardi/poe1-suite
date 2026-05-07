@@ -111,6 +111,7 @@ export interface BuildIntent {
   complexity_cap: ComplexityLevel | null;
   defense_profile: DefenseProfile | null;
   hard_constraints: HardConstraint[];
+  main_skill_hint: string | null;
   confidence: number;
   raw_input: string;
   parser_origin: ParserOrigin;
