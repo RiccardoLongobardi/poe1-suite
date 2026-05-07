@@ -25,7 +25,7 @@ FROM python:3.12-slim-bookworm AS builder
 
 # uv via the official prebuilt static binary. Pin to a tested version
 # so build is reproducible.
-COPY --from=ghcr.io/astral-sh/uv:0.5.4 /uv /uvx /bin/
+COPY --from=ghcr.io/astral-sh/uv:0.11.7 /uv /uvx /bin/
 
 ENV UV_LINK_MODE=copy \
     UV_COMPILE_BYTECODE=1 \
