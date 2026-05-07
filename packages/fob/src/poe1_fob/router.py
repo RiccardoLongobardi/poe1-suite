@@ -59,6 +59,7 @@ from .pob import (
 from .pob import clean_mod_lines as _clean_mod_lines
 from .pob import extract_mods as _extract_mod_patterns
 from .ranking import RankingEngine, RecommendRequest, RecommendResponse, SourceAggregator
+from .tree import TreeProgression, encode_pob_tree_url, progression_for
 
 log = get_logger(__name__)
 
@@ -595,6 +596,60 @@ def make_router(settings: Settings) -> APIRouter:
             url=url,
             total_listings=total,
         )
+
+    @router.get(
+        "/tree-progression/{template_name}",
+        response_model=TreeProgression | None,
+        summary=(
+            "Return the per-stage skill-tree progression for a build "
+            "template (Step 14 — Pohx-style stage builds)."
+        ),
+    )
+    async def tree_progression_endpoint(
+        template_name: str,
+    ) -> TreeProgression | None:
+        """Look up the hand-curated tree progression for a template.
+
+        Returns 404-shaped null when no progression has been authored
+        yet for ``template_name`` — the frontend treats this as
+        "tree non disponibile per questo template" and falls back
+        to the gem advice.
+        """
+
+        prog = progression_for(template_name)
+        log.info(
+            "fob_tree_progression_lookup",
+            template_name=template_name,
+            found=prog is not None,
+        )
+        return prog
+
+    @router.get(
+        "/tree-progression/{template_name}/{stage_key}/url",
+        summary=(
+            "Build a passive-skill-tree share URL for a specific stage of a template's progression."
+        ),
+    )
+    async def tree_progression_url_endpoint(
+        template_name: str,
+        stage_key: str,
+        character_class: str = "Marauder",
+        ascendancy: str | None = None,
+    ) -> dict[str, str | None]:
+        """Encode the stage's node set into a pathofexile.com tree URL."""
+
+        prog = progression_for(template_name)
+        if prog is None:
+            return {"url": None}
+        stage = prog.for_stage(stage_key)
+        if stage is None:
+            return {"url": None}
+        url = stage.pob_url or encode_pob_tree_url(
+            node_ids=stage.node_ids,
+            character_class=character_class,
+            ascendancy=ascendancy,
+        )
+        return {"url": url}
 
     @router.post(
         "/extract-trade-mods",
