@@ -31,6 +31,7 @@ import { useDisclosure } from "@mantine/hooks";
 import {
   IconCheck,
   IconCopy,
+  IconExternalLink,
   IconListCheck,
   IconSparkles,
 } from "@tabler/icons-react";
@@ -276,13 +277,32 @@ export function BuildCard({ build, onSendToPlanner }: Props) {
               </Button>
             )}
             <Tooltip
+              label="Apri il profilo poe.ninja in una nuova scheda"
+              withArrow
+              position="top"
+            >
+              <Button
+                size="xs"
+                variant="light"
+                color="blue"
+                leftSection={<IconExternalLink size={13} />}
+                component="a"
+                href={poeNinjaUrl(ref.league, ref.account, ref.character)}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+              >
+                Apri PoB
+              </Button>
+            </Tooltip>
+            <Tooltip
               label={linkCopied ? "Link copiato!" : "Copia link poe.ninja"}
               withArrow
               position="top"
             >
               <Button
                 size="xs"
-                variant="subtle"
+                variant="light"
                 color={linkCopied ? "teal" : "astral"}
                 leftSection={
                   linkCopied ? <IconCheck size={13} /> : <IconCopy size={13} />
