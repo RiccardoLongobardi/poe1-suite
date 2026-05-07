@@ -52,15 +52,20 @@ class SourceAggregator:
             timeout: Per-source wall-clock timeout in seconds.  Exceeded
                      sources contribute zero refs (fail-open).
         """
-        # intent is reserved for future per-source routing; suppress lint.
-        _ = intent
-
         league = self._settings.poe_league
         svc = BuildsService(http=http, league=league)
 
+        # When the user named a specific skill ("righteous fire"), use
+        # poe.ninja's server-side skill filter to pre-narrow the pool.
+        # Without this, only ~5% of fire builds are RF and they'd never
+        # bubble up. With the filter, 100% of the pool is RF builds and
+        # we can hydrate / rank just those.
+        skill_filter = intent.main_skill_hint
+        build_filter = BuildFilter(main_skill=skill_filter) if skill_filter else BuildFilter()
+
         try:
             snapshot = await asyncio.wait_for(
-                svc.fetch_refs(BuildFilter()),
+                svc.fetch_refs(build_filter),
                 timeout=timeout,
             )
         except TimeoutError:
@@ -77,7 +82,17 @@ class SourceAggregator:
             source="poe_ninja",
             league=league,
             refs=len(snapshot.refs),
+            skill_filter=skill_filter,
         )
+
+        # Fast path: when the user named a specific skill, the pool is
+        # already filtered server-side and every ref uses that skill.
+        # Inject the skill name into each ref so the ranker can score
+        # without an expensive hydrate round-trip.
+        if skill_filter:
+            return tuple(
+                ref.model_copy(update={"main_skill": skill_filter}) for ref in snapshot.refs[:200]
+            )
 
         # Hydrate top-N candidates so the ranking engine sees
         # ``main_skill``. The protobuf list endpoint does not expose
