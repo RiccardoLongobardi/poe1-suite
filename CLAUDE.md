@@ -36,7 +36,7 @@ uv run pytest
 
 All four must pass with zero errors. Current baseline: **565 tests green (2 skipped — integration/LLM), 95 files type-checked clean, 93 files formatted clean**. Frontend build 510 KB / 160 KB gzip.
 
-## What's built (state as of 2026-04-25, end of Step 8 — FOB completo)
+## What's built (state as of 2026-05-14, Step 14 T5 — Pohx-style stage UI)
 
 | Module | Package | Routes | Status |
 |---|---|---|---|
@@ -498,7 +498,43 @@ Endpoint:
 
 Baseline: 597 verdi (+12 da T2) / 108 mypy file / 106 format file.
 
-**Prossimo: T4 PoB XML encoder** (build → PoB code importabile in PathOfBuilding desktop).
+**T4 — PoB XML encoder + /fob/stage-export endpoint** ✅ done (2026-05-14).
+
+Nuovo `packages/fob/src/poe1_fob/pob/encode.py`:
+- `encode_pob_code(*, character_class, ascendancy, tree, gear?, gems?, level=90)` → codice PoB url-safe-base64 + zlib, importabile in PathOfBuilding desktop.
+- `_build_xml()` costruisce `<PathOfBuilding version="2">` con `<Build>`, `<Tree><Spec nodes URL/>`, `<Skills>`, `<Items>` (placeholder per ogni slot non-skip), `<Notes>`.
+- Class IDs map (Scion=0..Shadow=6) + Ascendancy IDs map (Juggernaut=1, Berserker=2, ...).
+- `_quality_id` mappa `alt_quality` → PoB `qualityId` (Default/Alternate1/2/3 = Anomalous/Divergent/Phantasmal).
+- `_slot_to_pob_label` mappa `ItemSlot` enum a PoB labels ("Helmet", "Body Armour", "Weapon 1", ecc).
+- `encode_minimal_tree_pob()` wrapper tree-only (per affordance "Apri tree in PoB" senza items/gems).
+
+Bug fix collaterale in `tree/pob_url.py`: l'header del tree URL era 6 byte (`>IBB`) invece di 8 — i node ID cadevano 2 byte prima rispetto a quello che il parser PoE/PoB legge (offset 8). Aggiunti 2 flag bytes a 0 dopo class+ascendancy.
+
+Endpoint:
+- `GET /fob/stage-export/{template_name}/{stage_key}?character_class=&ascendancy=&level=` → `{template_name, stage_key, code}`. Compone Tree + Gear + Gem progression dello stage in un singolo codice PoB. Tree obbligatorio (null se template senza progression); gear+gems opzionali.
+
+12 nuovi test (`test_pob_encode.py`): basic shape (url-safe no padding), `encode_minimal_tree_pob` wrapper, roundtrip class+ascendancy+level via decode_export+parse_snapshot, roundtrip node IDs via tree URL, full encode con gear+gems, gem attributes preservati, kind='skip' onorato, no-ascendancy supportato, unknown class fallback, valid base64 invariant, roundtrip per tutte le 7 classi, garbage → PobParseError.
+
+Baseline: 609 verdi (+12 da T3) / 110 mypy file / 108 format file.
+
+**T5 — UI tabs StageCard + Importa in PoB** ✅ done (2026-05-14).
+
+Backend:
+- `PlanStage.stage_key` (snake_case, optional) → la UI sa quale slice di Tree/Gear/GemProgression chiedere. Default None per backward-compat.
+- `PlanResponse.template_name` + `PricingProgress.template_name` + `PricingProgress.build` sull'evento `done` SSE → il client streaming ha tutto senza un secondo analyze-pob round-trip.
+- `/fob/plan`, `/fob/plan/reverse`, `/fob/plan/stream`, `/fob/plan/reverse/stream` populano `template_name` via `pick_template(build).name`.
+
+Frontend:
+- 4 nuovi API client in `apps/shell/src/api/fob.ts`: `fetchTreeProgression`, `fetchGearProgression`, `fetchGemProgression`, `fetchStageExport`. Helper `get<T>(path)` per le GET.
+- Tipi corrispondenti in `types.ts`: `StageTree`, `StageGearSet`, `StageGemLinks`, `TreeProgression`, `GearProgression`, `GemProgression`, `StageExportResponse`, `GearKind`, `AltQuality`, `GemSpec`, `GemLink`, `StageGearSlot`.
+- StageCard riscritta con `<Tabs variant="pills">`: **Overview** (rationale + items + gem ladder come prima) / **Tree** (count nodi + notables + ascendancy + link tree URL) / **Gear** (tabella per-slot con kind badge + note) / **Gems** (card per ogni link group con sockets/colori + lista gemme con level/quality/alt-quality/note).
+- Lazy fetch: ogni tab chiama il suo endpoint solo al primo click. Stati `undefined` (non chiesto) / `null` (template senza progression) / oggetto (dati pronti).
+- **Bottone "Importa stage in PoB"**: scarica il codice da `/fob/stage-export`, lo copia nel clipboard, mostra preview Code block dei primi 240 caratteri + `<CopyButton>` per ri-copiare. Gestione errori in italiano.
+- `PlannerPage` cattura `template_name` + `build` dall'evento SSE done e li passa a StageCard.
+
+Baseline: 609 verdi / 110 mypy / 108 format. Frontend build 526 KB / 165 KB gzip.
+
+**Prossimi: T6 espandi template (Vortex Occultist + Spark Inquisitor + Bone Spear Necro + Cyclone Slayer + Spectre Necro), T1.6 rimpiazza node ID placeholder RF con cattura PoB reale, eventuale T4.5 emissione items completa nel PoB (non solo placeholder).**
 
 Pattern di degrader esteso oltre il table lookup:
 - **Table-keyed** (`HardcodedDegrader`): mapping name → rung factory. Buono per uniques iconici noti.
