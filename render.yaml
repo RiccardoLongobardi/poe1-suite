@@ -34,10 +34,12 @@ services:
     autoDeploy: true
     healthCheckPath: /health
     envVars:
-      # Render sets PORT itself; we pin it for clarity. The Dockerfile
-      # already binds HOST=0.0.0.0 so the service is reachable.
-      - key: PORT
-        value: "8080"
+      # PORT is injected by Render automatically and MUST NOT be set
+      # here — if we pin it, the proxy may route to a different port
+      # than the one the app actually binds. The `run()` entrypoint in
+      # apps/server/main.py reads PORT from env so the app picks up
+      # whatever Render assigns. The Dockerfile ENV PORT=8080 is just
+      # a local-dev fallback.
       - key: HOST
         value: "0.0.0.0"
       - key: ENVIRONMENT
