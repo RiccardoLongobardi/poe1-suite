@@ -70,10 +70,10 @@ RF_POHX_GEM_PROGRESSION = GemProgression(
                         _g("Frostblink", level=8, quality=0),
                         _g("Flame Dash", level=8, quality=0),
                         _g(
-                            "Quicksilver Flask",
-                            level=1,
+                            "Clarity",
+                            level=5,
                             quality=0,
-                            notes="placeholder Decoy/Vaal slot",
+                            notes="aura mana regen leveling — swap per Decoy Totem nel late atto",
                         ),
                     ),
                     notes="Movement skills.",

@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import base64
+import xml.etree.ElementTree as ET
+import zlib
 
 import pytest
 
@@ -282,6 +284,108 @@ def test_roundtrip_for_each_class() -> None:
         )
         snap = parse_snapshot(decode_export(code), export_code=code)
         assert snap.character_class.value == cls.lower(), f"failed for {cls}"
+
+
+# ---------------------------------------------------------------------------
+# skillId and Rarity correctness
+# ---------------------------------------------------------------------------
+
+
+def _decode_xml(code: str) -> ET.Element:
+    """Decompress a PoB code and parse it as XML."""
+
+    padded = code + "=" * (-len(code) % 4)
+    raw = zlib.decompress(base64.urlsafe_b64decode(padded))
+    return ET.fromstring(raw)
+
+
+def test_support_gem_skill_id_has_support_prefix() -> None:
+    """Support gems must produce skillId='Support<BaseName>', not '<Name>Support'."""
+
+    tree = StageTree(stage_key="mid_campaign", node_ids=(1,))
+    gems = StageGemLinks(
+        stage_key="mid_campaign",
+        links=(
+            GemLink(
+                slot=ItemSlot.BODY_ARMOUR,
+                sockets=2,
+                gems=(
+                    GemSpec(name="Righteous Fire", level=20, quality=20),
+                    GemSpec(
+                        name="Burning Damage Support",
+                        level=20,
+                        quality=20,
+                        is_support=True,
+                    ),
+                ),
+            ),
+        ),
+    )
+    code = encode_pob_code(
+        character_class="Marauder",
+        ascendancy="Juggernaut",
+        tree=tree,
+        gems=gems,
+    )
+    root = _decode_xml(code)
+    gem_elems = root.findall(".//Gem")
+    skill_ids = {g.attrib["skillId"] for g in gem_elems}
+    # Active skill: no "Support" prefix, no trailing "Support"
+    assert "RighteousFire" in skill_ids
+    # Support gem: "Support" prefix, NOT the naive name.replace(" ", "")
+    assert "SupportBurningDamage" in skill_ids
+    assert "BurningDamageSupport" not in skill_ids
+
+
+def test_unique_item_rarity_is_unique_in_xml() -> None:
+    """kind='unique' items must have Rarity: UNIQUE in the item body."""
+
+    tree = StageTree(stage_key="early_campaign", node_ids=(1,))
+    gear = StageGearSet(
+        stage_key="early_campaign",
+        slots=(
+            StageGearSlot(
+                slot=ItemSlot.BODY_ARMOUR,
+                item_name="Kaom's Heart",
+                kind="unique",
+            ),
+        ),
+    )
+    code = encode_pob_code(
+        character_class="Marauder",
+        ascendancy="Juggernaut",
+        tree=tree,
+        gear=gear,
+    )
+    root = _decode_xml(code)
+    item_texts = [item.text or "" for item in root.findall(".//Item")]
+    assert any("Rarity: UNIQUE" in t and "Kaom's Heart" in t for t in item_texts)
+
+
+def test_rare_craft_item_rarity_is_rare_in_xml() -> None:
+    """kind='rare_craft' items must have Rarity: RARE (not UNIQUE) in the item body."""
+
+    tree = StageTree(stage_key="mid_campaign", node_ids=(1,))
+    gear = StageGearSet(
+        stage_key="mid_campaign",
+        slots=(
+            StageGearSlot(
+                slot=ItemSlot.HELMET,
+                item_name="rare helmet (life + 2 res)",
+                kind="rare_craft",
+            ),
+        ),
+    )
+    code = encode_pob_code(
+        character_class="Marauder",
+        ascendancy="Juggernaut",
+        tree=tree,
+        gear=gear,
+    )
+    root = _decode_xml(code)
+    item_texts = [item.text or "" for item in root.findall(".//Item")]
+    assert any("Rarity: RARE" in t for t in item_texts)
+    assert not any("Rarity: UNIQUE" in t for t in item_texts)
 
 
 # ---------------------------------------------------------------------------

@@ -253,7 +253,7 @@ def _build_xml(
                 "Item",
                 attrib={"id": str(idx)},
             )
-            item.text = _placeholder_item_body(slot_spec.item_name, slot_spec.slot)
+            item.text = _placeholder_item_body(slot_spec.item_name, slot_spec.slot, slot_spec.kind)
             ET.SubElement(
                 item_set,
                 "Slot",
@@ -276,6 +276,21 @@ def _build_xml(
     return ET.tostring(root, encoding="unicode", xml_declaration=False)
 
 
+def _skill_id(gem: GemSpec) -> str:
+    """Derive PoB's internal skillId from the gem name.
+
+    Support gems: "Support" prefix + base name (trailing " Support" stripped,
+    spaces removed). E.g. "Burning Damage Support" → "SupportBurningDamage".
+    Active gems: name with spaces removed. E.g. "Righteous Fire" →
+    "RighteousFire".
+    """
+
+    if gem.is_support:
+        base = gem.name.removesuffix(" Support").replace(" ", "")
+        return f"Support{base}"
+    return gem.name.replace(" ", "")
+
+
 def _gem_element(parent: ET.Element, gem: GemSpec) -> ET.Element:
     """Add a <Gem> child describing ``gem`` to ``parent``."""
 
@@ -283,7 +298,7 @@ def _gem_element(parent: ET.Element, gem: GemSpec) -> ET.Element:
         parent,
         "Gem",
         attrib={
-            "skillId": gem.name.replace(" ", ""),  # PoB uses CamelCase ids
+            "skillId": _skill_id(gem),
             "nameSpec": gem.name,
             "level": str(gem.level),
             "quality": str(gem.quality),
@@ -325,17 +340,25 @@ def _slot_to_pob_label(slot: ItemSlot) -> str:
     }.get(slot, "Unknown")
 
 
-def _placeholder_item_body(item_name: str, slot: ItemSlot) -> str:
+def _placeholder_item_body(item_name: str, slot: ItemSlot, kind: str) -> str:
     """Minimal item declaration PoB will accept on import.
 
     PoB is lenient: an item with just Rarity + name + base lines is
     enough to populate a slot. The user can edit/replace inside PoB.
     Mod tiers are deliberately omitted — this is "scaffolding" not a
     fully crafted item.
+
+    Unique items use the actual item name so PoB can look up the correct
+    implicit/explicit block from its data. Rare / leveling items use a
+    slot-derived name and Rarity RARE so PoB shows them as rares rather
+    than trying to match a non-existent unique name.
     """
 
     base = _slot_default_base(slot)
-    return f"\nRarity: UNIQUE\n{item_name}\n{base}\nImplicits: 0\n"
+    if kind == "unique":
+        return f"\nRarity: UNIQUE\n{item_name}\n{base}\nImplicits: 0\n"
+    display_name = f"Crafted {_slot_to_pob_label(slot)}"
+    return f"\nRarity: RARE\n{display_name}\n{base}\nImplicits: 0\n"
 
 
 def _slot_default_base(slot: ItemSlot) -> str:
