@@ -32,7 +32,9 @@ venv.bak/
 
 # uv
 .uv/
-uv.lock
+# uv.lock IS committed: needed for reproducible Docker builds on
+# Render (the build runs `uv sync --locked` and fails without it).
+# uv.lock
 
 # Testing / coverage
 .pytest_cache/
