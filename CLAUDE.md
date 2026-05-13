@@ -404,13 +404,13 @@ Smoke test risultati:
 
 Fly.io trial scaduto e richiede carta di credito anche per il free tier. Migrato il backend a **Render** che ha free tier permanente:
 
-- **Backend nuovo**: https://fob-api.onrender.com (Render free tier, region Frankfurt, 512MB RAM, spin-down dopo 15 min idle, ~30s cold start dopo wake)
+- **Backend nuovo**: https://fob-api-rtgg.onrender.com (Render free tier, region Frankfurt, 512MB RAM, spin-down dopo 15 min idle, ~30s cold start dopo wake)
 - **`render.yaml`** al root del repo: blueprint Render che provisiona un web service `fob-api` dal `Dockerfile` esistente. `autoDeploy: true` → push su main = redeploy.
 - **Dockerfile invariato**: stesso multi-stage uv 0.11.7 builder che usavamo su Fly. Render rebuilda dalla blueprint.
 - **`fly.toml` rimosso** dal repo (non più rilevante).
 - **`.env.production.example`** aggiornato (CACHE_DIR=/tmp/.cache_http, no più volume mount; tutto ephemeral).
 - **`docs/DEPLOY.md`** riscritto end-to-end per il flusso Render (sign-up → New Blueprint → connect repo → set POE_LEAGUE + CORS_ALLOWED_ORIGINS dal dashboard).
-- **Vercel `VITE_API_BASE`**: da aggiornare a `https://fob-api.onrender.com` dopo che Render ha fatto il primo deploy + ridistribuire la prod build.
+- **Vercel `VITE_API_BASE`**: da aggiornare a `https://fob-api-rtgg.onrender.com` dopo che Render ha fatto il primo deploy + ridistribuire la prod build.
 
 Secrets da settare su Render (dashboard service → Environment):
 - `POE_LEAGUE=Mirage`

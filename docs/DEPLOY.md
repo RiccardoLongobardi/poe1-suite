@@ -72,7 +72,7 @@ with health-check-gated rollover, and serves the new version.
 
 Verify:
 ```bash
-curl https://fob-api.onrender.com/health
+curl https://fob-api-rtgg.onrender.com/health
 ```
 
 The first request after an idle period may take ~30 s while the
@@ -104,7 +104,7 @@ render logs fob-api --tail
    * **Build command**: `npm run build`
    * **Output directory**: `dist`
 4. **Environment variables** (Project Settings → Environment Variables):
-   * `VITE_API_BASE` = `https://fob-api.onrender.com`
+   * `VITE_API_BASE` = `https://fob-api-rtgg.onrender.com`
 5. **Deploy** — Vercel builds and pushes to
    `https://<project-name>.vercel.app`.
 
@@ -116,7 +116,7 @@ If you previously pointed the frontend at `https://fob-api.fly.dev`,
 update the env var:
 
 1. Vercel dashboard → Project → Settings → Environment Variables.
-2. Change `VITE_API_BASE` to `https://fob-api.onrender.com`.
+2. Change `VITE_API_BASE` to `https://fob-api-rtgg.onrender.com`.
 3. **Redeploy** the latest production build (Deployments → … →
    Redeploy → uncheck "Use existing build cache" so the new env var
    is picked up).
