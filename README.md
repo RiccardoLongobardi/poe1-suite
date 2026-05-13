@@ -2,7 +2,7 @@
 
 A mono-repo of Path of Exile 1 tools. Each tool is a Python package under `packages/`, composed at runtime by `apps/server/` (FastAPI) and a shared frontend `apps/shell/` (React + Vite + Mantine).
 
-🌐 **Live FOB**: https://fob-ten.vercel.app · API: https://fob-api.fly.dev/health
+🌐 **Live FOB**: https://fob-ten.vercel.app · API: https://fob-api.onrender.com/health
 
 > Path of Exile is a trademark of Grinding Gear Games. This project is an independent fan-made utility.
 
@@ -70,7 +70,7 @@ See [`docs/architecture.md`](docs/architecture.md) for the full design: module p
 
 ## Production deploy
 
-The backend ships as a Docker image (FastAPI + uv venv) and the frontend as a Vite static SPA. The full operational playbook lives in [`docs/DEPLOY.md`](docs/DEPLOY.md) (Fly.io for the API, Vercel for the SPA).
+The backend ships as a Docker image (FastAPI + uv venv) and the frontend as a Vite static SPA. The full operational playbook lives in [`docs/DEPLOY.md`](docs/DEPLOY.md) (Render for the API via the [`render.yaml`](render.yaml) blueprint, Vercel for the SPA).
 
 Local Docker smoke test:
 

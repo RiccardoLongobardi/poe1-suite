@@ -1,0 +1,54 @@
+# Render Blueprint for poe1-suite backend.
+#
+# How to use:
+#   1. Sign in on https://render.com.
+#   2. New → Blueprint → connect this GitHub repo.
+#   3. Render reads this file and provisions the service.
+#   4. Set the env vars marked `sync: false` (POE_LEAGUE,
+#      CORS_ALLOWED_ORIGINS) from the dashboard once the service exists.
+#   5. First build takes ~5 min (uv sync + Docker layer); subsequent
+#      pushes to `main` auto-deploy in ~2 min.
+#
+# Notes on the free tier:
+# * 512 MB RAM, 0.1 CPU shared. Enough for FOB's async workload.
+# * Spins down after 15 min of inactivity. First request after a
+#   spin-down takes ~30 s to wake the container — frontend should
+#   show a "warming up" message on the initial /health probe.
+# * Auto-deploys from the branch listed below on every push.
+# * Free SSL on the *.onrender.com hostname.
+#
+# Persistent disk:
+# * Free tier doesn't include disks. The diskcache used by
+#   poe1_shared.http lives ephemerally in the container fs and is
+#   wiped on every redeploy / restart. That's fine — poe.ninja
+#   responses are only cached for ~15 min anyway.
+
+services:
+  - type: web
+    name: fob-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    region: frankfurt
+    branch: main
+    autoDeploy: true
+    healthCheckPath: /health
+    envVars:
+      # Render sets PORT itself; we pin it for clarity. The Dockerfile
+      # already binds HOST=0.0.0.0 so the service is reachable.
+      - key: PORT
+        value: "8080"
+      - key: HOST
+        value: "0.0.0.0"
+      - key: ENVIRONMENT
+        value: production
+      - key: LOG_FORMAT
+        value: json
+      - key: CACHE_DIR
+        value: /tmp/.cache_http
+      # Set from the Render dashboard (or via `render env` CLI). Marked
+      # sync: false so they don't ship in source control.
+      - key: POE_LEAGUE
+        sync: false
+      - key: CORS_ALLOWED_ORIGINS
+        sync: false

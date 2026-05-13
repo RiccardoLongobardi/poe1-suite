@@ -1,21 +1,22 @@
-# Production deploy — Fly.io (backend) + Vercel (frontend)
+# Production deploy — Render (backend) + Vercel (frontend)
 
-This is the operational playbook for getting the suite live for
-multiple users. It assumes the source is already on `main` at
+Operational playbook for getting the suite live for multiple users.
+Assumes the source is on `main` at
 `https://github.com/RiccardoLongobardi/poe1-suite`.
 
 ## Architecture
 
 ```
                     ┌──────────────────┐
-   user (browser) ──┤  Vercel CDN      │ ←  apps/shell (Vite SPA, ~510 KB gzipped)
-                    │ fob-ten.vercel… │
+   user (browser) ──┤  Vercel CDN      │ ←  apps/shell (Vite SPA, ~165 KB gzipped)
+                    │ fob-ten.vercel…  │
                     └────────┬─────────┘
                              │ HTTPS (CORS)
                              ▼
                     ┌──────────────────┐
-                    │  Fly.io          │ ←  apps/server (FastAPI + uv venv)
-                    │  fob-api.fly.dev │     in a Docker container
+                    │  Render          │ ←  apps/server (FastAPI + uv venv)
+                    │  fob-api.        │     in a Docker container
+                    │  onrender.com    │
                     └────────┬─────────┘
                              │ HTTPS
                 ┌────────────┼────────────┐
@@ -26,79 +27,99 @@ multiple users. It assumes the source is already on `main` at
 Both services run on free tiers. Custom domains can be wired later
 without changing the source.
 
-## Backend (Fly.io)
+> **Migrated from Fly.io 2026-05-07.** Fly's trial ended and required
+> a card on file even for the free tier; Render's free tier is
+> permanent (with the spin-down trade-off described below) so the
+> backend was moved without code changes — the same Dockerfile builds
+> on either host.
+
+## Backend (Render)
+
+### Free tier characteristics
+
+* **512 MB RAM, 0.1 CPU shared** — enough for FOB's async workload.
+* **Spins down after 15 min idle.** First request after a spin-down
+  takes ~30 s to wake the container. The frontend's request to
+  `/health` will time out the first time; subsequent requests are
+  instant.
+* **750 hours/month** of running time across all free services on
+  the account. Comfortably under FOB's expected traffic.
+* **Auto-deploy from `main`** on every push (set in `render.yaml`).
+* **Free SSL** on the `*.onrender.com` hostname.
+* **No persistent disk** on free tier — the on-disk diskcache lives
+  ephemerally in the container fs and is wiped on every redeploy /
+  spin-down. Acceptable: poe.ninja responses are 15-min-cached
+  anyway.
 
 ### One-time setup
 
-1. Install `flyctl`. On Windows:
-   ```pwsh
-   iwr https://fly.io/install.ps1 -useb | iex
-   ```
-2. Sign up:
-   ```bash
-   fly auth signup
-   # follow the email confirmation; add a card for verification (no
-   # charges in the free tier)
-   ```
-3. Launch the app from the repo root (this generates `fly.toml`):
-   ```bash
-   fly launch --no-deploy --copy-config --name fob-api --region fra
-   ```
-   - `--region fra` = Frankfurt (low latency from Italy).
-   - `--copy-config` keeps any local edits you make to `fly.toml`.
-
-4. Set production secrets:
-   ```bash
-   fly secrets set \
-     ENVIRONMENT=production \
-     LOG_FORMAT=json \
-     POE_LEAGUE=Mirage \
-     CORS_ALLOWED_ORIGINS=https://fob-ten.vercel.app
-   ```
-   See `.env.production.example` for the full list.
-
-5. (Optional) attach a persistent volume for the on-disk HTTP cache:
-   ```bash
-   fly volumes create cache --size 1 --region fra
-   # then in fly.toml:
-   #   [[mounts]]
-   #     source = "cache"
-   #     destination = "/data"
-   ```
-   Without a volume the cache lives ephemerally and is lost across
-   deploys/restarts — perfectly acceptable for a fresh-data tool.
+1. Sign up at <https://render.com> (free, login with GitHub).
+2. **New → Blueprint** in the dashboard.
+3. **Connect the GitHub repo** `RiccardoLongobardi/poe1-suite`. Render
+   reads the [`render.yaml`](../render.yaml) at the repo root and
+   provisions one web service named `fob-api` from the Dockerfile.
+4. **Set the secrets** (Render dashboard → service → Environment):
+   * `POE_LEAGUE=Mirage` (or whatever the current league is)
+   * `CORS_ALLOWED_ORIGINS=https://fob-ten.vercel.app`
+5. Click **Apply** — the first build takes ~5 min (uv sync + Docker
+   layer caching warming up).
 
 ### Deploy
 
-```bash
-fly deploy
-```
-
-This builds the Dockerfile remotely on Fly.io's builders, pushes the
-image, and rolls out a new machine. Takes ~3-5 minutes the first
-time; subsequent deploys are faster thanks to layer caching.
+Subsequent deploys happen automatically on every push to `main`.
+Render builds the Dockerfile remotely, swaps the running container
+with health-check-gated rollover, and serves the new version.
 
 Verify:
 ```bash
-curl https://fob-api.fly.dev/health
+curl https://fob-api.onrender.com/health
+```
+
+The first request after an idle period may take ~30 s while the
+container boots. That's expected on the free tier.
+
+### Render CLI (optional)
+
+```bash
+# Install
+brew install render        # macOS
+# or download from https://render.com/docs/cli
+
+# Authenticate
+render login
+
+# Tail logs from your machine
+render logs fob-api --tail
 ```
 
 ## Frontend (Vercel)
 
 ### One-time setup
 
-1. Sign up at https://vercel.com (free, login with GitHub).
-2. Click **Add New → Project**, import the `poe1-suite` repo.
+1. Sign up at <https://vercel.com> (free, login with GitHub).
+2. **Add New → Project**, import the `poe1-suite` repo.
 3. **Configure project**:
-   - **Framework preset**: Vite
-   - **Root directory**: `apps/shell`
-   - **Build command**: `npm run build`
-   - **Output directory**: `dist`
+   * **Framework preset**: Vite
+   * **Root directory**: `apps/shell`
+   * **Build command**: `npm run build`
+   * **Output directory**: `dist`
 4. **Environment variables** (Project Settings → Environment Variables):
-   - `VITE_API_BASE` = `https://fob-api.fly.dev`
-5. **Deploy** — Vercel builds and pushes to `https://<project-name>.vercel.app`.
+   * `VITE_API_BASE` = `https://fob-api.onrender.com`
+5. **Deploy** — Vercel builds and pushes to
+   `https://<project-name>.vercel.app`.
 
 Each push to `main` triggers an automatic redeploy.
+
+### Updating VITE_API_BASE after the migration
+
+If you previously pointed the frontend at `https://fob-api.fly.dev`,
+update the env var:
+
+1. Vercel dashboard → Project → Settings → Environment Variables.
+2. Change `VITE_API_BASE` to `https://fob-api.onrender.com`.
+3. **Redeploy** the latest production build (Deployments → … →
+   Redeploy → uncheck "Use existing build cache" so the new env var
+   is picked up).
 
 ## Custom domain (optional, ~$10/year)
 
@@ -106,12 +127,13 @@ When/if you want `fob.tools` or similar:
 
 1. Buy the domain at Namecheap / Cloudflare Registrar.
 2. **Vercel**: Project → Settings → Domains → Add `fob.tools` and
-   `www.fob.tools`. Vercel will tell you which CNAME to set.
-3. **Fly.io**: ```fly certs add api.fob.tools``` then update DNS
-   per the instructions printed.
-4. Update `CORS_ALLOWED_ORIGINS` on Fly to include the new origin:
-   ```bash
-   fly secrets set CORS_ALLOWED_ORIGINS=https://fob.tools,https://www.fob.tools
+   `www.fob.tools`. Vercel prints the CNAME / A record to set.
+3. **Render**: service → Settings → Custom Domains → Add
+   `api.fob.tools`. Render gives you a CNAME target; add it to your
+   DNS.
+4. Update `CORS_ALLOWED_ORIGINS` on Render to include the new origin:
+   ```
+   CORS_ALLOWED_ORIGINS=https://fob.tools,https://www.fob.tools
    ```
 5. Update `VITE_API_BASE` on Vercel to `https://api.fob.tools`,
    redeploy.
@@ -127,6 +149,11 @@ After both services are up:
 - [ ] Paste a real PoB code on `/analyze` and confirm parsing works
 - [ ] Open `/planner`, paste a PoB, hit "Genera piano" — a 6-stage
       plan should stream back with progress bar + ETA
+- [ ] On any stage card, switch to Tree / Gear / Gems tabs (Step 14
+      T5) and confirm the panels load progression data when the
+      template ships one (RF Pohx is the reference)
+- [ ] Click "Importa stage in PoB" — the code should be copied to
+      the clipboard and rendered as a code preview
 - [ ] Toggle "Modalità reverse-progression", regenerate — verify
       `[target]` ladder rationales appear under "Upgrade ladder" in
       the right stages
@@ -135,11 +162,8 @@ After both services are up:
 
 ## Rollback
 
-Fly.io keeps previous releases:
-```bash
-fly releases
-fly deploy --image registry.fly.io/fob-api:deployment-<id>
-```
+**Render**: dashboard → service → Manual Deploy → "Deploy specific
+commit" → pick a previous green commit hash.
 
-Vercel: Project → Deployments → click any past deployment →
+**Vercel**: Project → Deployments → click any past deployment →
 "Promote to Production".
