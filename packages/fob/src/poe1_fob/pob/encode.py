@@ -37,13 +37,21 @@ from ..gems.models import GemSpec, StageGemLinks
 from ..tree.models import StageTree
 from ..tree.pob_url import encode_pob_tree_url
 
-# PoB target version. The format is mostly stable across patches; we
-# stamp the latest PoB Community version. When this lags behind the
-# user's installed PoB, the desktop app surfaces a "Game Version"
-# dialog asking to convert the build — which works but is annoying.
-# Bump this when the league changes (PoB releases a new minor per
-# league). 2026-05-14: PoB Community is on 3.28.x.
-_TARGET_VERSION = "3_28"
+# PoB stamps TWO different version strings — they are NOT the same:
+#
+# * ``<Build targetVersion>`` = the *game version label*, fixed at
+#   "3_0" for every PoE 1 build (it tags "this build is for PoE 1.x"
+#   versus PoE 2). Verified against real fixtures captured from PoB
+#   Community 3.28 export. If we stamp anything other than "3_0",
+#   PoB surfaces a "Game Version" dialog asking the user to convert.
+#
+# * ``<Spec treeVersion>`` = the *tree data version*, which bumps
+#   every PoE league (3.27, 3.28, 3.29, ...). PoB uses this to pick
+#   the right passive-tree dataset for rendering.
+#
+# Bump _TREE_VERSION when the league changes; leave _GAME_VERSION alone.
+_GAME_VERSION = "3_0"
+_TREE_VERSION = "3_28"
 
 # Class IDs used by PathOfBuilding's XML <Build> element. These match
 # the in-game class enum and are stable across leagues.
@@ -151,27 +159,32 @@ def _build_xml(
     class_id = _CLASS_ID.get(character_class, 0)
     asc_id = _ASCENDANCY_ID.get(ascendancy or "", 0)
 
-    root = ET.Element(
-        "PathOfBuilding",
-        attrib={"version": "2"},
-    )
+    # Root: bare ``<PathOfBuilding>`` with no version attribute. PoB
+    # Community emits no attributes here in its own exports; adding
+    # ``version="2"`` made PoB treat our codes as foreign-format and
+    # surface a "Game Version" dialog on import.
+    root = ET.Element("PathOfBuilding")
 
-    # <Build> — character header. PoB reads className/ascendClassName
-    # as strings; classId/ascendClassId duplicate them as ints.
+    # <Build> — character header. Attribute set / ordering kept close
+    # to what real PoB 3.28 exports produce (verified against the
+    # fixture in packages/fob/tests/fixtures/pob_YNQeadFwNBmX.txt).
+    # ``viewMode="IMPORT"`` is what PoB uses for build-share codes;
+    # ``targetVersion="3_0"`` is the PoE-1 game-version label and
+    # MUST be "3_0", not the league/tree version.
     ET.SubElement(
         root,
         "Build",
         attrib={
-            "level": str(level),
-            "targetVersion": _TARGET_VERSION,
+            "viewMode": "IMPORT",
+            "targetVersion": _GAME_VERSION,
             "pantheonMajorGod": "None",
             "pantheonMinorGod": "None",
-            "bandit": "None",
+            "characterLevelAutoMode": "false",
             "className": character_class,
             "ascendClassName": ascendancy or "None",
+            "level": str(level),
             "mainSocketGroup": "1",
-            "viewMode": "TREE",
-            "characterLevel": str(level),
+            "bandit": "None",
         },
     )
 
@@ -181,18 +194,19 @@ def _build_xml(
     # empty spec — PoB still imports the code, and the user keeps their
     # original tree from the source PoB they pasted.
     tree_elem = ET.SubElement(root, "Tree", attrib={"activeSpec": "1"})
-    spec_title = tree.stage_key.replace("_", " ").title() if tree else "Empty Tree"
     spec_nodes = ",".join(str(n) for n in tree.node_ids) if tree else ""
+    # Attribute set mirrors real PoB 3.28 exports. No ``title`` (PoB
+    # auto-labels), ``secondaryAscendClassId="0"`` for non-Scion builds.
     spec = ET.SubElement(
         tree_elem,
         "Spec",
         attrib={
-            "title": spec_title,
-            "treeVersion": _TARGET_VERSION,
-            "classId": str(class_id),
-            "ascendClassId": str(asc_id),
-            "nodes": spec_nodes,
             "masteryEffects": "",
+            "treeVersion": _TREE_VERSION,
+            "secondaryAscendClassId": "0",
+            "ascendClassId": str(asc_id),
+            "classId": str(class_id),
+            "nodes": spec_nodes,
         },
     )
     # The <URL> child encodes the same node set in PoE's tree-share
@@ -205,6 +219,7 @@ def _build_xml(
         ascendancy=ascendancy,
     )
     ET.SubElement(spec, "Sockets")
+    ET.SubElement(spec, "Overrides")
 
     # <Skills> — emit one <Skill> per gem link with nested <Gem>s.
     skills_elem = ET.SubElement(
