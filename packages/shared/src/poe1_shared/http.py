@@ -301,7 +301,29 @@ class HttpClient:
                     resp_headers = {k.lower(): v for k, v in response.headers.items()}
                     return body, resp_headers
         except RetryError as err:
-            raise HttpError(f"retries exhausted for {method} {url}", url=url) from err
+            # tenacity wraps the last underlying exception. When retries
+            # were exhausted on a retryable HTTP status (e.g. persistent
+            # 429), preserve that status_code so callers can disambiguate
+            # rate-limit failures from generic network errors.
+            inner = err.last_attempt.exception() if err.last_attempt else None
+            status_code = (
+                inner.response.status_code if isinstance(inner, httpx.HTTPStatusError) else None
+            )
+            raise HttpError(
+                f"retries exhausted for {method} {url}",
+                url=url,
+                status_code=status_code,
+            ) from err
+        except httpx.HTTPStatusError as err:
+            # tenacity is configured with reraise=True (line ~268), so a
+            # retryable HTTP status that exhausts attempts re-raises the
+            # original HTTPStatusError directly rather than RetryError.
+            # Preserve status_code in that path too so callers see 429.
+            raise HttpError(
+                f"HTTP {err.response.status_code} for {method} {url}",
+                url=url,
+                status_code=err.response.status_code,
+            ) from err
         except httpx.HTTPError as err:
             raise HttpError(f"network error for {method} {url}: {err}", url=url) from err
 

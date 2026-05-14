@@ -378,10 +378,24 @@ export type PricingProgressKind =
   | "item_failed"
   | "done";
 
-// Trade search types removed. The frontend now redirects directly to
-// pathofexile.com/trade with the item name pre-copied to the clipboard
-// (see api/tradeRedirect.ts) instead of letting FOB call the GGG Trade
-// API server-side. Removes the rate-limit pain entirely.
+/** POST /fob/trade-url body */
+export interface TradeUrlRequest {
+  item_name?: string | null;
+  item_type?: string | null;
+  mod_lines?: string[];
+}
+
+/** POST /fob/trade-url response */
+export interface TradeUrlResponse {
+  /** Pre-filled trade URL. Null when source='rate_limited'. */
+  url: string | null;
+  /**
+   * - "cache": in-memory cache hit, no GGG call (fast).
+   * - "fresh": one GGG call made, result cached for future requests.
+   * - "rate_limited": GGG returned 429 — frontend should fall back to bare URL.
+   */
+  source: "cache" | "fresh" | "rate_limited";
+}
 
 export interface PricingProgress {
   kind: PricingProgressKind;

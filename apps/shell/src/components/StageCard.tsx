@@ -125,10 +125,10 @@ function ItemRow({
       </Table.Td>
       <Table.Td style={{ width: 36 }}>
         <Tooltip
-          label="Apri pathofexile.com/trade (nome copiato negli appunti)"
+          label="Apri ricerca Trade pre-filtrata (nome copiato come fallback)"
           withArrow
           multiline
-          w={220}
+          w={240}
         >
           <ActionIcon
             variant="subtle"
@@ -173,10 +173,16 @@ export function StageCard({
   const accent = index === 0 ? "teal" : index === 1 ? "blue" : "grape";
 
   function openTradeDialog(item: CoreItem) {
-    // No server-side search: open Trade directly and copy the item
-    // name to the clipboard so the user pastes it into Trade's
-    // search box. Removes the GGG rate-limit pain entirely.
-    openTradeForItem(item.name);
+    // Pre-filled GGG Trade search via /fob/trade-url with server-side
+    // cache. Repeat clicks on the same item hit the cache (no GGG
+    // call). On 429 / network error, the helper falls back to opening
+    // the bare trade page with the name in the clipboard.
+    void openTradeForItem({
+      name: item.name,
+      rarity: item.rarity,
+      base_type: item.base_type,
+      mods: item.mods,
+    });
   }
 
   // Lazy state for the tab content. Each tab fetches once on first open

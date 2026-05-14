@@ -21,8 +21,9 @@ so the core domain models don't pick up FastAPI/OpenAPI concerns.
 from __future__ import annotations
 
 import hashlib
+import time
 from collections.abc import AsyncIterator
-from typing import Annotated
+from typing import Annotated, Literal
 
 from fastapi import APIRouter, Body, HTTPException
 from fastapi.responses import StreamingResponse
@@ -30,7 +31,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from poe1_core.models import Build
 from poe1_core.models.build_intent import BuildIntent
-from poe1_pricing import PricingService, TradeSource
+from poe1_pricing import PricingService, StatFilter, TradeQuery, TradeSource
 from poe1_shared.config import Settings
 from poe1_shared.http import HttpClient, HttpError
 from poe1_shared.logging import get_logger
@@ -54,6 +55,8 @@ from .pob import (
     parse_snapshot,
     snapshot_to_build,
 )
+from .pob import clean_mod_lines as _clean_mod_lines
+from .pob import extract_mods as _extract_mod_patterns
 from .ranking import RankingEngine, RecommendRequest, RecommendResponse, SourceAggregator
 from .tree import StageTree, TreeProgression, encode_pob_tree_url, progression_for
 
@@ -166,8 +169,96 @@ class StageExportResponse(BaseModel):
     )
 
 
+class TradeUrlRequest(BaseModel):
+    """Input for ``POST /fob/trade-url``.
+
+    Asks the server to build a pre-filled GGG Trade search URL for an
+    item. The request must specify at least ``item_name`` (unique
+    lookups) or ``item_type`` (rare-by-base lookups). ``mod_lines``
+    are the raw PoB mod text lines — the server extracts numeric
+    stat filters via the same pattern table the pricer uses.
+    """
+
+    model_config = ConfigDict(frozen=True)
+
+    item_name: str | None = Field(
+        default=None,
+        description="Unique name (e.g. 'Mageblood'). Mutually-best with item_type.",
+    )
+    item_type: str | None = Field(
+        default=None,
+        description="Base type (e.g. 'Astral Plate') — used when item_name is None.",
+    )
+    mod_lines: tuple[str, ...] = Field(
+        default=(),
+        description=(
+            "Raw mod text lines from the item. The server extracts "
+            "stat_id + min via MOD_PATTERNS. Lines that don't match "
+            "any pattern are silently dropped."
+        ),
+    )
+
+
+class TradeUrlResponse(BaseModel):
+    """Output for ``POST /fob/trade-url``."""
+
+    model_config = ConfigDict(frozen=True)
+
+    url: str | None = Field(
+        default=None,
+        description=(
+            "Pre-filled pathofexile.com/trade URL ready to open. None "
+            "when source='rate_limited' — frontend should fall back to "
+            "the bare search page."
+        ),
+    )
+    source: Literal["cache", "fresh", "rate_limited"] = Field(
+        default="fresh",
+        description=(
+            "Where the URL came from: 'cache' (in-memory hit, no GGG "
+            "call), 'fresh' (one GGG call made, result cached for "
+            "future requests), 'rate_limited' (GGG returned 429 — try "
+            "again in 30-60 s)."
+        ),
+    )
+
+
 # ---------------------------------------------------------------------------
 # Helpers
+# ---------------------------------------------------------------------------
+
+# In-memory TTL cache for /fob/trade-url. Keyed by sha256 of the
+# normalised query (league + name + type + sorted stat_ids). GGG search
+# IDs live ~10 min on their side, so we cache for slightly less to avoid
+# returning stale ids that fail to load. The cache survives across
+# requests but resets on container restart — acceptable for free-tier
+# Render that spins down after 15 min idle anyway.
+_TRADE_URL_CACHE_TTL = 480.0  # 8 minutes
+_TRADE_URL_CACHE_MAX = 500  # entries; trims LRU-style when exceeded
+_trade_url_cache: dict[str, tuple[str, float]] = {}
+
+
+def _trade_url_cache_get(key: str) -> str | None:
+    entry = _trade_url_cache.get(key)
+    if entry is None:
+        return None
+    url, expires_at = entry
+    if time.monotonic() > expires_at:
+        del _trade_url_cache[key]
+        return None
+    return url
+
+
+def _trade_url_cache_set(key: str, url: str) -> None:
+    if len(_trade_url_cache) >= _TRADE_URL_CACHE_MAX:
+        # Cheap LRU-ish eviction: drop the oldest entry.
+        oldest = min(_trade_url_cache.items(), key=lambda kv: kv[1][1])
+        _trade_url_cache.pop(oldest[0], None)
+    _trade_url_cache[key] = (url, time.monotonic() + _TRADE_URL_CACHE_TTL)
+
+
+# ---------------------------------------------------------------------------
+# Helpers (legacy)
 # ---------------------------------------------------------------------------
 
 
@@ -555,13 +646,106 @@ def make_router(settings: Settings) -> APIRouter:
             },
         )
 
-    # POST /fob/trade-search removed. Calling the GGG Trade API
-    # server-side was eating one of the user's ~5 searches/minute IP
-    # quota on every casual click, producing 429s and white-page UX
-    # that wasn't worth the marginal "pre-filled query" feature.
-    # The frontend now redirects directly to pathofexile.com/trade with
-    # the item name in the clipboard — same destination, zero rate-limit
-    # risk. See apps/shell/src/api/tradeRedirect.ts.
+    @router.post(
+        "/trade-url",
+        response_model=TradeUrlResponse,
+        summary=(
+            "Build a pre-filled pathofexile.com/trade search URL for an "
+            "item. Result is cached in-memory (TTL 8 min) keyed by query "
+            "hash so repeat clicks on the same item don't hit GGG."
+        ),
+    )
+    async def trade_url_endpoint(
+        payload: Annotated[TradeUrlRequest, Body()],
+    ) -> TradeUrlResponse:
+        """Return a pre-filled GGG Trade search URL for ``payload``.
+
+        Caches aggressively (TTL 8 min, ~10 min less than GGG's own
+        search-id lifetime) so common items like Mageblood / Kaom's
+        Heart hit the cache for the second user onward — no GGG call,
+        no rate-limit consumption. On 429 the response carries
+        ``source='rate_limited'`` and ``url=null`` so the frontend can
+        fall back to opening the bare search page.
+        """
+
+        if not payload.item_name and not payload.item_type:
+            raise HTTPException(
+                status_code=422,
+                detail="trade-url requires at least item_name or item_type",
+            )
+
+        # Extract numeric stat filters from the raw mod text. Lines that
+        # don't match any MOD_PATTERNS entry are silently dropped.
+        stats: list[StatFilter] = []
+        if payload.mod_lines:
+            cleaned = _clean_mod_lines(payload.mod_lines)
+            extracted = _extract_mod_patterns(cleaned)
+            seen: set[str] = set()
+            for em in extracted:
+                if em.stat_id in seen:
+                    continue
+                seen.add(em.stat_id)
+                stats.append(StatFilter(stat_id=em.stat_id, min=em.value))
+
+        # When we have a unique name, search by name (Trade resolves
+        # the base automatically). When we have only a rare base, search
+        # by type. Sending both confuses GGG's filter set.
+        query = TradeQuery(
+            name=payload.item_name,
+            type=payload.item_type if not payload.item_name else None,
+            stats=tuple(stats),
+            online_only=True,
+        )
+
+        cache_key = hashlib.sha256(
+            "|".join(
+                [
+                    settings.poe_league,
+                    payload.item_name or "",
+                    payload.item_type or "",
+                    ",".join(sorted(f"{s.stat_id}:{s.min}" for s in stats)),
+                ]
+            ).encode("utf-8")
+        ).hexdigest()[:24]
+
+        if (cached := _trade_url_cache_get(cache_key)) is not None:
+            log.info(
+                "fob_trade_url_cache_hit",
+                cache_key=cache_key,
+                item_name=payload.item_name,
+                item_type=payload.item_type,
+                mods=len(stats),
+            )
+            return TradeUrlResponse(url=cached, source="cache")
+
+        async with HttpClient(settings) as http:
+            trade = TradeSource(http=http, league=settings.poe_league)
+            try:
+                search_id, _hashes, total = await trade.search(query)
+            except HttpError as err:
+                if err.status_code == 429:
+                    log.warning(
+                        "fob_trade_url_rate_limited",
+                        item_name=payload.item_name,
+                        item_type=payload.item_type,
+                    )
+                    return TradeUrlResponse(url=None, source="rate_limited")
+                raise HTTPException(
+                    status_code=502,
+                    detail=f"GGG Trade search failed: {err}",
+                ) from err
+
+        url = f"https://www.pathofexile.com/trade/search/{settings.poe_league}/{search_id}"
+        _trade_url_cache_set(cache_key, url)
+        log.info(
+            "fob_trade_url_fresh",
+            cache_key=cache_key,
+            item_name=payload.item_name,
+            item_type=payload.item_type,
+            mods=len(stats),
+            total_listings=total,
+        )
+        return TradeUrlResponse(url=url, source="fresh")
 
     @router.get(
         "/tree-progression/{template_name}",

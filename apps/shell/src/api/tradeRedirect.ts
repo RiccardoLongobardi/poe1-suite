@@ -1,25 +1,26 @@
 /**
  * Client-side Trade redirect helper.
  *
- * The previous "let FOB call GGG Trade for you" architecture (POST
- * /fob/trade-search → returns search_id → frontend opens
- * pathofexile.com/trade/search/<league>/<id>) had two problems:
+ * Two flow variants:
  *
- * 1. GGG enforces a strict ~5-searches-per-minute-per-IP rate limit on
- *    the trade API. Every casual user click consumed one slot. Light
- *    testing kept tripping 429s and producing "white tab" UX.
- * 2. The user gains nothing from FOB doing the search — the destination
- *    page is the same GGG trade UI either way.
+ * 1. ``openTradeForItem`` (the common one) — asks the server via
+ *    ``POST /fob/trade-url`` for a pre-filled GGG Trade search URL,
+ *    then opens it. The server caches the URL by query hash (TTL ~8
+ *    min) so common items (Mageblood, Kaom's Heart, ...) usually
+ *    return in under 100 ms — fast enough that the browser keeps the
+ *    user-gesture window open and the popup blocker stays quiet.
  *
- * New model: the click handler just opens the bare trade page (no
- * search id, no server roundtrip) and copies the item identifier to
- * the clipboard so the user pastes-and-searches in one move. Zero
- * server load, zero rate-limit risk, and no white-tab UX.
+ * 2. Fallback — if the server is rate-limited by GGG (429), or the
+ *    network call fails, we open the bare ``/trade/search/<league>``
+ *    page and rely on the clipboard-copied item name so the user can
+ *    paste-and-search manually in one move.
  *
- * The league name (e.g. "Mirage") is part of the trade URL path. We
- * prefetch it from /health on app mount and cache it in module scope —
- * one network call per session, no flicker on click.
+ * The league name (e.g. "Mirage") is prefetched from ``/health`` on
+ * app mount so the redirect stays synchronous on first click.
  */
+
+import { notifications } from "@mantine/notifications";
+import { fetchTradeUrl } from "./fob";
 
 const BASE = (import.meta.env.VITE_API_BASE ?? "").replace(/\/+$/, "");
 
@@ -33,8 +34,6 @@ let inflight: Promise<string> | null = null;
  * Prefetch the current league from /health. Idempotent and safe to
  * call at app mount — subsequent callers reuse the cache (or the
  * in-flight promise) instead of issuing another request.
- *
- * Returns the league string the helper will use for redirects.
  */
 export async function prefetchLeague(): Promise<string> {
   if (cachedLeague) return cachedLeague;
@@ -56,31 +55,83 @@ export async function prefetchLeague(): Promise<string> {
 
 /**
  * Returns the cached league synchronously, or the fallback when the
- * prefetch hasn't completed yet. The fallback is fine for the first
- * click after mount — Trade still loads on the wrong league page,
- * and the user can switch from there in two clicks.
+ * prefetch hasn't completed yet.
  */
 export function getLeague(): string {
   return cachedLeague ?? FALLBACK_LEAGUE;
 }
 
+/** Subset of CoreItem fields the redirect helper needs. */
+export interface TradeRedirectItem {
+  name: string;
+  /** "unique", "rare", "magic", "normal" — drives name-vs-type routing. */
+  rarity?: string | null;
+  base_type?: string | null;
+  mods?: string[];
+}
+
 /**
- * Open the GGG Trade search page in a new tab and copy ``itemName``
- * to the clipboard so the user can paste-and-search.
+ * Open a pre-filled GGG Trade search for ``item`` in a new tab.
  *
- * Synchronous so it stays inside the user-gesture window (popup
- * blockers stay quiet). The clipboard write is best-effort: it can
- * fail silently on insecure contexts or when the user denied
- * permission, but the redirect still happens.
+ * Best-effort flow:
+ * 1. Copy the item name to the clipboard (paste-and-search fallback).
+ * 2. Ask /fob/trade-url for a pre-filled URL with the right query.
+ * 3. Open it. If the popup blocker rejects (rare on cache hit), surface
+ *    a Mantine notification with a clickable "Apri" link instead of
+ *    silently doing nothing.
+ * 4. On server error or rate-limit, fall back to the bare trade page.
  */
-export function openTradeForItem(itemName: string): void {
+export async function openTradeForItem(item: TradeRedirectItem): Promise<void> {
+  // 1. Clipboard fallback — done synchronously, no await needed for the
+  //    immediate effect. The promise is fire-and-forget.
   try {
-    void navigator.clipboard.writeText(itemName);
+    void navigator.clipboard.writeText(item.name);
   } catch {
-    // Non-secure context or denied — silently skip the clipboard
-    // write. The user can still type the name manually on Trade.
+    // Non-secure context or denied permission. Ignore.
   }
+
+  // 2. Build the request payload. Uniques → search by name; everything
+  //    else → search by base type + extracted mods.
+  const isUnique = (item.rarity ?? "").toLowerCase() === "unique";
+  const payload = {
+    item_name: isUnique ? item.name : null,
+    item_type: isUnique ? null : (item.base_type ?? null),
+    mod_lines: item.mods ?? [],
+  };
+
+  let url: string | null = null;
+  try {
+    const resp = await fetchTradeUrl(payload);
+    if (resp.url) {
+      url = resp.url;
+    }
+  } catch {
+    // Network error or 5xx — fall through to bare URL.
+  }
+
+  // 3. Fallback URL when /fob/trade-url didn't yield one.
   const league = getLeague();
-  const url = `https://www.pathofexile.com/trade/search/${encodeURIComponent(league)}`;
-  window.open(url, "_blank", "noopener,noreferrer");
+  const bareUrl = `https://www.pathofexile.com/trade/search/${encodeURIComponent(league)}`;
+  const target = url ?? bareUrl;
+
+  // 4. Try to open. Within the user-gesture window (transient
+  //    activation, ~3-5 s in modern browsers), this should succeed
+  //    even after the await. If GGG was slow and the activation
+  //    expired, fall back to a notification with a clickable link.
+  const tab = window.open(target, "_blank", "noopener,noreferrer");
+  if (!tab) {
+    notifications.show({
+      title: "Apri ricerca Trade",
+      message: url
+        ? "Il browser ha bloccato l'apertura automatica. Clicca per aprire la ricerca pre-filtrata."
+        : "Apri pathofexile.com/trade — il nome è già copiato negli appunti.",
+      color: "astral",
+      autoClose: 8000,
+      withCloseButton: true,
+      onClick: () => {
+        window.open(target, "_blank", "noopener,noreferrer");
+      },
+      styles: { root: { cursor: "pointer" } },
+    });
+  }
 }

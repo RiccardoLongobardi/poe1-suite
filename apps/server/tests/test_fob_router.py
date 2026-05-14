@@ -415,3 +415,132 @@ def test_stage_export_post_garbage_user_pob_falls_back_to_empty(
         body = r.json()
         assert body["tree_source"] == "empty"
         assert body["code"] is not None
+
+
+# ---------------------------------------------------------------------------
+# Trade URL — POST /fob/trade-url (cached GGG search-id resolver)
+# ---------------------------------------------------------------------------
+
+
+def test_trade_url_requires_name_or_type(settings: Settings) -> None:
+    """Empty payload (no name and no type) → 422."""
+
+    app = create_app(settings)
+    with TestClient(app) as client:
+        r = client.post(
+            "/fob/trade-url",
+            json={"item_name": None, "item_type": None, "mod_lines": []},
+        )
+        assert r.status_code == 422
+        assert "requires" in r.json()["detail"].lower()
+
+
+def test_trade_url_returns_cached_url_on_second_call(
+    monkeypatch: pytest.MonkeyPatch, settings: Settings
+) -> None:
+    """First call hits GGG (mocked), second call hits the in-memory cache.
+
+    Asserts ``source='fresh'`` then ``source='cache'`` on identical
+    payloads — proving the cache prevents repeat GGG hits on the same
+    item name.
+    """
+
+    # Reset the module-level cache so previous tests don't leak in.
+    from poe1_fob.router import _trade_url_cache
+
+    _trade_url_cache.clear()
+
+    call_count = {"n": 0}
+
+    def mock_handler(request: httpx.Request) -> httpx.Response:
+        if "/api/trade/search/" in str(request.url):
+            call_count["n"] += 1
+            return httpx.Response(
+                200,
+                json={"id": "abc123def456", "complexity": 1, "total": 42, "result": []},
+            )
+        return httpx.Response(404)
+
+    original_aenter = HttpClient.__aenter__
+
+    async def patched_aenter(self: HttpClient) -> HttpClient:
+        client = await original_aenter(self)
+        await self._client.aclose()  # type: ignore[union-attr]
+        self._client = httpx.AsyncClient(
+            transport=httpx.MockTransport(mock_handler),
+            timeout=self._settings.http_timeout_seconds,
+            headers={"User-Agent": self._settings.user_agent},
+            follow_redirects=True,
+        )
+        return client
+
+    monkeypatch.setattr(HttpClient, "__aenter__", patched_aenter)
+
+    app = create_app(settings)
+    with TestClient(app) as client:
+        payload: dict[str, object] = {
+            "item_name": "Mageblood",
+            "item_type": None,
+            "mod_lines": [],
+        }
+
+        # First call: fresh
+        r1 = client.post("/fob/trade-url", json=payload)
+        assert r1.status_code == 200, r1.text
+        b1 = r1.json()
+        assert b1["source"] == "fresh"
+        assert "abc123def456" in b1["url"]
+        assert call_count["n"] == 1
+
+        # Second call: cache hit, no extra GGG call
+        r2 = client.post("/fob/trade-url", json=payload)
+        assert r2.status_code == 200, r2.text
+        b2 = r2.json()
+        assert b2["source"] == "cache"
+        assert b2["url"] == b1["url"]
+        assert call_count["n"] == 1, "Second call must not hit GGG"
+
+
+def test_trade_url_returns_rate_limited_on_429(
+    monkeypatch: pytest.MonkeyPatch, settings: Settings
+) -> None:
+    """GGG 429 → source='rate_limited' (frontend handles fallback)."""
+
+    from poe1_fob.router import _trade_url_cache
+
+    _trade_url_cache.clear()
+
+    def mock_handler(request: httpx.Request) -> httpx.Response:
+        if "/api/trade/search/" in str(request.url):
+            return httpx.Response(
+                429,
+                headers={"X-Rate-Limit-Ip": "5:60:60", "Retry-After": "60"},
+                json={"error": "rate limited"},
+            )
+        return httpx.Response(404)
+
+    original_aenter = HttpClient.__aenter__
+
+    async def patched_aenter(self: HttpClient) -> HttpClient:
+        client = await original_aenter(self)
+        await self._client.aclose()  # type: ignore[union-attr]
+        self._client = httpx.AsyncClient(
+            transport=httpx.MockTransport(mock_handler),
+            timeout=self._settings.http_timeout_seconds,
+            headers={"User-Agent": self._settings.user_agent},
+            follow_redirects=True,
+        )
+        return client
+
+    monkeypatch.setattr(HttpClient, "__aenter__", patched_aenter)
+
+    app = create_app(settings)
+    with TestClient(app) as client:
+        r = client.post(
+            "/fob/trade-url",
+            json={"item_name": "Rate Limited Item", "item_type": None, "mod_lines": []},
+        )
+        assert r.status_code == 200, r.text
+        body = r.json()
+        assert body["source"] == "rate_limited"
+        assert body["url"] is None

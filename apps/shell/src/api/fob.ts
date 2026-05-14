@@ -17,6 +17,8 @@ import type {
   StageExportRequest,
   StageExportResponse,
   TargetGoal,
+  TradeUrlRequest,
+  TradeUrlResponse,
   TreeProgression,
 } from "./types";
 
@@ -71,6 +73,21 @@ export async function recommend(
 /** POST /fob/analyze-pob */
 export async function analyzePob(input: string): Promise<AnalyzePobResponse> {
   return post<AnalyzePobResponse>("/fob/analyze-pob", { input });
+}
+
+/**
+ * POST /fob/trade-url — return a pre-filled GGG Trade search URL.
+ *
+ * Server caches the URL by query hash (TTL ~8 min) so common items
+ * like Mageblood / Kaom's Heart usually return in <100 ms without
+ * hitting GGG. On 429 the response carries source='rate_limited'
+ * and url=null — the caller should fall back to opening the bare
+ * trade search page.
+ */
+export async function fetchTradeUrl(
+  req: TradeUrlRequest,
+): Promise<TradeUrlResponse> {
+  return post<TradeUrlResponse>("/fob/trade-url", req);
 }
 
 /** POST /fob/plan */

@@ -34,7 +34,7 @@ uv run mypy .
 uv run pytest
 ```
 
-All four must pass with zero errors. Current baseline: **605 tests green (2 skipped — integration/LLM), 109 files type-checked clean, 107 files formatted clean**. Frontend build 514 KB / 161 KB gzip.
+All four must pass with zero errors. Current baseline: **608 tests green (2 skipped — integration/LLM), 109 files type-checked clean, 107 files formatted clean**. Frontend build 514 KB / 161 KB gzip.
 
 ## What's built (state as of 2026-05-14, Step 14 T5 — Pohx-style stage UI)
 
