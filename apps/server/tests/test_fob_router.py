@@ -320,10 +320,16 @@ def test_stage_export_get_unknown_template_returns_empty_tree(settings: Settings
         assert body["code"] is not None
 
 
-def test_stage_export_post_with_user_pob_falls_back_to_user_tree(
+def test_stage_export_post_with_user_pob_uses_dynamic_synthesis(
     settings: Settings,
 ) -> None:
-    """POST with user_pob_code preserves the user's tree when no progression exists."""
+    """POST with user_pob_code → Step 16 dynamic synthesis takes precedence.
+
+    Previously this expected ``tree_source='user_pob'`` (the
+    pass-through-verbatim fallback). After Step 16, the dynamic
+    BFS-bucketed progression wins because it derives a per-stage
+    plan from the same source PoB instead of just echoing it.
+    """
 
     app = create_app(settings)
     with TestClient(app) as client:
@@ -340,7 +346,7 @@ def test_stage_export_post_with_user_pob_falls_back_to_user_tree(
         )
         assert r.status_code == 200, r.text
         body = r.json()
-        assert body["tree_source"] == "user_pob"
+        assert body["tree_source"] == "dynamic"
         assert body["code"] is not None
 
 
@@ -368,10 +374,16 @@ def test_stage_export_post_without_user_pob_returns_empty_tree(
         assert body["code"] is not None
 
 
-def test_stage_export_post_rf_pohx_prefers_progression_over_user_pob(
+def test_stage_export_post_dynamic_wins_even_for_curated_template(
     settings: Settings,
 ) -> None:
-    """When the template has a curated progression, it wins over user_pob_code."""
+    """Step 16 priority: dynamic > curated registry when a PoB is provided.
+
+    Previously the curated rf_pohx registry won here. After Step 16
+    the dynamic engine derives the tree from the user's actual PoB
+    even when a curated template exists — the curated registry now
+    serves only as the fallback for builds with no PoB.
+    """
 
     app = create_app(settings)
     with TestClient(app) as client:
@@ -388,8 +400,29 @@ def test_stage_export_post_rf_pohx_prefers_progression_over_user_pob(
         )
         assert r.status_code == 200, r.text
         body = r.json()
-        # progression wins — the user_pob_code is ignored when a curated
-        # tree progression is registered.
+        assert body["tree_source"] == "dynamic"
+
+
+def test_stage_export_post_curated_progression_used_without_pob(
+    settings: Settings,
+) -> None:
+    """Without a user_pob_code, the curated rf_pohx registry kicks in."""
+
+    app = create_app(settings)
+    with TestClient(app) as client:
+        r = client.post(
+            "/fob/stage-export",
+            json={
+                "template_name": "rf_pohx",
+                "stage_key": "end_mapping",
+                "character_class": "Marauder",
+                "ascendancy": "Juggernaut",
+                "level": 90,
+                "user_pob_code": None,
+            },
+        )
+        assert r.status_code == 200, r.text
+        body = r.json()
         assert body["tree_source"] == "progression"
 
 

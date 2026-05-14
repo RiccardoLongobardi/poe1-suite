@@ -58,7 +58,13 @@ from .pob import (
 from .pob import clean_mod_lines as _clean_mod_lines
 from .pob import extract_mods as _extract_mod_patterns
 from .ranking import RankingEngine, RecommendRequest, RecommendResponse, SourceAggregator
-from .tree import StageTree, TreeProgression, encode_pob_tree_url, progression_for
+from .tree import (
+    StageTree,
+    TreeProgression,
+    derive_tree_progression,
+    encode_pob_tree_url,
+    progression_for,
+)
 
 log = get_logger(__name__)
 
@@ -162,8 +168,10 @@ class StageExportResponse(BaseModel):
         default="progression",
         description=(
             "Where the tree in the exported code came from: "
-            "'progression' (curated for the template), "
-            "'user_pob' (decoded from the user's original PoB), "
+            "'dynamic' (Step 16 — BFS-bucketed from user's PoB, preferred), "
+            "'progression' (curated registry for the template, used when "
+            "the user has no PoB), 'user_pob' (decoded from the user's "
+            "PoB verbatim, used when dynamic synthesis is unavailable), "
             "'empty' (no tree — PoB will show class start only)."
         ),
     )
@@ -889,24 +897,43 @@ def make_router(settings: Settings) -> APIRouter:
                 )
                 snapshot = None
 
-        tree_prog = progression_for(template_name)
-        stage_tree = tree_prog.for_stage(stage_key) if tree_prog is not None else None
+        # Tree progression: prefer dynamic synthesis from the user's
+        # PoB (Step 16) over both the curated registry and the bare
+        # passthrough fallback. The registry stays as a last-resort
+        # for the no-PoB case.
+        stage_tree: StageTree | None = None
         tree_source: str
-        if stage_tree is not None:
-            tree_source = "progression"
-        elif snapshot is not None:
-            # Pass mastery_effects through so PoB doesn't silently
-            # drop the user's mastery nodes on import (PoB rejects
-            # any mastery in ``nodes=`` that isn't also in
-            # ``masteryEffects=``).
-            stage_tree = StageTree(
-                stage_key=stage_key,
-                node_ids=tuple(snapshot.tree.node_ids),
-                mastery_effects=tuple(snapshot.tree.mastery_effects.items()),
-            )
-            tree_source = "user_pob"
-        else:
-            tree_source = "empty"
+        if snapshot is not None:
+            try:
+                dyn_tree_prog = derive_tree_progression(snapshot, target_name=template_name)
+            except FileNotFoundError as err:
+                log.warning(
+                    "fob_stage_export_tree_data_missing",
+                    error=str(err),
+                )
+                dyn_tree_prog = None
+            if dyn_tree_prog is not None:
+                stage_tree = dyn_tree_prog.for_stage(stage_key)
+                if stage_tree is not None:
+                    tree_source = "dynamic"
+
+        if stage_tree is None:
+            tree_prog = progression_for(template_name)
+            stage_tree = tree_prog.for_stage(stage_key) if tree_prog is not None else None
+            if stage_tree is not None:
+                tree_source = "progression"
+            elif snapshot is not None:
+                # Last resort when dynamic derivation didn't produce a
+                # stage match (e.g. unknown class id): preserve the
+                # user's tree verbatim so the PoB import isn't empty.
+                stage_tree = StageTree(
+                    stage_key=stage_key,
+                    node_ids=tuple(snapshot.tree.node_ids),
+                    mastery_effects=tuple(snapshot.tree.mastery_effects.items()),
+                )
+                tree_source = "user_pob"
+            else:
+                tree_source = "empty"
 
         gear_prog = gear_progression_for(template_name)
         stage_gear = gear_prog.for_stage(stage_key) if gear_prog is not None else None

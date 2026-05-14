@@ -22,6 +22,7 @@ the future :mod:`poe1_fob.pob.encode` module — Step 14 T4.
 
 from __future__ import annotations
 
+from .dynamic import derive_tree_progression
 from .models import StageTree, TreeProgression
 from .pob_url import encode_pob_tree_url
 from .progressions import (
@@ -30,13 +31,18 @@ from .progressions import (
     SPECTRE_NECRO_PROGRESSION,
     progression_for,
 )
+from .tree_data import TreeData, TreeNode, get_tree_data
 
 __all__ = [
     "PROGRESSION_REGISTRY",
     "RF_POHX_PROGRESSION",
     "SPECTRE_NECRO_PROGRESSION",
     "StageTree",
+    "TreeData",
+    "TreeNode",
     "TreeProgression",
+    "derive_tree_progression",
     "encode_pob_tree_url",
+    "get_tree_data",
     "progression_for",
 ]

@@ -7,7 +7,10 @@ repos:
       - id: check-yaml
       - id: check-toml
       - id: check-added-large-files
-        args: ["--maxkb=500"]
+        # 5 MB ceiling covers the vendored PoE 1 passive tree JSON
+        # (~2.8 MB minified — packages/fob/data/tree/3_28.json),
+        # while still catching accidental blob commits.
+        args: ["--maxkb=5000"]
       - id: check-merge-conflict
       - id: mixed-line-ending
         args: ["--fix=lf"]

@@ -26,6 +26,25 @@ The 49 hand-written `BuildTemplate` classes in `poe1_fob.planner.templates` stay
 
 Tree allocation, gear progression, gem level/quality progression — these are **NOT** to be hand-curated per template. They are derived dynamically (Steps 16-18 in the backlog).
 
+## External data sources (use these, don't reinvent)
+
+Research conducted 2026-05-14 mapped every public PoE 1 data source. The conclusion: **two upstream repos give us everything we need**, both MIT-licensed, both league-current. Don't add new sources without re-doing the research; here's what we evaluated:
+
+| Need | Source we use | Why this one |
+|---|---|---|
+| **Passive tree** (nodes / edges / classes / ascendancies / masteries / cluster sub-trees) | `PathOfBuildingCommunity/PathOfBuilding` repo, file `src/TreeData/3_28/data.json`. Vendor a snapshot into `packages/fob/data/tree/3_28.json`. | Only complete + license-clean + league-current source. The same JSON PoB itself parses, so any tree we derive round-trips. Re-fetch with `scripts/update_tree_data.py` when GGG ships a new league. |
+| **Gem data** (per-level stats, Awakened, alt-qualities) | Not needed yet for Step 18 (our math is deterministic on user's PoB values). When we do need it: vendor `repoe-fork/repoe` `gems.json` (JSON, one league behind) or fall back to PoB's `src/Data/Skills/*.lua`. | PoB has the per-level stat tables; repoe-fork is cleaner JSON; we'll only need this for the *advanced* gem advice (e.g. "Anomalous Empower at 21 gives +X%"). |
+| **Item bases** (every base type, slot, requirements, implicits) | `repoe-fork/repoe` `base_items.json`. Vendor into `packages/fob/data/items/`. | Cleanest JSON keyed by base name. PoB's `src/Data/Bases/*.lua` is the same data in Lua — fallback if repoe-fork lags too far behind. |
+| **Build population** (popularity per ascendancy, stat percentiles) | poe.ninja builds (we already fetch them). | Zero new HTTP integration — aggregator over data already in memory. Refreshes continuously per league. |
+
+**Sources we evaluated and rejected**:
+
+- **poedb.tw** — HTML-only, no JSON/API, no public dumps. Useful as a human cross-reference, NOT viable as a programmatic feed. Scraping is fragile and terms-of-use ambiguous.
+- **GGG official developer API** (`pathofexile.com/developer/docs`) — Only publishes *user* data (characters, stashes, ladder, trade) behind OAuth. Does NOT publish tree, gem, or item-base definitions. May matter someday if we add "import character directly from your account" without the PoB paste step, but not before.
+- **brather1ng/RePoE (original)** — Dead, stuck at 3.19 (Sep 2022). Use the `repoe-fork/repoe` fork instead.
+
+**Vendor-or-fetch policy**: Bundle a snapshot of these JSON files inside the repo (e.g. `packages/fob/data/tree/3_28.json`). DON'T fetch them at runtime — adds an upstream dependency on github.com being up and re-introduces "external API drift" we just solved. A new league = one script invocation + one git commit. License is MIT on both upstream repos.
+
 ## What this repo is
 
 `poe1-suite` is a uv workspace monorepo of Path of Exile 1 tools. FastAPI backend on port 8765, React/Mantine shell planned. Membership rules:
@@ -51,9 +70,33 @@ uv run mypy .
 uv run pytest
 ```
 
-All four must pass with zero errors. Current baseline: **649 tests green (2 skipped — integration/LLM), 111 files type-checked clean, 109 files formatted clean**. Frontend build 551 KB / 168 KB gzip.
+All four must pass with zero errors. Current baseline: **664 tests green (2 skipped — integration/LLM), 114 files type-checked clean, 112 files formatted clean**. Frontend build 551 KB / 168 KB gzip.
 
 **PoB import QA — confirmed working 2026-05-14**: real PoB → planner → "Importa stage in PoB" → paste in PoB Community 3.28 desktop → full build loads (tree 123/123 nodes including cluster jewel subgraph, mastery effects, items, gems, config, pantheon). Took 7 commits to debug, all guided by reading PathOfBuildingCommunity Lua source. Key learnings captured below.
+
+## Step 16 — Dynamic Tree Progression (2026-05-14) ✅
+
+Second slice of the dynamic-synthesis pivot. Replaces hand-curated `PROGRESSION_REGISTRY` for any build where the user pastes a PoB.
+
+- New `scripts/extract_tree_data.py` — pulls GGG's `passiveSkillTreeData` JS variable from `https://www.pathofexile.com/passive-skill-tree`, brace-matches the embedded `{...}`, validates as JSON, writes `packages/fob/data/tree/<version>.json`. 4.7 MB pretty-printed; 3338 regular tree nodes + 7 classes + 19 ascendancies + ~350 mastery nodes.
+- New `poe1_fob.tree.tree_data` — lazy loader cached via `lru_cache`. Builds:
+  - `nodes_by_id: dict[int, TreeNode]` with type flags (`is_keystone`/`is_notable`/`is_mastery`/`is_ascendancy_start`), name, ascendancy membership, outgoing edges.
+  - `class_starts: dict[class_index, node_id]` — 0=Scion, 1=Marauder, ..., 6=Shadow.
+  - `ascendancy_starts: dict[ascendancy_name, node_id]` — Juggernaut, Berserker, Chieftain, etc.
+  - **Symmetric `adjacency: dict[int, frozenset[int]]`** — GGG stores `in`/`out` separately but the tree is undirected, so the loader pre-unions both sides. Verified asymmetric edges = 0.
+- New `poe1_fob.tree.dynamic.derive_tree_progression(snapshot) -> TreeProgression | None`:
+  1. Partition user's `node_ids` into regular / ascendancy / mastery / cluster (>= 65536).
+  2. BFS the regular subgraph from `class_starts[class_id]` — distances reflect natural allocation order.
+  3. Bucket regular nodes into 6 cumulative supersets at coverage 10% / 25% / 50% / 70% / 85% / 100%.
+  4. Ascendancy: BFS from `ascendancy_starts[name]`, distribute in lab order (lab 1 → stage 2, ..., lab 4 → stage 5), 2 points per lab.
+  5. Mastery nodes only appear from stage 4 onward (you don't socket masteries while leveling).
+  6. Cluster-jewel notables: stage 6 only (PoB generates these subgraphs, not in GGG data).
+- **Router wiring**: `_compose_stage_export` now prefers dynamic synthesis over the curated registry when a `user_pob_code` is provided. Priority is `dynamic` > `progression` > `user_pob` (verbatim fallback) > `empty`. The new `tree_source="dynamic"` value is documented in `StageExportResponse.tree_source`.
+- **14 new tests** (`test_tree_dynamic.py`) — loader shape + symmetric adjacency + class-to-ascendancy edges + bucket monotonicity + coverage fractions + end-to-end on real fixture (6 monotone supersets summing to user's exact 134-node allocation; cluster nodes only in final stage; mastery effects propagated).
+
+Baseline: 664 verdi / 114 mypy / 112 format.
+
+Operational note: after each PoE league change, re-run `python scripts/extract_tree_data.py` and commit the new JSON. The script fetches from GGG's official `/passive-skill-tree` page (no auth, no rate-limit). Per CLAUDE.md "External data sources" section: vendor-not-fetch, MIT-licensed via GGG's public-facing data.
 
 ## Step 18 — Dynamic Gem Progression (2026-05-14) ✅
 
