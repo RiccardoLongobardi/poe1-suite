@@ -156,8 +156,16 @@ export function TradeSearchDialog({
     );
   }
 
+  // When the popup blocker prevents window.open after the async fetch,
+  // we fall back to showing a clickable link in the dialog the user can
+  // open manually. The previous "open about:blank first, then navigate"
+  // pattern was leaving a permanent white tab whenever the API call
+  // failed (e.g. GGG 429 rate-limit), so we drop it entirely.
+  const [pendingUrl, setPendingUrl] = useState<string | null>(null);
+
   async function handleSearch() {
     setError(null);
+    setPendingUrl(null);
 
     const filters: TradeSearchModFilter[] = rows
       .filter((r) => r.enabled)
@@ -178,25 +186,6 @@ export function TradeSearchDialog({
       return;
     }
 
-    // Open the new tab SYNCHRONOUSLY in the click handler. Browsers
-    // block window.open() called after an `await` because they
-    // consider it not-user-initiated. We open a placeholder
-    // immediately and swap the URL once the search completes.
-    //
-    // IMPORTANT: do NOT pass "noopener" here — it causes window.open()
-    // to return null (per HTML spec) in modern browsers, which means
-    // we can't later set `tab.location.href`. The result was the
-    // user seeing a permanent about:blank "white page". Cross-origin
-    // protections kick in automatically once we navigate to
-    // pathofexile.com, so dropping noopener for the placeholder is safe.
-    const tab = window.open("about:blank", "_blank");
-    if (!tab) {
-      setError(
-        "Il browser ha bloccato l'apertura della scheda. Disabilita il popup blocker per fob-ten.vercel.app e riprova.",
-      );
-      return;
-    }
-
     setLoading(true);
     try {
       const resp = await tradeSearch({
@@ -207,10 +196,21 @@ export function TradeSearchDialog({
         min_links: requireLinks ? linkCount : null,
       });
 
-      tab.location.href = resp.url;
-      onClose();
+      // Open AFTER the API succeeds. Modern browsers allow popups
+      // initiated from a click handler even after a short async fetch
+      // (~1-3 s for GGG Trade). If the popup blocker is aggressive,
+      // window.open returns null — we show the URL as a clickable
+      // link the user can open manually.
+      const tab = window.open(resp.url, "_blank", "noopener,noreferrer");
+      if (tab) {
+        onClose();
+      } else {
+        setPendingUrl(resp.url);
+        setError(
+          "Il browser ha bloccato l'apertura automatica. Clicca il link qui sotto per aprire la ricerca su Trade.",
+        );
+      }
     } catch (err) {
-      tab.close();  // close the empty placeholder tab
       setError((err as Error).message);
     } finally {
       setLoading(false);
@@ -372,6 +372,18 @@ export function TradeSearchDialog({
         {error && (
           <Alert color="red" variant="light">
             {error}
+            {pendingUrl && (
+              <Text size="sm" mt="xs">
+                <a
+                  href={pendingUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: "inherit", textDecoration: "underline" }}
+                >
+                  Apri ricerca su Trade →
+                </a>
+              </Text>
+            )}
           </Alert>
         )}
 
