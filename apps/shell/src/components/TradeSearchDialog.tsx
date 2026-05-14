@@ -182,7 +182,14 @@ export function TradeSearchDialog({
     // block window.open() called after an `await` because they
     // consider it not-user-initiated. We open a placeholder
     // immediately and swap the URL once the search completes.
-    const tab = window.open("about:blank", "_blank", "noopener,noreferrer");
+    //
+    // IMPORTANT: do NOT pass "noopener" here — it causes window.open()
+    // to return null (per HTML spec) in modern browsers, which means
+    // we can't later set `tab.location.href`. The result was the
+    // user seeing a permanent about:blank "white page". Cross-origin
+    // protections kick in automatically once we navigate to
+    // pathofexile.com, so dropping noopener for the placeholder is safe.
+    const tab = window.open("about:blank", "_blank");
     if (!tab) {
       setError(
         "Il browser ha bloccato l'apertura della scheda. Disabilita il popup blocker per fob-ten.vercel.app e riprova.",

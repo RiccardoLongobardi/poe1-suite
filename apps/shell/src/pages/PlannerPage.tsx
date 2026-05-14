@@ -347,6 +347,7 @@ export function PlannerPage({ initialInput }: Props) {
                 templateName={result.templateName}
                 characterClass={result.build.character_class || null}
                 ascendancy={result.build.ascendancy ?? null}
+                userPobCode={input.trim() || null}
               />
             ))}
           </Stack>

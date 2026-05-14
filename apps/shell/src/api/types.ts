@@ -338,12 +338,33 @@ export interface GemProgression {
   stages: StageGemLinks[];
 }
 
-/** GET /fob/stage-export response */
+/** GET|POST /fob/stage-export response */
 export interface StageExportResponse {
   template_name: string;
   stage_key: string;
-  /** PoB-importable code, or null when the template lacks a tree progression. */
+  /** PoB-importable code. Always populated by the POST variant. */
   code: string | null;
+  /**
+   * Where the tree in the exported code came from:
+   * - "progression": a curated TreeProgression for this template.
+   * - "user_pob": decoded from the user's original PoB (POST fallback).
+   * - "empty": no tree (PoB will show class start only).
+   */
+  tree_source?: "progression" | "user_pob" | "empty";
+}
+
+/** POST /fob/stage-export body. */
+export interface StageExportRequest {
+  template_name: string;
+  stage_key: string;
+  character_class: string;
+  ascendancy: string | null;
+  level: number;
+  /**
+   * Original PoB code the user pasted. Used as the tree fallback when
+   * no curated TreeProgression exists for the template.
+   */
+  user_pob_code: string | null;
 }
 
 // ---------------------------------------------------------------------------

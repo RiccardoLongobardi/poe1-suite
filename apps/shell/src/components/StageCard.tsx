@@ -151,6 +151,12 @@ interface Props {
   characterClass?: string | null;
   /** Ascendancy passed through to stage-export / tree URL encoding. */
   ascendancy?: string | null;
+  /**
+   * The user's original PoB code (raw export). Passed to the
+   * stage-export endpoint as a fallback when the matched template has
+   * no curated tree progression — preserves the user's actual tree.
+   */
+  userPobCode?: string | null;
 }
 
 export function StageCard({
@@ -159,6 +165,7 @@ export function StageCard({
   templateName,
   characterClass,
   ascendancy,
+  userPobCode,
 }: Props) {
   const accent = index === 0 ? "teal" : index === 1 ? "blue" : "grape";
 
@@ -223,21 +230,28 @@ export function StageCard({
   // Importa in PoB: fetch the export code on demand, copy to clipboard
   // and surface a CopyButton-style chip with the actual code so the user
   // can re-copy or paste manually.
+  const [exportTreeSource, setExportTreeSource] = useState<
+    "progression" | "user_pob" | "empty" | null
+  >(null);
+
   const handleExport = useCallback(async () => {
     if (!canQueryProgressions || exportLoading) return;
     setExportLoading(true);
     setExportError(null);
+    setExportTreeSource(null);
     try {
       const res = await fetchStageExport(
         templateName!,
         stageKey!,
         characterClass || "Marauder",
         ascendancy ?? null,
+        userPobCode ?? null,
       );
       setExportCode(res.code);
+      setExportTreeSource(res.tree_source ?? null);
       if (!res.code) {
         setExportError(
-          "Tree progression non disponibile per questo template/stage.",
+          "Codice non generato. Riprova o riapri il piano dal PoB.",
         );
       } else {
         // Eagerly write to clipboard for the common case (one-tap import).
@@ -260,6 +274,7 @@ export function StageCard({
     stageKey,
     characterClass,
     ascendancy,
+    userPobCode,
   ]);
 
   return (
@@ -520,6 +535,15 @@ export function StageCard({
             {exportError && (
               <Text size="xs" c="red">
                 {exportError}
+              </Text>
+            )}
+            {exportCode && exportTreeSource && (
+              <Text size="xs" c="dimmed">
+                {exportTreeSource === "progression"
+                  ? "Tree: progressione curata per questo template."
+                  : exportTreeSource === "user_pob"
+                    ? "Tree: preservato dal tuo PoB originale (nessuna progressione curata per questo template)."
+                    : "Tree: vuoto — incolla il tuo albero in PoB dopo l'import."}
               </Text>
             )}
             {exportCode && (

@@ -389,6 +389,46 @@ def test_rare_craft_item_rarity_is_rare_in_xml() -> None:
 
 
 # ---------------------------------------------------------------------------
+# Tree=None fallback (templates without a curated TreeProgression)
+# ---------------------------------------------------------------------------
+
+
+def test_encode_with_no_tree_still_produces_valid_code() -> None:
+    """encode_pob_code(tree=None) must emit a code PoB will still import."""
+
+    code = encode_pob_code(
+        character_class="Marauder",
+        ascendancy="Juggernaut",
+        tree=None,
+    )
+    raw = decode_export(code)
+    assert raw.startswith(b"<PathOfBuilding")
+    # Empty nodes attribute on the <Spec> element.
+    assert b'nodes=""' in raw
+    snap = parse_snapshot(raw, export_code=code)
+    assert snap.character_class == CharacterClass.MARAUDER
+    assert snap.ascendancy is not None
+    assert snap.ascendancy.value == "juggernaut"
+    # Empty tree → at most one "node 0" artifact from the trailing
+    # zero bytes the URL parser over-reads (it's harmless — PoB and
+    # PoE both ignore node id 0).
+    assert all(n == 0 for n in snap.tree.node_ids)
+
+
+def test_encode_with_no_tree_emits_helpful_notes() -> None:
+    """When tree=None the Notes block warns the user their tree is empty."""
+
+    code = encode_pob_code(
+        character_class="Witch",
+        ascendancy=None,
+        tree=None,
+    )
+    raw = decode_export(code)
+    snap = parse_snapshot(raw, export_code=code)
+    assert "Nessuna tree progression" in snap.notes
+
+
+# ---------------------------------------------------------------------------
 # Error surface (smoke)
 # ---------------------------------------------------------------------------
 

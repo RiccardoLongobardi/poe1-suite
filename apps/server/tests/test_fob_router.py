@@ -275,3 +275,143 @@ def test_plan_reverse_e2e_with_real_pob(
         # Sanity: at least the GenericTemplate / RfPohx / matching
         # template should produce *some* gem advice for a real build.
         assert len(all_gem_lines) > 0
+
+
+# ---------------------------------------------------------------------------
+# Stage export — GET (no-fallback) + POST (with user_pob_code fallback)
+# ---------------------------------------------------------------------------
+
+
+def test_stage_export_get_rf_pohx_returns_progression_code(settings: Settings) -> None:
+    """GET /fob/stage-export with a real progression returns tree_source='progression'."""
+
+    app = create_app(settings)
+    with TestClient(app) as client:
+        r = client.get(
+            "/fob/stage-export/rf_pohx/early_campaign",
+            params={"character_class": "Marauder", "ascendancy": "Juggernaut"},
+        )
+        assert r.status_code == 200, r.text
+        body = r.json()
+        assert body["template_name"] == "rf_pohx"
+        assert body["stage_key"] == "early_campaign"
+        assert body["tree_source"] == "progression"
+        assert body["code"] is not None
+        assert len(body["code"]) > 100
+
+
+def test_stage_export_get_unknown_template_returns_empty_tree(settings: Settings) -> None:
+    """GET endpoint falls back to empty tree when no progression registered.
+
+    Previously returned {"code": null} which made the import button
+    unusable for 47/49 templates. Now always emits a valid code so PoB
+    can still import it.
+    """
+
+    app = create_app(settings)
+    with TestClient(app) as client:
+        r = client.get(
+            "/fob/stage-export/vortex_occultist/early_campaign",
+            params={"character_class": "Witch", "ascendancy": "Occultist"},
+        )
+        assert r.status_code == 200, r.text
+        body = r.json()
+        assert body["tree_source"] == "empty"
+        assert body["code"] is not None
+
+
+def test_stage_export_post_with_user_pob_falls_back_to_user_tree(
+    settings: Settings,
+) -> None:
+    """POST with user_pob_code preserves the user's tree when no progression exists."""
+
+    app = create_app(settings)
+    with TestClient(app) as client:
+        r = client.post(
+            "/fob/stage-export",
+            json={
+                "template_name": "vortex_occultist",  # no curated progression
+                "stage_key": "early_campaign",
+                "character_class": "Marauder",
+                "ascendancy": "Chieftain",
+                "level": 90,
+                "user_pob_code": REAL_POB,
+            },
+        )
+        assert r.status_code == 200, r.text
+        body = r.json()
+        assert body["tree_source"] == "user_pob"
+        assert body["code"] is not None
+
+
+def test_stage_export_post_without_user_pob_returns_empty_tree(
+    settings: Settings,
+) -> None:
+    """POST without user_pob_code + no progression → tree_source='empty'."""
+
+    app = create_app(settings)
+    with TestClient(app) as client:
+        r = client.post(
+            "/fob/stage-export",
+            json={
+                "template_name": "vortex_occultist",
+                "stage_key": "early_campaign",
+                "character_class": "Witch",
+                "ascendancy": "Occultist",
+                "level": 90,
+                "user_pob_code": None,
+            },
+        )
+        assert r.status_code == 200, r.text
+        body = r.json()
+        assert body["tree_source"] == "empty"
+        assert body["code"] is not None
+
+
+def test_stage_export_post_rf_pohx_prefers_progression_over_user_pob(
+    settings: Settings,
+) -> None:
+    """When the template has a curated progression, it wins over user_pob_code."""
+
+    app = create_app(settings)
+    with TestClient(app) as client:
+        r = client.post(
+            "/fob/stage-export",
+            json={
+                "template_name": "rf_pohx",
+                "stage_key": "end_mapping",
+                "character_class": "Marauder",
+                "ascendancy": "Juggernaut",
+                "level": 90,
+                "user_pob_code": REAL_POB,
+            },
+        )
+        assert r.status_code == 200, r.text
+        body = r.json()
+        # progression wins — the user_pob_code is ignored when a curated
+        # tree progression is registered.
+        assert body["tree_source"] == "progression"
+
+
+def test_stage_export_post_garbage_user_pob_falls_back_to_empty(
+    settings: Settings,
+) -> None:
+    """Invalid user_pob_code → graceful fallback to empty tree (no 500)."""
+
+    app = create_app(settings)
+    with TestClient(app) as client:
+        r = client.post(
+            "/fob/stage-export",
+            json={
+                "template_name": "vortex_occultist",
+                "stage_key": "early_campaign",
+                "character_class": "Witch",
+                "ascendancy": "Occultist",
+                "level": 90,
+                "user_pob_code": "@@@not-a-real-pob-code@@@",
+            },
+        )
+        assert r.status_code == 200, r.text
+        body = r.json()
+        assert body["tree_source"] == "empty"
+        assert body["code"] is not None

@@ -62,7 +62,7 @@ from .pob import (
 from .pob import clean_mod_lines as _clean_mod_lines
 from .pob import extract_mods as _extract_mod_patterns
 from .ranking import RankingEngine, RecommendRequest, RecommendResponse, SourceAggregator
-from .tree import TreeProgression, encode_pob_tree_url, progression_for
+from .tree import StageTree, TreeProgression, encode_pob_tree_url, progression_for
 
 log = get_logger(__name__)
 
@@ -123,6 +123,54 @@ class AnalyzePobResponse(BaseModel):
 
     build: Build
     snapshot: PobSnapshot
+
+
+class StageExportRequest(BaseModel):
+    """Input for ``POST /fob/stage-export``.
+
+    Carries the same identifiers as the GET variant plus the user's
+    original PoB code. When the matched template has no curated tree
+    progression, the server decodes ``user_pob_code`` and uses its
+    allocated nodes — so the import preserves the user's actual tree
+    instead of falling back to an empty one.
+    """
+
+    model_config = ConfigDict(frozen=True)
+
+    template_name: str = Field(..., min_length=1)
+    stage_key: str = Field(..., min_length=1)
+    character_class: str = Field(default="Marauder", min_length=1)
+    ascendancy: str | None = None
+    level: int = Field(default=90, ge=1, le=100)
+    user_pob_code: str | None = Field(
+        default=None,
+        description=(
+            "Optional raw PoB export code the user originally pasted. "
+            "Used as the tree fallback when no curated TreeProgression "
+            "is registered for ``template_name``. Accepted as raw code "
+            "only (no pobb.in / pastebin URL resolution — keep this "
+            "endpoint network-free)."
+        ),
+    )
+
+
+class StageExportResponse(BaseModel):
+    """Output for ``GET|POST /fob/stage-export``."""
+
+    model_config = ConfigDict(frozen=True)
+
+    code: str | None
+    stage_key: str
+    template_name: str
+    tree_source: str = Field(
+        default="progression",
+        description=(
+            "Where the tree in the exported code came from: "
+            "'progression' (curated for the template), "
+            "'user_pob' (decoded from the user's original PoB), "
+            "'empty' (no tree — PoB will show class start only)."
+        ),
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -708,36 +756,55 @@ def make_router(settings: Settings) -> APIRouter:
         )
         return prog
 
-    @router.get(
-        "/stage-export/{template_name}/{stage_key}",
-        summary=(
-            "Build a PathOfBuilding-importable code combining the tree, gear "
-            "and gem-link progressions for a single stage of a template."
-        ),
-    )
-    async def stage_export_endpoint(
+    def _compose_stage_export(
+        *,
         template_name: str,
         stage_key: str,
-        character_class: str = "Marauder",
-        ascendancy: str | None = None,
-        level: int = 90,
-    ) -> dict[str, str | None]:
-        """Compose a Step 14 PoB export code for one stage.
+        character_class: str,
+        ascendancy: str | None,
+        level: int,
+        user_pob_code: str | None,
+    ) -> StageExportResponse:
+        """Compose a Stage Export response.
 
-        Looks up the registered TreeProgression / GearProgression /
-        GemProgression for ``template_name``, finds the slice for
-        ``stage_key`` in each, and pipes them through the encoder.
-        Returns ``{"code": null}`` when the template has no tree
-        progression yet (tree is the only required input — gear and
-        gems are optional and gracefully omitted when missing).
+        Tries in order:
+        1. Curated TreeProgression for ``template_name`` (Step 14 T1).
+        2. User's original PoB code, decoded to extract its allocated
+           node set (fallback when 1 fails — preserves the user's
+           actual tree).
+        3. Empty tree spec (last resort — PoB still imports a valid code,
+           the user keeps whatever tree they have open in PoB desktop).
+
+        Gear and gem progressions are optional in all paths.
         """
 
         tree_prog = progression_for(template_name)
-        if tree_prog is None:
-            return {"code": None, "stage_key": stage_key, "template_name": template_name}
-        stage_tree = tree_prog.for_stage(stage_key)
-        if stage_tree is None:
-            return {"code": None, "stage_key": stage_key, "template_name": template_name}
+        stage_tree = tree_prog.for_stage(stage_key) if tree_prog is not None else None
+        tree_source: str
+        if stage_tree is not None:
+            tree_source = "progression"
+        elif user_pob_code:
+            try:
+                snapshot = parse_snapshot(
+                    decode_export(user_pob_code),
+                    export_code=user_pob_code,
+                )
+                stage_tree = StageTree(
+                    stage_key=stage_key,
+                    node_ids=tuple(snapshot.tree.node_ids),
+                )
+                tree_source = "user_pob"
+            except (PobParseError, ValueError) as err:
+                log.warning(
+                    "fob_stage_export_user_pob_decode_failed",
+                    template_name=template_name,
+                    stage_key=stage_key,
+                    error=str(err),
+                )
+                stage_tree = None
+                tree_source = "empty"
+        else:
+            tree_source = "empty"
 
         gear_prog = gear_progression_for(template_name)
         stage_gear = gear_prog.for_stage(stage_key) if gear_prog is not None else None
@@ -758,10 +825,78 @@ def make_router(settings: Settings) -> APIRouter:
             template_name=template_name,
             stage_key=stage_key,
             character_class=character_class,
+            tree_source=tree_source,
             has_gear=stage_gear is not None,
             has_gems=stage_gems is not None,
         )
-        return {"code": code, "stage_key": stage_key, "template_name": template_name}
+        return StageExportResponse(
+            code=code,
+            stage_key=stage_key,
+            template_name=template_name,
+            tree_source=tree_source,
+        )
+
+    @router.get(
+        "/stage-export/{template_name}/{stage_key}",
+        response_model=StageExportResponse,
+        summary=(
+            "Build a PathOfBuilding-importable code combining the tree, gear "
+            "and gem-link progressions for a single stage of a template."
+        ),
+    )
+    async def stage_export_endpoint(
+        template_name: str,
+        stage_key: str,
+        character_class: str = "Marauder",
+        ascendancy: str | None = None,
+        level: int = 90,
+    ) -> StageExportResponse:
+        """Compose a Step 14 PoB export code for one stage.
+
+        GET variant: no user_pob_code fallback. When the template has
+        no curated tree progression, the exported code carries an empty
+        tree spec — PoB still imports it, but the user loses their tree.
+        Prefer the POST variant when you can supply the original PoB.
+        """
+
+        return _compose_stage_export(
+            template_name=template_name,
+            stage_key=stage_key,
+            character_class=character_class,
+            ascendancy=ascendancy,
+            level=level,
+            user_pob_code=None,
+        )
+
+    @router.post(
+        "/stage-export",
+        response_model=StageExportResponse,
+        summary=(
+            "Build a PathOfBuilding-importable code for a stage, with the "
+            "user's original PoB tree as a fallback when no curated "
+            "TreeProgression is registered for the template."
+        ),
+    )
+    async def stage_export_post_endpoint(
+        payload: Annotated[StageExportRequest, Body()],
+    ) -> StageExportResponse:
+        """POST variant of /stage-export with user_pob_code fallback.
+
+        Exists because 47/49 BuildTemplates don't yet ship a curated
+        TreeProgression (only ``rf_pohx`` and ``spectre_necromancer``
+        do as of Step 14 T5). For those builds, decoding the user's
+        original PoB and re-using its allocated nodes gives an import
+        that doesn't wipe their tree.
+        """
+
+        return _compose_stage_export(
+            template_name=payload.template_name,
+            stage_key=payload.stage_key,
+            character_class=payload.character_class,
+            ascendancy=payload.ascendancy,
+            level=payload.level,
+            user_pob_code=payload.user_pob_code,
+        )
 
     @router.post(
         "/extract-trade-mods",

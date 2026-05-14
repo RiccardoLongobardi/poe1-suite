@@ -14,6 +14,7 @@ import type {
   PlanResponse,
   PricingProgress,
   RecommendResponse,
+  StageExportRequest,
   StageExportResponse,
   TargetGoal,
   TradeModExtractResponse,
@@ -201,25 +202,30 @@ export async function fetchGemProgression(
 }
 
 /**
- * GET /fob/stage-export/{template}/{stage_key} — PoB-importable code for one stage.
+ * POST /fob/stage-export — PoB-importable code for one stage.
  *
- * Returns `{ code: null }` when the template has no tree progression yet.
+ * Use this variant when you can supply the user's original PoB code:
+ * the server preserves the user's actual tree when the matched template
+ * has no curated TreeProgression registered (47 of 49 templates as of
+ * Step 14 T5). Always returns a non-null ``code``.
  */
 export async function fetchStageExport(
   templateName: string,
   stageKey: string,
   characterClass: string,
   ascendancy: string | null,
+  userPobCode: string | null,
   level = 90,
 ): Promise<StageExportResponse> {
-  const params = new URLSearchParams({
+  const body: StageExportRequest = {
+    template_name: templateName,
+    stage_key: stageKey,
     character_class: characterClass,
-    level: String(level),
-  });
-  if (ascendancy) params.set("ascendancy", ascendancy);
-  return get<StageExportResponse>(
-    `/fob/stage-export/${encodeURIComponent(templateName)}/${encodeURIComponent(stageKey)}?${params.toString()}`,
-  );
+    ascendancy,
+    level,
+    user_pob_code: userPobCode,
+  };
+  return post<StageExportResponse>("/fob/stage-export", body);
 }
 
 /**
