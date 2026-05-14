@@ -1,26 +1,25 @@
 /**
  * Client-side Trade redirect helper.
  *
- * Two flow variants:
+ * Why we open the bare /trade/search/<league> page instead of a
+ * pre-filtered search URL: GGG's ``/api/trade/search/<league>`` POST
+ * (the API that returns a search_id we'd embed in the URL) is blocked
+ * with HTTP 403 from cloud datacenter IPs — including Render's IP
+ * range where the FOB backend runs. Confirmed empirically on
+ * 2026-05-14: identical request from a home/residential IP returns
+ * 200 + a valid search_id, from Render it always 403s.
  *
- * 1. ``openTradeForItem`` (the common one) — asks the server via
- *    ``POST /fob/trade-url`` for a pre-filled GGG Trade search URL,
- *    then opens it. The server caches the URL by query hash (TTL ~8
- *    min) so common items (Mageblood, Kaom's Heart, ...) usually
- *    return in under 100 ms — fast enough that the browser keeps the
- *    user-gesture window open and the popup blocker stays quiet.
+ * The server-side endpoint ``POST /fob/trade-url`` does exist (with
+ * an in-memory cache) and works fine when FOB is run locally on a
+ * machine whose IP isn't blocked. Production simply can't use it.
  *
- * 2. Fallback — if the server is rate-limited by GGG (429), or the
- *    network call fails, we open the bare ``/trade/search/<league>``
- *    page and rely on the clipboard-copied item name so the user can
- *    paste-and-search manually in one move.
+ * So the prod flow is: open the bare search page synchronously (one
+ * click, no popup blocker, no white-tab UX) and copy the item name
+ * to the clipboard so the user pastes-and-searches in one move.
  *
  * The league name (e.g. "Mirage") is prefetched from ``/health`` on
  * app mount so the redirect stays synchronous on first click.
  */
-
-import { notifications } from "@mantine/notifications";
-import { fetchTradeUrl } from "./fob";
 
 const BASE = (import.meta.env.VITE_API_BASE ?? "").replace(/\/+$/, "");
 
@@ -64,74 +63,33 @@ export function getLeague(): string {
 /** Subset of CoreItem fields the redirect helper needs. */
 export interface TradeRedirectItem {
   name: string;
-  /** "unique", "rare", "magic", "normal" — drives name-vs-type routing. */
+  /** "unique", "rare", ... — kept for future use (e.g. local-dev pre-filter). */
   rarity?: string | null;
   base_type?: string | null;
   mods?: string[];
 }
 
 /**
- * Open a pre-filled GGG Trade search for ``item`` in a new tab.
+ * Open the GGG Trade search page in a new tab and copy ``item.name``
+ * to the clipboard so the user can paste-and-search.
  *
- * Best-effort flow:
- * 1. Copy the item name to the clipboard (paste-and-search fallback).
- * 2. Ask /fob/trade-url for a pre-filled URL with the right query.
- * 3. Open it. If the popup blocker rejects (rare on cache hit), surface
- *    a Mantine notification with a clickable "Apri" link instead of
- *    silently doing nothing.
- * 4. On server error or rate-limit, fall back to the bare trade page.
+ * Synchronous so it stays inside the user-gesture window (popup
+ * blockers stay quiet). The clipboard write is best-effort: it can
+ * fail silently on insecure contexts or denied permission, but the
+ * redirect still happens.
+ *
+ * Pre-filling the search (name / base / mods → search_id) requires
+ * calling GGG's API server-side, which is blocked from Render's IP.
+ * See the module docstring for the full story.
  */
-export async function openTradeForItem(item: TradeRedirectItem): Promise<void> {
-  // 1. Clipboard fallback — done synchronously, no await needed for the
-  //    immediate effect. The promise is fire-and-forget.
+export function openTradeForItem(item: TradeRedirectItem): void {
   try {
     void navigator.clipboard.writeText(item.name);
   } catch {
-    // Non-secure context or denied permission. Ignore.
+    // Non-secure context or denied — silently skip the clipboard
+    // write. The user can still type the name manually on Trade.
   }
-
-  // 2. Build the request payload. Uniques → search by name; everything
-  //    else → search by base type + extracted mods.
-  const isUnique = (item.rarity ?? "").toLowerCase() === "unique";
-  const payload = {
-    item_name: isUnique ? item.name : null,
-    item_type: isUnique ? null : (item.base_type ?? null),
-    mod_lines: item.mods ?? [],
-  };
-
-  let url: string | null = null;
-  try {
-    const resp = await fetchTradeUrl(payload);
-    if (resp.url) {
-      url = resp.url;
-    }
-  } catch {
-    // Network error or 5xx — fall through to bare URL.
-  }
-
-  // 3. Fallback URL when /fob/trade-url didn't yield one.
   const league = getLeague();
-  const bareUrl = `https://www.pathofexile.com/trade/search/${encodeURIComponent(league)}`;
-  const target = url ?? bareUrl;
-
-  // 4. Try to open. Within the user-gesture window (transient
-  //    activation, ~3-5 s in modern browsers), this should succeed
-  //    even after the await. If GGG was slow and the activation
-  //    expired, fall back to a notification with a clickable link.
-  const tab = window.open(target, "_blank", "noopener,noreferrer");
-  if (!tab) {
-    notifications.show({
-      title: "Apri ricerca Trade",
-      message: url
-        ? "Il browser ha bloccato l'apertura automatica. Clicca per aprire la ricerca pre-filtrata."
-        : "Apri pathofexile.com/trade — il nome è già copiato negli appunti.",
-      color: "astral",
-      autoClose: 8000,
-      withCloseButton: true,
-      onClick: () => {
-        window.open(target, "_blank", "noopener,noreferrer");
-      },
-      styles: { root: { cursor: "pointer" } },
-    });
-  }
+  const url = `https://www.pathofexile.com/trade/search/${encodeURIComponent(league)}`;
+  window.open(url, "_blank", "noopener,noreferrer");
 }

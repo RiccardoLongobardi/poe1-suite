@@ -125,10 +125,10 @@ function ItemRow({
       </Table.Td>
       <Table.Td style={{ width: 36 }}>
         <Tooltip
-          label="Apri ricerca Trade pre-filtrata (nome copiato come fallback)"
+          label="Apri pathofexile.com/trade — il nome è copiato negli appunti, incollalo nella search e premi Cerca"
           withArrow
           multiline
-          w={240}
+          w={260}
         >
           <ActionIcon
             variant="subtle"
@@ -173,11 +173,12 @@ export function StageCard({
   const accent = index === 0 ? "teal" : index === 1 ? "blue" : "grape";
 
   function openTradeDialog(item: CoreItem) {
-    // Pre-filled GGG Trade search via /fob/trade-url with server-side
-    // cache. Repeat clicks on the same item hit the cache (no GGG
-    // call). On 429 / network error, the helper falls back to opening
-    // the bare trade page with the name in the clipboard.
-    void openTradeForItem({
+    // Synchronous: opens pathofexile.com/trade/search/<league> in a new
+    // tab and copies the item name to the clipboard. Server-side
+    // pre-filtering via GGG /api/trade/search/<league> is blocked
+    // (HTTP 403 from Render's IP range — datacenter blacklist). See
+    // ../api/tradeRedirect.ts for the full diagnosis.
+    openTradeForItem({
       name: item.name,
       rarity: item.rarity,
       base_type: item.base_type,
