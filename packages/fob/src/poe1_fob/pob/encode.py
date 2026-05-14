@@ -26,6 +26,7 @@ test suite exercises this directly.
 from __future__ import annotations
 
 import base64
+import copy
 import xml.etree.ElementTree as ET
 import zlib
 from collections.abc import Iterable
@@ -36,6 +37,24 @@ from ..gear.models import StageGearSet
 from ..gems.models import GemSpec, StageGemLinks
 from ..tree.models import StageTree
 from ..tree.pob_url import encode_pob_tree_url
+
+
+def _decode_passthrough(code: str) -> bytes:
+    """Decompress a PoB export code to its raw XML bytes.
+
+    Local helper to avoid an import cycle with :mod:`poe1_fob.pob.parser`
+    (which already imports from this module via the top-level package).
+    """
+
+    padded = code + "=" * (-len(code) % 4)
+    return zlib.decompress(base64.urlsafe_b64decode(padded))
+
+
+def _clone(elem: ET.Element) -> ET.Element:
+    """Return a deep copy of an XML element (subtree, attribs, text)."""
+
+    return copy.deepcopy(elem)
+
 
 # PoB stamps TWO different version strings — they are NOT the same:
 #
@@ -107,6 +126,7 @@ def encode_pob_code(
     gear: StageGearSet | None = None,
     gems: StageGemLinks | None = None,
     level: int = 90,
+    passthrough_user_pob: str | None = None,
 ) -> str:
     """Encode a stage spec into a PoB export code.
 
@@ -120,11 +140,20 @@ def encode_pob_code(
         tree: which passive nodes are allocated. When omitted, an empty
             tree spec is emitted (PoB still imports — the user can
             allocate manually or paste their own tree URL).
-        gear: optional gear set. When omitted, no <Items> entries are
-            emitted (PoB shows empty slots).
-        gems: optional gem links. When omitted, no <Skills> entries
-            are emitted (PoB shows no socketed gems).
+        gear: optional gear set. When omitted *and* no passthrough is
+            provided, no <Items> entries are emitted.
+        gems: optional gem links. When omitted *and* no passthrough is
+            provided, no <Skills> entries are emitted.
         level: character level stamped on the build (default 90).
+        passthrough_user_pob: optional raw PoB code from the user. When
+            provided, the encoder copies the user's <Items>, <Skills>,
+            <Config>, <Calcs>, <Party>, <Import>, <TreeView>, and
+            <Notes> elements into the output verbatim — preserving
+            their cluster jewels (which is how PoB allocates the
+            cluster subgraph nodes), gem groups, configuration, and
+            other state. The ``gear`` and ``gems`` parameters take
+            precedence when set (curated stage progression beats the
+            user's own items/gems).
     """
 
     xml_str = _build_xml(
@@ -134,6 +163,7 @@ def encode_pob_code(
         gear=gear,
         gems=gems,
         level=level,
+        passthrough_user_pob=passthrough_user_pob,
     )
     raw = xml_str.encode("utf-8")
     compressed = zlib.compress(raw, level=9)
@@ -153,11 +183,23 @@ def _build_xml(
     gear: StageGearSet | None,
     gems: StageGemLinks | None,
     level: int,
+    passthrough_user_pob: str | None = None,
 ) -> str:
     """Assemble the PathOfBuilding XML root."""
 
     class_id = _CLASS_ID.get(character_class, 0)
     asc_id = _ASCENDANCY_ID.get(ascendancy or "", 0)
+
+    # Optionally decode the user's original PoB so we can passthrough
+    # state we don't synthesise ourselves (items, gems, config, notes).
+    user_root: ET.Element | None = None
+    if passthrough_user_pob:
+        try:
+            user_root = ET.fromstring(_decode_passthrough(passthrough_user_pob))
+        except Exception:
+            # Best-effort: malformed passthrough shouldn't kill the
+            # whole export. Fall back to no passthrough (synth mode).
+            user_root = None
 
     # Root: bare ``<PathOfBuilding>`` with no version attribute. PoB
     # Community emits no attributes here in its own exports; adding
@@ -165,26 +207,35 @@ def _build_xml(
     # surface a "Game Version" dialog on import.
     root = ET.Element("PathOfBuilding")
 
-    # <Build> — character header. Attribute set / ordering kept close
-    # to what real PoB 3.28 exports produce (verified against the
-    # fixture in packages/fob/tests/fixtures/pob_YNQeadFwNBmX.txt).
-    # ``viewMode="IMPORT"`` is what PoB uses for build-share codes;
-    # ``targetVersion="3_0"`` is the PoE-1 game-version label and
-    # MUST be "3_0", not the league/tree version.
+    # <Build> — character header. Pantheon / bandit / mainSocketGroup
+    # are preserved from the user's PoB when available so their build
+    # configuration survives the roundtrip; otherwise fall back to
+    # neutral "None" defaults.
+    user_build = user_root.find("Build") if user_root is not None else None
+    pantheon_major = (
+        user_build.attrib.get("pantheonMajorGod", "None") if user_build is not None else "None"
+    )
+    pantheon_minor = (
+        user_build.attrib.get("pantheonMinorGod", "None") if user_build is not None else "None"
+    )
+    user_bandit = user_build.attrib.get("bandit", "None") if user_build is not None else "None"
+    user_main_socket = (
+        user_build.attrib.get("mainSocketGroup", "1") if user_build is not None else "1"
+    )
     ET.SubElement(
         root,
         "Build",
         attrib={
             "viewMode": "IMPORT",
             "targetVersion": _GAME_VERSION,
-            "pantheonMajorGod": "None",
-            "pantheonMinorGod": "None",
+            "pantheonMajorGod": pantheon_major,
+            "pantheonMinorGod": pantheon_minor,
             "characterLevelAutoMode": "false",
             "className": character_class,
             "ascendClassName": ascendancy or "None",
             "level": str(level),
-            "mainSocketGroup": "1",
-            "bandit": "None",
+            "mainSocketGroup": user_main_socket,
+            "bandit": user_bandit,
         },
     )
 
@@ -231,81 +282,111 @@ def _build_xml(
     ET.SubElement(spec, "Sockets")
     ET.SubElement(spec, "Overrides")
 
-    # <Skills> — emit one <Skill> per gem link with nested <Gem>s.
-    skills_elem = ET.SubElement(
-        root,
-        "Skills",
-        attrib={
-            "activeSkillSet": "1",
-            "sortGemsByDPSField": "FullDPS",
-            "matchGemLevelToCharacterLevel": "false",
-            "showAltQualityGems": "true",
-            "sortGemsByDPS": "true",
-            "showSupportGemTypes": "ALL",
-        },
-    )
-    skill_set = ET.SubElement(
-        skills_elem,
-        "SkillSet",
-        attrib={"id": "1", "title": "Default"},
-    )
-    if gems is not None:
-        for link in gems.links:
-            skill = ET.SubElement(
-                skill_set,
-                "Skill",
-                attrib={
-                    "mainActiveSkillCalcs": "1",
-                    "mainActiveSkill": "1",
-                    "includeInFullDPS": "true",
-                    "label": _slot_to_pob_label(link.slot),
-                    "enabled": "true",
-                    "slot": _slot_to_pob_label(link.slot),
-                },
-            )
-            for g in link.gems:
-                _gem_element(skill, g)
+    # <Skills>: curated ``gems`` parameter wins. Otherwise passthrough
+    # the user's <Skills> element verbatim — that preserves every gem
+    # group, level, quality, and ID exactly as PoB stored them.
+    user_skills = user_root.find("Skills") if user_root is not None else None
+    if gems is None and user_skills is not None:
+        root.append(_clone(user_skills))
+    else:
+        skills_elem = ET.SubElement(
+            root,
+            "Skills",
+            attrib={
+                "activeSkillSet": "1",
+                "sortGemsByDPSField": "FullDPS",
+                "matchGemLevelToCharacterLevel": "false",
+                "showAltQualityGems": "true",
+                "sortGemsByDPS": "true",
+                "showSupportGemTypes": "ALL",
+            },
+        )
+        skill_set = ET.SubElement(
+            skills_elem,
+            "SkillSet",
+            attrib={"id": "1", "title": "Default"},
+        )
+        if gems is not None:
+            for link in gems.links:
+                skill = ET.SubElement(
+                    skill_set,
+                    "Skill",
+                    attrib={
+                        "mainActiveSkillCalcs": "1",
+                        "mainActiveSkill": "1",
+                        "includeInFullDPS": "true",
+                        "label": _slot_to_pob_label(link.slot),
+                        "enabled": "true",
+                        "slot": _slot_to_pob_label(link.slot),
+                    },
+                )
+                for g in link.gems:
+                    _gem_element(skill, g)
 
-    # <Items> — emit one <Item> per gear slot. The body is intentionally
-    # minimal (PoB tolerates underspecified items on import; the user
-    # can refine in the editor). We tag each item with its slot so the
-    # editor places it correctly.
-    items_elem = ET.SubElement(
-        root,
-        "Items",
-        attrib={"activeItemSet": "1", "useSecondWeaponSet": "false"},
-    )
-    item_set = ET.SubElement(
-        items_elem,
-        "ItemSet",
-        attrib={"id": "1", "useSecondWeaponSet": "false", "title": "Default"},
-    )
-    if gear is not None:
-        for idx, slot_spec in enumerate(gear.slots, start=1):
-            if slot_spec.kind == "skip":
-                continue
-            item = ET.SubElement(
-                items_elem,
-                "Item",
-                attrib={"id": str(idx)},
-            )
-            item.text = _placeholder_item_body(slot_spec.item_name, slot_spec.slot, slot_spec.kind)
-            ET.SubElement(
-                item_set,
-                "Slot",
-                attrib={
-                    "name": _slot_to_pob_label(slot_spec.slot),
-                    "itemId": str(idx),
-                    "active": "true",
-                },
-            )
+    # <Items>: curated ``gear`` parameter wins. Otherwise passthrough
+    # the user's <Items> element verbatim. The passthrough is what makes
+    # cluster jewels survive the roundtrip — and with the cluster jewel
+    # items present, PoB allocates the cluster-subgraph nodes that show
+    # up as "missing" otherwise.
+    user_items = user_root.find("Items") if user_root is not None else None
+    if gear is None and user_items is not None:
+        root.append(_clone(user_items))
+    else:
+        items_elem = ET.SubElement(
+            root,
+            "Items",
+            attrib={"activeItemSet": "1", "useSecondWeaponSet": "false"},
+        )
+        item_set = ET.SubElement(
+            items_elem,
+            "ItemSet",
+            attrib={"id": "1", "useSecondWeaponSet": "false", "title": "Default"},
+        )
+        if gear is not None:
+            for idx, slot_spec in enumerate(gear.slots, start=1):
+                if slot_spec.kind == "skip":
+                    continue
+                item = ET.SubElement(
+                    items_elem,
+                    "Item",
+                    attrib={"id": str(idx)},
+                )
+                item.text = _placeholder_item_body(
+                    slot_spec.item_name, slot_spec.slot, slot_spec.kind
+                )
+                ET.SubElement(
+                    item_set,
+                    "Slot",
+                    attrib={
+                        "name": _slot_to_pob_label(slot_spec.slot),
+                        "itemId": str(idx),
+                        "active": "true",
+                    },
+                )
 
-    # <Notes> + <Config> stub — PoB requires both elements to exist
-    # even if empty.
+    # <Notes>: prepend our stage notes to the user's notes when both exist.
+    user_notes = user_root.find("Notes") if user_root is not None else None
     notes_elem = ET.SubElement(root, "Notes")
-    notes_elem.text = _build_notes(tree, gear, gems)
-    ET.SubElement(root, "TreeView")
-    ET.SubElement(root, "Config")
+    stage_notes = _build_notes(tree, gear, gems)
+    if user_notes is not None and (user_notes.text or "").strip():
+        notes_elem.text = stage_notes + "\n\n--- Original PoB notes ---\n" + (user_notes.text or "")
+    else:
+        notes_elem.text = stage_notes
+
+    # Passthrough other state elements (Config, Calcs, Party, Import,
+    # TreeView) verbatim. PoB tolerates missing sections but the user's
+    # config (resistances, flask uptimes, boss configs, etc.) makes the
+    # imported build *playable* immediately rather than a blank slate.
+    for tag in ("Config", "Calcs", "Party", "Import", "TreeView"):
+        if user_root is not None:
+            user_elem = user_root.find(tag)
+            if user_elem is not None:
+                root.append(_clone(user_elem))
+                continue
+        # Fall back to empty stub so PoB doesn't complain about missing
+        # sections (TreeView + Config are the only ones it expects).
+        if tag in ("TreeView", "Config"):
+            ET.SubElement(root, tag)
 
     # ET.tostring includes the XML declaration; PoB doesn't require
     # it but accepts it.

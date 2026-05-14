@@ -916,6 +916,7 @@ def make_router(settings: Settings) -> APIRouter:
             gear=stage_gear,
             gems=stage_gems,
             level=level,
+            passthrough_user_pob=user_pob_code,
         )
         log.info(
             "fob_stage_export_ok",
@@ -925,6 +926,7 @@ def make_router(settings: Settings) -> APIRouter:
             tree_source=tree_source,
             has_gear=stage_gear is not None,
             has_gems=stage_gems is not None,
+            has_passthrough=user_pob_code is not None,
         )
         return StageExportResponse(
             code=code,
