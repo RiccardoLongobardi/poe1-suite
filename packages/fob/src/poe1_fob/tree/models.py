@@ -56,6 +56,16 @@ class StageTree(BaseModel):
             ":func:`poe1_fob.tree.encode_pob_tree_url` when None."
         ),
     )
+    mastery_effects: tuple[tuple[int, int], ...] = Field(
+        default=(),
+        description=(
+            "Mastery selections as ``(node_id, effect_id)`` pairs. PoB's "
+            "import code drops mastery nodes from ``nodes=`` unless the "
+            "corresponding effect is also declared in ``masteryEffects``; "
+            "carrying this through the pipeline lets us preserve the "
+            "user's mastery picks when patching their PoB."
+        ),
+    )
 
     @model_validator(mode="after")
     def _sort_and_dedupe(self) -> StageTree:

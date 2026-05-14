@@ -881,9 +881,14 @@ def make_router(settings: Settings) -> APIRouter:
                     decode_export(user_pob_code),
                     export_code=user_pob_code,
                 )
+                # Pass mastery_effects through so PoB doesn't silently
+                # drop the user's mastery nodes on import (PoB rejects
+                # any mastery in ``nodes=`` that isn't also in
+                # ``masteryEffects=``).
                 stage_tree = StageTree(
                     stage_key=stage_key,
                     node_ids=tuple(snapshot.tree.node_ids),
+                    mastery_effects=tuple(snapshot.tree.mastery_effects.items()),
                 )
                 tree_source = "user_pob"
             except (PobParseError, ValueError) as err:

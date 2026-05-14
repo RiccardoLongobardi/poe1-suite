@@ -195,13 +195,23 @@ def _build_xml(
     # original tree from the source PoB they pasted.
     tree_elem = ET.SubElement(root, "Tree", attrib={"activeSpec": "1"})
     spec_nodes = ",".join(str(n) for n in tree.node_ids) if tree else ""
+    # Mastery effects: PoB silently drops every mastery node listed in
+    # ``nodes=`` unless the same nodeId appears in ``masteryEffects=``.
+    # That accounts for the missing-nodes / "tree is half there" symptom
+    # users were seeing when we shipped masteryEffects="" — about 1/3 of
+    # the allocated points are masteries in a typical lvl-100 build.
+    spec_mastery = (
+        ",".join(f"{{{node},{effect}}}" for node, effect in tree.mastery_effects)
+        if tree and tree.mastery_effects
+        else ""
+    )
     # Attribute set mirrors real PoB 3.28 exports. No ``title`` (PoB
     # auto-labels), ``secondaryAscendClassId="0"`` for non-Scion builds.
     spec = ET.SubElement(
         tree_elem,
         "Spec",
         attrib={
-            "masteryEffects": "",
+            "masteryEffects": spec_mastery,
             "treeVersion": _TREE_VERSION,
             "secondaryAscendClassId": "0",
             "ascendClassId": str(asc_id),

@@ -514,7 +514,44 @@ def _parse_tree(root: ET.Element) -> PobPassiveTree:
     if not url:
         raise PobParseError("<Spec> has no tree URL")
 
-    class_id, asc_id, node_ids, mastery = _decode_tree_url(url)
+    class_id, asc_id, url_node_ids, url_mastery = _decode_tree_url(url)
+
+    # Prefer the explicit <Spec nodes="..."> attribute over the URL when
+    # present (current PoB format always emits both; the attribute is
+    # authoritative and includes cluster-jewel notable ids that the v6
+    # URL packs into a separate section the URL decoder can't recover).
+    nodes_attr = active.attrib.get("nodes", "").strip()
+    if nodes_attr:
+        node_ids: tuple[int, ...] = tuple(
+            int(tok) for tok in nodes_attr.split(",") if tok.strip().isdigit()
+        )
+    else:
+        node_ids = url_node_ids
+
+    # <Spec masteryEffects="..."> format: {nodeId,effectId},{...},...
+    # The URL decoder doesn't (yet) extract these reliably; the attribute
+    # is authoritative for the attribute-based loader path PoB itself
+    # uses when ``xml.attrib.nodes`` is set.
+    mastery_attr = active.attrib.get("masteryEffects", "")
+    mastery: dict[int, int]
+    if mastery_attr:
+        mastery = {}
+        # Each pair is "{nodeId,effectId}". Tolerant of whitespace.
+        for raw in mastery_attr.split("},"):
+            cleaned = raw.strip().strip("{}")
+            if not cleaned:
+                continue
+            parts = cleaned.split(",")
+            if len(parts) != 2:
+                continue
+            try:
+                node_part, effect_part = (int(parts[0]), int(parts[1]))
+            except ValueError:
+                continue
+            mastery[node_part] = effect_part
+    else:
+        mastery = url_mastery
+
     return PobPassiveTree(
         spec_title=active.attrib.get("title") or None,
         tree_version=active.attrib.get("treeVersion"),

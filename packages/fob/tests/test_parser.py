@@ -213,8 +213,10 @@ def test_decode_tree_url_real_fixture() -> None:
     assert snap.tree.class_id == 1
     # A level-100 character has >90 allocated passive points plus clusters.
     assert len(snap.tree.node_ids) > 90
-    # Bounds check: PoE node ids fit in uint16.
-    assert all(0 <= n <= 0xFFFF for n in snap.tree.node_ids)
+    # Bounds check: PoE regular node ids fit in uint16; cluster-jewel
+    # notables live at ids >= 65536 (and we read them from <Spec nodes>
+    # attribute, not just the URL).
+    assert all(0 <= n < (1 << 24) for n in snap.tree.node_ids)
 
 
 def test_decode_tree_url_too_short_raises() -> None:

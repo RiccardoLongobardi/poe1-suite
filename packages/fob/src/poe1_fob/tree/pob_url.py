@@ -95,8 +95,17 @@ def encode_pob_tree_url(
     asc_byte = _ASCENDANCY_TO_BYTE.get(ascendancy or "", 0)
 
     sorted_unique = sorted({int(n) for n in node_ids})
+    # Cluster-jewel notables live at ids >= 65536. The URL v6 format
+    # packs them into a separate section (cluster section after the
+    # regular-node section) — we don't yet emit that section, so for
+    # now filter them out of the URL. They survive on the
+    # ``<Spec nodes>`` attribute side (which PoB prefers over the URL
+    # when present, so the import still allocates them).
+    regular_ids = [n for n in sorted_unique if 0 <= n < 65536]
+    # Also drop any > u16 max (shouldn't happen for regular nodes but be
+    # defensive against bad input).
     # v6 caps regular-node count at 255 (single byte) per PoB's encoder.
-    nodes_capped = sorted_unique[:255]
+    nodes_capped = regular_ids[:255]
     node_count = len(nodes_capped)
 
     # 7-byte header layout (PoE tree v6, derived from
