@@ -123,3 +123,83 @@ def test_rule_based_parser_origin() -> None:
 
     intent, _ = rule_based_extract("cold mapping")
     assert intent.parser_origin == ParserOrigin.RULE_BASED
+
+
+# ---------------------------------------------------------------------------
+# Step 15 — class / ascendancy / sort / numeric stat parsing
+# ---------------------------------------------------------------------------
+
+
+def test_extract_ascendancy_juggernaut() -> None:
+    intent, _ = rule_based_extract("voglio una build juggernaut")
+    assert intent.class_filter == "juggernaut"
+
+
+def test_extract_ascendancy_short_form() -> None:
+    intent, _ = rule_based_extract("rf jugg cheap")
+    assert intent.class_filter == "juggernaut"
+
+
+def test_extract_base_class_marauder() -> None:
+    """Base class fallback when no ascendancy is present in the query."""
+
+    intent, _ = rule_based_extract("marauder che faccia mapping")
+    assert intent.class_filter == "marauder"
+
+
+def test_extract_ascendancy_beats_base_class() -> None:
+    """When both are mentioned, the more-specific ascendancy wins."""
+
+    intent, _ = rule_based_extract("marauder juggernaut cheap")
+    assert intent.class_filter == "juggernaut"
+
+
+def test_extract_min_life_with_k_suffix() -> None:
+    intent, _ = rule_based_extract("rf con 6k vita")
+    assert intent.min_life == 6000
+
+
+def test_extract_min_life_with_almeno_prefix() -> None:
+    intent, _ = rule_based_extract("cyclone slayer almeno 5000 life")
+    assert intent.min_life == 5000
+
+
+def test_extract_min_dps_with_m_suffix() -> None:
+    intent, _ = rule_based_extract("voglio almeno 1m dps per bossing")
+    assert intent.min_dps == 1_000_000
+
+
+def test_extract_min_ehp_explicit() -> None:
+    intent, _ = rule_based_extract("build da 8000 ehp")
+    assert intent.min_ehp == 8000
+
+
+def test_extract_min_level() -> None:
+    intent, _ = rule_based_extract("level 90+ marauder")
+    assert intent.min_level == 90
+
+
+def test_extract_sort_by_dps() -> None:
+    intent, _ = rule_based_extract("rf jugg ordina per dps")
+    assert intent.sort_by is not None
+    assert intent.sort_by.value == "dps"
+
+
+def test_extract_sort_by_life() -> None:
+    intent, _ = rule_based_extract("max life builds")
+    assert intent.sort_by is not None
+    assert intent.sort_by.value == "life"
+
+
+def test_extract_combined_query() -> None:
+    """One realistic query exercising several Step 15 dimensions."""
+
+    intent, conf = rule_based_extract(
+        "spectre necromancer per bossing, almeno 1m dps e 8000 ehp, ordina per ehp"
+    )
+    assert intent.class_filter == "necromancer"
+    assert intent.min_dps == 1_000_000
+    assert intent.min_ehp == 8000
+    assert intent.sort_by is not None and intent.sort_by.value == "ehp"
+    # Combined signals should yield high confidence.
+    assert conf >= 0.5

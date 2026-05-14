@@ -14,6 +14,22 @@ from __future__ import annotations
 from enum import StrEnum
 
 
+class SortKey(StrEnum):
+    """How the Finder should order ranked build results.
+
+    ``SCORE`` is the default — the weighted multi-dimensional fit score
+    computed by the Ranking Engine. The pure-stat options sort builds
+    by raw stat (DPS/Life/EHP/Level) descending and use the fit score
+    as a tiebreaker, so they stay deterministic.
+    """
+
+    SCORE = "score"
+    DPS = "dps"
+    LIFE = "life"
+    EHP = "ehp"
+    LEVEL = "level"
+
+
 class CharacterClass(StrEnum):
     """PoE 1 base character classes."""
 
@@ -350,6 +366,7 @@ __all__ = [
     "ParserOrigin",
     "Playstyle",
     "PriceSource",
+    "SortKey",
     "TargetGoal",
     "ascendancy_to_class",
     "budget_tier_range",

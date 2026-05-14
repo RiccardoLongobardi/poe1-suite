@@ -467,3 +467,109 @@ def test_rank_cold_build_first_for_cold_intent() -> None:
     intent = _make_intent(damage_profile=DamageProfile.COLD)
     ranked = RankingEngine().rank(intent, refs, top_n=2)
     assert ranked[0].ref.main_skill == "Ice Nova"
+
+
+# ---------------------------------------------------------------------------
+# Step 15 — stat-floor filters + sort_by + class_filter
+# ---------------------------------------------------------------------------
+
+
+def _intent_with(**fields: object) -> BuildIntent:
+    """BuildIntent builder for the Step 15 cases — accepts the new fields."""
+
+    return BuildIntent(
+        confidence=0.7,
+        raw_input="test",
+        parser_origin=ParserOrigin.RULE_BASED,
+        **fields,  # type: ignore[arg-type]
+    )
+
+
+def test_min_life_floor_drops_low_life_builds() -> None:
+    refs = [
+        _make_ref("Fireball", life=2000, dps=5_000_000),
+        _make_ref("Fireball", life=6500, dps=1_000_000),
+    ]
+    ranked = RankingEngine().rank(_intent_with(min_life=5000), refs, top_n=10)
+    assert len(ranked) == 1
+    assert ranked[0].ref.life == 6500
+
+
+def test_min_dps_floor_drops_low_dps_builds() -> None:
+    refs = [
+        _make_ref("Fireball", dps=500_000),
+        _make_ref("Fireball", dps=2_000_000),
+    ]
+    ranked = RankingEngine().rank(_intent_with(min_dps=1_000_000), refs, top_n=10)
+    assert len(ranked) == 1
+    assert ranked[0].ref.dps == 2_000_000
+
+
+def test_min_ehp_floor_drops_squishy_builds() -> None:
+    refs = [
+        _make_ref("Fireball", life=2000, energy_shield=1000),  # ehp 3000
+        _make_ref("Fireball", life=5000, energy_shield=3000),  # ehp 8000
+    ]
+    ranked = RankingEngine().rank(_intent_with(min_ehp=6000), refs, top_n=10)
+    assert len(ranked) == 1
+    assert ranked[0].ref.ehp == 8000
+
+
+def test_level_range_filter() -> None:
+    refs = [
+        _make_ref("Fireball", level=80),
+        _make_ref("Fireball", level=95),
+        _make_ref("Fireball", level=100),
+    ]
+    ranked = RankingEngine().rank(_intent_with(min_level=90, max_level=99), refs, top_n=10)
+    assert len(ranked) == 1
+    assert ranked[0].ref.level == 95
+
+
+def test_class_filter_matches_base_class_via_ascendancies() -> None:
+    """class_filter='marauder' should keep Jugg/Berserker/Chieftain only."""
+
+    refs = [
+        _make_ref("Fireball", class_name="Juggernaut"),
+        _make_ref("Fireball", class_name="Berserker"),
+        _make_ref("Fireball", class_name="Occultist"),
+        _make_ref("Fireball", class_name="Deadeye"),
+    ]
+    ranked = RankingEngine().rank(_intent_with(class_filter="marauder"), refs, top_n=10)
+    classes = {r.ref.class_name for r in ranked}
+    assert classes == {"Juggernaut", "Berserker"}
+
+
+def test_class_filter_matches_ascendancy_substring() -> None:
+    """class_filter='jugg' should match Juggernaut via substring."""
+
+    refs = [
+        _make_ref("Fireball", class_name="Juggernaut"),
+        _make_ref("Fireball", class_name="Occultist"),
+    ]
+    ranked = RankingEngine().rank(_intent_with(class_filter="jugg"), refs, top_n=10)
+    assert len(ranked) == 1
+    assert ranked[0].ref.class_name == "Juggernaut"
+
+
+def test_sort_by_dps_overrides_score_order() -> None:
+    """When sort_by=DPS, the highest-DPS build wins regardless of fit score."""
+
+    refs = [
+        _make_ref("Fireball", dps=1_000_000),
+        _make_ref("Fireball", dps=10_000_000),
+        _make_ref("Fireball", dps=5_000_000),
+    ]
+    intent = _intent_with(sort_by="dps")
+    ranked = RankingEngine().rank(intent, refs, top_n=3)
+    assert [r.ref.dps for r in ranked] == [10_000_000, 5_000_000, 1_000_000]
+
+
+def test_sort_by_life_overrides_score_order() -> None:
+    refs = [
+        _make_ref("Fireball", life=3000),
+        _make_ref("Fireball", life=8000),
+        _make_ref("Fireball", life=5000),
+    ]
+    ranked = RankingEngine().rank(_intent_with(sort_by="life"), refs, top_n=3)
+    assert [r.ref.life for r in ranked] == [8000, 5000, 3000]

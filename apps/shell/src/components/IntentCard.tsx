@@ -84,6 +84,41 @@ export function IntentCard({ intent }: Props) {
               {hc.replace(/_/g, " ")}
             </Badge>
           ))}
+          {intent.class_filter && (
+            <Badge color="indigo" variant="filled" tt="uppercase" size="sm">
+              class: {intent.class_filter}
+            </Badge>
+          )}
+          {intent.sort_by && intent.sort_by !== "score" && (
+            <Badge color="pink" variant="light" size="sm">
+              sort: {intent.sort_by}
+            </Badge>
+          )}
+          {intent.min_life != null && (
+            <Badge color="lime" variant="dot" size="sm">
+              life ≥ {intent.min_life.toLocaleString()}
+            </Badge>
+          )}
+          {intent.min_es != null && (
+            <Badge color="lime" variant="dot" size="sm">
+              ES ≥ {intent.min_es.toLocaleString()}
+            </Badge>
+          )}
+          {intent.min_ehp != null && (
+            <Badge color="lime" variant="dot" size="sm">
+              EHP ≥ {intent.min_ehp.toLocaleString()}
+            </Badge>
+          )}
+          {intent.min_dps != null && (
+            <Badge color="lime" variant="dot" size="sm">
+              DPS ≥ {intent.min_dps.toLocaleString()}
+            </Badge>
+          )}
+          {(intent.min_level != null || intent.max_level != null) && (
+            <Badge color="lime" variant="dot" size="sm">
+              level {intent.min_level ?? "*"}–{intent.max_level ?? "100"}
+            </Badge>
+          )}
         </Group>
 
         <ContentFocusPills items={intent.content_focus} />

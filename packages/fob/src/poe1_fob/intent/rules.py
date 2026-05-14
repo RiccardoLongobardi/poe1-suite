@@ -31,7 +31,9 @@ from typing import Final
 
 from poe1_core.models.build_intent import BudgetRange, BuildIntent, ContentFocusWeight
 from poe1_core.models.enums import (
+    Ascendancy,
     BudgetTier,
+    CharacterClass,
     ComplexityLevel,
     ContentFocus,
     DamageProfile,
@@ -39,6 +41,7 @@ from poe1_core.models.enums import (
     HardConstraint,
     ParserOrigin,
     Playstyle,
+    SortKey,
 )
 
 # ---------------------------------------------------------------------------
@@ -387,6 +390,115 @@ _W_DEFENSE: Final[float] = 0.05
 # ---------------------------------------------------------------------------
 
 
+# ---------------------------------------------------------------------------
+# Step 15: class / ascendancy / sort / numeric-stat synonyms
+# ---------------------------------------------------------------------------
+
+# Class & ascendancy synonyms (italian + english + common abbreviations).
+# The canonical value is the enum's lowercase name; the matcher returns
+# the first hit. Ascendancies are checked BEFORE base classes so a query
+# like "voglio un occultist" maps to "occultist" not "witch".
+_ASCENDANCY_NAMES: Final[list[tuple[str, list[str]]]] = [
+    (Ascendancy.JUGGERNAUT.value, ["juggernaut", "jugg"]),
+    (Ascendancy.BERSERKER.value, ["berserker"]),
+    (Ascendancy.CHIEFTAIN.value, ["chieftain"]),
+    (Ascendancy.SLAYER.value, ["slayer"]),
+    (Ascendancy.GLADIATOR.value, ["gladiator", "glad"]),
+    (Ascendancy.CHAMPION.value, ["champion"]),
+    (Ascendancy.DEADEYE.value, ["deadeye"]),
+    (Ascendancy.RAIDER.value, ["raider"]),
+    (Ascendancy.PATHFINDER.value, ["pathfinder", "pf"]),
+    (Ascendancy.ASSASSIN.value, ["assassin"]),
+    (Ascendancy.SABOTEUR.value, ["saboteur", "sabo"]),
+    (Ascendancy.TRICKSTER.value, ["trickster"]),
+    (Ascendancy.NECROMANCER.value, ["necromancer", "necro"]),
+    (Ascendancy.OCCULTIST.value, ["occultist", "occu"]),
+    (Ascendancy.ELEMENTALIST.value, ["elementalist", "elem"]),
+    (Ascendancy.INQUISITOR.value, ["inquisitor", "inq"]),
+    (Ascendancy.HIEROPHANT.value, ["hierophant", "hiero"]),
+    (Ascendancy.GUARDIAN.value, ["guardian"]),
+    (Ascendancy.ASCENDANT.value, ["ascendant"]),
+]
+
+_CLASS_NAMES: Final[list[tuple[str, list[str]]]] = [
+    (CharacterClass.MARAUDER.value, ["marauder", "marau"]),
+    (CharacterClass.DUELIST.value, ["duelist"]),
+    (CharacterClass.RANGER.value, ["ranger"]),
+    (CharacterClass.SHADOW.value, ["shadow"]),
+    (CharacterClass.WITCH.value, ["witch", "strega"]),
+    (CharacterClass.TEMPLAR.value, ["templar"]),
+    (CharacterClass.SCION.value, ["scion"]),
+]
+
+# Sort phrases. Italian: "ordina per X" / "sort by X" / "X piu alta" / "max X".
+_SORT_BY: Final[list[tuple[SortKey, list[str]]]] = [
+    (
+        SortKey.DPS,
+        [
+            "ordina per dps",
+            "sort by dps",
+            "ordina dps",
+            "max dps",
+            "piu dps",
+            "dps max",
+            "highest dps",
+        ],
+    ),
+    (SortKey.EHP, ["ordina per ehp", "sort by ehp", "max ehp", "piu ehp", "highest ehp"]),
+    (
+        SortKey.LIFE,
+        [
+            "ordina per vita",
+            "sort by life",
+            "ordina per life",
+            "max life",
+            "max vita",
+            "piu vita",
+            "highest life",
+        ],
+    ),
+    (SortKey.LEVEL, ["ordina per level", "ordina per livello", "sort by level", "max level"]),
+]
+
+# Numeric stat-floor regexes. Each matches a number + unit (k = 1000,
+# m = 1_000_000) plus an Italian/English noun (vita/life/dps/ehp/es).
+# The "min" / "minimo" / "almeno" / "at least" prefix is OPTIONAL — bare
+# mentions like "5k life" are interpreted as floors too, since that's
+# how players usually phrase requirements.
+_NUM_PREFIX = r"(?:(?:minim[oa]|min|almeno|at least|sopra|over|piu di|more than|>=?)\s+)?"
+_NUM_VALUE = r"(\d+(?:[.,]\d+)?)\s*([km])?"
+
+_STAT_REGEXES: Final[list[tuple[str, re.Pattern[str]]]] = [
+    # Order matters: more specific compounds first.
+    (
+        "min_ehp",
+        re.compile(
+            rf"{_NUM_PREFIX}{_NUM_VALUE}\s*(?:ehp|effective hp|effective life)", re.IGNORECASE
+        ),
+    ),
+    (
+        "min_es",
+        re.compile(rf"{_NUM_PREFIX}{_NUM_VALUE}\s*(?:es|energy shield|energia)", re.IGNORECASE),
+    ),
+    ("min_dps", re.compile(rf"{_NUM_PREFIX}{_NUM_VALUE}\s*dps", re.IGNORECASE)),
+    ("min_life", re.compile(rf"{_NUM_PREFIX}{_NUM_VALUE}\s*(?:vita|life|hp)\b", re.IGNORECASE)),
+    ("min_level", re.compile(rf"(?:livello|level|lvl)\s+{_NUM_PREFIX}{_NUM_VALUE}", re.IGNORECASE)),
+]
+
+
+def _parse_stat_number(num_str: str, unit: str | None) -> int:
+    """Turn ``("5", "k")`` or ``("1.5", "m")`` into an integer."""
+
+    base = float(num_str.replace(",", "."))
+    if unit is None:
+        return int(base)
+    if unit.lower() == "k":
+        return int(base * 1_000)
+    if unit.lower() == "m":
+        return int(base * 1_000_000)
+    return int(base)
+
+
 def _normalise(text: str) -> str:
     """Lowercase, strip accents, collapse whitespace."""
     nfkd = unicodedata.normalize("NFKD", text.lower())
@@ -537,6 +649,36 @@ def rule_based_extract(raw: str) -> tuple[BuildIntent, float]:
     # --- main_skill_hint (specific skill name in query) ---
     main_skill_hint = _extract_main_skill(norm)
 
+    # --- Step 15: class / ascendancy filter ---
+    # Try ascendancies first (more specific). On no match, try base class.
+    class_filter: str | None = None
+    asc_match = _match_first(norm, _ASCENDANCY_NAMES)  # type: ignore[arg-type]
+    if asc_match is not None:
+        class_filter = asc_match  # type: ignore[assignment]
+    else:
+        cls_match = _match_first(norm, _CLASS_NAMES)  # type: ignore[arg-type]
+        if cls_match is not None:
+            class_filter = cls_match  # type: ignore[assignment]
+
+    # --- Step 15: sort_by ---
+    sort_by_match = _match_first(norm, _SORT_BY)  # type: ignore[arg-type]
+    sort_by: SortKey | None = sort_by_match  # type: ignore[assignment]
+
+    # --- Step 15: numeric stat floors ---
+    stat_floors: dict[str, int] = {}
+    for field, pattern in _STAT_REGEXES:
+        m = pattern.search(norm)
+        if m is None:
+            continue
+        try:
+            value = _parse_stat_number(m.group(1), m.group(2))
+        except ValueError:
+            continue
+        # Clamp level to 1..100 (the model validator would error otherwise).
+        if field in {"min_level", "max_level"}:
+            value = max(1, min(100, value))
+        stat_floors[field] = value
+
     # --- confidence ---
     conf = 0.0
     if damage_profile is not None:
@@ -553,6 +695,12 @@ def rule_based_extract(raw: str) -> tuple[BuildIntent, float]:
         conf += _W_DEFENSE
     if main_skill_hint is not None:
         conf += 0.15  # specific skill ID is a strong signal
+    if class_filter is not None:
+        conf += 0.10
+    if stat_floors:
+        conf += 0.05 * min(len(stat_floors), 3)  # diminishing returns
+    if sort_by is not None:
+        conf += 0.05
     confidence = round(min(1.0, conf), 4)
 
     intent = BuildIntent(
@@ -566,6 +714,13 @@ def rule_based_extract(raw: str) -> tuple[BuildIntent, float]:
         defense_profile=defense,  # type: ignore[arg-type]
         hard_constraints=constraints,  # type: ignore[arg-type]
         main_skill_hint=main_skill_hint,
+        class_filter=class_filter,
+        sort_by=sort_by,
+        min_life=stat_floors.get("min_life"),
+        min_es=stat_floors.get("min_es"),
+        min_ehp=stat_floors.get("min_ehp"),
+        min_dps=stat_floors.get("min_dps"),
+        min_level=stat_floors.get("min_level"),
         confidence=confidence,
         raw_input=raw,
         parser_origin=ParserOrigin.RULE_BASED,

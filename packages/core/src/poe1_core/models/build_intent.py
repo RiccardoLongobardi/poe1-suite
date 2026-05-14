@@ -20,6 +20,7 @@ from .enums import (
     HardConstraint,
     ParserOrigin,
     Playstyle,
+    SortKey,
 )
 
 
@@ -86,6 +87,62 @@ class BuildIntent(BaseModel):
     # --- Constraints ---
     hard_constraints: set[HardConstraint] = Field(default_factory=set)
 
+    # --- Step 15: explicit class / ascendancy filter ---
+    class_filter: str | None = Field(
+        default=None,
+        description=(
+            "Base character class (e.g. 'Marauder') OR ascendancy name "
+            "(e.g. 'Juggernaut'). Applied as a hard filter on the "
+            "candidate pool — case-insensitive substring match against "
+            "the ref's ascendancy field, with a class→ascendancies "
+            "fan-out when a base class is specified."
+        ),
+    )
+
+    # --- Step 15: numeric stat-range filters ---
+    # All optional; set means "drop refs below this floor on this stat".
+    min_life: int | None = Field(
+        default=None,
+        ge=0,
+        description="Minimum hit-pool life (e.g. 5000 → drop builds < 5k life).",
+    )
+    min_es: int | None = Field(
+        default=None,
+        ge=0,
+        description="Minimum energy shield.",
+    )
+    min_ehp: int | None = Field(
+        default=None,
+        ge=0,
+        description="Minimum effective HP (life + ES + mitigation).",
+    )
+    min_dps: int | None = Field(
+        default=None,
+        ge=0,
+        description="Minimum combined DPS.",
+    )
+    min_level: int | None = Field(
+        default=None,
+        ge=1,
+        le=100,
+        description="Minimum character level (used to exclude low-level WIPs).",
+    )
+    max_level: int | None = Field(
+        default=None,
+        ge=1,
+        le=100,
+        description="Maximum character level.",
+    )
+
+    # --- Step 15: how to order ranked results ---
+    sort_by: SortKey | None = Field(
+        default=None,
+        description=(
+            "Result ordering. None = SCORE (weighted fit). Pure-stat "
+            "values sort by that stat descending with score as tiebreaker."
+        ),
+    )
+
     # --- Specific skill hint ---
     # When the user names a specific PoE skill in their query
     # ("righteous fire", "tornado shot"), the parser surfaces it here
@@ -114,6 +171,16 @@ class BuildIntent(BaseModel):
         if total > 1.0 + 1e-6:
             msg = f"sum of content_focus weights must be <= 1.0 (got {total:.3f})"
             raise ValueError(msg)
+        return self
+
+    @model_validator(mode="after")
+    def _check_level_range_ordering(self) -> Self:
+        if (
+            self.min_level is not None
+            and self.max_level is not None
+            and self.min_level > self.max_level
+        ):
+            raise ValueError("min_level must be <= max_level")
         return self
 
 

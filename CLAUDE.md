@@ -34,9 +34,19 @@ uv run mypy .
 uv run pytest
 ```
 
-All four must pass with zero errors. Current baseline: **608 tests green (2 skipped — integration/LLM), 109 files type-checked clean, 107 files formatted clean**. Frontend build 514 KB / 161 KB gzip.
+All four must pass with zero errors. Current baseline: **628 tests green (2 skipped — integration/LLM), 109 files type-checked clean, 107 files formatted clean**. Frontend build 551 KB / 168 KB gzip.
 
 **PoB import QA — confirmed working 2026-05-14**: real PoB → planner → "Importa stage in PoB" → paste in PoB Community 3.28 desktop → full build loads (tree 123/123 nodes including cluster jewel subgraph, mastery effects, items, gems, config, pantheon). Took 7 commits to debug, all guided by reading PathOfBuildingCommunity Lua source. Key learnings captured below.
+
+## Step 15 — Finder search improvements (2026-05-14) ✅
+
+Added filter / sort / class-filter to the Build Finder, plus extended the NL intent extractor:
+
+- **`BuildIntent` new fields**: `class_filter` (base class OR ascendancy), `min_life` / `min_es` / `min_ehp` / `min_dps` / `min_level` / `max_level`, `sort_by: SortKey` enum (`score` | `dps` | `life` | `ehp` | `level`).
+- **`RankingEngine`** extended: `filter_stat_floors()` post-filter drops refs below the intent's stat floors; `_sort_key_for()` swaps the primary sort dimension when `intent.sort_by != SCORE`, keeping fit-score as tiebreaker.
+- **`IntentExtractor` rules**: new synonym tables for ascendancies (Juggernaut/Berserker/.../Ascendant) + base classes (Marauder/Witch/...), sort phrases ("ordina per dps", "max ehp"), and regex-based stat-number parser supporting `k`/`m` suffixes + `minimo`/`almeno`/`at least`/`>=` prefixes. Queries like *"spectre necromancer per bossing, almeno 1m dps e 8000 ehp, ordina per ehp"* extract cleanly.
+- **Frontend**: `FinderPage` shows a collapsible "Filtri avanzati" panel after the intent is parsed — user can refine class, min Life/ES/EHP/DPS, level range, and sort. The panel auto-opens when the extractor surfaced a non-default filter from the NL query, so the user sees what was extracted at a glance. `IntentCard` renders the new fields as colored badges.
+- **20 new tests** (12 ranking + 8 rule extractor) cover the floor filters, ascendancy-vs-base-class matching, sort_by override, and combined natural-language queries.
 
 ### Lessons from the PoB-import-debug sprint
 

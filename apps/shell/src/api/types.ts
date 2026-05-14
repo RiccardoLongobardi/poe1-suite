@@ -101,6 +101,9 @@ export interface BudgetRange {
   max_divines: number | null;
 }
 
+/** Step 15 — sort key for the Finder result list. */
+export type SortKey = "score" | "dps" | "life" | "ehp" | "level";
+
 export interface BuildIntent {
   damage_profile: DamageProfile | null;
   alternative_damage_profiles: DamageProfile[];
@@ -112,6 +115,17 @@ export interface BuildIntent {
   defense_profile: DefenseProfile | null;
   hard_constraints: HardConstraint[];
   main_skill_hint: string | null;
+  /** Step 15: class or ascendancy name (e.g. "marauder", "occultist"). */
+  class_filter: string | null;
+  /** Step 15: numeric stat floors — null = no filter on that dimension. */
+  min_life: number | null;
+  min_es: number | null;
+  min_ehp: number | null;
+  min_dps: number | null;
+  min_level: number | null;
+  max_level: number | null;
+  /** Step 15: result ordering. null = default SCORE. */
+  sort_by: SortKey | null;
   confidence: number;
   raw_input: string;
   parser_origin: ParserOrigin;
