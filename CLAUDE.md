@@ -36,6 +36,18 @@ uv run pytest
 
 All four must pass with zero errors. Current baseline: **608 tests green (2 skipped — integration/LLM), 109 files type-checked clean, 107 files formatted clean**. Frontend build 514 KB / 161 KB gzip.
 
+**PoB import QA — confirmed working 2026-05-14**: real PoB → planner → "Importa stage in PoB" → paste in PoB Community 3.28 desktop → full build loads (tree 123/123 nodes including cluster jewel subgraph, mastery effects, items, gems, config, pantheon). Took 7 commits to debug, all guided by reading PathOfBuildingCommunity Lua source. Key learnings captured below.
+
+### Lessons from the PoB-import-debug sprint
+
+1. **`<Build targetVersion>` is `3_0`, NOT the league.** That attribute tags "this is a PoE 1 build" (vs PoE 2). The league/tree version lives on `<Spec treeVersion>` (currently `3_28`). Setting targetVersion to the league number triggers PoB's "Game Version" conversion dialog.
+2. **`<PathOfBuilding>` root has NO attributes.** Adding `version="2"` made PoB treat the code as foreign-format.
+3. **Tree URL v6 header is 7 bytes, byte 6 = nodeCount.** PoB's `DecodeURL` reads exactly nodeCount * 2 bytes for the regular-node section. Header layout: `[ver:u32be][class:u8][ascendancyIds:u8][nodeCount:u8]` then nodes (u16be), then clusterCount + cluster nodes (u16be each), then masteryCount + mastery pairs (effect:u16be + node:u16be).
+4. **PoB uses `<Spec nodes>` attribute over `<URL>` when both present** — the URL is mostly cosmetic for the website preview. The attribute is authoritative.
+5. **Cluster jewel notable node IDs are >= 65536** and live in a separate section of the URL. They survive on the attribute. PoB allocates them only when the matching cluster jewel ITEM is present in `<Items>`.
+6. **Mastery nodes are silently dropped** from `<Spec nodes>` unless the same node id appears in `<Spec masteryEffects>` as `{node,effect}`. Round trip both or PoB shows ~30% of allocated points missing.
+7. **PoB's "patch-the-user-PoB" pattern wins**: instead of synthesizing every section (Calcs, Party, Config, Import, TreeView, …), the encoder accepts `passthrough_user_pob` and deep-copies those elements verbatim from the user's input. Curated stage progressions (gear/gems) can still override on a per-section basis.
+
 ## What's built (state as of 2026-05-14, Step 14 T5 — Pohx-style stage UI)
 
 | Module | Package | Routes | Status |
