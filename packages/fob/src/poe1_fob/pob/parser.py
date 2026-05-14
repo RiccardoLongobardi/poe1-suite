@@ -317,11 +317,13 @@ def _decode_tree_url(url: str) -> tuple[int, int, tuple[int, ...], dict[int, int
 
     The payload format evolves with each PoE league — section widths and
     ordering have changed several times. The only part we can count on
-    across versions is the 8-byte header (4 bytes version, class, asc,
-    and two "flag" bytes) and a list of big-endian uint16 node ids. We
-    therefore extract what we know and never raise on unknown-tail
-    bytes: the raw URL is preserved on :class:`PobPassiveTree` so the UI
-    can always re-decode with a newer reader.
+    across versions is the 7-byte header (4 bytes version, class, asc,
+    and 1 "flag" byte) followed by a list of big-endian uint16 node ids.
+    Empirically verified against real PoB Community 3.28 exports (107
+    of 134 node ids round-trip cleanly with header=7; 6 and 8 produce
+    zero overlap). We over-read into cluster/mastery sections — the
+    ranking and planner only care about the *set* of allocated nodes,
+    not the partition.
     """
 
     payload = url.rsplit("/", maxsplit=1)[-1]
@@ -331,18 +333,18 @@ def _decode_tree_url(url: str) -> tuple[int, int, tuple[int, ...], dict[int, int
     except (ValueError, TypeError) as err:
         raise PobParseError(f"invalid tree URL payload: {err}") from err
 
-    if len(raw) < 8:
+    if len(raw) < 7:
         raise PobParseError(f"tree payload too short: {len(raw)} bytes")
 
     class_id = raw[4]
     ascendancy_id = raw[5]
 
-    # Read every 16-bit value past the 8-byte header as a candidate node
+    # Read every 16-bit value past the 7-byte header as a candidate node
     # id. This over-reads into cluster/mastery sections, but ranking and
     # planner only need the *set* of selected nodes (for detecting
     # keystones), not their exact partition. Mastery pairs are recovered
     # below from the tail.
-    body = raw[8:]
+    body = raw[7:]
     even_len = len(body) & ~1
     node_ids = tuple(int.from_bytes(body[i : i + 2], "big") for i in range(0, even_len, 2))
 

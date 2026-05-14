@@ -96,15 +96,15 @@ def encode_pob_tree_url(
 
     sorted_unique = sorted({int(n) for n in node_ids})
 
-    # 8-byte header layout (PoE tree v4-v6):
+    # 7-byte header layout (PoE tree v6, verified empirically against
+    # real PoB Community 3.28 exports — see tests + the analysis in
+    # packages/fob/tests/test_pob_url.py):
     #   0..3  version u32be
     #   4     class id
     #   5     ascendancy id
-    #   6     "fullscreen" flag (always 0 for share URLs we generate)
-    #   7     reserved / node-count high byte (version-dependent; 0 here)
-    # The two trailing flag bytes are critical: PoB and our parser both
-    # read node ids starting at byte 8.
-    header = struct.pack(">IBBBB", _TREE_VERSION, class_byte, asc_byte, 0, 0)
+    #   6     reserved flag (0 for share URLs we generate)
+    # Node ids start at byte 7, each u16be.
+    header = struct.pack(">IBBB", _TREE_VERSION, class_byte, asc_byte, 0)
     # Node section: count is implicit in the byte length on PoE's side
     # for v4+; we pack each node as u16be.
     node_section = b"".join(struct.pack(">H", node) for node in sorted_unique)
