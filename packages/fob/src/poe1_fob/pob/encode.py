@@ -38,8 +38,12 @@ from ..tree.models import StageTree
 from ..tree.pob_url import encode_pob_tree_url
 
 # PoB target version. The format is mostly stable across patches; we
-# stamp the latest community version we've tested against (3.25.x).
-_TARGET_VERSION = "3_25"
+# stamp the latest PoB Community version. When this lags behind the
+# user's installed PoB, the desktop app surfaces a "Game Version"
+# dialog asking to convert the build — which works but is annoying.
+# Bump this when the league changes (PoB releases a new minor per
+# league). 2026-05-14: PoB Community is on 3.28.x.
+_TARGET_VERSION = "3_28"
 
 # Class IDs used by PathOfBuilding's XML <Build> element. These match
 # the in-game class enum and are stable across leagues.
