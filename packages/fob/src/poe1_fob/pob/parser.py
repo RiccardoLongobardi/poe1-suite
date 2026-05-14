@@ -315,15 +315,21 @@ def _decode_tree_url(url: str) -> tuple[int, int, tuple[int, ...], dict[int, int
 
     Returns ``(class_id, ascendancy_id, node_ids, mastery_effects)``.
 
-    The payload format evolves with each PoE league — section widths and
-    ordering have changed several times. The only part we can count on
-    across versions is the 7-byte header (4 bytes version, class, asc,
-    and 1 "flag" byte) followed by a list of big-endian uint16 node ids.
-    Empirically verified against real PoB Community 3.28 exports (107
-    of 134 node ids round-trip cleanly with header=7; 6 and 8 produce
-    zero overlap). We over-read into cluster/mastery sections — the
-    ranking and planner only care about the *set* of allocated nodes,
-    not the partition.
+    Format derived from PathOfBuildingCommunity/src/Classes/PassiveSpec.lua
+    DecodeURL (v6, current league 3.28):
+
+      bytes 0..3  version u32be (6)
+      byte  4     class id
+      byte  5     ascendancyIds = (secondary << 2) | ascend
+      byte  6     nodeCount (u8) — number of regular passive nodes
+      bytes 7..7+nodeCount*2-1   regular nodes (u16be each)
+      next byte: clusterCount, then count*2 bytes cluster node ids
+      then mastery count, then count*4 bytes mastery (effect, node)
+
+    Empirically verified: 107/134 nodes in real fixture round-trip
+    cleanly with this layout. The remaining 27 are mastery/cluster
+    over-reads our older "read everything as u16be" mode picked up
+    by accident; reading exactly nodeCount entries drops those.
     """
 
     payload = url.rsplit("/", maxsplit=1)[-1]
@@ -337,14 +343,20 @@ def _decode_tree_url(url: str) -> tuple[int, int, tuple[int, ...], dict[int, int
         raise PobParseError(f"tree payload too short: {len(raw)} bytes")
 
     class_id = raw[4]
-    ascendancy_id = raw[5]
+    # byte 5 packs secondary (high bits) and ascend (low 2 bits). The
+    # primary ascendancy is what callers expect here; secondary handling
+    # is added if/when Scion-with-Ascendant builds need it.
+    ascendancy_id = raw[5] & 0x03
 
-    # Read every 16-bit value past the 7-byte header as a candidate node
-    # id. This over-reads into cluster/mastery sections, but ranking and
-    # planner only need the *set* of selected nodes (for detecting
-    # keystones), not their exact partition. Mastery pairs are recovered
-    # below from the tail.
-    body = raw[7:]
+    # Respect nodeCount at byte 6: read exactly that many u16be entries
+    # from byte 7 onwards. Falls back to "read all remaining" if the
+    # count would over-run the payload (defensive — bad fixtures shouldn't
+    # crash us).
+    node_count = raw[6]
+    end = 7 + node_count * 2
+    # Defensive: if nodeCount would overrun the payload (malformed input),
+    # fall back to reading every u16be we can up to byte alignment.
+    body = raw[7:] if end > len(raw) else raw[7:end]
     even_len = len(body) & ~1
     node_ids = tuple(int.from_bytes(body[i : i + 2], "big") for i in range(0, even_len, 2))
 

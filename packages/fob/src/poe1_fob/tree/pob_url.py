@@ -95,22 +95,36 @@ def encode_pob_tree_url(
     asc_byte = _ASCENDANCY_TO_BYTE.get(ascendancy or "", 0)
 
     sorted_unique = sorted({int(n) for n in node_ids})
+    # v6 caps regular-node count at 255 (single byte) per PoB's encoder.
+    nodes_capped = sorted_unique[:255]
+    node_count = len(nodes_capped)
 
-    # 7-byte header layout (PoE tree v6, verified empirically against
-    # real PoB Community 3.28 exports — see tests + the analysis in
-    # packages/fob/tests/test_pob_url.py):
-    #   0..3  version u32be
+    # 7-byte header layout (PoE tree v6, derived from
+    # PathOfBuilding-Community/src/Classes/PassiveSpec.lua EncodeURL):
+    #   0..3  version u32be (6)
     #   4     class id
-    #   5     ascendancy id
-    #   6     reserved flag (0 for share URLs we generate)
+    #   5     ascendancy ids = (secondary << 2) | ascend
+    #   6     node count (u8) — PoB's decoder reads exactly this many
+    #         u16be node entries from byte 7 onwards. We previously
+    #         stamped 0 here, so PoB allocated zero nodes on import
+    #         even when the <Spec nodes="..."> attribute was correct.
     # Node ids start at byte 7, each u16be.
-    header = struct.pack(">IBBB", _TREE_VERSION, class_byte, asc_byte, 0)
-    # Node section: count is implicit in the byte length on PoE's side
-    # for v4+; we pack each node as u16be.
-    node_section = b"".join(struct.pack(">H", node) for node in sorted_unique)
-    # Cluster jewel section (empty), mastery section (empty) — keep
-    # placeholder zero counts so PoE's parser doesn't choke.
-    trailing = struct.pack(">BBB", 0, 0, 0)
+    # secondary ascend (Scion's second ascendancy) is packed into bits
+    # 2-3 of byte 5; for the 7 mainline PoE-1 classes secondary is 0.
+    ascendancy_ids = asc_byte & 0x03  # secondary << 2 == 0 for us
+    header = struct.pack(
+        ">IBBB",
+        _TREE_VERSION,
+        class_byte,
+        ascendancy_ids,
+        node_count,
+    )
+    node_section = b"".join(struct.pack(">H", node) for node in nodes_capped)
+    # After the node section PoB expects:
+    #   1 byte cluster-jewel count (0) + N*2 bytes cluster node ids
+    #   1 byte mastery count (0) + M*4 bytes mastery (effect, node) pairs
+    # Both empty → just two zero bytes.
+    trailing = struct.pack(">BB", 0, 0)
 
     payload = header + node_section + trailing
     encoded = base64.urlsafe_b64encode(payload).rstrip(b"=").decode("ascii")
