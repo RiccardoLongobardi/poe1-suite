@@ -9,6 +9,23 @@ Read this file top-to-bottom before doing any work.
 - Prefers conversation in **Italian**, technical identifiers/commands in **English**.
 - Values: "niente fittizio" — no fake/mocked data. Every module ships with real fixtures and is end-to-end playable before the next one starts.
 
+## Product direction (read this BEFORE planning new work)
+
+FOB is a **dynamic** progression planner for PoE 1. It must cover **every class + every ascendancy + every reasonable build** the user can paste — not a curated subset.
+
+**Design principle: synthesis over curation.** When you're tempted to hand-write knowledge for a specific build (templates, stage data, item lists), step back: that pattern doesn't scale to 7 classes × 19 ascendancies × N skills, and goes stale every league. Instead, derive the plan algorithmically from data we already have:
+
+- **Target endgame** comes from the user's pasted PoB (their actual destination).
+- **Progression backwards** = working from that endgame to leveling, applying budget/level/lab constraints.
+- **Reference data** = poe.ninja ladder (popular skills per ascendancy, typical stat distributions per budget tier), bundled PoE 1 passive tree JSON, live pricing.
+
+The 49 hand-written `BuildTemplate` classes in `poe1_fob.planner.templates` stay — but **only for**:
+- Italian descriptive rationale per stage (free-form sentences).
+- Build identity / labeling in the UI ("Cyclone Slayer").
+- Fallback advice when the user has no pasted PoB.
+
+Tree allocation, gear progression, gem level/quality progression — these are **NOT** to be hand-curated per template. They are derived dynamically (Steps 16-18 in the backlog).
+
 ## What this repo is
 
 `poe1-suite` is a uv workspace monorepo of Path of Exile 1 tools. FastAPI backend on port 8765, React/Mantine shell planned. Membership rules:
@@ -564,13 +581,83 @@ Pattern di degrader esteso oltre il table lookup:
 - **Mod-aware** (Forbidden pair): legge `Item.mods` per estrarre dettagli (notable allocato, variant, ecc.).
 - **Composite** (`CompositeDegrader`): chain multi-strategy con first-match-wins.
 
-## What comes after (post Step 13.C)
+## What comes after (post Step 15)
 
-Focus singolo: **FOB**. Niente altri tool nello scope di poe1-suite.
+Production deploy is live, PoB import works end-to-end, Finder filters/sort/NL search shipped. The backlog from here is **the dynamic pivot**: stop hand-curating progression templates, start synthesizing them per-user.
 
-Prossime fasi:
-1. **Migliorie FOB** — quality-of-life sui flussi esistenti (ladder estesa, UI grouping reverse mode, streaming reverse, fix UX, etc).
-2. **Production deploy** — hosting backend (FastAPI) + frontend (Vite SPA) per uso multi-utente. Serve: Dockerfile, env config production, CORS, rate limiting client-friendly su poe.ninja/Trade, dominio + HTTPS.
+### Backlog (in implementation order)
+
+#### Step 16 — Dynamic Tree Progression *(2-3 days, high impact)*
+
+Replace the curated `PROGRESSION_REGISTRY` (currently 2 of 49 templates) with an algorithm that derives the 6-stage tree from any user PoB. The registry stays as a fallback when no PoB is provided.
+
+Algorithm:
+1. Bundle PoE 1 passive tree data (nodes + edges + class starting nodes). PoB Community ships this as a JSON we can re-distribute.
+2. For each node in `snapshot.tree.node_ids`, BFS-compute its distance from the class start node.
+3. Sort by distance ascending; bucket into 6 stages with progressive weights (10% / 25% / 50% / 70% / 85% / 100% of allocated nodes).
+4. Ascendancy nodes: bucket by lab order — Normal → Stage 2, Cruel → Stage 3, Merciless → Stage 4, Uber → Stage 5.
+5. Mastery effects: only emit from Stage 4 onward (you typically respec masteries late).
+6. Cluster jewel notables (id ≥ 65536): Stage 6 only.
+
+Deliverable: `derive_tree_progression(snapshot: PobSnapshot) -> TreeProgression` in `poe1_fob.tree.dynamic`. The stage-export endpoint prefers this over the registry when a `user_pob_code` is provided. Hand-curated `RF_POHX_PROGRESSION` / `SPECTRE_NECRO_PROGRESSION` stay but become fallbacks for the no-PoB case.
+
+Test target: feed the existing `pob_YNQeadFwNBmX.txt` fixture, get back 6 monotone supersets summing to the user's 134 nodes, all importable by PoB.
+
+#### Step 17 — Dynamic Gear Progression *(3-4 days, high impact)*
+
+Replace `gear_progression_for(template_name)` with `derive_gear_progression(snapshot: PobSnapshot, pricing: PricingService) -> GearProgression`.
+
+Algorithm:
+1. Classify each user item into a cost tier using the live pricing service:
+   * **Mirror-tier** rare: 4+ T1 mods + complex craft signatures (very expensive)
+   * **Mageblood-tier** unique: >100 div
+   * **High** unique: 20-100 div (Crown of the Tyrant, +1 spell skill amulets)
+   * **Mid** unique: 5-20 div (Kaom's Heart, Bottled Faith)
+   * **Cheap** unique: <5 div (Goldrim, Springleaf)
+   * **Leveling** unique: <1 div (Wanderlust, Brightbeak, Tabula)
+   * **Cluster jewel**: always endgame
+   * **Rare-craft**: budget-tier classification by socket count + mod count
+2. Stage budget thresholds (divines): Stage 1 ≤0.5, Stage 2 ≤2, Stage 3 ≤10, Stage 4 ≤50, Stage 5 ≤200, Stage 6 = no cap.
+3. For each user item above the stage's threshold, substitute with a cheaper equivalent from a small substitution table (e.g. Stage 4 Mageblood → "Stygian Vise rare T1 life + 2 res + flat life").
+
+Deliverable: `derive_gear_progression` + a small substitution table per slot (~100 lines, covers all common slots — not per-build).
+
+Test target: PoB with Mageblood → Stage 1 produces Tabula+Wanderlust+Goldrim; Stage 6 produces user's actual gear; intermediate stages produce items that exist on poe.ninja for that budget.
+
+#### Step 18 — Dynamic Gem Progression *(1-2 days, low complexity)*
+
+Replace `gem_progression_for(template_name)` with `derive_gem_progression(snapshot: PobSnapshot) -> GemProgression`.
+
+Algorithm (per gem in user PoB):
+* Stage 1 (≈ lvl 30): level `max(1, user_level - 12)`, quality 0.
+* Stage 2 (≈ lvl 55): level `max(8, user_level - 8)`, quality 0.
+* Stage 3 (≈ lvl 75): level `max(16, user_level - 4)`, quality `max(0, user_quality - 10)`.
+* Stage 4 (≈ lvl 85): level 20, quality 20.
+* Stage 5 (≈ lvl 95): level `min(21, user_level)`, quality 20.
+* Stage 6: user's actual level/quality.
+
+Awakened support gems: stages 1-3 substitute with the base name (strip "Awakened " prefix), Stage 4 Awakened lvl 1, Stage 5 Awakened lvl 3, Stage 6 user's actual.
+
+Vaal versions: emit from Stage 3+ when the user has one.
+
+Deliverable: `derive_gem_progression` + a gem-canonical-name normalization helper (Awakened ↔ base).
+
+Test target: PoB with "Awakened Burning Damage 5 / 20" → Stage 1 emits "Burning Damage Support 8 / 0", Stage 6 emits user's actual.
+
+#### Step 19 — Population data in Finder *(1 day, UX polish)*
+
+Use the poe.ninja ladder data we already fetch to enrich the Finder:
+* "Most popular main skills for Marauder Juggernaut this league" — top 3 with %
+* "Build stat distribution for Slayer Cyclone" — life/dps/ehp percentile ranges
+* Show as a small panel above the recommend results, refresh-cached per league per day.
+
+Deliverable: `/builds/population-stats?ascendancy=X` endpoint + Finder UI panel.
+
+### What we are explicitly NOT doing
+
+* **Adding more hand-curated `*Progression` registries**. The current `RF_POHX_PROGRESSION` / `SPECTRE_NECRO_PROGRESSION` / `RF_POHX_GEAR_PROGRESSION` / `RF_POHX_GEM_PROGRESSION` stay as fallbacks for builds without a PoB, but **do not add new ones**. If a user pastes a PoB, Step 16/17/18 algorithms produce the progression dynamically.
+* **Adding more `BuildTemplate` subclasses for new skills**. The 49 existing templates already cover every reasonable build for descriptive purposes. New skills should be matched into existing templates or fall through to `GenericTemplate`.
+* **Hand-tuning per-league item prices**. Pricing comes from poe.ninja live data via `PricingService`.
 
 ## Project-specific gotchas (learned the hard way)
 
