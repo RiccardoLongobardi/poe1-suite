@@ -16,6 +16,7 @@ Public surface:
 
 from __future__ import annotations
 
+from .dynamic import derive_gem_progression
 from .models import (
     AltQuality,
     GemLink,
@@ -37,5 +38,6 @@ __all__ = [
     "GemProgression",
     "GemSpec",
     "StageGemLinks",
+    "derive_gem_progression",
     "gem_progression_for",
 ]

@@ -37,7 +37,7 @@ from poe1_shared.http import HttpClient, HttpError
 from poe1_shared.logging import get_logger
 
 from .gear import GearProgression, gear_progression_for
-from .gems import GemProgression, gem_progression_for
+from .gems import GemProgression, derive_gem_progression, gem_progression_for
 from .intent import IntentLlmError, extract_intent
 from .planner import (
     PlannerService,
@@ -870,27 +870,16 @@ def make_router(settings: Settings) -> APIRouter:
         Gear and gem progressions are optional in all paths.
         """
 
-        tree_prog = progression_for(template_name)
-        stage_tree = tree_prog.for_stage(stage_key) if tree_prog is not None else None
-        tree_source: str
-        if stage_tree is not None:
-            tree_source = "progression"
-        elif user_pob_code:
+        # Decode the user's PoB once at the top — reused by both the
+        # tree fallback (user_pob source) and the dynamic gem
+        # progression (Step 18).
+        snapshot: PobSnapshot | None = None
+        if user_pob_code:
             try:
                 snapshot = parse_snapshot(
                     decode_export(user_pob_code),
                     export_code=user_pob_code,
                 )
-                # Pass mastery_effects through so PoB doesn't silently
-                # drop the user's mastery nodes on import (PoB rejects
-                # any mastery in ``nodes=`` that isn't also in
-                # ``masteryEffects=``).
-                stage_tree = StageTree(
-                    stage_key=stage_key,
-                    node_ids=tuple(snapshot.tree.node_ids),
-                    mastery_effects=tuple(snapshot.tree.mastery_effects.items()),
-                )
-                tree_source = "user_pob"
             except (PobParseError, ValueError) as err:
                 log.warning(
                     "fob_stage_export_user_pob_decode_failed",
@@ -898,16 +887,41 @@ def make_router(settings: Settings) -> APIRouter:
                     stage_key=stage_key,
                     error=str(err),
                 )
-                stage_tree = None
-                tree_source = "empty"
+                snapshot = None
+
+        tree_prog = progression_for(template_name)
+        stage_tree = tree_prog.for_stage(stage_key) if tree_prog is not None else None
+        tree_source: str
+        if stage_tree is not None:
+            tree_source = "progression"
+        elif snapshot is not None:
+            # Pass mastery_effects through so PoB doesn't silently
+            # drop the user's mastery nodes on import (PoB rejects
+            # any mastery in ``nodes=`` that isn't also in
+            # ``masteryEffects=``).
+            stage_tree = StageTree(
+                stage_key=stage_key,
+                node_ids=tuple(snapshot.tree.node_ids),
+                mastery_effects=tuple(snapshot.tree.mastery_effects.items()),
+            )
+            tree_source = "user_pob"
         else:
             tree_source = "empty"
 
         gear_prog = gear_progression_for(template_name)
         stage_gear = gear_prog.for_stage(stage_key) if gear_prog is not None else None
 
-        gem_prog = gem_progression_for(template_name)
-        stage_gems = gem_prog.for_stage(stage_key) if gem_prog is not None else None
+        # Step 18 — dynamic gem progression derived from user PoB takes
+        # precedence over the curated registry. The registry remains the
+        # fallback for builds without a pasted PoB.
+        stage_gems = None
+        if snapshot is not None:
+            dyn_prog = derive_gem_progression(snapshot, target_name=template_name)
+            if dyn_prog is not None:
+                stage_gems = dyn_prog.for_stage(stage_key)
+        if stage_gems is None:
+            curated_prog = gem_progression_for(template_name)
+            stage_gems = curated_prog.for_stage(stage_key) if curated_prog is not None else None
 
         code = encode_pob_code(
             character_class=character_class,

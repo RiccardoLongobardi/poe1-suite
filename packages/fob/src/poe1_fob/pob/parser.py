@@ -441,6 +441,7 @@ def _parse_skills(root: ET.Element) -> tuple[tuple[PobSkillGroup, ...], int]:
             PobSkillGroup(
                 socket_group=idx,
                 label=skill.attrib.get("label") or None,
+                slot=skill.attrib.get("slot") or None,
                 enabled=_parse_bool(skill.attrib.get("enabled"), default=True),
                 is_main=is_main,
                 gems=tuple(gems),

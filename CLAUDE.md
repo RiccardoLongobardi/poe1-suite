@@ -51,9 +51,24 @@ uv run mypy .
 uv run pytest
 ```
 
-All four must pass with zero errors. Current baseline: **628 tests green (2 skipped — integration/LLM), 109 files type-checked clean, 107 files formatted clean**. Frontend build 551 KB / 168 KB gzip.
+All four must pass with zero errors. Current baseline: **649 tests green (2 skipped — integration/LLM), 111 files type-checked clean, 109 files formatted clean**. Frontend build 551 KB / 168 KB gzip.
 
 **PoB import QA — confirmed working 2026-05-14**: real PoB → planner → "Importa stage in PoB" → paste in PoB Community 3.28 desktop → full build loads (tree 123/123 nodes including cluster jewel subgraph, mastery effects, items, gems, config, pantheon). Took 7 commits to debug, all guided by reading PathOfBuildingCommunity Lua source. Key learnings captured below.
+
+## Step 18 — Dynamic Gem Progression (2026-05-14) ✅
+
+First slice of the dynamic-synthesis pivot. Replaces the hand-curated `gem_progression_for(template_name)` lookup with `derive_gem_progression(snapshot: PobSnapshot)` — works for **every** build the user can paste, not just `rf_pohx`.
+
+- New module `packages/fob/src/poe1_fob/gems/dynamic.py`. Per gem in the user's PoB, projects six `GemSpec` snapshots across the campaign→endgame curve via `_project_level_quality(user_level, user_quality, stage_index)`.
+- **Awakened normalisation**: stages 0-2 substitute `Awakened X Support` with the base `X Support` (Awakened gems don't exist at lvl 30). Stage 3 emerges Awakened lvl 1, stage 4 lvl 3, stage 5 the user's actual level.
+- **Vaal normalisation**: stages 0-1 strip the `Vaal ` prefix (the Vaal corruption is a late-game step). Stage 2+ keeps the Vaal variant.
+- **Trigger gems** (`Cast When Damage Taken`, `Cast On Critical Strike`, `Cast While Channelling`, `Cast On Death`): level **pinned across all stages** to the user's chosen value. Their mechanical threshold (CWDT damage breakpoint) breaks if we downscale.
+- **Aura-like gems** (Clarity / Vitality / heralds / purity auras / Hatred / Determination / …): mild downscale only (50% / 70% / 85% of user's level for stages 0-2).
+- **Parser fix**: `<Skill slot="Body Armour">` was being parsed into `PobSkillGroup.label` (which is empty in real PoB exports — they use `slot`, not `label`). Added `slot: str | None` to `PobSkillGroup` so the dynamic engine can map gem groups to gear slots accurately.
+- **Router wiring**: `_compose_stage_export` now decodes the user PoB once at the top and prefers the dynamic gem progression over the curated registry. Registry stays as the fallback for the no-PoB case.
+- **21 new tests** (`test_gems_dynamic.py`) — level/quality projection math, Awakened/Vaal/trigger handling, slot mapping, end-to-end against the real fixture (Spectre Necro, 9 skill groups including 2 Awakened supports, alt-quality Companionship, Vitality aura). The `high_investment` stage's gem set must equal the user's actual gem set verbatim.
+
+Baseline: 649 verdi / 111 mypy / 109 format.
 
 ## Step 15 — Finder search improvements (2026-05-14) ✅
 

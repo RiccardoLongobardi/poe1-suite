@@ -42,6 +42,10 @@ class PobSkillGroup(BaseModel):
 
     socket_group: int  # 1-based index inside <SkillSet>
     label: str | None = None
+    # PoB's <Skill slot="..."> attribute — the gear slot the gems live in
+    # (e.g. "Body Armour", "Helmet", "Weapon 1"). Real PoB exports
+    # always set this; legacy / hand-written XML may omit it.
+    slot: str | None = None
     enabled: bool = True
     is_main: bool = False
     gems: tuple[PobGem, ...]
