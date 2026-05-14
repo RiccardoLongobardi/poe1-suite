@@ -30,7 +30,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from poe1_core.models import Build
 from poe1_core.models.build_intent import BuildIntent
-from poe1_pricing import PricingService, StatFilter, TradeQuery, TradeSource
+from poe1_pricing import PricingService, TradeSource
 from poe1_shared.config import Settings
 from poe1_shared.http import HttpClient, HttpError
 from poe1_shared.logging import get_logger
@@ -39,15 +39,10 @@ from .gear import GearProgression, gear_progression_for
 from .gems import GemProgression, gem_progression_for
 from .intent import IntentLlmError, extract_intent
 from .planner import (
-    ExtractedTradeMod,
     PlannerService,
     PlanRequest,
     PlanResponse,
     PricingProgress,
-    TradeModExtractRequest,
-    TradeModExtractResponse,
-    TradeSearchRequest,
-    TradeSearchResponse,
 )
 from .pob import (
     PobInputError,
@@ -59,8 +54,6 @@ from .pob import (
     parse_snapshot,
     snapshot_to_build,
 )
-from .pob import clean_mod_lines as _clean_mod_lines
-from .pob import extract_mods as _extract_mod_patterns
 from .ranking import RankingEngine, RecommendRequest, RecommendResponse, SourceAggregator
 from .tree import StageTree, TreeProgression, encode_pob_tree_url, progression_for
 
@@ -562,98 +555,13 @@ def make_router(settings: Settings) -> APIRouter:
             },
         )
 
-    @router.post(
-        "/trade-search",
-        response_model=TradeSearchResponse,
-        summary=(
-            "Build a pre-filled GGG Trade search from a focused mod selection "
-            "and return the share URL the frontend can open in a new tab."
-        ),
-    )
-    async def trade_search_endpoint(
-        payload: Annotated[TradeSearchRequest, Body()],
-    ) -> TradeSearchResponse:
-        """Mirror of poe.ninja's character trade search.
-
-        The frontend extracts mods from an analyzed PoB / planned item,
-        lets the user toggle which ones to require and adjust the
-        strictness slider, then submits the assembled filter spec
-        here. We POST it to GGG's ``/api/trade/search/<league>`` and
-        return the share URL — the same one
-        ``https://www.pathofexile.com/trade/search/<league>/<id>``
-        the Trade UI itself uses.
-
-        We deliberately don't fetch listings: this endpoint exists so
-        the user can inspect / negotiate / buy on the official trade
-        site. Pricing remains the planner's job.
-        """
-
-        # Reject empty queries up-front. GGG would happily run them
-        # but the result list (every rare in the league) is useless and
-        # wastes a rate-limit token.
-        if not payload.item_name and not payload.item_type and not payload.mods:
-            raise HTTPException(
-                status_code=422,
-                detail="trade-search requires at least a name, type, or one mod filter",
-            )
-
-        stats = tuple(StatFilter(stat_id=m.stat_id, min=m.min, max=m.max) for m in payload.mods)
-        # Optional 6L / 5L socket filter goes in the GGG ``filters``
-        # bag rather than as a stat.
-        extra_filters: dict[str, dict[str, dict[str, dict[str, int]]]] | None = None
-        if payload.min_links is not None:
-            extra_filters = {
-                "socket_filters": {
-                    "filters": {"links": {"min": payload.min_links}},
-                },
-            }
-        query = TradeQuery(
-            name=payload.item_name,
-            type=payload.item_type,
-            stats=stats,
-            online_only=payload.online_only,
-            extra_filters=extra_filters,
-        )
-
-        async with HttpClient(settings) as http:
-            trade = TradeSource(http=http, league=settings.poe_league)
-            try:
-                search_id, _hashes, total = await trade.search(query)
-            except HttpError as err:
-                # 429 Too Many Requests is GGG's strict per-IP rate
-                # limit (~5 searches/min). Surface a user-friendly
-                # message instead of the raw HTTPx error.
-                if err.status_code == 429:
-                    raise HTTPException(
-                        status_code=429,
-                        detail=(
-                            "Trade GGG ti ha temporaneamente bloccato per "
-                            "troppe richieste. Aspetta 30-60 secondi e "
-                            "riprova."
-                        ),
-                    ) from err
-                raise HTTPException(
-                    status_code=502,
-                    detail=f"GGG Trade search failed: {err}",
-                ) from err
-
-        url = f"https://www.pathofexile.com/trade/search/{settings.poe_league}/{search_id}"
-
-        log.info(
-            "fob_trade_search_ok",
-            league=settings.poe_league,
-            search_id=search_id,
-            total=total,
-            mods=len(payload.mods),
-            has_name=bool(payload.item_name),
-            has_type=bool(payload.item_type),
-        )
-        return TradeSearchResponse(
-            league=settings.poe_league,
-            search_id=search_id,
-            url=url,
-            total_listings=total,
-        )
+    # POST /fob/trade-search removed. Calling the GGG Trade API
+    # server-side was eating one of the user's ~5 searches/minute IP
+    # quota on every casual click, producing 429s and white-page UX
+    # that wasn't worth the marginal "pre-filled query" feature.
+    # The frontend now redirects directly to pathofexile.com/trade with
+    # the item name in the clipboard — same destination, zero rate-limit
+    # risk. See apps/shell/src/api/tradeRedirect.ts.
 
     @router.get(
         "/tree-progression/{template_name}",
@@ -898,47 +806,11 @@ def make_router(settings: Settings) -> APIRouter:
             user_pob_code=payload.user_pob_code,
         )
 
-    @router.post(
-        "/extract-trade-mods",
-        response_model=TradeModExtractResponse,
-        summary=(
-            "Run the rare-mod pattern table over a list of mod text "
-            "lines and return the dialog-ready filter rows."
-        ),
-    )
-    async def extract_trade_mods_endpoint(
-        payload: Annotated[TradeModExtractRequest, Body()],
-    ) -> TradeModExtractResponse:
-        """Pure-extraction preview for the Trade-search dialog.
-
-        The frontend sends the verbatim mod text lines from a CoreItem
-        (or any other PoB-derived item) and gets back the rows ready
-        to render: ``stat_id``, label, rolled value. Mod lines that
-        don't match any pattern in :data:`MOD_PATTERNS` are silently
-        dropped — no point surfacing rolls we can't query on Trade.
-
-        Stateless and offline: no HTTP calls, no rate limit.
-        """
-
-        cleaned = _clean_mod_lines(payload.mods)
-        extracted = _extract_mod_patterns(cleaned)
-        # Dedupe by stat_id, keeping the first seen — same dedup rule
-        # the pricing layer uses, so the dialog matches the pricer.
-        seen: set[str] = set()
-        out: list[ExtractedTradeMod] = []
-        for em in extracted:
-            if em.stat_id in seen:
-                continue
-            seen.add(em.stat_id)
-            out.append(
-                ExtractedTradeMod(
-                    line=em.line,
-                    stat_id=em.stat_id,
-                    value=em.value,
-                    label=em.label,
-                )
-            )
-        return TradeModExtractResponse(mods=tuple(out))
+    # POST /fob/extract-trade-mods removed alongside /trade-search.
+    # It only existed to populate the deleted TradeSearchDialog mod
+    # filter list. The MOD_PATTERNS table is still used internally by
+    # the planner's Trade pricer (see _matches_rf in templates.py and
+    # _price_combo_unique in planner/service.py).
 
     return router
 

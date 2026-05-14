@@ -36,7 +36,8 @@ import {
   IconSun,
   IconTool,
 } from "@tabler/icons-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { prefetchLeague } from "./api/tradeRedirect";
 import {
   Navigate,
   Route,
@@ -60,6 +61,12 @@ import { hasSeenWelcome } from "./state/welcome";
 export function App() {
   const location = useLocation();
   const isWelcome = location.pathname === "/";
+
+  // Prefetch the current league once per session so "Apri Trade"
+  // buttons stay synchronous (popup blocker quiet) on first click.
+  useEffect(() => {
+    void prefetchLeague();
+  }, []);
 
   if (isWelcome) {
     return (

@@ -30,7 +30,6 @@ import {
   Title,
   Tooltip,
 } from "@mantine/core";
-import { useDisclosure } from "@mantine/hooks";
 import {
   IconArrowDown,
   IconBolt,
@@ -41,7 +40,6 @@ import {
   IconHourglass,
   IconList,
   IconPackage,
-  IconSearch,
   IconSparkles,
   IconStairsUp,
   IconTree,
@@ -62,7 +60,7 @@ import type {
   StageGemLinks,
   StageTree,
 } from "../api/types";
-import { TradeSearchDialog } from "./TradeSearchDialog";
+import { openTradeForItem } from "../api/tradeRedirect";
 
 const CONFIDENCE_COLOR: Record<Confidence, string> = {
   low: "gray",
@@ -126,15 +124,20 @@ function ItemRow({
         )}
       </Table.Td>
       <Table.Td style={{ width: 36 }}>
-        <Tooltip label="Cerca su pathofexile.com" withArrow>
+        <Tooltip
+          label="Apri pathofexile.com/trade (nome copiato negli appunti)"
+          withArrow
+          multiline
+          w={220}
+        >
           <ActionIcon
             variant="subtle"
             color="astral"
             size="sm"
             onClick={() => onTradeClick(item)}
-            aria-label="Cerca su Trade"
+            aria-label="Apri su Trade"
           >
-            <IconSearch size={14} />
+            <IconExternalLink size={14} />
           </ActionIcon>
         </Tooltip>
       </Table.Td>
@@ -169,12 +172,11 @@ export function StageCard({
 }: Props) {
   const accent = index === 0 ? "teal" : index === 1 ? "blue" : "grape";
 
-  const [tradeOpen, tradeCtl] = useDisclosure(false);
-  const [tradeItem, setTradeItem] = useState<CoreItem | null>(null);
-
   function openTradeDialog(item: CoreItem) {
-    setTradeItem(item);
-    tradeCtl.open();
+    // No server-side search: open Trade directly and copy the item
+    // name to the clipboard so the user pastes it into Trade's
+    // search box. Removes the GGG rate-limit pain entirely.
+    openTradeForItem(item.name);
   }
 
   // Lazy state for the tab content. Each tab fetches once on first open
@@ -563,19 +565,9 @@ export function StageCard({
           </Stack>
         )}
 
-        {/* Trade search dialog — same UX as before. */}
-        {tradeItem && (
-          <TradeSearchDialog
-            key={`${tradeItem.slot}-${tradeItem.name}`}
-            opened={tradeOpen}
-            onClose={tradeCtl.close}
-            title={tradeItem.name}
-            itemName={tradeItem.rarity === "unique" ? tradeItem.name : null}
-            itemType={tradeItem.base_type ?? null}
-            rawMods={tradeItem.mods ?? []}
-            allowLinks={tradeItem.slot === "body_armour"}
-          />
-        )}
+        {/* Trade dialog removed — clicks now redirect directly to
+            pathofexile.com/trade with the item name pre-copied to
+            the clipboard. See ../api/tradeRedirect.ts. */}
 
         {stage.next_step_trigger && (
           <Group gap={6} wrap="nowrap" align="flex-start">

@@ -378,49 +378,10 @@ export type PricingProgressKind =
   | "item_failed"
   | "done";
 
-// ---------------------------------------------------------------------------
-// Trade search — POST /fob/trade-search (poe.ninja-style item search)
-// ---------------------------------------------------------------------------
-
-export interface TradeSearchModFilter {
-  stat_id: string;
-  min: number | null;
-  max: number | null;
-}
-
-export interface TradeSearchRequest {
-  item_name?: string | null;
-  item_type?: string | null;
-  mods?: TradeSearchModFilter[];
-  online_only?: boolean;
-  min_links?: number | null;
-}
-
-export interface TradeSearchResponse {
-  league: string;
-  search_id: string;
-  /** Browser URL on pathofexile.com — open in a new tab. */
-  url: string;
-  total_listings: number;
-}
-
-/** One row in the Trade-search dialog's mod list. */
-export interface ExtractedTradeMod {
-  line: string;
-  stat_id: string;
-  /** Numeric value rolled on the source item. */
-  value: number;
-  /** Human-readable label, e.g. "+# to maximum Life". */
-  label: string;
-}
-
-export interface TradeModExtractRequest {
-  mods: string[];
-}
-
-export interface TradeModExtractResponse {
-  mods: ExtractedTradeMod[];
-}
+// Trade search types removed. The frontend now redirects directly to
+// pathofexile.com/trade with the item name pre-copied to the clipboard
+// (see api/tradeRedirect.ts) instead of letting FOB call the GGG Trade
+// API server-side. Removes the rate-limit pain entirely.
 
 export interface PricingProgress {
   kind: PricingProgressKind;

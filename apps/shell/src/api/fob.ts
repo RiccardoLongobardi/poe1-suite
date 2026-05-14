@@ -17,9 +17,6 @@ import type {
   StageExportRequest,
   StageExportResponse,
   TargetGoal,
-  TradeModExtractResponse,
-  TradeSearchRequest,
-  TradeSearchResponse,
   TreeProgression,
 } from "./types";
 
@@ -74,32 +71,6 @@ export async function recommend(
 /** POST /fob/analyze-pob */
 export async function analyzePob(input: string): Promise<AnalyzePobResponse> {
   return post<AnalyzePobResponse>("/fob/analyze-pob", { input });
-}
-
-/**
- * POST /fob/extract-trade-mods — turn raw mod text into dialog rows.
- *
- * Pure server-side pattern matching (no HTTP / no rate-limit). Used
- * by ``TradeSearchDialog`` to populate its mod-toggle list when the
- * caller has the original mod text but no pre-extracted rows.
- */
-export async function extractTradeMods(
-  mods: string[],
-): Promise<TradeModExtractResponse> {
-  return post<TradeModExtractResponse>("/fob/extract-trade-mods", { mods });
-}
-
-/**
- * POST /fob/trade-search — build a pre-filled GGG Trade share URL.
- *
- * Mirrors poe.ninja's character trade search: feed a focused mod
- * selection (plus optional name/type/links), get back the URL the user
- * can open on pathofexile.com to inspect / negotiate / buy.
- */
-export async function tradeSearch(
-  req: TradeSearchRequest,
-): Promise<TradeSearchResponse> {
-  return post<TradeSearchResponse>("/fob/trade-search", req);
 }
 
 /** POST /fob/plan */
