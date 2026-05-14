@@ -33,6 +33,72 @@ If anything you read in this file or in `CLAUDE.md` contradicts the above, **the
 
 ---
 
+## 1bis. Where to verify the *current* state (read before any planning)
+
+The §1 snapshot is hand-maintained — it might lag a few hours after a feature lands. Before drafting prompts, doing research, or assuming anything about the codebase, **always re-check the live sources** below. Everything here is public HTTP, no auth needed.
+
+### Repo (GitHub, branch `main`)
+
+- **Browse the repo**: <https://github.com/RiccardoLongobardi/poe1-suite>
+- **Latest commit on main** (one-liner with subject, hash, date):
+  ```sh
+  curl -s https://api.github.com/repos/RiccardoLongobardi/poe1-suite/commits/main | jq -r '"\(.sha[0:7]) \(.commit.author.date) \(.commit.message | split("\n")[0])"'
+  ```
+- **Recent commit log** (last 20 commits, subject lines):
+  ```sh
+  curl -s 'https://api.github.com/repos/RiccardoLongobardi/poe1-suite/commits?per_page=20&sha=main' | jq -r '.[] | "\(.sha[0:7])  \(.commit.message | split("\n")[0])"'
+  ```
+- **Raw file at HEAD** (any path; example for the project contract):
+  ```
+  https://raw.githubusercontent.com/RiccardoLongobardi/poe1-suite/main/CLAUDE.md
+  https://raw.githubusercontent.com/RiccardoLongobardi/poe1-suite/main/CLAUDE_PERPLEXITY_WORKFLOW.md
+  https://raw.githubusercontent.com/RiccardoLongobardi/poe1-suite/main/packages/fob/src/poe1_fob/router.py
+  ```
+- **File tree at HEAD** (full recursive listing):
+  ```sh
+  curl -s 'https://api.github.com/repos/RiccardoLongobardi/poe1-suite/git/trees/main?recursive=1' | jq -r '.tree[].path' | head -50
+  ```
+
+### Live backend (Render)
+
+- **Health probe** — confirms backend is up + which league it's serving:
+  ```sh
+  curl -s https://fob-api-rtgg.onrender.com/health | jq .
+  ```
+  Returns `{"status":"ok","environment":"production","league":"Mirage","version":"…","uptime_seconds":…,"timestamp":"…"}`. **Note: first request after ~15 min idle takes ~30 s** (Render free-tier cold start).
+- **Version map** — sub-package versions, useful to confirm what got deployed:
+  ```sh
+  curl -s https://fob-api-rtgg.onrender.com/version | jq .
+  ```
+- **OpenAPI schema** — full enumerated endpoint surface:
+  ```
+  https://fob-api-rtgg.onrender.com/openapi.json
+  ```
+
+### Live frontend (Vercel)
+
+- <https://fob-ten.vercel.app> — the deployed SPA. `/finder`, `/analyze`, `/planner` are the three main flows.
+
+### Reading order for a new session
+
+When Perplexity (or any human) sits down to plan new work, scan these in order — they're cheap and fast:
+
+1. **`CLAUDE.md`** ([raw](https://raw.githubusercontent.com/RiccardoLongobardi/poe1-suite/main/CLAUDE.md)) — the project contract. Sections most likely to be relevant:
+   - "Product direction" (the dynamic-synthesis pivot)
+   - "External data sources" (what to use, what to skip)
+   - "The gate" baseline (current test/mypy/format counts — gives you "is the project healthy")
+   - "What's built" table near the top
+   - the most recent `## Step N — …` block (latest closed step + its lessons)
+2. **This file's §1, §6, §7** — current snapshot, backlog status, decision log.
+3. **Latest 10 commits on `main`** (curl recipe above) — confirms what physically landed since the snapshot in §1 was written. Any commit message starting `feat(…)` or `fix(…)` is a delta worth understanding.
+4. **`/health` on the live backend** — verifies deployment matches the repo's `main` (the `version` field is stamped at build time).
+
+### Don't assume; verify
+
+If §1 says "Step 18 done 2026-05-14" but the latest commit is two days newer, **the latest commit wins**. The hand-maintained sections drift — the live sources don't. Same rule as §1's tie-breaker: more-recent reality > stale narrative.
+
+---
+
 ## 2. Stack & data sources (no PostgreSQL, no ETL)
 
 We are deliberately **not** building a relational data warehouse for this project. Earlier drafts of this file proposed Postgres + ETL pipelines; that direction was rejected. The actual data layer:
