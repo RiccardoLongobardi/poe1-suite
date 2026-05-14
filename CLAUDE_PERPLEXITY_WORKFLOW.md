@@ -1,263 +1,267 @@
 # CLAUDE_PERPLEXITY_WORKFLOW
 
-Coordinated workflow between **Perplexity (research)** and **Claude Code (Opus 4.7)** for the `poe1-suite` mono-repo.
+Coordination playbook between **Perplexity** (research / design / data-source surveys) and **Claude Code** (in-repo implementation) for the `poe1-suite` mono-repo.
 
-This file is the single source of truth for:
-- What Perplexity is responsible for (research, design, prompts).
-- What Claude Code is responsible for (implementation inside this repo).
-- The current backlog and decisions.
+This file's only job is to keep the two tools in sync — what each is responsible for, what's currently open, what's been decided. The source of truth for the codebase itself remains [`CLAUDE.md`](./CLAUDE.md) (architecture, conventions, gate, lessons learned).
 
-## 1. Project context
+> **Read this AND `CLAUDE.md` before starting any session.** This file is the workflow contract; `CLAUDE.md` is the project contract.
 
-`poe1-suite` is a mono-repo of Path of Exile 1 tools, with Python packages under `packages/`, a FastAPI backend under `apps/server/`, and a React shell under `apps/shell/`.[cite:62]
+---
 
-The current focus is building:
-- **FOB** — Frusta Oracle Builder (build advisor) under `packages/fob/`.
-- A shared **PoE 1 data layer** (data warehouse-ish) to power multiple tools (FOB, Faustus, future apps).
+## 1. Where the project actually stands (read first)
 
-We use:
-- **Perplexity** to design schemas, choose external data sources (PoEDB, PoE Ninja, trade API, etc.), and write high-quality prompts.
-- **Claude Code (Opus 4.7)** to implement code and infrastructure directly in this repo.
+Don't trust earlier versions of this file — the section below is the authoritative snapshot. As of **2026-05-14**:
 
-## 2. Roles and boundaries
+- **FOB is live in production**, free tier:
+  - Frontend: <https://fob-ten.vercel.app> (Vercel, auto-deploy from `main`).
+  - Backend: <https://fob-api-rtgg.onrender.com> (Render, region Frankfurt, auto-deploy from `main`).
+  - Cost: **$0/month**.
+- **Baseline gate**: 664 tests green / 114 mypy / 112 format. Frontend build 551 KB / 168 KB gzip.
+- **Working features**:
+  - PoB analyze → Build summary.
+  - Build Finder with class/asc/stat-floor/sort filters + natural-language extraction (Step 15).
+  - Planner with 6-stage `BuildPlan`, SSE streaming progress + ETA.
+  - "Importa stage in PoB": exports a stage-specific PoB code that imports cleanly in Path of Building Community 3.28 (tree + items + gems + config + pantheon).
+  - Trade redirect (client-side, no server-side GGG calls — GGG blocks Render's IP range).
+- **Active architectural pivot**: from hand-curated `BuildTemplate` registries to dynamic synthesis derived from the user's PoB.
+  - Step 18 (Dynamic Gem Progression) — ✅ done 2026-05-14.
+  - Step 16 (Dynamic Tree Progression) — ✅ done 2026-05-14.
+  - Step 17 (Dynamic Gear Progression) — 📋 next.
+  - Step 19 (Population data in Finder) — 📋 backlog.
 
-### 2.1 Perplexity (research & design)
+If anything you read in this file or in `CLAUDE.md` contradicts the above, **the above wins** and the older text needs correcting.
 
-Perplexity is used for:
-- Deep research on PoE APIs and data sources (PoEDB, PoE Ninja, GGG developer docs, community tools).
-- Designing data models, table schemas, ETL flows, and integration patterns.
-- Writing **ready-to-paste prompts** for Claude Code.
-- Updating this `CLAUDE_PERPLEXITY_WORKFLOW.md` file (and high-level docs) with:
-  - New prompts.
-  - Backlog items.
-  - Decision log entries.
+---
 
-Perplexity **does not**:
-- Modify application code files directly (`.py`, `.ts`, `.sql` inside the repo).
-- Change the FOB implementation or server code.
+## 2. Stack & data sources (no PostgreSQL, no ETL)
 
-### 2.2 Claude Code (implementation)
+We are deliberately **not** building a relational data warehouse for this project. Earlier drafts of this file proposed Postgres + ETL pipelines; that direction was rejected. The actual data layer:
 
-Claude Code (Opus 4.7) is used for:
-- Creating and editing code in:
-  - `packages/` (core models, shared infra, FOB, etc.).
-  - `apps/server/` (FastAPI routes, composition logic).
-  - `apps/shell/` (when needed for frontend).
-  - `scripts/` (utility/ops scripts).
-- Implementing DB schemas and migrations (SQL files, Alembic if introduced).
-- Implementing ETL pipelines (Python modules under `packages` or `scripts` as appropriate).
+| Layer | Source | Caching | Refresh |
+|---|---|---|---|
+| Live economy (currency / unique / cluster / oils / jewels) | `poe.ninja` `/poe1/api/economy/stash/{version}/...` (JSON) | `diskcache` 15 min TTL on `HttpClient` | Per-request, automatic. |
+| Build ladder + per-character snapshots | `poe.ninja` `/poe1/api/builds/{version}/search` (protobuf) | `diskcache` 15 min TTL | Per-request, automatic. |
+| Per-item Trade search (Mageblood etc.) | GGG `/api/trade/search/<league>` (JSON) | In-memory TTLCache 8 min by query hash | Per-request, automatic. *(Note: blocked from Render's IP range; runtime fallback to bare-URL redirect.)* |
+| PoE 1 passive tree definition | GGG `passiveSkillTreeData` JS variable on `pathofexile.com/passive-skill-tree` | Vendored as `packages/fob/data/tree/3_28.json` (2.8 MB) | Manual via `scripts/extract_tree_data.py` once per league. |
+| Item base types (for Step 17) | `repoe-fork/repoe` `base_items.json` (planned vendor) | TBD vendor under `packages/fob/data/items/` | Manual once per league. |
 
-Claude Code **may** update this file **only** in the section `5. Backlog & status` (checklist) when explicitly instructed via a prompt.
-Claude Code should **not** modify prompts or the decision log.
+Sources we evaluated and rejected (don't propose them again):
 
-## 3. Collaboration rules
+- **poedb.tw** — HTML scrape only, no API/dumps, fragile, terms ambiguous.
+- **GGG official developer API** (OAuth) — only user-data (characters, stashes, trade); does not publish tree/gem/base definitions.
+- **brather1ng/RePoE** — dead since league 3.19 (Sep 2022); use the `repoe-fork/repoe` fork instead.
 
-1. **Single orchestration file**
-   - This file is the coordination hub; do not create duplicate orchestration docs elsewhere.
+Reference: `CLAUDE.md` → "External data sources (use these, don't reinvent)".
 
-2. **Perplexity writes prompts, Claude executes them**
-   - New prompts are added here by Perplexity under section `4. Prompt library`.
-   - You copy specific prompts into Claude Code when you want to generate or refactor code.
+---
 
-3. **No silent overwrites**
-   - When Claude Code changes repo structure or introduces new modules, it should be instructed to:
-     - Reflect the change in `docs/architecture.md` if architecture-level.[cite:63]
-     - Update `5. Backlog & status` in this file to mark tasks as done or in progress.
+## 3. Roles
 
-4. **Source of truth for PoE data layer**
-   - All design decisions about the PoE data layer (schemas, ETL strategy, data sources) are recorded in `6. Decision log`.
+### 3.1 Perplexity — research & design
 
-## 4. Prompt library for Claude Code
+What Perplexity is uniquely good at and should own:
 
-This section contains prompts that can be copy-pasted into Claude Code. Each prompt assumes it is run inside the `poe1-suite` repo with access to existing files.
+- **Data-source surveys** — when we hit a wall, Perplexity researches what data exists (e.g. the analysis that produced the §2 table above).
+- **Algorithm design** — drafting BFS / clustering / ranking strategies for new features before code is written.
+- **Comparative reviews** — "is library X or Y better for use case Z" with sources.
+- **Long-form research reports** that summarise multiple sources with citations.
 
-### Prompt 001 – Core DB schema (PoE data layer)
+What Perplexity **does not** do in this workflow:
 
-```prompt
-You are working inside the `poe1-suite` mono-repo. The README describes it as a mono-repo of Path of Exile 1 tools (Python packages under `packages/`, FastAPI backend under `apps/server/`, React shell under `apps/shell/`).[cite:62]
+- Edit code files in the repo (`.py`, `.ts`, `.lua`, `.sql`, `.json`).
+- Modify Claude Code's session state or todos.
+- Update this file's *implementation status* (the §6 backlog) — only Claude Code updates that, since Claude Code is the one actually doing the work.
 
-Goal: introduce a **core relational schema** for a PoE data layer focusing on leagues, currencies, base items, and economy snapshots (prices).
+Perplexity **may** propose updates to §5 (open questions) and §7 (decision log) when its research surfaces a decision point the project needs to settle.
 
-Target DB: PostgreSQL.
+### 3.2 Claude Code — implementation
 
-Create a SQL file at `docs/sql/001_core_tables.sql` with the following tables and constraints:
+What Claude Code owns:
 
-1. `dim_league`
-   - `league_id` SERIAL PRIMARY KEY
-   - `league_name` TEXT UNIQUE NOT NULL
-   - `game` TEXT NOT NULL CHECK (game IN ('PoE1','PoE2'))
-   - `start_date` DATE NULL
-   - `end_date` DATE NULL
-   - `is_hardcore` BOOLEAN NOT NULL DEFAULT FALSE
-   - `is_ssf` BOOLEAN NOT NULL DEFAULT FALSE
-   - `raw_source` JSONB NULL  -- original payload from league API
+- All code changes under `packages/`, `apps/`, `scripts/`, `docs/`.
+- All test changes and gate enforcement.
+- Commits, pushes, deploy-triggering merges to `main`.
+- Updating **both** `CLAUDE.md` (project contract, baselines, lessons) and `CLAUDE_PERPLEXITY_WORKFLOW.md` (workflow status — §6 backlog, sometimes §7 decision log).
+- Reading external data via WebFetch / curl when needed for a specific task (Claude Code already does this routinely; Perplexity is reserved for *deep* research, not every one-off fetch).
 
-2. `dim_currency`
-   - Primary source: PoE Ninja `currencyoverview` / `itemoverview` API (fields like `name`, `detailsId`, `icon`, `chaosEquivalent`).[cite:19]
-   - Columns:
-     - `currency_id` SERIAL PRIMARY KEY
-     - `details_id` TEXT UNIQUE NOT NULL        -- maps PoE Ninja `detailsId`
-     - `display_name` TEXT NOT NULL             -- `currencyTypeName` or `name`
-     - `icon_url` TEXT NULL
-     - `category` TEXT NOT NULL                 -- Currency, Fragment, Oil, Fossil, Essence, etc.
-     - `created_at` TIMESTAMPTZ NOT NULL DEFAULT now()
+Constraints on Claude Code:
 
-3. `dim_base_item`
-   - For now only the structure, to be populated later from PoEDB / PyPoE exports.
-   - Columns:
-     - `base_item_id` SERIAL PRIMARY KEY
-     - `base_item_name` TEXT NOT NULL
-     - `item_class` TEXT NOT NULL
-     - `icon_url` TEXT NULL
-     - `level_req` INT NULL
-     - `tags` TEXT[] NULL
-     - `is_unique_only` BOOLEAN NOT NULL DEFAULT FALSE
-     - `valid_from_patch` TEXT NULL
-     - `valid_to_patch` TEXT NULL
+- Cannot bypass the pre-commit gate without explicit user instruction (no `--no-verify`).
+- Cannot commit secrets, `.env` files, or other items in the `.gitignore` exclusion list.
+- Must run the full gate (`uv run ruff check . && uv run ruff format --check . && uv run mypy . && uv run pytest`) before declaring a step done.
 
-4. `fact_economy_snapshot`
-   - Grain: (league_id, currency_id OR base_item_id, snapshot_ts).
-   - Columns:
-     - `snapshot_id` BIGSERIAL PRIMARY KEY
-     - `league_id` INT NOT NULL REFERENCES dim_league(league_id)
-     - `currency_id` INT NULL REFERENCES dim_currency(currency_id)
-     - `base_item_id` INT NULL REFERENCES dim_base_item(base_item_id)
-     - `snapshot_ts` TIMESTAMPTZ NOT NULL
-     - `price_chaos` NUMERIC(18,4) NOT NULL
-     - `price_divine` NUMERIC(18,4) NULL
-     - `source` TEXT NOT NULL DEFAULT 'poe.ninja'
-     - `raw_source` JSONB NULL
-   - Add a CHECK constraint so that at least one of `currency_id` or `base_item_id` is NOT NULL.
-   - Add indexes for:
-     - `(league_id, snapshot_ts)`
-     - `(currency_id, snapshot_ts)`
-     - `(base_item_id, snapshot_ts)`
+### 3.3 The user (Riccardo)
 
-General requirements:
-- Use `CREATE TABLE IF NOT EXISTS` and `CREATE INDEX IF NOT EXISTS`.
-- Add concise `COMMENT ON TABLE` and `COMMENT ON COLUMN` statements explaining the purpose of each table/column.
-- Keep SQL formatted cleanly and organized.
+What the user owns:
 
-After generating the SQL file, briefly summarize the tables and their relationships in a comment block at the top of the file.
-```
+- Strategic direction (the dynamic-synthesis pivot was a user decision, recorded in §7).
+- Manual QA in PoB Community desktop (we cannot automate the round-trip from a script).
+- Final-call on architectural trade-offs surfaced by either Perplexity or Claude Code.
+- Curating which Perplexity research findings get adopted vs ignored.
 
-### Prompt 002 – ETL for PoE Ninja (currencies + price snapshots)
+---
 
-```prompt
-You are in the `poe1-suite` repo. A new SQL schema for `dim_league`, `dim_currency`, `dim_base_item`, and `fact_economy_snapshot` exists under `docs/sql/001_core_tables.sql`.
+## 4. Collaboration rules
 
-Goal: create an ETL script to ingest **PoE Ninja** economy data into Postgres.
+1. **`CLAUDE.md` is the contract**, this file is the playbook. When they conflict, `CLAUDE.md` wins and this file needs correcting.
+2. **No silent re-architecture**. Decisions that change the stack, the data sources, or the public API surface go in §7. Don't add Postgres / ETL / new languages without an explicit decision-log entry first.
+3. **Prompts in this file are reusable templates**, not one-shot tasks. Each one should be runnable today without context from a past chat. Time-bound tasks live in §6.
+4. **Don't fetch GGG Trade from production.** Render's IP range is blacklisted by GGG's anti-bot — calling `/api/trade/search` from the deployed backend returns 403 every time. Server-side trade calls are reserved for local development; production flows go via the client-side redirect helper (`apps/shell/src/api/tradeRedirect.ts`).
+5. **Vendor data, don't fetch at runtime.** When we depend on a public dataset (PoE tree, item bases), commit a snapshot to the repo and refresh manually per league via a `scripts/` utility. No runtime HTTP to GitHub raw or similar — adds an availability dependency we don't need.
 
-Tasks:
+---
 
-1. Create a Python module at `scripts/poe_ninja_etl.py` that:
-   - Uses `asyncio` or synchronous code (your choice, default to sync for simplicity) with `requests` or `httpx`.
-   - Reads configuration from environment variables (you can use `pydantic-settings` or simple `os.environ`):
-     - `DB_DSN` (Postgres connection string)
-     - `POE_LEAGUE` (current league name, e.g. `Necropolis`)
-     - `POE_NINJA_BASE_URL` (defaults to `https://poe.ninja/api/data`).[cite:19]
+## 5. Open questions for Perplexity
 
-2. Implement a function `fetch_poe_ninja(endpoint: str, league: str, type_: str) -> dict` that:
-   - Builds URLs like:
-     - `https://poe.ninja/api/data/currencyoverview?league=LEAGUE&type=Currency`
-     - `https://poe.ninja/api/data/itemoverview?league=LEAGUE&type=BaseType`
-   - Handles basic retries with exponential backoff.
-   - Raises a clear exception on non-200 responses.
+Use this section to park "go research X" items. Claude Code can flag candidates here when a question surfaces mid-implementation that Perplexity is better placed to answer.
 
-3. Implement `ensure_league(conn, league_name: str) -> int` that:
-   - Ensures a row exists in `dim_league` for `league_name` (game='PoE1' by default).
-   - Returns `league_id`.
+- *(none open right now — Step 16 was the last research-gated item, addressed by the 2026-05-14 data-source survey.)*
 
-4. Implement `sync_currencies(conn, league_id: int, league_name: str)` that:
-   - Calls PoE Ninja `currencyoverview` for relevant `type` values (Currency, Fragment, etc.), following community docs for available `type` strings.[cite:19]
-   - For each entry, upserts into `dim_currency` based on `detailsId`.
-   - Inserts a row into `fact_economy_snapshot` for each entry with:
-     - `league_id`
-     - `currency_id`
-     - `base_item_id = NULL`
-     - `snapshot_ts = now()`
-     - `price_chaos = chaosEquivalent`
-     - `price_divine = NULL` (for now)
-     - `source = 'poe.ninja'`
-     - `raw_source` as JSONB payload of the line.
+---
 
-5. Structure and quality:
-   - Use `psycopg2` or `asyncpg` or `sqlalchemy` (choose one and structure it cleanly in a way that fits this repo).
-   - Add type hints to all functions.
-   - Add a `main()` function and guard (`if __name__ == "__main__":`) that:
-     - Reads config.
-     - Connects to the DB.
-     - Ensures league.
-     - Calls `sync_currencies`.
+## 6. Backlog & status
 
-6. Logging & errors:
-   - Use the `logging` module with INFO-level logging for high-level steps and DEBUG for details.
-   - Fail fast on misconfiguration (missing `DB_DSN` or `POE_LEAGUE`).
-
-Keep the script self-contained and focused: no framework, just a clean ETL utility we can later schedule via cron or CI.
-```
-
-### Prompt 003 – ETL scaffold for base items from PoEDB exports
-
-```prompt
-You are in the `poe1-suite` repo and there is a Postgres schema with `dim_base_item` already defined.
-
-Goal: scaffold an ETL module that can load base item metadata from a JSON export produced from PoEDB or similar sources.[cite:21]
-
-Create a Python module at `scripts/base_items_etl.py` with the following characteristics:
-
-1. Define a dataclass `BaseItemRecord` with fields:
-   - `base_item_name: str`
-   - `item_class: str`
-   - `icon_url: str | None`
-   - `level_req: int | None`
-   - `tags: list[str]`
-   - `is_unique_only: bool`
-   - `valid_from_patch: str | None`
-   - `valid_to_patch: str | None`
-
-2. Define a protocol-like base class or simple abstract class `BaseItemSource` with a method:
-   - `iter_base_items(self) -> Iterable[BaseItemRecord]`
-
-3. Implement a concrete class `PoEDBJsonBaseItemSource` that:
-   - Takes a path to a JSON file in its constructor (e.g. `data/poedb_base_items.json`).
-   - Expects the JSON to be a list of objects with at least `name`, `item_class`, and optionally other fields.
-   - Maps JSON objects to `BaseItemRecord` instances.
-
-4. Implement a function `load_base_items_to_db(conn, source: BaseItemSource)` that:
-   - Iterates over `source.iter_base_items()`.
-   - Upserts into `dim_base_item` using `(base_item_name, item_class)` as a natural key.
-   - Updates `icon_url`, `level_req`, `tags`, `is_unique_only`, `valid_from_patch`, `valid_to_patch` if the record already exists.
-
-5. Provide a `main()` function that:
-   - Reads `DB_DSN` and `BASE_ITEMS_JSON_PATH` from environment variables.
-   - Connects to the DB.
-   - Instantiates a `PoEDBJsonBaseItemSource` with the JSON path.
-   - Calls `load_base_items_to_db`.
-
-Do not implement any scraping or HTTP fetching here. Assume the JSON file has already been downloaded by some other process. Focus on clean structure and upsert logic, with type hints and minimal but clear logging.
-```
-
-## 5. Backlog & status
-
-### TODO
-
-- [ ] Create core PoE data schema SQL (`docs/sql/001_core_tables.sql`).
-- [ ] Implement PoE Ninja ETL (`scripts/poe_ninja_etl.py`).
-- [ ] Implement base items ETL scaffold (`scripts/base_items_etl.py`).
-- [ ] Decide where to physically host the Postgres instance (local Docker vs managed) and document it.
-- [ ] Connect FOB to the new PoE data layer for price lookup.
+Authoritative status of the dynamic-synthesis pivot. Updated by Claude Code after each step closes.
 
 ### IN PROGRESS
 
-- [ ] FOB foundations in `packages/fob/` (per ARCHITECTURE + FOB_MANUALE docs).[cite:63]
+- *(nothing actively in progress between sessions — Step 16 + 18 closed.)*
+
+### NEXT
+
+- [ ] **Step 17 — Dynamic Gear Progression**
+  - Pricing-driven tier classification (Mirror-tier / Mageblood-tier / High / Mid / Cheap / Leveling / Cluster).
+  - Per-stage budget thresholds (Stage 1 ≤ 0.5 div, …, Stage 6 no cap).
+  - Substitution table per slot using vendored `repoe-fork/base_items.json` for canonical base types + requirements + implicits.
+  - Deliverable: `packages/fob/src/poe1_fob/gear/dynamic.py`, function `derive_gear_progression(snapshot, pricing) -> GearProgression`.
+  - Effort estimate: 3-4 days.
+- [ ] **Step 19 — Population data in Finder**
+  - Aggregator over `poe.ninja` builds we already fetch: top-N skills per ascendancy, stat-percentile distributions per skill.
+  - New endpoint `GET /builds/population-stats?ascendancy=X`.
+  - Finder UI panel above the recommend results.
+  - Effort estimate: 1 day.
 
 ### DONE
 
-- [x] Mono-repo layout and basic tooling (uv, FastAPI app, docs/architecture.md, docs/DEPLOY.md).[cite:62][cite:63]
+- [x] **Step 1-13** — Core domain models, PoE Ninja + Trade pricing, ranking engine, planner v2 reverse-mode, UI shell. (See `CLAUDE.md` for per-step detail.)
+- [x] **Step 14 T1-T5** — Tree + gear + gem progression scaffolding, PoB XML encoder + decoder, StageCard tabs UI, "Importa stage in PoB" button.
+- [x] **PoB import QA** (2026-05-14) — Verified the export-then-paste flow against Path of Building Community 3.28 desktop. Took 7 commits to debug the tree URL header, mastery effects, cluster jewel passthrough — see `CLAUDE.md` "Lessons from the PoB-import-debug sprint".
+- [x] **Step 15 — Finder search improvements** (2026-05-14) — Class + ascendancy filter, stat-floor filters (Life/ES/EHP/DPS), level range, sort_by, natural-language extraction extended with k/m suffix + "almeno X" / "ordina per Y" phrases.
+- [x] **Step 18 — Dynamic Gem Progression** (2026-05-14) — `derive_gem_progression(snapshot)` projects six GemSpec snapshots per gem; handles Awakened normalisation, Vaal normalisation, trigger-gem pinning, aura-like soft downscale. Replaces hand-curated `gem_progression_for(template_name)` for any build with a pasted PoB.
+- [x] **Step 16 — Dynamic Tree Progression** (2026-05-14) — Vendored GGG passive tree JSON (`packages/fob/data/tree/3_28.json`); `derive_tree_progression(snapshot)` BFSes the user's allocated subgraph from class start, buckets into 6 cumulative supersets at coverage 10/25/50/70/85/100; ascendancy distributed by lab order; cluster jewels stage 6 only.
+- [x] **Production deploy live** — Render (backend) + Vercel (frontend) on free tier. See `docs/DEPLOY.md`.
 
-## 6. Decision log
+### REJECTED / OBSOLETE
 
-- 2026-05-14 – We will coordinate Perplexity and Claude Code via a dedicated orchestration file `CLAUDE_PERPLEXITY_WORKFLOW.md` in the repo root.
-- 2026-05-14 – Target DB for the PoE data layer is PostgreSQL; initial schema will cover leagues, currencies, base items, and economy snapshots.
-- 2026-05-14 – PoE Ninja is the primary external source for economy/pricing data; PoEDB/PyPoE will be used for static game data exports.
+These were in earlier versions of this file or earlier backlogs; they are explicitly not on the roadmap and shouldn't reappear:
+
+- ~~Build a PostgreSQL data layer for prices.~~ → Replaced by live `poe.ninja` + `diskcache`. Decision 2026-05-14 (see §7).
+- ~~Scrape PoEDB for static game data.~~ → Replaced by vendored JSON from GGG / `repoe-fork`. Decision 2026-05-14.
+- ~~Pre-fill GGG Trade searches server-side.~~ → GGG blacklists Render IPs (HTTP 403 every request). Replaced by client-side redirect to `pathofexile.com/trade/search/<league>` with item name in clipboard. Decision 2026-05-14.
+- ~~Hand-curate `*_PROGRESSION` registries for the remaining 47 BuildTemplate classes.~~ → Replaced by the dynamic-synthesis pivot (Steps 16-19). Decision 2026-05-14, see `CLAUDE.md` "Product direction".
+- ~~Add new `BuildTemplate` subclasses for new skills.~~ → The existing 49 templates already cover every reasonable build for *descriptive* purposes; new skills should match into existing templates or fall through to `GenericTemplate`. Stage data is dynamic, not template-keyed.
+
+---
+
+## 7. Decision log
+
+Reverse-chronological. Every decision that changes architecture, stack, or scope gets a line. Add (don't rewrite) past entries.
+
+- **2026-05-14** — *Server-side Trade search is impossible on Render.* GGG returns HTTP 403 from datacenter IP ranges (verified via direct curl). Removed `/fob/trade-search` + `/fob/extract-trade-mods` endpoints; frontend redirects directly to `pathofexile.com/trade/search/<league>` with item name in clipboard. The `/fob/trade-url` endpoint stays in the code (works in local dev) but the frontend doesn't call it from production. Re-attempt requires moving the backend to a non-blocked host.
+- **2026-05-14** — *Dynamic synthesis over curated templates.* Steps 16-19 replace `*_PROGRESSION` registries (only `rf_pohx` + `spectre_necromancer` were ever curated). Tree progression derives from BFS on the user's PoB; gem progression projects level/quality with Awakened-substitution; gear progression will classify by price tier; the 49 `BuildTemplate` classes stay for descriptive Italian rationale text + UI labels only.
+- **2026-05-14** — *Vendor data, don't fetch at runtime.* The PoE 1 passive tree JSON is committed at `packages/fob/data/tree/3_28.json` and refreshed manually per league via `scripts/extract_tree_data.py`. Same pattern will apply to `repoe-fork/base_items.json` for Step 17.
+- **2026-05-14** — *External data source survey.* PoB Community (GitHub) is the primary source for tree + gem level tables + item bases (MIT licensed, league-current). `repoe-fork/repoe` is the JSON alternative when we'd rather parse JSON than Lua (one league behind). `poe.ninja` is the only source for live economy + build population data. PoEDB and GGG's developer API are explicitly out (HTML-only / user-data-only respectively). Full breakdown in `CLAUDE.md` "External data sources".
+- **2026-05-14** — *No PostgreSQL, no ETL.* Earlier drafts of this file proposed a relational data warehouse. Rejected: the live HTTP-with-cache model (`diskcache` 15 min TTL on `poe.ninja`, in-memory 8 min TTL on GGG Trade) covers all current use cases without operational overhead.
+- **2026-05-07** — *Backend migrated from Fly.io to Render.* Fly's trial ended; Render's free tier is permanent. `render.yaml` blueprint + Dockerfile. Trade-off: Render spins down after 15 min idle (~30 s cold start on first request after wake).
+- **2026-04-25** — *Pricing v2 closed* (Step 9). Variant-aware unique pricing + GGG Trade API source for rare custom-craft + PoB mod extraction + streaming planner with SSE progress & ETA.
+
+---
+
+## 8. Prompt library
+
+Reusable templates. Each prompt should be self-contained — runnable today without context from a past chat. When a prompt becomes obsolete (e.g. the feature ships), move it to §9 archive instead of deleting it, so future Perplexity sessions see why it's no longer here.
+
+### Prompt — Step 17 scaffolding
+
+```prompt
+You are working inside the `poe1-suite` mono-repo. Read CLAUDE.md (project contract) and CLAUDE_PERPLEXITY_WORKFLOW.md (workflow + decisions) first. The dynamic-synthesis pivot is in progress: Steps 16 + 18 closed, Step 17 (Dynamic Gear Progression) is next.
+
+Goal: implement `derive_gear_progression(snapshot, pricing)` in `packages/fob/src/poe1_fob/gear/dynamic.py`. Same shape as `poe1_fob.gems.dynamic.derive_gem_progression` and `poe1_fob.tree.dynamic.derive_tree_progression`.
+
+Algorithm (per the §6 backlog entry):
+
+1. For each item in `snapshot.items_by_slot`, classify into a cost tier:
+   - "mirror" — rare, 4+ T1 mods + specific influence combos (compute via existing `valuable_stat_filters_from_mods` count).
+   - "mageblood" — unique with poe.ninja chaos-equivalent > 100 div.
+   - "high" — unique 20-100 div.
+   - "mid" — unique 5-20 div.
+   - "cheap" — unique < 5 div.
+   - "leveling" — unique < 1 div.
+   - "cluster" — Large/Medium/Small Cluster Jewel (always endgame).
+   - "rare_craft" — non-unique non-cluster rare.
+
+2. Stage budget thresholds (divines): Stage 1 ≤ 0.5, Stage 2 ≤ 2, Stage 3 ≤ 10, Stage 4 ≤ 50, Stage 5 ≤ 200, Stage 6 = no cap.
+
+3. For each slot, at each stage:
+   - If the user's item's tier fits the stage budget: keep it.
+   - Otherwise substitute with a cheaper-tier placeholder using the vendored `repoe-fork/base_items.json` to pick a canonical base type for the slot, then describe the substitution as a `StageGearSlot(kind="rare_craft", item_name="rare X (life + 2 res)", notes=...)`.
+
+4. The pricing service is the existing `PricingService` (`packages/pricing/src/poe1_pricing/`); use the same patterns as `poe1_fob.planner.service._key_item_to_core_item`.
+
+Vendor `repoe-fork/base_items.json` first at `packages/fob/data/items/base_items.json` (write a small `scripts/extract_base_items.py` that fetches it from the upstream release URL). Bump the pre-commit `check-added-large-files` maxkb if needed.
+
+Write unit tests in `packages/fob/tests/test_gear_dynamic.py` covering: tier classification per item; stage budget filtering; substitution selection per slot; end-to-end on the existing fixture `packages/fob/tests/fixtures/pob_YNQeadFwNBmX.txt`.
+
+Wire `_compose_stage_export` in `packages/fob/src/poe1_fob/router.py` to prefer `derive_gear_progression` over `gear_progression_for(template_name)` when a snapshot is available, mirroring the dynamic-tree priority order.
+
+Run the full gate, commit, push. Baseline should land at ~680 tests, 116 mypy.
+```
+
+### Prompt — Step 19 scaffolding
+
+```prompt
+You are working inside the `poe1-suite` mono-repo. Read CLAUDE.md and CLAUDE_PERPLEXITY_WORKFLOW.md first. Step 19 (Population data in Finder) is the last open item in the dynamic-synthesis pivot.
+
+Goal: surface aggregated `poe.ninja` ladder statistics in the Build Finder UI.
+
+Backend:
+
+1. New endpoint `GET /builds/population-stats?ascendancy=<name>` in `packages/builds/src/poe1_builds/router.py`. Output shape:
+   ```json
+   {
+     "ascendancy": "Slayer",
+     "total_builds": 4231,
+     "top_skills": [
+       {"skill": "Cyclone",      "count": 1183, "pct": 27.9},
+       {"skill": "Boneshatter",  "count": 920,  "pct": 21.7},
+       {"skill": "Tornado Shot", "count": 612,  "pct": 14.5}
+     ],
+     "stat_distributions": {
+       "life":  {"p25": 4200, "p50": 5800, "p75": 7300, "p90": 8900},
+       "ehp":   {"p25": 5500, "p50": 8300, "p75": 11200, "p90": 14800},
+       "dps":   {"p25": 800000, "p50": 2_400_000, "p75": 7_000_000, "p90": 18_000_000}
+     }
+   }
+   ```
+
+2. Aggregator: fetch the ladder via the existing `BuildsService` (which already speaks `poe.ninja` protobuf), group by ascendancy, compute top-N skills and stat percentiles. Cache the aggregated result per league per ascendancy for 24 h (use `diskcache` via `HttpClient`).
+
+Frontend:
+
+3. New `PopulationStatsPanel` component shown above the result list in `apps/shell/src/pages/FinderPage.tsx` when an ascendancy is selected (manually or extracted by intent).
+4. Render top-3 skills as Mantine `<Badge>`s with the percentage; render stat distribution as a small Mantine `<RangeSlider>` showing p25-p90 with markers.
+
+Tests: backend aggregator unit tests (synthetic ladder fixture); router smoke test (200 + valid shape).
+
+Run the full gate, commit, push.
+```
+
+---
+
+## 9. Prompt archive
+
+Closed prompts kept for context. Don't run these — they reflect earlier project shape.
+
+- **Old Prompt 001 (Core DB schema)** — proposed a PostgreSQL schema (`dim_league`, `dim_currency`, `dim_base_item`, `fact_economy_snapshot`). **Rejected 2026-05-14**: no Postgres in this project (see §7). Replaced by live `poe.ninja` HTTP with `diskcache`.
+- **Old Prompt 002 (PoE Ninja ETL)** — proposed `scripts/poe_ninja_etl.py` writing into Postgres. **Rejected 2026-05-14**: same reason; we read on-demand and cache.
+- **Old Prompt 003 (Base items ETL)** — proposed `scripts/base_items_etl.py` writing to Postgres. **Rejected 2026-05-14**. The replacement is a much simpler `scripts/extract_base_items.py` (Step 17) that just vendors `repoe-fork/base_items.json` into the repo.
