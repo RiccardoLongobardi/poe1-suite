@@ -132,7 +132,7 @@ function ItemRow({
         >
           <ActionIcon
             variant="subtle"
-            color="astral"
+            color="ember"
             size="sm"
             onClick={() => onTradeClick(item)}
             aria-label="Apri su Trade"
@@ -504,7 +504,7 @@ export function StageCard({
               <Button
                 size="xs"
                 variant="light"
-                color="astral"
+                color="ember"
                 leftSection={
                   exportLoading ? (
                     <Loader size={12} />
@@ -654,7 +654,7 @@ function TreePanel({
         <Button
           size="xs"
           variant="subtle"
-          color="astral"
+          color="ember"
           component="a"
           href={stageTree.pob_url}
           target="_blank"

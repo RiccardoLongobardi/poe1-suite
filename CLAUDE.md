@@ -72,6 +72,18 @@ uv run pytest
 
 All four must pass with zero errors. Current baseline: **704 tests green (2 skipped — integration/LLM), 121 files type-checked clean, 117 files formatted clean**. Frontend build 585 KB / 181 KB gzip.
 
+## Step 22a — Void Stone & Ember design system (2026-05-15) ✅
+
+First slice of the full frontend redesign. Replaces the old Atlas-violet theme with the "Void Stone & Ember" design system — system-level tokens only, **zero layout changes** (per-page redesigns are Steps 22b/22c). Frontend-only, no backend change, no new npm deps.
+
+- **`theme.ts`** — rewritten. Three Mantine colour ramps: `ember` (primary, shade 6 `#c8932a`), `blood` (rare-tier / warnings), and **`dark`** — overriding Mantine's built-in `dark` tuple is what auto-themes the void background, parchment text, warm card/input surfaces and borders without per-component CSS. `autoContrast: true` + `luminanceThreshold: 0.3` so filled ember buttons get near-black text (the gold accent sits just above the threshold). Fonts: Cabinet Grotesk (body), Cinzel (headings), Geist Mono (numbers).
+- **`index.css`** — rewritten. `:root` design tokens (`--vs-*`), void body background + a CSS-only parchment-noise `body::before` overlay, `h1/h2` forced to Cinzel (over Mantine's Title class), ember scrollbar/selection. **Mantine-v7 gotcha**: the `styles` prop takes flat CSS properties only — no `&:hover`/`&:focus` nesting — so interactive states (card ember border + hover glow, input focus ring, button hover glow) live here as global rules against `.mantine-*` classes.
+- **`index.html`** — added `<link>`s for Cabinet Grotesk (Fontshare), Cinzel + Geist Mono (Google Fonts).
+- **`App.tsx`** — header/navbar recoloured to `var(--vs-*)` tokens, brand "FOB" in Cinzel ember.
+- Recoloured every `color="astral"` / `color="gold"` prop across components to `color="ember"`, and the hardcoded violet `rgba(110,38,255,…)` values in Home/Welcome to ember — colour-only, no structural change.
+
+**Mantine v7 default-Button gotcha**: a `<Button>` with no explicit `variant` (default "filled") emits **no** `data-variant` attribute. CSS that targets filled buttons must use `.mantine-Button-root:not([data-variant])` as well as `[data-variant="filled"]`.
+
 ## Step 21 — Divine Orb cold-start overlay (2026-05-15) ✅
 
 Render's free tier spins the backend down after 15 min idle; the first request then takes ~30 s. New users saw no feedback and assumed the site was broken. Added an app-level loading overlay. Frontend-only — no backend change.

@@ -64,7 +64,7 @@ export function WelcomePage() {
             height: 140,
             borderRadius: "50%",
             background:
-              "radial-gradient(circle at 30% 30%, #c5aaff 0%, #6e26ff 50%, #2c0d70 100%)",
+              "radial-gradient(circle at 30% 30%, #f0d090 0%, #c8932a 50%, #6a4810 100%)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -86,7 +86,7 @@ export function WelcomePage() {
             style={{
               fontSize: "3.2rem",
               letterSpacing: "0.05em",
-              textShadow: "0 0 24px rgba(167, 139, 255, 0.5)",
+              textShadow: "0 0 24px rgba(232, 168, 50, 0.5)",
               textAlign: "center",
             }}
           >
@@ -115,7 +115,7 @@ export function WelcomePage() {
             rightSection={<IconArrowRight size={20} />}
             onClick={enter}
             style={{
-              boxShadow: "0 0 20px rgba(110, 38, 255, 0.6)",
+              boxShadow: "0 0 20px rgba(200, 147, 42, 0.6)",
             }}
           >
             Inizia

@@ -1,16 +1,64 @@
-/* Astral background + animation primitives.
- *
- * The body ships a deep-violet radial gradient overlaid with a
- * star-field SVG noise texture; subtle CSS-only animation makes the
- * stars twinkle. Pages that want their own backdrop (e.g. WelcomePage)
- * can layer over it.
- */
+/* ════════════════════════════════════════════════════════════════════
+   "Void Stone & Ember" — FOB design system (Step 22a)
+
+   Design tokens, global element styling, a parchment-noise body
+   texture, and the interactive-state overrides Mantine v7's `styles`
+   prop can't express (it takes flat CSS properties, no `&:hover`).
+   ════════════════════════════════════════════════════════════════════ */
 
 :root {
-  --astral-bg: #0d0420;
-  --astral-mid: #1a0b2e;
-  --astral-glow: #6e26ff;
-  --astral-glow-dim: #4509b3;
+  /* Backgrounds */
+  --vs-bg:           #080604;   /* void black, warm tint */
+  --vs-surface-1:    #111009;   /* primary card surface */
+  --vs-surface-2:    #1a1712;   /* elevated surface (tooltips, modals) */
+  --vs-surface-3:    #231e17;   /* highest elevation */
+
+  /* Ember gold — primary accent, currency-orb reference */
+  --vs-ember:        #c8932a;
+  --vs-ember-bright: #e8a832;
+  --vs-ember-dim:    rgba(200, 147, 42, 0.12);
+  --vs-ember-glow:   rgba(200, 147, 42, 0.25);
+  --vs-ember-border: rgba(200, 147, 42, 0.18);
+
+  /* Blood rare — secondary accent, rare-tier items, warnings */
+  --vs-blood:        #8b1a1a;
+  --vs-blood-dim:    rgba(139, 26, 26, 0.15);
+
+  /* Text — parchment hierarchy */
+  --vs-text:         #e2d5b8;   /* primary: aged parchment */
+  --vs-text-muted:   #9a8a6e;   /* secondary: faded inscription */
+  --vs-text-faint:   #5c5040;   /* tertiary: stone carving */
+  --vs-text-inverse: #0d0b08;   /* text on ember backgrounds */
+
+  /* Borders */
+  --vs-border:       rgba(200, 147, 42, 0.18);  /* default: ember trace */
+  --vs-border-faint: rgba(200, 147, 42, 0.08);  /* subtle dividers */
+  --vs-border-stone: rgba(255, 255, 255, 0.06); /* neutral separators */
+
+  /* Stat colours — PoE1 item rarity palette */
+  --vs-normal:   #c8c8c8;
+  --vs-magic:    #8888ff;
+  --vs-rare:     #ffff77;
+  --vs-unique:   #af6025;
+  --vs-gem:      #1aa29b;
+  --vs-currency: #aa9e82;
+
+  /* Shadows */
+  --vs-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5);
+  --vs-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.6);
+  --vs-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.7), 0 0 64px rgba(200, 147, 42, 0.04);
+
+  /* Radius */
+  --vs-radius-sm: 4px;
+  --vs-radius-md: 6px;
+  --vs-radius-lg: 10px;
+
+  /* Transitions */
+  --vs-transition: 160ms cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Legacy alias — kept so any leftover var(--astral-glow) reference
+     resolves to ember instead of breaking. */
+  --astral-glow: var(--vs-ember);
 }
 
 html,
@@ -19,42 +67,146 @@ body,
   margin: 0;
   padding: 0;
   min-height: 100%;
-  background-color: var(--astral-bg);
 }
 
 body {
-  background-image:
-    radial-gradient(
-      ellipse at 20% 10%,
-      rgba(110, 38, 255, 0.18) 0%,
-      transparent 55%
-    ),
-    radial-gradient(
-      ellipse at 80% 90%,
-      rgba(167, 139, 255, 0.12) 0%,
-      transparent 50%
-    ),
-    radial-gradient(
-      ellipse at 50% 50%,
-      rgba(26, 11, 46, 0.4) 0%,
-      var(--astral-bg) 70%
-    );
-  background-attachment: fixed;
-  background-size: cover;
+  background-color: var(--vs-bg);
+  color: var(--vs-text);
+  font-family: "Cabinet Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Re-usable animated glow used by the welcome page logo and home cards. */
-@keyframes astral-pulse {
+/* Subtle parchment noise texture — CSS only, no image asset. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 200px 200px;
+}
+
+/* All page content sits above the noise layer. */
+#root {
+  position: relative;
+  z-index: 1;
+}
+
+/* Headings: Cinzel only at H1/H2 (forced over Mantine's Title class). */
+h1,
+h2,
+.mantine-Title-root[data-order="1"],
+.mantine-Title-root[data-order="2"] {
+  font-family: "Cinzel", "Marcellus", Georgia, serif !important;
+  letter-spacing: 0.04em;
+  color: var(--vs-text);
+}
+
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Cabinet Grotesk", sans-serif;
+  font-weight: 600;
+  color: var(--vs-text);
+}
+
+/* Monospace stat values. */
+.stat-value,
+.mono {
+  font-family: "Geist Mono", "Fira Code", monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Ember scrollbar. */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--vs-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--vs-ember-border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--vs-ember);
+}
+
+/* Selection. */
+::selection {
+  background: rgba(200, 147, 42, 0.3);
+  color: var(--vs-text);
+}
+
+/* ── Mantine component overrides — interactive states ──────────────────
+   Mantine v7's `styles` prop accepts only flat CSS properties, so the
+   ember card border + hover glow, input focus rings, etc. live here as
+   global rules against Mantine's stable `.mantine-*` class names. */
+
+.mantine-Card-root {
+  background: var(--vs-surface-1);
+  border-color: var(--vs-border);
+  box-shadow: var(--vs-shadow-md);
+  transition:
+    border-color var(--vs-transition),
+    box-shadow var(--vs-transition);
+}
+.mantine-Card-root:hover {
+  border-color: var(--vs-ember);
+  box-shadow: var(--vs-shadow-lg);
+}
+
+.mantine-Paper-root {
+  background: var(--vs-surface-1);
+}
+
+/* Filled (primary) buttons glow on hover. The default Button variant
+   is "filled" and emits no data-variant attribute, so cover both. */
+.mantine-Button-root:not([data-variant]),
+.mantine-Button-root[data-variant="filled"] {
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  transition:
+    background var(--vs-transition),
+    box-shadow var(--vs-transition);
+}
+.mantine-Button-root:not([data-variant]):not([data-disabled]):hover,
+.mantine-Button-root[data-variant="filled"]:not([data-disabled]):hover {
+  box-shadow: 0 0 16px var(--vs-ember-glow);
+}
+
+/* Inputs (TextInput / Textarea / Select / NumberInput all share
+   .mantine-Input-input) get an ember focus ring. */
+.mantine-Input-input:focus,
+.mantine-Input-input:focus-within {
+  border-color: var(--vs-ember);
+  box-shadow: 0 0 0 2px var(--vs-ember-dim);
+}
+
+.mantine-Tooltip-tooltip {
+  background: var(--vs-surface-3);
+  border: 1px solid var(--vs-border);
+  color: var(--vs-text);
+}
+
+/* ── Re-usable animation primitives (ember-recoloured) ─────────────── */
+
+@keyframes vs-pulse {
   0%,
   100% {
-    box-shadow: 0 0 30px rgba(110, 38, 255, 0.4);
+    box-shadow: 0 0 24px rgba(200, 147, 42, 0.3);
   }
   50% {
-    box-shadow: 0 0 60px rgba(167, 139, 255, 0.7);
+    box-shadow: 0 0 52px rgba(232, 168, 50, 0.6);
   }
 }
 
-@keyframes astral-fade-in {
+@keyframes vs-fade-in {
   from {
     opacity: 0;
     transform: translateY(20px);
@@ -65,7 +217,7 @@ body {
   }
 }
 
-@keyframes astral-twinkle {
+@keyframes vs-twinkle {
   0%,
   100% {
     opacity: 0.3;
@@ -75,7 +227,7 @@ body {
   }
 }
 
-@keyframes astral-rotate-slow {
+@keyframes vs-rotate-slow {
   from {
     transform: rotate(0deg);
   }
@@ -84,19 +236,17 @@ body {
   }
 }
 
+/* Legacy class names kept so existing pages (Home / Welcome) keep
+   their entrance + hover animations — now in the ember palette. */
 .fob-fade-in {
-  animation: astral-fade-in 0.8s ease-out both;
+  animation: vs-fade-in 0.8s ease-out both;
 }
-
 .fob-pulse-glow {
-  animation: astral-pulse 3s ease-in-out infinite;
+  animation: vs-pulse 3s ease-in-out infinite;
 }
-
 .fob-twinkle {
-  animation: astral-twinkle 2s ease-in-out infinite;
+  animation: vs-twinkle 2s ease-in-out infinite;
 }
-
-/* Hover-grow card for HomePage feature tiles. */
 .fob-feature-card {
   transition:
     transform 200ms ease,
@@ -104,11 +254,10 @@ body {
     border-color 200ms ease;
   cursor: pointer;
 }
-
 .fob-feature-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 32px rgba(110, 38, 255, 0.4);
-  border-color: rgba(167, 139, 255, 0.6);
+  box-shadow: var(--vs-shadow-lg);
+  border-color: var(--vs-ember);
 }
 
 /* Analyze page: two-column dashboard at >=768px. */
@@ -118,7 +267,7 @@ body {
   }
 }
 
-/* ── Step 21: Divine Orb cold-start warmup overlay ────────────────── */
+/* ── Step 21: Divine Orb cold-start warmup overlay ─────────────────── */
 
 .warmup-overlay {
   position: fixed;
@@ -129,7 +278,7 @@ body {
   align-items: center;
   justify-content: center;
   gap: 4px;
-  background: rgba(10, 8, 4, 0.92);
+  background: rgba(8, 6, 4, 0.94);
   animation: warmup-fade-in 300ms ease-out;
 }
 
@@ -139,8 +288,12 @@ body {
 }
 
 @keyframes warmup-fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .warmup-orb-wrap {
@@ -149,8 +302,13 @@ body {
 }
 
 @keyframes warmup-glow {
-  0%, 100% { filter: drop-shadow(0 0 8px rgba(212, 165, 32, 0.35)); }
-  50% { filter: drop-shadow(0 0 26px rgba(255, 226, 122, 0.7)); }
+  0%,
+  100% {
+    filter: drop-shadow(0 0 8px rgba(200, 147, 42, 0.35));
+  }
+  50% {
+    filter: drop-shadow(0 0 26px rgba(232, 168, 50, 0.7));
+  }
 }
 
 .warmup-orb {
@@ -160,8 +318,13 @@ body {
 }
 
 @keyframes warmup-pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.06); }
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.06);
+  }
 }
 
 .warmup-orb-ring {
@@ -170,23 +333,28 @@ body {
 }
 
 @keyframes warmup-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .warmup-title {
   margin: 14px 0 0;
-  font-family: Cinzel, Marcellus, Georgia, serif;
+  font-family: "Cinzel", "Marcellus", Georgia, serif;
   font-style: italic;
   font-size: 1.1rem;
-  color: #e8c97a;
+  color: var(--vs-text);
   text-align: center;
 }
 
 .warmup-subtitle {
   margin: 2px 0 0;
+  font-family: "Cabinet Grotesk", sans-serif;
   font-size: 0.8rem;
-  color: #8a7a5a;
+  color: var(--vs-text-muted);
   text-align: center;
 }
 
@@ -195,7 +363,10 @@ body {
   .warmup-overlay--fading,
   .warmup-orb-wrap,
   .warmup-orb,
-  .warmup-orb-ring {
+  .warmup-orb-ring,
+  .fob-fade-in,
+  .fob-pulse-glow,
+  .fob-twinkle {
     animation: none !important;
     transition: none !important;
   }

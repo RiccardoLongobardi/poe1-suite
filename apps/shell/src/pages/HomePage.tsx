@@ -78,9 +78,9 @@ function FeatureCard({
             ff="monospace"
             style={{
               padding: "8px 12px",
-              backgroundColor: "rgba(110, 38, 255, 0.08)",
+              backgroundColor: "rgba(200, 147, 42, 0.08)",
               borderRadius: 8,
-              borderLeft: "2px solid var(--astral-glow)",
+              borderLeft: "2px solid var(--vs-ember)",
             }}
           >
             {example}
@@ -103,7 +103,7 @@ export function HomePage() {
     <Stack gap="xl" pb="xl">
       {/* Hero */}
       <Stack gap="xs" align="center" ta="center" pt="md" pb="md">
-        <Badge variant="light" color="astral" size="lg">
+        <Badge variant="light" color="ember" size="lg">
           <Group gap={4} wrap="nowrap">
             <Text size="xs" fw={500}>
               v1 — Mirage League
@@ -114,7 +114,7 @@ export function HomePage() {
           order={1}
           style={{
             fontSize: "2.4rem",
-            textShadow: "0 0 20px rgba(110, 38, 255, 0.3)",
+            textShadow: "0 0 20px rgba(200, 147, 42, 0.3)",
           }}
         >
           Cosa stiamo costruendo oggi?
@@ -131,7 +131,7 @@ export function HomePage() {
         <FeatureCard
           to="/finder"
           icon={<IconSearch size={28} />}
-          iconColor="astral"
+          iconColor="ember"
           title="Build Finder"
           description={
             "Descrivi quello che cerchi in italiano o inglese. FOB legge l'intent, " +
@@ -167,7 +167,7 @@ export function HomePage() {
       </SimpleGrid>
 
       {/* What you can do — quick examples */}
-      <Card p="lg" bg="rgba(110, 38, 255, 0.06)">
+      <Card p="lg" bg="rgba(200, 147, 42, 0.06)">
         <Stack gap="sm">
           <Title order={4}>Cosa ci puoi fare in pratica</Title>
           <SimpleGrid cols={{ base: 1, md: 2 }} spacing="sm">
@@ -207,14 +207,14 @@ export function HomePage() {
       <Card
         p="lg"
         style={{
-          borderColor: "rgba(255, 196, 15, 0.4)",
+          borderColor: "rgba(232, 168, 50, 0.4)",
           background:
-            "linear-gradient(135deg, rgba(110, 38, 255, 0.08) 0%, rgba(255, 196, 15, 0.06) 100%)",
+            "linear-gradient(135deg, rgba(200, 147, 42, 0.08) 0%, rgba(232, 168, 50, 0.06) 100%)",
         }}
       >
         <Group justify="space-between" wrap="wrap" gap="md">
           <Group gap="md" style={{ flex: 1, minWidth: 280 }}>
-            <ThemeIcon variant="light" color="gold" size={48} radius="md">
+            <ThemeIcon variant="light" color="ember" size={48} radius="md">
               <IconHeart size={28} />
             </ThemeIcon>
             <Stack gap={4} style={{ flex: 1 }}>
@@ -228,7 +228,7 @@ export function HomePage() {
             </Stack>
           </Group>
           <Button
-            color="gold"
+            color="ember"
             size="md"
             rightSection={<IconArrowRight size={16} />}
             onClick={donation.open}

@@ -115,7 +115,7 @@ function GemChips({ gems }: { gems: GemRef[] }) {
         return (
           <Badge
             key={`${gem.name}-${i}`}
-            color={isSupport ? "gray" : "astral"}
+            color={isSupport ? "gray" : "ember"}
             variant={isSupport ? "outline" : "filled"}
             size="sm"
           >
@@ -313,7 +313,7 @@ export function BuildCard({ build, onSendToPlanner }: Props) {
               <Button
                 size="xs"
                 variant="light"
-                color={linkCopied ? "teal" : "astral"}
+                color={linkCopied ? "teal" : "ember"}
                 leftSection={
                   linkCopied ? <IconCheck size={13} /> : <IconCopy size={13} />
                 }
@@ -334,7 +334,7 @@ export function BuildCard({ build, onSendToPlanner }: Props) {
             {/* Main gems — lazy-fetched */}
             <Stack gap={6}>
               <Group gap={6}>
-                <IconSparkles size={14} color="var(--astral-glow)" />
+                <IconSparkles size={14} color="var(--vs-ember)" />
                 <Text size="xs" fw={600} c="dimmed" tt="uppercase">
                   Main gems
                 </Text>

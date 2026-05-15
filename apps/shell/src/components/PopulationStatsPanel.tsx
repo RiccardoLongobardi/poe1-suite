@@ -143,7 +143,7 @@ export function PopulationStatsPanel({ ascendancy }: Props) {
       <Stack gap="sm">
         <Group justify="space-between" align="center">
           <Group gap={8}>
-            <ThemeIcon variant="light" color="astral" size="md" radius="md">
+            <ThemeIcon variant="light" color="ember" size="md" radius="md">
               <IconChartHistogram size={16} />
             </ThemeIcon>
             <Title order={5}>Popolazione ladder — {stats.ascendancy ?? "tutte le classi"}</Title>
@@ -172,7 +172,7 @@ export function PopulationStatsPanel({ ascendancy }: Props) {
                   withArrow
                 >
                   <Badge
-                    color={i === 0 ? "astral" : "gray"}
+                    color={i === 0 ? "ember" : "gray"}
                     variant={i === 0 ? "filled" : "light"}
                     size="md"
                   >

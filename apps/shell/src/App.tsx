@@ -119,9 +119,9 @@ function ShellLayout() {
     >
       <AppShell.Header
         style={{
-          backgroundColor: "rgba(13, 4, 32, 0.85)",
-          backdropFilter: "blur(8px)",
-          borderBottom: "1px solid rgba(110, 38, 255, 0.25)",
+          backgroundColor: "rgba(8, 6, 4, 0.85)",
+          backdropFilter: "blur(12px)",
+          borderBottom: "1px solid var(--vs-border-faint)",
         }}
       >
         <Group h="100%" px="md" justify="space-between">
@@ -132,10 +132,15 @@ function ShellLayout() {
               style={{ cursor: "pointer" }}
               onClick={() => navigate("/home")}
             >
-              <IconSparkles size={22} color="var(--astral-glow)" />
+              <IconSparkles size={22} color="var(--vs-ember)" />
               <Title
                 order={4}
-                style={{ letterSpacing: "0.05em", margin: 0 }}
+                style={{
+                  letterSpacing: "0.08em",
+                  margin: 0,
+                  fontFamily: "'Cinzel', serif",
+                  color: "var(--vs-ember)",
+                }}
               >
                 FOB
               </Title>
@@ -148,7 +153,7 @@ function ShellLayout() {
             <Button
               size="xs"
               variant="subtle"
-              color="gold"
+              color="ember"
               leftSection={<IconHeart size={14} />}
               onClick={donation.open}
               visibleFrom="sm"
@@ -174,9 +179,8 @@ function ShellLayout() {
       <AppShell.Navbar
         p="xs"
         style={{
-          backgroundColor: "rgba(13, 4, 32, 0.7)",
-          backdropFilter: "blur(8px)",
-          borderRight: "1px solid rgba(110, 38, 255, 0.15)",
+          backgroundColor: "var(--vs-surface-1)",
+          borderRight: "1px solid var(--vs-border-faint)",
         }}
       >
         <NavLink
@@ -210,7 +214,7 @@ function ShellLayout() {
         <Button
           size="xs"
           variant="subtle"
-          color="gold"
+          color="ember"
           leftSection={<IconHeart size={14} />}
           onClick={donation.open}
           mt="auto"

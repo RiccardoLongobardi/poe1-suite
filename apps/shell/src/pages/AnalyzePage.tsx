@@ -256,7 +256,7 @@ function StatTile({
 }) {
   return (
     <Group gap={8} wrap="nowrap">
-      <Box c="astral.4">{icon}</Box>
+      <Box c="ember.4">{icon}</Box>
       <Stack gap={0}>
         <Text size="10px" c="dimmed" tt="uppercase" fw={600}>
           {label}
@@ -296,7 +296,7 @@ function SkillGroupStrip({
           {title}
         </Text>
         {isMain && (
-          <Badge size="xs" color="astral" variant="light">
+          <Badge size="xs" color="ember" variant="light">
             main
           </Badge>
         )}
@@ -305,7 +305,7 @@ function SkillGroupStrip({
         <Badge
           key={`${gem.skill_id}-${i}`}
           variant={gem.is_support ? "outline" : "filled"}
-          color={gem.is_support ? "gray" : "astral"}
+          color={gem.is_support ? "gray" : "ember"}
           size="sm"
           style={{ opacity: gem.enabled ? 1 : 0.4, textTransform: "none" }}
         >
@@ -437,7 +437,7 @@ function BuildDashboard({ data }: { data: AnalyzePobResponse }) {
                 target="_blank"
                 rel="noopener noreferrer"
                 variant="light"
-                color="astral"
+                color="ember"
                 leftSection={<IconExternalLink size={15} />}
                 mt={4}
               >

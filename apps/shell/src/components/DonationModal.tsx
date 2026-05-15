@@ -30,7 +30,7 @@ export function DonationModal({ opened, onClose }: Props) {
       onClose={onClose}
       title={
         <Group gap={8}>
-          <ThemeIcon variant="light" color="gold" size="lg" radius="xl">
+          <ThemeIcon variant="light" color="ember" size="lg" radius="xl">
             <IconHeart size={20} />
           </ThemeIcon>
           <Title order={3} style={{ margin: 0 }}>
@@ -50,7 +50,7 @@ export function DonationModal({ opened, onClose }: Props) {
         </Text>
 
         <Group gap="md" align="flex-start">
-          <ThemeIcon variant="light" color="astral" size="lg" radius="md">
+          <ThemeIcon variant="light" color="ember" size="lg" radius="md">
             <IconSparkles size={20} />
           </ThemeIcon>
           <Stack gap={2} flex={1}>
@@ -66,7 +66,7 @@ export function DonationModal({ opened, onClose }: Props) {
         </Group>
 
         <Group gap="md" align="flex-start">
-          <ThemeIcon variant="light" color="gold" size="lg" radius="md">
+          <ThemeIcon variant="light" color="ember" size="lg" radius="md">
             <IconCoffee size={20} />
           </ThemeIcon>
           <Stack gap={2} flex={1}>
@@ -85,7 +85,7 @@ export function DonationModal({ opened, onClose }: Props) {
           href={PAYPAL_URL}
           target="_blank"
           rel="noopener noreferrer"
-          color="gold"
+          color="ember"
           size="md"
           fullWidth
           rightSection={<IconExternalLink size={16} />}
