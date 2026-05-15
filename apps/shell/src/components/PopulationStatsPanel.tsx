@@ -124,6 +124,10 @@ export function PopulationStatsPanel({ ascendancy }: Props) {
     );
   }
   const stats = query.data;
+  // Defensive: server returns these as arrays, but defend against
+  // partial payloads (older deploys, broken caches, etc.) so a
+  // missing field doesn't crash the whole Finder page.
+  const topSkills = stats.top_skills ?? [];
   if (stats.total_builds === 0) {
     return (
       <Card withBorder radius="md" p="md">
@@ -146,13 +150,13 @@ export function PopulationStatsPanel({ ascendancy }: Props) {
           </Group>
           <Tooltip label="Dati live da poe.ninja, cache 15 min" withArrow>
             <Text size="xs" c="dimmed">
-              {stats.total_builds.toLocaleString()} build nel campione
+              {(stats.total_builds ?? 0).toLocaleString()} build nel campione
             </Text>
           </Tooltip>
         </Group>
 
         {/* Top skills */}
-        {stats.top_skills.length > 0 && (
+        {topSkills.length > 0 && (
           <Stack gap={6}>
             <Group gap={6}>
               <IconTrophy size={14} />
@@ -161,10 +165,10 @@ export function PopulationStatsPanel({ ascendancy }: Props) {
               </Text>
             </Group>
             <Group gap={6} wrap="wrap">
-              {stats.top_skills.slice(0, 5).map((s, i) => (
+              {topSkills.slice(0, 5).map((s, i) => (
                 <Tooltip
                   key={s.skill}
-                  label={`${s.count} build su ${stats.total_builds}`}
+                  label={`${s.count} build su ${stats.total_builds ?? 0}`}
                   withArrow
                 >
                   <Badge

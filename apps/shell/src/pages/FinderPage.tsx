@@ -32,6 +32,7 @@ import type {
   SortKey,
 } from "../api/types";
 import { BuildCard } from "../components/BuildCard";
+import { ErrorBoundary } from "../components/ErrorBoundary";
 import { IntentCard } from "../components/IntentCard";
 import { PopulationStatsPanel } from "../components/PopulationStatsPanel";
 
@@ -231,11 +232,15 @@ export function FinderPage({ onSendToPlanner }: Props) {
       {/* Parsed intent */}
       {intent && (
         <>
-          <IntentCard intent={applyOverrides(intent, overrides)} />
+          <ErrorBoundary label="Errore nel riepilogo intent">
+            <IntentCard intent={applyOverrides(intent, overrides)} />
+          </ErrorBoundary>
 
           {/* Step 19 — population stats for the chosen ascendancy.
               Hidden when no class/ascendancy filter is active. */}
-          <PopulationStatsPanel ascendancy={overrides.class_filter} />
+          <ErrorBoundary label="Errore nelle statistiche di popolazione">
+            <PopulationStatsPanel ascendancy={overrides.class_filter} />
+          </ErrorBoundary>
 
           {/* Manual filter overrides (collapsible) */}
           <Group justify="space-between" align="center">
@@ -408,38 +413,45 @@ export function FinderPage({ onSendToPlanner }: Props) {
 
       {/* Results */}
       {result && (
-        <>
-          <Divider
-            label={
-              <Text size="sm" fw={500}>
-                Top {result.ranked.length} builds su{" "}
-                {result.total_candidates.toLocaleString()} candidati
-              </Text>
-            }
-          />
+        <ErrorBoundary label="Errore nel rendering dei risultati">
+          {(() => {
+            const ranked = result.ranked ?? [];
+            return (
+              <>
+                <Divider
+                  label={
+                    <Text size="sm" fw={500}>
+                      Top {ranked.length} builds su{" "}
+                      {(result.total_candidates ?? 0).toLocaleString()} candidati
+                    </Text>
+                  }
+                />
 
-          {recommendMut.isPending && (
-            <Box ta="center" py="xl">
-              <Loader />
-            </Box>
-          )}
+                {recommendMut.isPending && (
+                  <Box ta="center" py="xl">
+                    <Loader />
+                  </Box>
+                )}
 
-          <Stack gap="xs">
-            {result.ranked.map((b) => (
-              <BuildCard
-                key={b.ref.source_id}
-                build={b}
-                onSendToPlanner={onSendToPlanner}
-              />
-            ))}
-          </Stack>
+                <Stack gap="xs">
+                  {ranked.map((b) => (
+                    <BuildCard
+                      key={b.ref.source_id}
+                      build={b}
+                      onSendToPlanner={onSendToPlanner}
+                    />
+                  ))}
+                </Stack>
 
-          {result.ranked.length === 0 && (
-            <Text c="dimmed" ta="center" py="xl">
-              Nessun candidato supera i filtri hard-constraint.
-            </Text>
-          )}
-        </>
+                {ranked.length === 0 && (
+                  <Text c="dimmed" ta="center" py="xl">
+                    Nessun candidato supera i filtri hard-constraint.
+                  </Text>
+                )}
+              </>
+            );
+          })()}
+        </ErrorBoundary>
       )}
     </Stack>
   );

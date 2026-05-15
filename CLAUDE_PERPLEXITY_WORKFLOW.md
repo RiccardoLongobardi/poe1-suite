@@ -28,7 +28,7 @@ Don't trust earlier versions of this file — the section below is the authorita
   - Step 17 (Dynamic Gear Progression) — ✅ done 2026-05-15.
   - Step 18 (Dynamic Gem Progression) — ✅ done 2026-05-14.
   - Step 19 (Population data in Finder) — ✅ done 2026-05-15.
-- **Known open bug (2026-05-15)**: Build Finder crashes to blank page after "Analizza query". See §8 prompt "Bug — Finder blank page after intent extract" for details and fix scope.
+- **Recently fixed (2026-05-15)**: Build Finder blank-page bug — defensive frontend fix landed (ErrorBoundary + null-safe `.map` access in `IntentCard`, `PopulationStatsPanel`, `FinderPage`). See §9 archive for the original prompt.
 
 If anything you read in this file or in `CLAUDE.md` contradicts the above, **the above wins** and the older text needs correcting.
 
@@ -193,7 +193,7 @@ Authoritative status of the dynamic-synthesis pivot. Updated by Claude Code afte
 
 ### IN PROGRESS
 
-- **Bug — Finder blank page after intent extract** (surfaced QA 2026-05-15). See §8 prompt for fix scope. Priority: blocker — the Build Finder is not usable until this is resolved.
+- *(nothing in progress between sessions — dynamic-pivot quadrant 16/17/18/19 is closed and the Finder blank-page bug from QA 2026-05-15 is fixed.)*
 
 ### NEXT
 
@@ -217,6 +217,7 @@ These are *opportunities*, not commitments. Discuss with the user before promoti
 - [x] **Step 18 — Dynamic Gem Progression** (2026-05-14) — `derive_gem_progression(snapshot)` projects six GemSpec snapshots per gem; handles Awakened normalisation, Vaal normalisation, trigger-gem pinning, aura-like soft downscale. Replaces hand-curated `gem_progression_for(template_name)` for any build with a pasted PoB.
 - [x] **Step 16 — Dynamic Tree Progression** (2026-05-14) — Vendored GGG passive tree JSON (`packages/fob/data/tree/3_28.json`); `derive_tree_progression(snapshot)` BFSes the user's allocated subgraph from class start, buckets into 6 cumulative supersets at coverage 10/25/50/70/85/100; ascendancy distributed by lab order; cluster jewels stage 6 only.
 - [x] **Step 17 — Dynamic Gear Progression** (2026-05-15) — Vendored repoe-fork base-item catalogue (`packages/fob/data/items/base_items.json`, 357 KB minified, 1034 released gear bases). `derive_gear_progression(snapshot, prices=None)` tier-classifies user items (mirror / mageblood / high / mid / cheap / leveling / cluster / rare_craft), per-stage tier ceiling, substitutes over-budget items with canonical leveling uniques in stage 1-2 / generic rare-craft placeholders in stage 3+. Pricing is optional — name-signature heuristic covers the 40+ famous expensive uniques.
+- [x] **Bugfix — Finder blank page after intent extract** (2026-05-15) — Frontend-only defensive fix: new `<ErrorBoundary>` wrapping IntentCard / PopulationStatsPanel / results in `FinderPage`; null-safe defaults on `intent.hard_constraints` / `intent.content_focus` / `intent.parser_origin` / `intent.confidence` (IntentCard) and `stats.top_skills` / `stats.total_builds` (PopulationStatsPanel) and `result.ranked` / `result.total_candidates` (FinderPage). No backend / API contract / test fixture changes. Frontend build 567 KB / 176 KB gzip. See §9 for the original QA prompt.
 - [x] **Step 19 — Population stats in Finder** (2026-05-15) — `compute_population_stats(refs)` aggregator (no HTTP, no state): top-N skill popularity + p25/p50/p75/p90 distributions for Life / ES / EHP / DPS / Level. Endpoint `GET /builds/population-stats?ascendancy=&top_n_per_class=&top_n_skills=&league=` reuses `BuildsService.fetch_refs` (15 min diskcache hit). Frontend `PopulationStatsPanel` rendered in `FinderPage` above the filter row when an ascendancy is set; reacts to the dropdown override via TanStack-Query cache key.
 - [x] **Production deploy live** — Render (backend) + Vercel (frontend) on free tier. See `docs/DEPLOY.md`.
 
@@ -249,60 +250,6 @@ Reverse-chronological. Every decision that changes architecture, stack, or scope
 ## 8. Prompt library
 
 Reusable templates. Each prompt should be self-contained — runnable today without context from a past chat. When a prompt becomes obsolete (e.g. the feature ships), move it to §9 archive instead of deleting it, so future Perplexity sessions see why it's no longer here.
-
-### Prompt — Bug: Finder blank page after intent extract (QA 2026-05-15)
-
-**Priority: blocker.** The Build Finder is completely unusable in production.
-
-**Observed behaviour (manual QA, Vercel deploy):**
-
-1. User navigates to `/finder`.
-2. User types any query and clicks "Analizza query".
-3. The page goes blank — only the astral-purple background is visible. No intent card, no filters, no results.
-
-**Browser console output:**
-
-```
-Failed to load resource: net::ERR_BLOCKED_BY_CLIENT
-TypeError: Cannot read properties of undefined (reading 'map')
-    at Xb (index-7md_rEuA.js:83:169668)
-    ...
-Uncaught TypeError: Cannot read properties of undefined (reading 'map')
-```
-
-The `ERR_BLOCKED_BY_CLIENT` is an ad-blocker false positive on an unrelated network request and is **not** the cause of the crash.
-
-The `TypeError: Cannot read properties of undefined (reading 'map')` is a React render-time exception. Because `FinderPage` has no `ErrorBoundary`, the unhandled exception unmounts the entire page subtree, leaving only the `AppShell` background.
-
-**Files involved (read all before touching anything):**
-
-- `apps/shell/src/pages/FinderPage.tsx`
-- `apps/shell/src/components/IntentCard.tsx`
-- `apps/shell/src/components/PopulationStatsPanel.tsx`
-- `apps/shell/src/components/BuildCard.tsx`
-- `apps/shell/src/api/types.ts`
-- `apps/shell/src/api/builds.ts`
-- `apps/shell/src/api/fob.ts`
-
-**Fix scope:**
-
-1. Identify every location in the above files where `.map` (or any array method) is called on a value that originates from an API response and could realistically be `undefined` or `null` at runtime — even if the TypeScript type says otherwise.
-2. Make those call sites safe against `undefined`/`null` without changing the rendering logic or visual output when the data is well-formed.
-3. Add an `ErrorBoundary` wrapping the intent section in `FinderPage` so that any future render error in that subtree shows a graceful inline error state instead of blanking the entire page.
-4. Do **not** change any backend code, any API contract, or any test fixtures. This is a pure frontend defensive fix.
-
-Run the full gate after the fix:
-
-```bash
-uv run ruff check .
-uv run ruff format --check .
-uv run mypy .
-uv run pytest
-```
-
-Frontend build must still pass (`cd apps/shell && npm run build`). Commit and push to `main`.
-
----
 
 ### Prompt — Step 17 scaffolding
 
@@ -388,3 +335,4 @@ Closed prompts kept for context. Don't run these — they reflect earlier projec
 - **Old Prompt 001 (Core DB schema)** — proposed a PostgreSQL schema (`dim_league`, `dim_currency`, `dim_base_item`, `fact_economy_snapshot`). **Rejected 2026-05-14**: no Postgres in this project (see §7). Replaced by live `poe.ninja` HTTP with `diskcache`.
 - **Old Prompt 002 (PoE Ninja ETL)** — proposed `scripts/poe_ninja_etl.py` writing into Postgres. **Rejected 2026-05-14**: same reason; we read on-demand and cache.
 - **Old Prompt 003 (Base items ETL)** — proposed `scripts/base_items_etl.py` writing to Postgres. **Rejected 2026-05-14**. The replacement is a much simpler `scripts/extract_base_items.py` (Step 17) that just vendors `repoe-fork/base_items.json` into the repo.
+- **Old Prompt 004 (Finder blank page bugfix, QA 2026-05-15)** — Build Finder went blank after "Analizza query": `TypeError: Cannot read properties of undefined (reading 'map')` in `IntentCard`, no `ErrorBoundary` so the whole page subtree unmounted. **Shipped 2026-05-15**: new `apps/shell/src/components/ErrorBoundary.tsx` wrapping IntentCard / PopulationStatsPanel / results in `FinderPage`; null-safe `??` defaults on every API-derived array access in IntentCard, PopulationStatsPanel, FinderPage. Pure frontend defensive fix, zero backend / API contract / test changes. Frontend build 567 KB / 176 KB gzip.

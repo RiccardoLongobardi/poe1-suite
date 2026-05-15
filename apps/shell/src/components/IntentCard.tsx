@@ -22,11 +22,12 @@ function pill(value: string | null, color: string) {
   );
 }
 
-function ContentFocusPills({ items }: { items: ContentFocusWeight[] }) {
-  if (!items.length) return null;
+function ContentFocusPills({ items }: { items: ContentFocusWeight[] | null | undefined }) {
+  const safe = items ?? [];
+  if (!safe.length) return null;
   return (
     <Group gap={4}>
-      {items.map((cfw) => (
+      {safe.map((cfw) => (
         <Badge
           key={cfw.focus}
           color="cyan"
@@ -41,7 +42,13 @@ function ContentFocusPills({ items }: { items: ContentFocusWeight[] }) {
 }
 
 export function IntentCard({ intent }: Props) {
-  const confidencePct = Math.round(intent.confidence * 100);
+  // Defensive: backend Pydantic models default these tuples to empty,
+  // but in the wild (older deploys, partial payloads, fetch interceptors,
+  // ad blockers rewriting JSON) we've seen them arrive `undefined`,
+  // which crashes `.map`. See QA 2026-05-15.
+  const hardConstraints = intent.hard_constraints ?? [];
+  const contentFocus = intent.content_focus ?? [];
+  const confidencePct = Math.round((intent.confidence ?? 0) * 100);
   const confidenceColor =
     confidencePct >= 70 ? "green" : confidencePct >= 40 ? "yellow" : "red";
 
@@ -79,7 +86,7 @@ export function IntentCard({ intent }: Props) {
           {pill(intent.defense_profile, "blue")}
           {pill(intent.complexity_cap, "gray")}
           {intent.budget?.tier && pill(intent.budget.tier, "teal")}
-          {intent.hard_constraints.map((hc) => (
+          {hardConstraints.map((hc) => (
             <Badge key={hc} color="red" variant="outline" size="sm">
               {hc.replace(/_/g, " ")}
             </Badge>
@@ -121,10 +128,10 @@ export function IntentCard({ intent }: Props) {
           )}
         </Group>
 
-        <ContentFocusPills items={intent.content_focus} />
+        <ContentFocusPills items={contentFocus} />
 
         <Text size="xs" c="dimmed" fs="italic">
-          via {intent.parser_origin.replace(/_/g, " ")}
+          via {(intent.parser_origin ?? "rule_based").replace(/_/g, " ")}
         </Text>
       </Stack>
     </Card>

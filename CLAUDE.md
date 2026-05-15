@@ -70,7 +70,25 @@ uv run mypy .
 uv run pytest
 ```
 
-All four must pass with zero errors. Current baseline: **702 tests green (2 skipped — integration/LLM), 119 files type-checked clean, 117 files formatted clean**. Frontend build 566 KB / 172 KB gzip.
+All four must pass with zero errors. Current baseline: **702 tests green (2 skipped — integration/LLM), 121 files type-checked clean, 117 files formatted clean**. Frontend build 567 KB / 176 KB gzip.
+
+> Note: a stale `.clone/worktrees/...` directory may exist locally from
+> earlier Claude sessions and trip ruff on its placeholder file. Run the
+> gate from a fresh checkout, or pass `--exclude .clone` /
+> `--ignore=.clone` to the relevant tools — it is *not* a real repo file.
+
+## Bug — Finder blank page (2026-05-15) ✅ fixed
+
+QA found the Build Finder going blank after "Analizza query": `TypeError: Cannot read properties of undefined (reading 'map')` thrown during the `IntentCard` render unmounted the entire `FinderPage` subtree because the page had no `ErrorBoundary`.
+
+Frontend-only defensive fix (no backend / API contract change):
+
+- **`apps/shell/src/components/ErrorBoundary.tsx`** new — generic React error boundary. Renders a Mantine `<Alert color="red">` with the error message instead of letting an exception propagate up to the AppShell. Logs to `console.error` so the stack is still visible in DevTools.
+- **`apps/shell/src/components/IntentCard.tsx`** — defaults `intent.hard_constraints`, `intent.content_focus`, `intent.confidence`, and `intent.parser_origin` against `undefined`/`null` payloads (older deploys, broken caches, ad-blocker JSON rewrites). `ContentFocusPills` accepts `items | null | undefined`.
+- **`apps/shell/src/components/PopulationStatsPanel.tsx`** — `stats.top_skills` and `stats.total_builds` defaulted.
+- **`apps/shell/src/pages/FinderPage.tsx`** — `result.ranked` and `result.total_candidates` defaulted; intent card, population panel, and results are each wrapped in their own `<ErrorBoundary>` so a crash in one panel renders an inline alert instead of blanking the whole page.
+
+Frontend build 567 KB / 176 KB gzip (+1 KB raw for the ErrorBoundary).
 
 **PoB import QA — confirmed working 2026-05-14**: real PoB → planner → "Importa stage in PoB" → paste in PoB Community 3.28 desktop → full build loads (tree 123/123 nodes including cluster jewel subgraph, mastery effects, items, gems, config, pantheon). Took 7 commits to debug, all guided by reading PathOfBuildingCommunity Lua source. Key learnings captured below.
 
