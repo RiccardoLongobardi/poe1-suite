@@ -8,9 +8,11 @@
 
 import {
   Alert,
+  Anchor,
   Badge,
   Button,
   Card,
+  Code,
   Divider,
   Group,
   Progress,
@@ -23,6 +25,7 @@ import {
   Title,
   Tooltip,
 } from "@mantine/core";
+import { useMediaQuery } from "@mantine/hooks";
 import { IconClock, IconCoinFilled, IconStack3 } from "@tabler/icons-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { planBuildReverseStream, planBuildStream } from "../api/fob";
@@ -176,6 +179,65 @@ function PricingProgressBar({ progress }: { progress: PricingProgress }) {
   );
 }
 
+const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII"];
+
+interface TimelineProps {
+  stages: BuildPlan["stages"];
+  templateName: string | null;
+  characterClass: string | null;
+  ascendancy: string | null;
+  userPobCode: string | null;
+}
+
+/**
+ * Desktop Planner layout — a horizontal Roman-numeral timeline.
+ * Clicking a stage dot expands its StageCard inline below the
+ * timeline; only one stage is open at a time. The dots fan in with a
+ * staggered reveal as the plan first renders ("oracle computing").
+ */
+function StageTimeline({
+  stages,
+  templateName,
+  characterClass,
+  ascendancy,
+  userPobCode,
+}: TimelineProps) {
+  const [expanded, setExpanded] = useState<number>(0);
+  const safeIndex = Math.min(expanded, stages.length - 1);
+  return (
+    <Stack gap="sm">
+      <div className="planner-timeline">
+        {stages.map((s, i) => (
+          <button
+            key={s.label}
+            type="button"
+            className="planner-stage"
+            data-expanded={i === safeIndex}
+            style={{ "--dot-index": i } as React.CSSProperties}
+            onClick={() => setExpanded(i)}
+          >
+            <span className="planner-dot" />
+            <span className="planner-roman">{ROMAN[i] ?? String(i + 1)}</span>
+            <span className="planner-stage-label">{s.label}</span>
+          </button>
+        ))}
+      </div>
+      {/* Keyed so the reveal animation replays each time the user
+          opens a different stage. */}
+      <div key={safeIndex} className="vs-card-reveal">
+        <StageCard
+          stage={stages[safeIndex]}
+          index={0}
+          templateName={templateName}
+          characterClass={characterClass}
+          ascendancy={ascendancy}
+          userPobCode={userPobCode}
+        />
+      </div>
+    </Stack>
+  );
+}
+
 interface Props {
   initialInput?: string;
 }
@@ -195,8 +257,16 @@ export function PlannerPage({ initialInput }: Props) {
   const [result, setResult] = useState<PlanResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [running, setRunning] = useState(false);
+  // The input form collapses to a compact row once a plan starts
+  // streaming; "modifica" expands it again.
+  const [editing, setEditing] = useState(true);
   const abortRef = useRef<AbortController | null>(null);
   const autoFired = useRef(false);
+
+  // Desktop gets the horizontal timeline; mobile keeps stacked cards.
+  // useMediaQuery returns undefined on the first render — default to
+  // desktop so there's no layout flash.
+  const isDesktop = useMediaQuery("(min-width: 1024px)") !== false;
 
   const start = useCallback(async () => {
     if (!input.trim() || running) return;
@@ -210,6 +280,7 @@ export function PlannerPage({ initialInput }: Props) {
     setProgress(null);
     setResult(null);
     setRunning(true);
+    setEditing(false);
 
     try {
       // Both template and reverse modes stream via SSE so the UI gets
@@ -270,60 +341,78 @@ export function PlannerPage({ initialInput }: Props) {
   return (
     <Stack gap="md">
       <Title order={3}>Planner build</Title>
-      <Text c="dimmed" size="sm">
-        Incolla un codice di esportazione PoB o un link pobb.in / pastebin: il
-        planner analizza la build, prezza ogni unique su poe.ninja e ti
-        restituisce un piano di upgrade in 3 stage.
-      </Text>
 
-      <Textarea
-        placeholder="https://pobb.in/xxxx  oppure  eNqtVct..."
-        value={input}
-        onChange={(e) => setInput(e.currentTarget.value)}
-        minRows={3}
-        autosize
-        ff="monospace"
-        onKeyDown={(e) => {
-          if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) start();
-        }}
-      />
-
-      <Group justify="space-between" wrap="wrap">
-        <SegmentedControl
-          data={TARGET_OPTIONS}
-          value={target}
-          onChange={(v) => setTarget(v as TargetGoal)}
-          size="sm"
-        />
-        <Group>
-          <Button
-            onClick={start}
-            loading={running}
-            disabled={!input.trim() || running}
-          >
-            Genera piano
-          </Button>
-          <Text size="xs" c="dimmed">
-            Ctrl+Enter
+      {editing ? (
+        <>
+          <Text c="dimmed" size="sm">
+            Incolla un codice di esportazione PoB o un link pobb.in /
+            pastebin: il planner analizza la build, prezza ogni unique su
+            poe.ninja e ti restituisce un piano di upgrade in 6 stage.
           </Text>
-        </Group>
-      </Group>
 
-      <Group gap={8}>
-        <Tooltip
-          multiline
-          w={320}
-          label="Quando attivo, ogni KeyItem endgame della tua build genera una upgrade ladder personalizzata (Mageblood → Bottled Faith → flask rare; Awakened gem 5 → 1 → support regular). Le rationale dei rung vengono mostrate nei rispettivi stage."
-          withArrow
-        >
-          <Switch
-            checked={reverseMode}
-            onChange={(e) => setReverseMode(e.currentTarget.checked)}
-            label="Modalità reverse-progression (sperimentale)"
-            size="sm"
+          <Textarea
+            placeholder="https://pobb.in/xxxx  oppure  eNqtVct..."
+            value={input}
+            onChange={(e) => setInput(e.currentTarget.value)}
+            minRows={3}
+            autosize
+            ff="monospace"
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) start();
+            }}
           />
-        </Tooltip>
-      </Group>
+
+          <Group justify="space-between" wrap="wrap">
+            <SegmentedControl
+              data={TARGET_OPTIONS}
+              value={target}
+              onChange={(v) => setTarget(v as TargetGoal)}
+              size="sm"
+            />
+            <Group>
+              <Button
+                onClick={start}
+                loading={running}
+                disabled={!input.trim() || running}
+              >
+                Genera piano
+              </Button>
+              <Text size="xs" c="dimmed">
+                Ctrl+Enter
+              </Text>
+            </Group>
+          </Group>
+
+          <Group gap={8}>
+            <Tooltip
+              multiline
+              w={320}
+              label="Quando attivo, ogni KeyItem endgame della tua build genera una upgrade ladder personalizzata (Mageblood → Bottled Faith → flask rare; Awakened gem 5 → 1 → support regular). Le rationale dei rung vengono mostrate nei rispettivi stage."
+              withArrow
+            >
+              <Switch
+                checked={reverseMode}
+                onChange={(e) => setReverseMode(e.currentTarget.checked)}
+                label="Modalità reverse-progression (sperimentale)"
+                size="sm"
+              />
+            </Tooltip>
+          </Group>
+        </>
+      ) : (
+        <Group gap={8} wrap="nowrap">
+          <Code style={{ overflow: "hidden", textOverflow: "ellipsis", flex: 1 }}>
+            {input.trim()}
+          </Code>
+          <Anchor
+            size="xs"
+            onClick={() => setEditing(true)}
+            style={{ flexShrink: 0 }}
+          >
+            modifica
+          </Anchor>
+        </Group>
+      )}
 
       {error && (
         <Alert color="red" title="Errore">
@@ -338,19 +427,29 @@ export function PlannerPage({ initialInput }: Props) {
           <Divider my="xs" label="Piano generato" labelPosition="center" />
           <PlanSummary plan={result.plan} />
           <Divider my="xs" label="Stage" labelPosition="center" />
-          <Stack gap="md">
-            {result.plan.stages.map((s, i) => (
-              <StageCard
-                key={s.label}
-                stage={s}
-                index={i}
-                templateName={result.templateName}
-                characterClass={result.build.character_class || null}
-                ascendancy={result.build.ascendancy ?? null}
-                userPobCode={input.trim() || null}
-              />
-            ))}
-          </Stack>
+          {isDesktop ? (
+            <StageTimeline
+              stages={result.plan.stages}
+              templateName={result.templateName}
+              characterClass={result.build.character_class || null}
+              ascendancy={result.build.ascendancy ?? null}
+              userPobCode={input.trim() || null}
+            />
+          ) : (
+            <Stack gap="md">
+              {result.plan.stages.map((s, i) => (
+                <StageCard
+                  key={s.label}
+                  stage={s}
+                  index={i}
+                  templateName={result.templateName}
+                  characterClass={result.build.character_class || null}
+                  ascendancy={result.build.ascendancy ?? null}
+                  userPobCode={input.trim() || null}
+                />
+              ))}
+            </Stack>
+          )}
         </>
       )}
     </Stack>

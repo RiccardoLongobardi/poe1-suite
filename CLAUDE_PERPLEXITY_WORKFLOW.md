@@ -24,7 +24,7 @@ Don't trust earlier versions of this file — the section below is the authorita
   - Trade redirect (client-side, no server-side GGG calls — GGG blocks Render's IP range). ✅ QA passed.
   - PoB Analyze → full build dashboard (Step 20, done 2026-05-15): character header + key stats, equipment grid with per-item tooltips, flasks, tree jewels, skill-link panel. ✅ QA passed.
   - Cold-start Divine Orb warmup overlay (Step 21, done 2026-05-15): full-viewport overlay with an animated inline-SVG PoE1 Divine Orb shown while the Render free-tier backend warms up.
-- **Design system**: "Void Stone & Ember" (Step 22a, done 2026-05-15) — void-black warm backgrounds, ember-gold accent, parchment text, Cinzel/Cabinet Grotesk/Geist Mono type. Replaced the old Atlas-violet theme. Per-page redesigns: 22b (Finder) done, 22c (Planner + Analyze) next.
+- **Design system**: "Void Stone & Ember" (Step 22, done 2026-05-15) — void-black warm backgrounds, ember-gold accent, parchment text, Cinzel/Cabinet Grotesk/Geist Mono type. Replaced the old Atlas-violet theme. All three slices shipped: 22a (design system), 22b (Finder), 22c (Planner timeline + Analyze polish).
 - **Dynamic-synthesis pivot complete** (Steps 16/17/18/19, all done).
 - **Recently fixed (2026-05-15, all user-confirmed)**:
   - Build Finder blank-page bug — ErrorBoundary + Mantine v7 grouped-data shape for the class Select. ✅
@@ -128,7 +128,7 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 
 ### NEXT
 
-- [ ] **Step 22c — Planner + Analyze redesign** — Timeline layout for Planner, sticky header + reveal animations for Analyze, on the Void Stone & Ember design system (22a + 22b merged). See §8 Prompt — Step 22c.
+- *(nothing queued — the Step 22 frontend redesign is complete. Pick from "candidate future work" below at the next planning session.)*
 
 ### CANDIDATE FUTURE WORK
 
@@ -138,6 +138,7 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 
 ### DONE
 
+- [x] **Step 22c — Planner timeline + Analyze polish** (2026-05-15) — Planner: new `StageTimeline` — desktop ≥1024 px renders the 6 stages as a horizontal Roman-numeral timeline (I–VI dots, click to expand a stage's StageCard inline, one at a time); mobile keeps stacked cards; input collapses after the stream starts. Analyze: sticky character header (`top: 56px`, blurred bg), `rarityColor()` → `--vs-*` CSS vars, `.mono` on stat values, `vs-card-reveal` on the dashboard cards. SSE emits per-item pricing not per-stage, so timeline dots fan in with a staggered CSS reveal on render. Frontend-only. Verified in browser. 586 KB / 182 KB gzip.
 - [x] **Step 22b — Finder page redesign** (2026-05-15) — `FinderPage.tsx` rebuilt: centred hero search that collapses to a compact query chip after extract, horizontal filter-pill row, two-column results + meta-sidebar layout (`PopulationStatsPanel` in the sidebar, above results on mobile), `OracleEmptyState`. `BuildCard.tsx` restyled — two-row header with score ring + class badge + main skill + Cinzel rank, three rarity-coloured stat chips (Life/DPS/EHP), staggered `vs-card-reveal`, glassmorphism (`.vs-glass`, `@supports` fallback). All Finder functionality preserved. Frontend-only. Verified in browser. 585 KB / 181 KB gzip.
 - [x] **Step 22a — Void Stone & Ember design system** (2026-05-15) — Replaced the Atlas-violet theme with the new system: `theme.ts` rewritten with `ember`/`blood`/`dark` Mantine ramps (overriding `dark` auto-themes void bg + parchment text + surfaces), `autoContrast` for readable ember buttons; `index.css` rewritten with `--vs-*` tokens, parchment-noise body overlay, Cinzel-forced H1/H2, and global `.mantine-*` rules for interactive states (Mantine v7 `styles` can't nest pseudo-selectors); `index.html` font links; `App.tsx` recoloured; all `astral`/`gold` colour props + hardcoded violet rgba recoloured to ember. System-level only — zero layout changes. Frontend-only. Verified in browser. 585 KB / 181 KB gzip.
 - [x] **Step 21 — Divine Orb cold-start overlay** (2026-05-15) — `useServerWarmup` hook + `WarmupOverlay` component. Hand-authored inline-SVG PoE1 Divine Orb, CSS keyframe animation, `prefers-reduced-motion` aware. Mounted at `App.tsx` root. Frontend-only, no backend change. 585 KB / 181 KB gzip.
@@ -186,86 +187,6 @@ Reusable templates. Self-contained — runnable today without past-chat context.
 
 ---
 
-### Prompt — Step 22c: Planner + Analyze redesign
-
-```prompt
-You are working inside the `poe1-suite` mono-repo. Read CLAUDE.md and CLAUDE_PERPLEXITY_WORKFLOW.md first. Steps 22a and 22b must already be merged before starting this step.
-
-Read these files before touching anything:
-- `apps/shell/src/pages/PlannerPage.tsx`
-- `apps/shell/src/pages/AnalyzePage.tsx`
-- `apps/shell/src/index.css`
-- `apps/shell/src/theme.ts`
-
-## Part A — Planner redesign
-
-### Current state
-The Planner page shows a form (query + PoB paste) that streams a `BuildPlan` via SSE, then renders 6 `StageCard` components stacked vertically.
-
-### New layout: Roman numerals timeline
-
-On desktop (≥ 1024px), replace the stacked cards with a horizontal timeline:
-
-```
-  I          II         III        IV          V          VI
-  ●─────────○─────────○─────────○─────────○─────────○
-[Oriath]  [Maps T1]  [Maps T6]  [Maps T11]  [Red Maps] [Endgame]
-```
-
-- The connecting line is `var(--vs-border)` (thin, ember-trace).
-- Completed/active stages: the dot fills with `var(--vs-ember)`; the line segment behind it fills too (progress bar effect).
-- Stages that haven't streamed yet: dot is `var(--vs-surface-3)`, label is `var(--vs-text-faint)`.
-- Clicking a stage dot expands an inline panel below the timeline (not a modal) with that stage's tree/gear/gem tabs. Only one stage can be expanded at a time; clicking a different dot collapses the current one first.
-- The inline panel expansion uses CSS `max-height` transition (0 → auto via a JS-assisted pattern, or Mantine `<Collapse>`).
-- On mobile (< 1024px): keep the current vertical stacked card layout (no timeline).
-
-### Stage labels
-
-Use Roman numerals as the visual label for each stage dot (I, II, III, IV, V, VI). The human-readable stage name ("Oriath", "White Maps", etc.) appears below the dot as a subtitle in `var(--vs-text-muted)`, Cabinet Grotesk, `font-size: 0.75rem`.
-
-### SSE streaming — progressive reveal
-
-While the SSE stream is in progress, stages animate in one at a time. As each `stage_update` event arrives:
-1. The dot for that stage transitions from faint to ember (CSS transition on `background-color`).
-2. The connecting line segment progresses (update a CSS custom property `--progress` on the line element).
-3. The stage card content fades in with `opacity: 0 → 1`, 300ms ease.
-
-This replaces the current spinner/loading state with a visible oracle-is-computing metaphor.
-
-### Input area
-
-Same collapsing pattern as Finder (Step 22b): the input form collapses to a compact summary row after the plan starts streaming. The summary row shows the query text + a "modifica" ghost button.
-
-## Part B — Analyze redesign
-
-### Current state
-Step 20 already rebuilt this into a PoB-style dashboard. The only changes needed are cosmetic: apply the new design tokens and add two micro-interactions.
-
-### Changes
-
-1. **Sticky character header**: the character header row (name, class, level, league) should become `position: sticky; top: 0; z-index: 10;` with `background: rgba(8, 6, 4, 0.9); backdrop-filter: blur(10px);` so it stays visible while the user scrolls through gear and skills.
-
-2. **Rarity colours on item borders**: the equipment grid already has left-border rarity colours. Ensure the colours use the PoE1 rarity CSS variables defined in Step 22a:
-   - Normal items: `var(--vs-normal)` (`#c8c8c8`)
-   - Magic items: `var(--vs-magic)` (`#8888ff`)
-   - Rare items: `var(--vs-rare)` (`#ffff77`)
-   - Unique items: `var(--vs-unique)` (`#af6025`)
-
-3. **Stat value fonts**: all numerical stat values in the key-stats grid must use the `.mono` class (Geist Mono) established in Step 22a.
-
-4. **Section reveal on mount**: when the snapshot first loads, the four main sections (character header, left column, right column, skill panel) appear sequentially with a 100ms stagger using the `vs-card-reveal` animation class defined in Step 22b's CSS. Do not re-animate on re-render.
-
-## Definition of done
-
-- Planner: horizontal timeline on desktop, vertical stacked cards on mobile. Stage dots animate as SSE events arrive. Input collapses after stream starts.
-- Analyze: sticky character header. Rarity border colours use the CSS variables. Numbers use Geist Mono. Section reveal on mount.
-- All existing Planner + Analyze functionality preserved.
-- Gate passes. Frontend build succeeds.
-- Commit `feat(shell): Step 22c — Planner timeline + Analyze polish`, push to main.
-- Update §1 + §6 in `CLAUDE_PERPLEXITY_WORKFLOW.md`.
-```
-
----
 
 ### Prompt — Step 17 scaffolding
 
@@ -292,3 +213,4 @@ Closed prompts kept for context. Don't run these.
 - **Old Prompt 009 (Step 19 scaffolding)** — Shipped 2026-05-15. ✅
 - **Old Prompt 010 (Step 22a — Void Stone & Ember design system)** — Shipped 2026-05-15. ✅ Replaced the Atlas-violet theme with the void-black / ember-gold / parchment design system (theme tokens + global CSS only, zero layout changes).
 - **Old Prompt 011 (Step 22b — Finder page redesign)** — Shipped 2026-05-15. ✅ Hero search + collapse, filter-pill row, two-column results + meta sidebar, restyled BuildCard with rarity stat chips + staggered reveal + glassmorphism.
+- **Old Prompt 012 (Step 22c — Planner timeline + Analyze polish)** — Shipped 2026-05-15. ✅ Planner horizontal Roman-numeral timeline (desktop) with click-to-expand stages + collapsing input; Analyze sticky character header, rarity CSS vars, Geist Mono stat values, section reveal. Completes the Step 22 frontend redesign.

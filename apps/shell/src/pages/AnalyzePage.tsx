@@ -58,17 +58,17 @@ function compactNumber(n: number): string {
   return String(Math.round(n));
 }
 
-/** Left-border colour per rarity — the only rarity decoration we use. */
+/** Left-border colour per rarity — PoE1 rarity palette (Step 22a tokens). */
 function rarityColor(rarity: ItemRarity): string {
   switch (rarity) {
     case "unique":
-      return "#af6025";
+      return "var(--vs-unique)";
     case "rare":
-      return "#d9c850";
+      return "var(--vs-rare)";
     case "magic":
-      return "#8888ff";
+      return "var(--vs-magic)";
     default:
-      return "#7a7a7a";
+      return "var(--vs-normal)";
   }
 }
 
@@ -261,7 +261,7 @@ function StatTile({
         <Text size="10px" c="dimmed" tt="uppercase" fw={600}>
           {label}
         </Text>
-        <Text size="sm" fw={700}>
+        <Text className="mono" size="sm" fw={700}>
           {value > 0 ? compactNumber(value) : "—"}
         </Text>
       </Stack>
@@ -356,34 +356,55 @@ function BuildDashboard({ data }: { data: AnalyzePobResponse }) {
         className="analyze-dashboard"
       >
         {/* Left — character header + stats */}
-        <Card withBorder radius="md" p="md">
+        <Card
+          withBorder
+          radius="md"
+          p="md"
+          className="vs-card-reveal"
+          style={{ "--card-index": 0 } as React.CSSProperties}
+        >
           <Stack gap="sm">
-            <Group gap={8} align="center">
-              <Title order={3}>{snap.ascendancy ?? snap.character_class}</Title>
-              <Badge color="gray" variant="outline" size="lg">
-                livello {snap.level}
-              </Badge>
-            </Group>
-            <Group gap={6}>
-              {snap.ascendancy && (
-                <Badge color="indigo" variant="light">
-                  {snap.character_class}
+            {/* Sticky character header — stays visible while scrolling. */}
+            <Box
+              style={{
+                position: "sticky",
+                top: 56,
+                zIndex: 10,
+                margin: "-16px -16px 0",
+                padding: "12px 16px",
+                background: "rgba(8, 6, 4, 0.9)",
+                backdropFilter: "blur(10px)",
+                WebkitBackdropFilter: "blur(10px)",
+                borderBottom: "1px solid var(--vs-border-faint)",
+              }}
+            >
+              <Group gap={8} align="center">
+                <Title order={3}>{snap.ascendancy ?? snap.character_class}</Title>
+                <Badge color="gray" variant="outline" size="lg">
+                  livello {snap.level}
                 </Badge>
-              )}
-              <Badge color="teal" variant="light">
-                bandito: {snap.bandit}
-              </Badge>
-              {snap.pantheon.major && (
-                <Badge color="grape" variant="light">
-                  {snap.pantheon.major}
+              </Group>
+              <Group gap={6} mt={6}>
+                {snap.ascendancy && (
+                  <Badge color="indigo" variant="light">
+                    {snap.character_class}
+                  </Badge>
+                )}
+                <Badge color="teal" variant="light">
+                  bandito: {snap.bandit}
                 </Badge>
-              )}
-              {snap.pantheon.minor && (
-                <Badge color="grape" variant="light">
-                  {snap.pantheon.minor}
-                </Badge>
-              )}
-            </Group>
+                {snap.pantheon.major && (
+                  <Badge color="grape" variant="light">
+                    {snap.pantheon.major}
+                  </Badge>
+                )}
+                {snap.pantheon.minor && (
+                  <Badge color="grape" variant="light">
+                    {snap.pantheon.minor}
+                  </Badge>
+                )}
+              </Group>
+            </Box>
 
             <Divider label="Statistiche chiave" labelPosition="left" />
             <Box
@@ -461,7 +482,13 @@ function BuildDashboard({ data }: { data: AnalyzePobResponse }) {
         </Card>
 
         {/* Right — gear grid + flasks + jewels */}
-        <Card withBorder radius="md" p="md">
+        <Card
+          withBorder
+          radius="md"
+          p="md"
+          className="vs-card-reveal"
+          style={{ "--card-index": 2 } as React.CSSProperties}
+        >
           <Stack gap="sm">
             <Divider label="Equipaggiamento" labelPosition="left" />
             <Box
@@ -544,7 +571,13 @@ function BuildDashboard({ data }: { data: AnalyzePobResponse }) {
 
       {/* Full-width — skill links */}
       {enabledGroups.length > 0 && (
-        <Card withBorder radius="md" p="md">
+        <Card
+          withBorder
+          radius="md"
+          p="md"
+          className="vs-card-reveal"
+          style={{ "--card-index": 4 } as React.CSSProperties}
+        >
           <Stack gap={8}>
             <Divider label="Gemme e collegamenti" labelPosition="left" />
             {enabledGroups.map((group) => (

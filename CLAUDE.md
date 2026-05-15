@@ -72,6 +72,21 @@ uv run pytest
 
 All four must pass with zero errors. Current baseline: **704 tests green (2 skipped — integration/LLM), 121 files type-checked clean, 117 files formatted clean**. Frontend build 585 KB / 181 KB gzip.
 
+## Step 22c — Planner timeline + Analyze polish (2026-05-15) ✅
+
+Final slice of the frontend redesign. Frontend-only, no backend / API contract change.
+
+**Planner** (`PlannerPage.tsx`):
+- New `StageTimeline` component — on desktop (≥1024 px) the 6 stacked `StageCard`s become a horizontal Roman-numeral timeline (I–VI dots on an ember-trace line, stage name below each). Clicking a dot expands that stage's `StageCard` inline below the timeline; one open at a time, `vs-card-reveal` keyed on the active index so the panel re-animates on switch. Mobile (<1024 px) keeps the vertical stacked layout. Desktop/mobile split via `useMediaQuery("(min-width: 1024px)")` (defaults to desktop to avoid a flash).
+- The input form collapses to a compact `<Code>` + "modifica" row once a plan starts streaming (same pattern as Finder/Analyze).
+- Note: the SSE stream emits `PricingProgress` (per priced item), not per-stage events — the full `BuildPlan` only arrives on the `done` event. So the timeline dots fan in with a staggered CSS reveal when the plan renders rather than streaming stage-by-stage; the `PricingProgressBar` covers the streaming phase.
+
+**Analyze** (`AnalyzePage.tsx`) — cosmetic polish:
+- Character header is `position: sticky; top: 56px` (just below the AppShell header) with a blurred void background.
+- `rarityColor()` now returns the `--vs-normal/magic/rare/unique` CSS variables instead of hardcoded hex.
+- Key-stat values use the `.mono` (Geist Mono) class.
+- The three dashboard cards carry `vs-card-reveal` (indices 0/2/4 → ~100 ms stagger).
+
 ## Step 22b — Finder page redesign (2026-05-15) ✅
 
 Second slice of the frontend redesign, on top of the 22a design system. Rebuilds `FinderPage.tsx` into the "oracle" interface and restyles the result card. Frontend-only, no backend / API contract change.
