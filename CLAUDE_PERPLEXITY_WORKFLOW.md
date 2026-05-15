@@ -10,24 +10,24 @@ This file's only job is to keep the two tools in sync — what each is responsib
 
 ## 1. Where the project actually stands (read first)
 
-Don't trust earlier versions of this file — the section below is the authoritative snapshot. As of **2026-05-14**:
+Don't trust earlier versions of this file — the section below is the authoritative snapshot. As of **2026-05-15**:
 
 - **FOB is live in production**, free tier:
   - Frontend: <https://fob-ten.vercel.app> (Vercel, auto-deploy from `main`).
   - Backend: <https://fob-api-rtgg.onrender.com> (Render, region Frankfurt, auto-deploy from `main`).
   - Cost: **$0/month**.
-- **Baseline gate**: 664 tests green / 114 mypy / 112 format. Frontend build 551 KB / 168 KB gzip.
+- **Baseline gate**: 702 tests green / 119 mypy / 117 format. Frontend build 566 KB / 172 KB gzip.
 - **Working features**:
   - PoB analyze → Build summary.
-  - Build Finder with class/asc/stat-floor/sort filters + natural-language extraction (Step 15).
+  - Build Finder with class/asc/stat-floor/sort filters + natural-language extraction (Step 15) + per-ascendancy population stats panel (Step 19).
   - Planner with 6-stage `BuildPlan`, SSE streaming progress + ETA.
-  - "Importa stage in PoB": exports a stage-specific PoB code that imports cleanly in Path of Building Community 3.28 (tree + items + gems + config + pantheon).
+  - "Importa stage in PoB": exports a stage-specific PoB code that imports cleanly in Path of Building Community 3.28 (tree + items + gems + config + pantheon). Per-stage tree / gear / gems are now **synthesised from the user's pasted PoB** (Steps 16/17/18 dynamic engines), not hand-curated.
   - Trade redirect (client-side, no server-side GGG calls — GGG blocks Render's IP range).
-- **Active architectural pivot**: from hand-curated `BuildTemplate` registries to dynamic synthesis derived from the user's PoB.
-  - Step 18 (Dynamic Gem Progression) — ✅ done 2026-05-14.
+- **Dynamic-synthesis pivot complete** (Steps 16/17/18/19, all done):
   - Step 16 (Dynamic Tree Progression) — ✅ done 2026-05-14.
-  - Step 17 (Dynamic Gear Progression) — 📋 next.
-  - Step 19 (Population data in Finder) — 📋 backlog.
+  - Step 17 (Dynamic Gear Progression) — ✅ done 2026-05-15.
+  - Step 18 (Dynamic Gem Progression) — ✅ done 2026-05-14.
+  - Step 19 (Population data in Finder) — ✅ done 2026-05-15.
 
 If anything you read in this file or in `CLAUDE.md` contradicts the above, **the above wins** and the older text needs correcting.
 
@@ -191,21 +191,20 @@ Authoritative status of the dynamic-synthesis pivot. Updated by Claude Code afte
 
 ### IN PROGRESS
 
-- *(nothing actively in progress between sessions — Step 16 + 18 closed.)*
+- *(dynamic-synthesis pivot complete; no active step between sessions.)*
 
 ### NEXT
 
-- [ ] **Step 17 — Dynamic Gear Progression**
-  - Pricing-driven tier classification (Mirror-tier / Mageblood-tier / High / Mid / Cheap / Leveling / Cluster).
-  - Per-stage budget thresholds (Stage 1 ≤ 0.5 div, …, Stage 6 no cap).
-  - Substitution table per slot using vendored `repoe-fork/base_items.json` for canonical base types + requirements + implicits.
-  - Deliverable: `packages/fob/src/poe1_fob/gear/dynamic.py`, function `derive_gear_progression(snapshot, pricing) -> GearProgression`.
-  - Effort estimate: 3-4 days.
-- [ ] **Step 19 — Population data in Finder**
-  - Aggregator over `poe.ninja` builds we already fetch: top-N skills per ascendancy, stat-percentile distributions per skill.
-  - New endpoint `GET /builds/population-stats?ascendancy=X`.
-  - Finder UI panel above the recommend results.
-  - Effort estimate: 1 day.
+- *(no strict next step queued — the dynamic-pivot quadrant 16/17/18/19 is closed. Pick from "candidate future work" below when starting a new session.)*
+
+### CANDIDATE FUTURE WORK
+
+These are *opportunities*, not commitments. Discuss with the user before promoting to NEXT.
+
+- [ ] **Finder result-list polish** — sort indicator showing which sort key produced the order; "this ascendancy is 47% of the meta this league" line from population stats; per-skill drill-down panel.
+- [ ] **Pricing-aware gear classifier** — currently `derive_gear_progression` uses a name-signature heuristic for unique tiers when no `prices` map is provided. Wire `PricingService.snapshot()` into the router so the live prices feed the classifier (one extra async fetch per stage-export request, cacheable).
+- [ ] **Cold-start UX banner** — Render's free tier spins down after 15 min idle; first request takes ~30 s. Frontend should detect long pending `/health` probes and surface "warming up the server" so users don't think it's broken.
+- [ ] **Bundle code-splitting** — Vite build warns at 566 KB. Splitting Planner / Finder routes into lazy chunks would knock the initial JS to <300 KB.
 
 ### DONE
 
@@ -215,6 +214,8 @@ Authoritative status of the dynamic-synthesis pivot. Updated by Claude Code afte
 - [x] **Step 15 — Finder search improvements** (2026-05-14) — Class + ascendancy filter, stat-floor filters (Life/ES/EHP/DPS), level range, sort_by, natural-language extraction extended with k/m suffix + "almeno X" / "ordina per Y" phrases.
 - [x] **Step 18 — Dynamic Gem Progression** (2026-05-14) — `derive_gem_progression(snapshot)` projects six GemSpec snapshots per gem; handles Awakened normalisation, Vaal normalisation, trigger-gem pinning, aura-like soft downscale. Replaces hand-curated `gem_progression_for(template_name)` for any build with a pasted PoB.
 - [x] **Step 16 — Dynamic Tree Progression** (2026-05-14) — Vendored GGG passive tree JSON (`packages/fob/data/tree/3_28.json`); `derive_tree_progression(snapshot)` BFSes the user's allocated subgraph from class start, buckets into 6 cumulative supersets at coverage 10/25/50/70/85/100; ascendancy distributed by lab order; cluster jewels stage 6 only.
+- [x] **Step 17 — Dynamic Gear Progression** (2026-05-15) — Vendored repoe-fork base-item catalogue (`packages/fob/data/items/base_items.json`, 357 KB minified, 1034 released gear bases). `derive_gear_progression(snapshot, prices=None)` tier-classifies user items (mirror / mageblood / high / mid / cheap / leveling / cluster / rare_craft), per-stage tier ceiling, substitutes over-budget items with canonical leveling uniques in stage 1-2 / generic rare-craft placeholders in stage 3+. Pricing is optional — name-signature heuristic covers the 40+ famous expensive uniques.
+- [x] **Step 19 — Population stats in Finder** (2026-05-15) — `compute_population_stats(refs)` aggregator (no HTTP, no state): top-N skill popularity + p25/p50/p75/p90 distributions for Life / ES / EHP / DPS / Level. Endpoint `GET /builds/population-stats?ascendancy=&top_n_per_class=&top_n_skills=&league=` reuses `BuildsService.fetch_refs` (15 min diskcache hit). Frontend `PopulationStatsPanel` rendered in `FinderPage` above the filter row when an ascendancy is set; reacts to the dropdown override via TanStack-Query cache key.
 - [x] **Production deploy live** — Render (backend) + Vercel (frontend) on free tier. See `docs/DEPLOY.md`.
 
 ### REJECTED / OBSOLETE

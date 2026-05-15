@@ -31,6 +31,12 @@ from poe1_builds.models import (
     SkillDps,
     SkillGroup,
 )
+from poe1_builds.population import (
+    PopulationStats,
+    SkillPopularity,
+    StatDistribution,
+    compute_population_stats,
+)
 from poe1_builds.service import DEFAULT_ASCENDANCIES, BuildsService
 from poe1_builds.sources.ninja import NinjaBuildsSource, NinjaBuildsSourceError
 
@@ -53,8 +59,12 @@ __all__ = [
     "MasteryChoice",
     "NinjaBuildsSource",
     "NinjaBuildsSourceError",
+    "PopulationStats",
     "RemoteBuildRef",
     "SkillDps",
     "SkillGroup",
+    "SkillPopularity",
+    "StatDistribution",
     "__version__",
+    "compute_population_stats",
 ]

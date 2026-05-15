@@ -33,6 +33,7 @@ import type {
 } from "../api/types";
 import { BuildCard } from "../components/BuildCard";
 import { IntentCard } from "../components/IntentCard";
+import { PopulationStatsPanel } from "../components/PopulationStatsPanel";
 
 // Class & ascendancy options — keep flat for a single Select. Display
 // labels are Title-Cased; values match the backend enum (lowercase).
@@ -231,6 +232,10 @@ export function FinderPage({ onSendToPlanner }: Props) {
       {intent && (
         <>
           <IntentCard intent={applyOverrides(intent, overrides)} />
+
+          {/* Step 19 — population stats for the chosen ascendancy.
+              Hidden when no class/ascendancy filter is active. */}
+          <PopulationStatsPanel ascendancy={overrides.class_filter} />
 
           {/* Manual filter overrides (collapsible) */}
           <Group justify="space-between" align="center">

@@ -34,6 +34,7 @@ from .models import (
     FullBuild,
     RemoteBuildRef,
 )
+from .population import PopulationStats, compute_population_stats
 from .service import BuildsService
 from .sources.ninja import NinjaBuildsSourceError
 
@@ -257,6 +258,87 @@ def make_router(settings: Settings) -> APIRouter:
             queried_at=datetime.now(tz=UTC),
             build=build,
         )
+
+    @router.get(
+        "/population-stats",
+        response_model=PopulationStats,
+        summary=(
+            "Aggregate ladder stats (top skills + percentile distributions) "
+            "for the configured league, optionally filtered to one ascendancy."
+        ),
+    )
+    async def population_stats(
+        ascendancy: Annotated[
+            str | None,
+            Query(
+                description=(
+                    "Restrict aggregation to one ascendancy (e.g. 'Slayer'). "
+                    "Omit for league-wide stats across all 19 ascendancies."
+                ),
+            ),
+        ] = None,
+        top_n_per_class: Annotated[
+            int,
+            Query(
+                ge=10,
+                le=2000,
+                description=(
+                    "Cap refs per ascendancy fanned out. 200 is a good sample "
+                    "without overloading poe.ninja's per-character endpoint."
+                ),
+            ),
+        ] = 200,
+        top_n_skills: Annotated[
+            int,
+            Query(
+                ge=1,
+                le=50,
+                description="Cap entries in the top-skills table.",
+            ),
+        ] = 10,
+        league: Annotated[
+            str | None,
+            Query(description="Override the configured league for this query."),
+        ] = None,
+    ) -> PopulationStats:
+        """Aggregate population stats over the latest poe.ninja ladder snapshot.
+
+        Reads ``RemoteBuildRef`` rows from ``BuildsService.fetch_refs`` (cached
+        on disk via :class:`HttpClient` for 15 min) and runs the pure
+        :func:`compute_population_stats` aggregator over them. Zero new
+        upstream HTTP cost on cache hits.
+        """
+
+        effective_league = league or settings.poe_league
+        filt = BuildFilter(
+            class_=ascendancy,
+            main_skill=None,
+            level_range=None,
+            defense_type=None,
+            top_n_per_class=top_n_per_class,
+        )
+        try:
+            async with HttpClient(settings) as http:
+                service = BuildsService(http=http, league=effective_league)
+                snapshot = await service.fetch_refs(filt)
+        except NinjaBuildsSourceError as err:
+            raise HTTPException(status_code=404, detail=str(err)) from err
+        except HttpError as err:
+            raise HTTPException(status_code=502, detail=f"upstream: {err}") from err
+
+        stats = compute_population_stats(
+            snapshot.refs,
+            ascendancy=ascendancy,
+            top_n_skills=top_n_skills,
+        )
+        log.info(
+            "builds_population_stats",
+            league=effective_league,
+            ascendancy=ascendancy,
+            pool=stats.total_builds,
+            top_skill=stats.top_skills[0].skill if stats.top_skills else None,
+        )
+        return stats
 
     return router
 

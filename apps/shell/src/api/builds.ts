@@ -2,7 +2,7 @@
  * Typed API functions for the /builds endpoints.
  */
 
-import type { ApiError } from "./types";
+import type { ApiError, PopulationStats } from "./types";
 
 // Dev: empty → same origin via Vite proxy. Production: VITE_API_BASE
 // points at the deployed Fly.io backend. Trailing slashes are stripped
@@ -83,4 +83,23 @@ export async function getDetailFull(
     pobCode: data.build.pathOfBuildingExport,
     skills: data.build.skills ?? [],
   };
+}
+
+
+/**
+ * GET /builds/population-stats?ascendancy=<name>
+ *
+ * Aggregated poe.ninja ladder stats (top skills + percentile
+ * distributions) for the league, optionally restricted to one
+ * ascendancy. Backend caches the underlying ladder fetch for 15 min
+ * via the existing HttpClient diskcache layer.
+ */
+export async function getPopulationStats(
+  ascendancy?: string | null,
+): Promise<PopulationStats> {
+  const params = new URLSearchParams();
+  if (ascendancy) params.set("ascendancy", ascendancy);
+  return get<PopulationStats>(
+    `/builds/population-stats${params.toString() ? "?" + params.toString() : ""}`,
+  );
 }

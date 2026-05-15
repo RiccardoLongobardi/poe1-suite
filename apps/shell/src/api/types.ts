@@ -104,6 +104,38 @@ export interface BudgetRange {
 /** Step 15 — sort key for the Finder result list. */
 export type SortKey = "score" | "dps" | "life" | "ehp" | "level";
 
+// ---------------------------------------------------------------------------
+// Step 19 — Population stats (Finder enrichment)
+// ---------------------------------------------------------------------------
+
+/** One row of the top-skills table per ascendancy. */
+export interface SkillPopularity {
+  skill: string;
+  count: number;
+  pct: number;
+}
+
+/** Quantile snapshot for one stat (life / ehp / dps / level). */
+export interface StatDistribution {
+  sample_size: number;
+  p25: number;
+  p50: number;
+  p75: number;
+  p90: number;
+}
+
+/** GET /builds/population-stats response */
+export interface PopulationStats {
+  ascendancy: string | null;
+  total_builds: number;
+  top_skills: SkillPopularity[];
+  life: StatDistribution | null;
+  energy_shield: StatDistribution | null;
+  ehp: StatDistribution | null;
+  dps: StatDistribution | null;
+  level: StatDistribution | null;
+}
+
 export interface BuildIntent {
   damage_profile: DamageProfile | null;
   alternative_damage_profiles: DamageProfile[];

@@ -70,9 +70,29 @@ uv run mypy .
 uv run pytest
 ```
 
-All four must pass with zero errors. Current baseline: **691 tests green (2 skipped — integration/LLM), 117 files type-checked clean, 115 files formatted clean**. Frontend build 551 KB / 168 KB gzip.
+All four must pass with zero errors. Current baseline: **702 tests green (2 skipped — integration/LLM), 119 files type-checked clean, 117 files formatted clean**. Frontend build 566 KB / 172 KB gzip.
 
 **PoB import QA — confirmed working 2026-05-14**: real PoB → planner → "Importa stage in PoB" → paste in PoB Community 3.28 desktop → full build loads (tree 123/123 nodes including cluster jewel subgraph, mastery effects, items, gems, config, pantheon). Took 7 commits to debug, all guided by reading PathOfBuildingCommunity Lua source. Key learnings captured below.
+
+## Step 19 — Population stats in Finder (2026-05-15) ✅
+
+Closes the dynamic-pivot quadrant. Surfaces aggregated `poe.ninja` ladder stats in the Build Finder so the user can see "what does the current Slayer meta look like" before committing to a recommend pool.
+
+- New `poe1_builds.population` module — pure aggregator (no HTTP, no state). Three Pydantic envelopes:
+  - `SkillPopularity(skill, count, pct)` — one row of the top-skills table.
+  - `StatDistribution(sample_size, p25, p50, p75, p90)` — quantile snapshot for one stat.
+  - `PopulationStats(ascendancy, total_builds, top_skills, life, energy_shield, ehp, dps, level)` — full envelope.
+- `compute_population_stats(refs, *, ascendancy=None, top_n_skills=10)` aggregates over a tuple of `RemoteBuildRef`:
+  - Skill popularity via `collections.Counter`; percentages computed over the with-skill subset (refs missing `main_skill` are excluded from the rank table but still counted in `total_builds`).
+  - Stat distributions via nearest-rank percentile (no interpolation — integer outputs read better in the UI; zero values are dropped before sorting).
+- New endpoint `GET /builds/population-stats?ascendancy=&top_n_per_class=&top_n_skills=&league=` in `poe1_builds.router`. Reuses `BuildsService.fetch_refs` so the underlying ladder fetch hits the existing `diskcache` 15 min TTL — zero new HTTP cost on cache hits.
+- Frontend:
+  - New `apps/shell/src/components/PopulationStatsPanel.tsx` — TanStack-Query-backed panel rendered above the Finder filter row when an ascendancy filter is active. Shows top-5 skills as Mantine `<Badge>`s (first one filled astral, rest light gray) + a 5-row stat table (Vita / ES / EHP / DPS / Livello) with p25 / p50 / p75 / p90 columns. Compact-number formatter (`5.5k`, `1.2M`).
+  - `getPopulationStats(ascendancy?)` client in `apps/shell/src/api/builds.ts`.
+  - `FinderPage` shows the panel under the parsed `IntentCard` and reacts to the user's class/ascendancy override (so changing the dropdown in "Filtri avanzati" instantly updates the panel via the TanStack cache key).
+- **11 new tests** (`packages/builds/tests/test_population.py`) — empty pool, top-skills ordering + cap, missing-main-skill exclusion, quantile correctness on a hand-verified DPS distribution, zero-value drops, ascendancy passthrough, all-zero-stats envelope returns None.
+
+Baseline: 702 verdi / 119 mypy / 117 format. Frontend build 566 KB / 172 KB gzip (+14 KB raw for the panel + types).
 
 ## Step 17 — Dynamic Gear Progression (2026-05-15) ✅
 
