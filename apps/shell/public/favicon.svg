@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!--
+    FOB favicon — an original Path of Exile "Chaos Orb"-style mark:
+    a molten golden sphere with chaotic swirling surface. Hand-drawn,
+    not a copy of GGG's icon art.
+  -->
+  <defs>
+    <radialGradient id="orb" cx="38%" cy="32%" r="72%">
+      <stop offset="0%" stop-color="#ffeead" />
+      <stop offset="42%" stop-color="#e3ab38" />
+      <stop offset="78%" stop-color="#9c6c18" />
+      <stop offset="100%" stop-color="#553809" />
+    </radialGradient>
+    <radialGradient id="core" cx="50%" cy="50%" r="60%">
+      <stop offset="0%" stop-color="#fff2c4" />
+      <stop offset="100%" stop-color="#c88f24" />
+    </radialGradient>
+  </defs>
+
+  <!-- Outer sphere -->
+  <circle cx="32" cy="32" r="30" fill="url(#orb)" stroke="#2e1f06" stroke-width="2.5" />
+
+  <!-- Chaotic molten swirls -->
+  <path
+    d="M14 26 Q26 14 40 22 Q30 28 42 36 Q44 48 30 48 Q20 47 21 38 Q31 36 24 30 Q18 28 14 26 Z"
+    fill="#a8761f" opacity="0.5" />
+  <path
+    d="M22 44 Q33 52 47 42"
+    fill="none" stroke="#6e4a0e" stroke-width="3.4" stroke-linecap="round" opacity="0.65" />
+  <path
+    d="M19 22 Q33 12 47 21"
+    fill="none" stroke="#ffeead" stroke-width="2.6" stroke-linecap="round" opacity="0.55" />
+  <path
+    d="M40 28 Q48 34 42 44"
+    fill="none" stroke="#ffeead" stroke-width="2" stroke-linecap="round" opacity="0.4" />
+
+  <!-- Glowing core -->
+  <circle cx="33" cy="33" r="7" fill="url(#core)" opacity="0.7" />
+
+  <!-- Specular highlight -->
+  <ellipse cx="24" cy="20" rx="8.5" ry="5" fill="#fff6d6" opacity="0.5"
+    transform="rotate(-32 24 20)" />
+</svg>
