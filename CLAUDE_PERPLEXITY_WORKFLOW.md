@@ -20,108 +20,66 @@ Don't trust earlier versions of this file — the section below is the authorita
 - **Working features (all QA-verified 2026-05-15)**:
   - Build Finder with class/asc/stat-floor/sort filters + natural-language extraction (Step 15) + per-ascendancy population stats panel (Step 19). ✅ QA passed.
   - Planner with 6-stage `BuildPlan`, SSE streaming progress + ETA. ✅ QA passed.
-  - "Importa stage in PoB": exports a stage-specific PoB code. Passes through the user's real `<Items>`/`<Skills>` verbatim (only the passive tree differs per stage). ✅ QA passed — no fake items, no mis-labelled gems, no `explodeSource` crash.
+  - "Importa stage in PoB": exports a stage-specific PoB code. Passes through the user's real `<Items>`/`<Skills>` verbatim (only the passive tree differs per stage). ✅ QA passed.
   - Trade redirect (client-side, no server-side GGG calls — GGG blocks Render's IP range). ✅ QA passed.
   - PoB Analyze → full build dashboard (Step 20, done 2026-05-15): character header + key stats, equipment grid with per-item tooltips, flasks, tree jewels, skill-link panel. ✅ QA passed.
   - Cold-start Divine Orb warmup overlay (Step 21, done 2026-05-15): full-viewport overlay with an animated inline-SVG PoE1 Divine Orb shown while the Render free-tier backend warms up.
-- **Dynamic-synthesis pivot complete** (Steps 16/17/18/19, all done):
-  - Step 16 (Dynamic Tree Progression) — ✅ done 2026-05-14.
-  - Step 17 (Dynamic Gear Progression) — ✅ done 2026-05-15.
-  - Step 18 (Dynamic Gem Progression) — ✅ done 2026-05-14.
-  - Step 19 (Population data in Finder) — ✅ done 2026-05-15.
+- **Dynamic-synthesis pivot complete** (Steps 16/17/18/19, all done).
 - **Recently fixed (2026-05-15, all user-confirmed)**:
-  - Build Finder blank-page bug — ErrorBoundary + Mantine v7 grouped-data shape for the class Select. ✅ Confirmed fixed.
-  - Stage export emitted mod-less fake items + slot-labelled gem stubs + `explodeSource` PoB Lua crash — `encode_pob_code` now passes through the user's real `<Items>`/`<Skills>`. ✅ Confirmed fixed.
+  - Build Finder blank-page bug — ErrorBoundary + Mantine v7 grouped-data shape for the class Select. ✅
+  - Stage export emitted mod-less fake items + slot-labelled gem stubs + `explodeSource` PoB Lua crash — passthrough fix. ✅
 
-If anything you read in this file or in `CLAUDE.md` contradicts the above, **the above wins** and the older text needs correcting.
+If anything you read in this file or in `CLAUDE.md` contradicts the above, **the above wins**.
 
 ---
 
 ## 1bis. Where to verify the *current* state (read before any planning)
 
-The §1 snapshot is hand-maintained — it might lag a few hours after a feature lands. Before drafting prompts, doing research, or assuming anything about the codebase, **always re-check the live sources** below. Everything here is public HTTP, no auth needed.
+The §1 snapshot is hand-maintained — it might lag a few hours after a feature lands. Before drafting prompts, doing research, or assuming anything about the codebase, **always re-check the live sources** below.
 
 ### Repo (GitHub, branch `main`)
 
 - **Browse the repo**: <https://github.com/RiccardoLongobardi/poe1-suite>
-- **Latest commit on main** (one-liner with subject, hash, date):
+- **Latest commit on main**:
   ```sh
   curl -s https://api.github.com/repos/RiccardoLongobardi/poe1-suite/commits/main | jq -r '"\(.sha[0:7]) \(.commit.author.date) \(.commit.message | split("\n")[0])"'
   ```
-- **Recent commit log** (last 20 commits, subject lines):
+- **Recent commit log** (last 20):
   ```sh
   curl -s 'https://api.github.com/repos/RiccardoLongobardi/poe1-suite/commits?per_page=20&sha=main' | jq -r '.[] | "\(.sha[0:7])  \(.commit.message | split("\n")[0])"'
   ```
-- **Raw file at HEAD** (any path; example for the project contract):
+- **Raw file at HEAD**:
   ```
   https://raw.githubusercontent.com/RiccardoLongobardi/poe1-suite/main/CLAUDE.md
   https://raw.githubusercontent.com/RiccardoLongobardi/poe1-suite/main/CLAUDE_PERPLEXITY_WORKFLOW.md
-  https://raw.githubusercontent.com/RiccardoLongobardi/poe1-suite/main/packages/fob/src/poe1_fob/router.py
   ```
-- **File tree at HEAD** (full recursive listing):
+- **File tree at HEAD**:
   ```sh
-  curl -s 'https://api.github.com/repos/RiccardoLongobardi/poe1-suite/git/trees/main?recursive=1' | jq -r '.tree[].path' | head -50
+  curl -s 'https://api.github.com/repos/RiccardoLongobardi/poe1-suite/git/trees/main?recursive=1' | jq -r '.tree[].path' | head -80
   ```
 
 ### Live backend (Render)
 
-- **Health probe** — confirms backend is up + which league it's serving:
-  ```sh
-  curl -s https://fob-api-rtgg.onrender.com/health | jq .
-  ```
-  Returns `{"status":"ok","environment":"production","league":"Mirage","version":"…","uptime_seconds":…,"timestamp":"…"}`. **Note: first request after ~15 min idle takes ~30 s** (Render free-tier cold start).
-- **Version map** — sub-package versions, useful to confirm what got deployed:
-  ```sh
-  curl -s https://fob-api-rtgg.onrender.com/version | jq .
-  ```
-- **OpenAPI schema** — full enumerated endpoint surface:
-  ```
-  https://fob-api-rtgg.onrender.com/openapi.json
-  ```
+- **Health probe**: `curl -s https://fob-api-rtgg.onrender.com/health | jq .`
+- **First request after ~15 min idle takes ~30 s** (Render free-tier cold start — the Divine Orb overlay handles this).
 
 ### Live frontend (Vercel)
 
-- <https://fob-ten.vercel.app> — the deployed SPA. `/finder`, `/analyze`, `/planner` are the three main flows.
-
-### Reading order for a new session
-
-When Perplexity (or any human) sits down to plan new work, scan these in order — they're cheap and fast:
-
-1. **`CLAUDE.md`** ([raw](https://raw.githubusercontent.com/RiccardoLongobardi/poe1-suite/main/CLAUDE.md)) — the project contract. Sections most likely to be relevant:
-   - "Product direction" (the dynamic-synthesis pivot)
-   - "External data sources" (what to use, what to skip)
-   - "The gate" baseline (current test/mypy/format counts — gives you "is the project healthy")
-   - "What's built" table near the top
-   - the most recent `## Step N — …` block (latest closed step + its lessons)
-2. **This file's §1, §6, §7** — current snapshot, backlog status, decision log.
-3. **Latest 10 commits on `main`** (curl recipe above) — confirms what physically landed since the snapshot in §1 was written. Any commit message starting `feat(…)` or `fix(…)` is a delta worth understanding.
-4. **`/health` on the live backend** — verifies deployment matches the repo's `main` (the `version` field is stamped at build time).
-
-### Don't assume; verify
-
-If §1 says "Step 18 done 2026-05-14" but the latest commit is two days newer, **the latest commit wins**. The hand-maintained sections drift — the live sources don't. Same rule as §1's tie-breaker: more-recent reality > stale narrative.
+- <https://fob-ten.vercel.app> — `/finder`, `/analyze`, `/planner`.
 
 ---
 
 ## 2. Stack & data sources (no PostgreSQL, no ETL)
 
-We are deliberately **not** building a relational data warehouse for this project. Earlier drafts of this file proposed Postgres + ETL pipelines; that direction was rejected. The actual data layer:
-
 | Layer | Source | Caching | Refresh |
 |---|---|---|---|
-| Live economy (currency / unique / cluster / oils / jewels) | `poe.ninja` `/poe1/api/economy/stash/{version}/...` (JSON) | `diskcache` 15 min TTL on `HttpClient` | Per-request, automatic. |
-| Build ladder + per-character snapshots | `poe.ninja` `/poe1/api/builds/{version}/search` (protobuf) | `diskcache` 15 min TTL | Per-request, automatic. |
-| Per-item Trade search (Mageblood etc.) | GGG `/api/trade/search/<league>` (JSON) | In-memory TTLCache 8 min by query hash | Per-request, automatic. *(Note: blocked from Render's IP range; runtime fallback to bare-URL redirect.)* |
-| PoE 1 passive tree definition | GGG `passiveSkillTreeData` JS variable on `pathofexile.com/passive-skill-tree` | Vendored as `packages/fob/data/tree/3_28.json` (2.8 MB) | Manual via `scripts/extract_tree_data.py` once per league. |
-| Item base types (for Step 17) | `repoe-fork/repoe` `base_items.json` (planned vendor) | TBD vendor under `packages/fob/data/items/` | Manual once per league. |
+| Live economy | `poe.ninja` economy JSON | `diskcache` 15 min TTL | Per-request |
+| Build ladder | `poe.ninja` builds protobuf | `diskcache` 15 min TTL | Per-request |
+| Trade search | GGG `/api/trade/search` | in-memory 8 min TTL | Client-side redirect only (Render IP blacklisted) |
+| Passive tree | GGG vendored JSON | `packages/fob/data/tree/3_28.json` | Manual per league |
+| Item bases | repoe-fork JSON | `packages/fob/data/items/base_items.json` | Manual per league |
 
-Sources we evaluated and rejected (don't propose them again):
-
-- **poedb.tw** — HTML scrape only, no API/dumps, fragile, terms ambiguous.
-- **GGG official developer API** (OAuth) — only user-data (characters, stashes, trade); does not publish tree/gem/base definitions.
-- **brather1ng/RePoE** — dead since league 3.19 (Sep 2022); use the `repoe-fork/repoe` fork instead.
-
-Reference: `CLAUDE.md` → "External data sources (use these, don't reinvent)".
+Sources explicitly rejected (don't propose again): poedb.tw, GGG OAuth API for game data, brather1ng/RePoE (dead).
 
 ---
 
@@ -129,220 +87,850 @@ Reference: `CLAUDE.md` → "External data sources (use these, don't reinvent)".
 
 ### 3.1 Perplexity — research & design
 
-What Perplexity is uniquely good at and should own:
+Owns: data-source surveys, algorithm design, comparative library reviews, long-form research, QA sessions (bug classification + fix prompts), UI/UX design direction and design system spec.
 
-- **Data-source surveys** — when we hit a wall, Perplexity researches what data exists (e.g. the analysis that produced the §2 table above).
-- **Algorithm design** — drafting BFS / clustering / ranking strategies for new features before code is written.
-- **Comparative reviews** — "is library X or Y better for use case Z" with sources.
-- **Long-form research reports** that summarise multiple sources with citations.
-- **QA sessions** — manual QA of the live app, classification of bugs, and production of fix prompts for Claude Code.
-
-What Perplexity **does not** do in this workflow:
-
-- Edit code files in the repo (`.py`, `.ts`, `.lua`, `.sql`, `.json`).
-- Modify Claude Code's session state or todos.
-- Update this file's *implementation status* (the §6 backlog) — only Claude Code updates that, since Claude Code is the one actually doing the work.
-
-Perplexity **may** propose updates to §5 (open questions) and §7 (decision log) when its research surfaces a decision point the project needs to settle. Perplexity **also** writes fix prompts to §8 when QA surfaces bugs.
+Does NOT: edit `.py` / `.ts` / `.json` files, modify Claude Code todos, update §6 implementation status.
 
 ### 3.2 Claude Code — implementation
 
-What Claude Code owns:
+Owns: all code under `packages/` + `apps/` + `scripts/`, test changes, gate enforcement, commits + pushes, updating both `CLAUDE.md` and this file's §6 / §7.
 
-- All code changes under `packages/`, `apps/`, `scripts/`, `docs/`.
-- All test changes and gate enforcement.
-- Commits, pushes, deploy-triggering merges to `main`.
-- Updating **both** `CLAUDE.md` (project contract, baselines, lessons) and `CLAUDE_PERPLEXITY_WORKFLOW.md` (workflow status — §6 backlog, sometimes §7 decision log).
-- Reading external data via WebFetch / curl when needed for a specific task (Claude Code already does this routinely; Perplexity is reserved for *deep* research, not every one-off fetch).
-
-Constraints on Claude Code:
-
-- Cannot bypass the pre-commit gate without explicit user instruction (no `--no-verify`).
-- Cannot commit secrets, `.env` files, or other items in the `.gitignore` exclusion list.
-- Must run the full gate (`uv run ruff check . && uv run ruff format --check . && uv run mypy . && uv run pytest`) before declaring a step done.
+Constraints: no `--no-verify`, no secrets, must run full gate before declaring done.
 
 ### 3.3 The user (Riccardo)
 
-What the user owns:
-
-- Strategic direction (the dynamic-synthesis pivot was a user decision, recorded in §7).
-- Manual QA in PoB Community desktop (we cannot automate the round-trip from a script).
-- Final-call on architectural trade-offs surfaced by either Perplexity or Claude Code.
-- Curating which Perplexity research findings get adopted vs ignored.
+Owns: strategic direction, manual QA in PoB Community, final-call on architectural trade-offs.
 
 ---
 
 ## 4. Collaboration rules
 
-1. **`CLAUDE.md` is the contract**, this file is the playbook. When they conflict, `CLAUDE.md` wins and this file needs correcting.
-2. **No silent re-architecture**. Decisions that change the stack, the data sources, or the public API surface go in §7. Don't add Postgres / ETL / new languages without an explicit decision-log entry first.
-3. **Prompts in this file are reusable templates**, not one-shot tasks. Each one should be runnable today without context from a past chat. Time-bound tasks live in §6.
-4. **Don't fetch GGG Trade from production.** Render's IP range is blacklisted by GGG's anti-bot — calling `/api/trade/search` from the deployed backend returns 403 every time. Server-side trade calls are reserved for local development; production flows go via the client-side redirect helper (`apps/shell/src/api/tradeRedirect.ts`).
-5. **Vendor data, don't fetch at runtime.** When we depend on a public dataset (PoE tree, item bases), commit a snapshot to the repo and refresh manually per league via a `scripts/` utility. No runtime HTTP to GitHub raw or similar — adds an availability dependency we don't need.
+1. `CLAUDE.md` is the contract, this file is the playbook. When they conflict, `CLAUDE.md` wins.
+2. No silent re-architecture — changes to stack / data sources / public API go in §7.
+3. Prompts in this file are reusable templates, self-contained, runnable today without past-chat context.
+4. Don't fetch GGG Trade from production (Render IPs blacklisted — HTTP 403).
+5. Vendor data, don't fetch at runtime.
 
 ---
 
 ## 5. Open questions for Perplexity
 
-Use this section to park "go research X" items. Claude Code can flag candidates here when a question surfaces mid-implementation that Perplexity is better placed to answer.
-
-- *(no open questions — §5 is clean as of 2026-05-15)*
+- *(none as of 2026-05-15)*
 
 ---
 
 ## 6. Backlog & status
 
-Authoritative status of the dynamic-synthesis pivot. Updated by Claude Code after each step closes.
-
 ### IN PROGRESS
 
-- *(nothing actively in progress)*
+- *(nothing)*
 
 ### NEXT
 
-- *(nothing queued — pick from "candidate future work" below at the next planning session)*
+- [ ] **Step 22a — Design system: Void Stone & Ember theme** — Replace the current Atlas-violet Mantine theme with the new dark-parchment / amber-gold design system. See §8 Prompt — Step 22a. Run before 22b/22c.
+
+### QUEUED (run in sequence after 22a)
+
+- [ ] **Step 22b — Finder page redesign** — New layout + animations for FinderPage + FinderResultCard. Depends on 22a being merged. See §8 Prompt — Step 22b.
+- [ ] **Step 22c — Planner + Analyze redesign** — Timeline layout for Planner, sticky header + reveal animations for Analyze. Depends on 22b being merged. See §8 Prompt — Step 22c.
 
 ### CANDIDATE FUTURE WORK
 
-These are *opportunities*, not commitments. Discuss with the user before promoting to NEXT.
-
-- [ ] **Finder result-list polish** — sort indicator showing which sort key produced the order; "this ascendancy is 47% of the meta this league" line from population stats; per-skill drill-down panel.
-- [ ] **Pricing-aware gear classifier** — currently `derive_gear_progression` uses a name-signature heuristic for unique tiers when no `prices` map is provided. Wire `PricingService.snapshot()` into the router so the live prices feed the classifier (one extra async fetch per stage-export request, cacheable).
-- [ ] **Bundle code-splitting** — Vite build warns at 581 KB. Splitting Planner / Finder routes into lazy chunks would knock the initial JS to <300 KB.
+- [ ] **Finder result-list polish** — sort indicator, "X% of meta" line, per-skill drill-down.
+- [ ] **Pricing-aware gear classifier** — wire `PricingService.snapshot()` into stage-export router.
+- [ ] **Bundle code-splitting** — Vite warns at 585 KB; lazy-split Planner/Finder routes.
 
 ### DONE
 
-- [x] **Step 21 — Divine Orb cold-start overlay** (2026-05-15) — New `useServerWarmup` hook fires a `/health` probe on mount and reports `probing` → `cold` (pending > 3 s) → `warm` (settled, ok/error alike). `WarmupOverlay` renders a full-viewport overlay only on `cold` and fades out on `warm`; the loading indicator is a hand-authored inline-SVG PoE1 Divine Orb (golden radial-gradient sphere, classical face in bas-relief, 14 studs) animated with CSS keyframes (disabled under `prefers-reduced-motion`). Mounted at the `App.tsx` root. Frontend-only, no backend change. The cold path isn't cleanly simulable in the preview harness (hook-file HMR full-reloads and wipes the `window.fetch` patch) — verified via forced-`cold` DOM inspection + warm-path (fast probe → no overlay). Frontend build 585 KB / 181 KB gzip.
-- [x] **Step 20 — Analyze page full redesign** (2026-05-15) — Rebuilt `apps/shell/src/pages/AnalyzePage.tsx` from a four-badge stub into a PoB-style dashboard: compact collapsible input, two-column layout (character header + key stats | equipment grid with per-item tooltips, flasks, tree jewels), full-width skill-link panel. `types.ts` opaque `snapshot: Record<string, unknown>` replaced with typed `PobSnapshot` interfaces mirroring `poe1_fob.pob.models`. Frontend-only — no backend/API change. Gotcha noted in `CLAUDE.md`: `PobSkillGroup.is_main` is true on almost every group (it's PoB's per-group `mainActiveSkill` attr); the real main group is `main_skill_group_index`. Verified in browser with the real fixture PoB. Frontend build 581 KB / 180 KB gzip. ✅ QA passed 2026-05-15.
-- [x] **Step 1-13** — Core domain models, PoE Ninja + Trade pricing, ranking engine, planner v2 reverse-mode, UI shell. (See `CLAUDE.md` for per-step detail.)
-- [x] **Step 14 T1-T5** — Tree + gear + gem progression scaffolding, PoB XML encoder + decoder, StageCard tabs UI, "Importa stage in PoB" button.
-- [x] **PoB import QA** (2026-05-14) — Verified the export-then-paste flow against Path of Building Community 3.28 desktop. Took 7 commits to debug the tree URL header, mastery effects, cluster jewel passthrough — see `CLAUDE.md` "Lessons from the PoB-import-debug sprint".
-- [x] **Step 15 — Finder search improvements** (2026-05-14) — Class + ascendancy filter, stat-floor filters (Life/ES/EHP/DPS), level range, sort_by, natural-language extraction extended with k/m suffix + "almeno X" / "ordina per Y" phrases.
-- [x] **Step 18 — Dynamic Gem Progression** (2026-05-14) — `derive_gem_progression(snapshot)` projects six GemSpec snapshots per gem; handles Awakened normalisation, Vaal normalisation, trigger-gem pinning, aura-like soft downscale. Replaces hand-curated `gem_progression_for(template_name)` for any build with a pasted PoB.
-- [x] **Step 16 — Dynamic Tree Progression** (2026-05-14) — Vendored GGG passive tree JSON (`packages/fob/data/tree/3_28.json`); `derive_tree_progression(snapshot)` BFSes the user's allocated subgraph from class start, buckets into 6 cumulative supersets at coverage 10/25/50/70/85/100; ascendancy distributed by lab order; cluster jewels stage 6 only.
-- [x] **Step 17 — Dynamic Gear Progression** (2026-05-15) — Vendored repoe-fork base-item catalogue (`packages/fob/data/items/base_items.json`, 357 KB minified, 1034 released gear bases). `derive_gear_progression(snapshot, prices=None)` tier-classifies user items (mirror / mageblood / high / mid / cheap / leveling / cluster / rare_craft), per-stage tier ceiling, substitutes over-budget items with canonical leveling uniques in stage 1-2 / generic rare-craft placeholders in stage 3+. Pricing is optional — name-signature heuristic covers the 40+ famous expensive uniques.
-- [x] **Bugfix — Stage export: fake items + mis-labelled gems + `explodeSource` PoB crash** (2026-05-15, ✅ user-confirmed) — "Importa stage in PoB" produced mod-less placeholder items (uniques with no explicit block, "Crafted Helmet" rares with no stats) and gem groups labelled by gear slot ("Body Armour") instead of the gem; PoB Community also crashed on import with `Data/Skills/other.lua:5364: attempt to index field 'explodeSource' (a nil value)` in the DPS-calc phase. **Root cause**: `encode_pob_code` let the synthesised `gear`/`gems` params win over the user's pasted PoB; since `derive_gear/gem_progression` always return data for a snapshot, the encoder always synthesised placeholder items + gem stubs and never passed through the real `<Items>`/`<Skills>` (also dropping cluster jewels). The synthesised `<Skills>` block was the only synthesised XML feeding PoB's offence calc → the `explodeSource` nil crash. **Fix**: passthrough now wins — real items/gems/clusters copied verbatim, only the passive tree differs per stage; synth path only runs in the no-PoB case; synth-path `<Skill label>` set to `""` so PoB auto-labels from the gem. 704 tests / 121 mypy / 117 format. See `CLAUDE.md` for detail.
-- [x] **Bugfix — Finder blank page after intent extract** (2026-05-15, ✅ user-confirmed, took two passes) — **Root cause**: `<Select data={CLASS_OPTIONS}>` was using Mantine v6's flat `{value,label,group}` shape; Mantine v7 needs the grouped `{group, items: [...]}` shape and crashes inside its internal `useMemo` before our render runs. Pass 1 added null-safe defaults + ErrorBoundary around IntentCard / PopulationStatsPanel / results, but the Select was outside those boundaries → still blank. Pass 2 rewrote `CLASS_OPTIONS` to the v7 grouped shape AND wrapped the entire post-intent block in a top-level ErrorBoundary so any future render error degrades to an inline alert instead of blanking the whole page. Frontend build 567 KB / 176 KB gzip. See §9 for the original QA prompt + Mantine v7 invariant in `CLAUDE.md`.
-- [x] **Step 19 — Population stats in Finder** (2026-05-15) — `compute_population_stats(refs)` aggregator (no HTTP, no state): top-N skill popularity + p25/p50/p75/p90 distributions for Life / ES / EHP / DPS / Level. Endpoint `GET /builds/population-stats?ascendancy=&top_n_per_class=&top_n_skills=&league=` reuses `BuildsService.fetch_refs` (15 min diskcache hit). Frontend `PopulationStatsPanel` rendered in `FinderPage` above the filter row when an ascendancy is selected (manually or extracted by intent); reacts to the dropdown override via TanStack-Query cache key.
-- [x] **Production deploy live** — Render (backend) + Vercel (frontend) on free tier. See `docs/DEPLOY.md`.
+- [x] **Step 21 — Divine Orb cold-start overlay** (2026-05-15) — `useServerWarmup` hook + `WarmupOverlay` component. Hand-authored inline-SVG PoE1 Divine Orb, CSS keyframe animation, `prefers-reduced-motion` aware. Mounted at `App.tsx` root. Frontend-only, no backend change. 585 KB / 181 KB gzip.
+- [x] **Step 20 — Analyze page full redesign** (2026-05-15) — PoB-style dashboard. 581 KB / 180 KB gzip. ✅ QA passed.
+- [x] **Steps 1-19** — See older entries below and `CLAUDE.md` for full detail.
+- [x] **Bugfix — Finder blank page** (2026-05-15) — Mantine v7 grouped-data shape + ErrorBoundary. ✅
+- [x] **Bugfix — Stage export fake items + `explodeSource`** (2026-05-15) — Passthrough wins. ✅
+- [x] **Step 19 — Population stats in Finder** (2026-05-15). ✅
+- [x] **Step 18 — Dynamic Gem Progression** (2026-05-14). ✅
+- [x] **Step 17 — Dynamic Gear Progression** (2026-05-15). ✅
+- [x] **Step 16 — Dynamic Tree Progression** (2026-05-14). ✅
+- [x] **Step 15 — Finder search improvements** (2026-05-14). ✅
+- [x] **Steps 1-14** — Core models, pricing, planner, PoB encoder/decoder, UI shell. ✅
+- [x] **Production deploy live** — Render + Vercel, free tier.
 
 ### REJECTED / OBSOLETE
 
-These were in earlier versions of this file or earlier backlogs; they are explicitly not on the roadmap and shouldn't reappear:
-
-- ~~Build a PostgreSQL data layer for prices.~~ → Replaced by live `poe.ninja` + `diskcache`. Decision 2026-05-14 (see §7).
-- ~~Scrape PoEDB for static game data.~~ → Replaced by vendored JSON from GGG / `repoe-fork`. Decision 2026-05-14.
-- ~~Pre-fill GGG Trade searches server-side.~~ → GGG blacklists Render IPs (HTTP 403 every request). Replaced by client-side redirect to `pathofexile.com/trade/search/<league>` with item name in clipboard. Decision 2026-05-14.
-- ~~Hand-curate `*_PROGRESSION` registries for the remaining 47 BuildTemplate classes.~~ → Replaced by the dynamic-synthesis pivot (Steps 16-19). Decision 2026-05-14, see `CLAUDE.md` "Product direction".
-- ~~Add new `BuildTemplate` subclasses for new skills.~~ → The existing 49 templates already cover every reasonable build for *descriptive* purposes; new skills should match into existing templates or fall through to `GenericTemplate`. Stage data is dynamic, not template-keyed.
+- ~~PostgreSQL data layer~~ → diskcache + poe.ninja.
+- ~~poedb.tw scraping~~ → vendored JSON.
+- ~~Server-side GGG Trade~~ → client-side redirect.
+- ~~Hand-curated PROGRESSION registries~~ → dynamic synthesis (Steps 16-19).
+- ~~New BuildTemplate subclasses per skill~~ → 49 templates frozen; stage data is dynamic.
 
 ---
 
 ## 7. Decision log
 
-Reverse-chronological. Every decision that changes architecture, stack, or scope gets a line. Add (don't rewrite) past entries.
+Reverse-chronological.
 
-- **2026-05-15** — *Cold-start banner: Divine Orb theme, interactive, pure frontend.* The Render free-tier cold start (~30 s) makes new users think the site is broken. Decision: add an app-level loading overlay that fires when `/health` takes >2 s to respond; style it as an animated SVG Divine Orb (PoE 1 aesthetic — golden sphere with classical female face in bas-relief, dark parchment background, ornamental border, warm amber/gold palette). The orb must be a hand-authored inline SVG (no external image asset, no new npm deps); animation via CSS keyframes only (no Framer Motion, no GSAP). Overlay dismisses automatically once `/health` responds. Shipped 2026-05-15 — see §9 Old Prompt 007.
-- **2026-05-15** — *Analyze page: full redesign, route kept.* The existing `/analyze` page was QA-flagged as low-value (shows only class + ascendancy + main skill + level as coloured badges, nothing else). Decision: keep the route but fully rebuild the page. The redesign must expose all useful data already present in `PobSnapshot` (items_by_slot, jewels, flasks, skills, stats, pantheon, bandit, config, notes) without any new backend endpoints — `POST /fob/analyze-pob` already returns the full snapshot. The input area must be minimised (collapsible after submit) and must also accept `pobb.in` links (already supported by the backend's `load_pob`, just not surfaced in the UI label). Shipped 2026-05-15 — see §9 Old Prompt 006.
-- **2026-05-14** — *Server-side Trade search is impossible on Render.* GGG returns HTTP 403 from datacenter IP ranges (verified via direct curl). Removed `/fob/trade-search` + `/fob/extract-trade-mods` endpoints; frontend redirects directly to `pathofexile.com/trade/search/<league>` with item name in clipboard. The `/fob/trade-url` endpoint stays in the code (works in local dev) but the frontend doesn't call it from production. Re-attempt requires moving the backend to a non-blocked host.
-- **2026-05-14** — *Dynamic synthesis over curated templates.* Steps 16-19 replace `*_PROGRESSION` registries (only `rf_pohx` + `spectre_necromancer` were ever curated). Tree progression derives from BFS on the user's PoB; gem progression projects level/quality with Awakened-substitution; gear progression will classify by price tier; the 49 `BuildTemplate` classes stay for descriptive Italian rationale text + UI labels only.
-- **2026-05-14** — *Vendor data, don't fetch at runtime.* The PoE 1 passive tree JSON is committed at `packages/fob/data/tree/3_28.json` and refreshed manually per league via `scripts/extract_tree_data.py`. Same pattern will apply to `repoe-fork/base_items.json` for Step 17.
-- **2026-05-14** — *External data source survey.* PoB Community (GitHub) is the primary source for tree + gem level tables + item bases (MIT licensed, league-current). `repoe-fork/repoe` is the JSON alternative when we'd rather parse JSON than Lua (one league behind). `poe.ninja` is the only source for live economy + build population data. PoEDB and GGG's developer API are explicitly out (HTML-only / user-data-only respectively). Full breakdown in `CLAUDE.md` "External data sources".
-- **2026-05-14** — *No PostgreSQL, no ETL.* Earlier drafts of this file proposed a relational data warehouse. Rejected: the live HTTP-with-cache model (`diskcache` 15 min TTL on `poe.ninja`, in-memory 8 min TTL on GGG Trade) covers all current use cases without operational overhead.
-- **2026-05-07** — *Backend migrated from Fly.io to Render.* Fly's trial ended; Render's free tier is permanent. `render.yaml` blueprint + Dockerfile. Trade-off: Render spins down after 15 min idle (~30 s cold start on first request after wake).
-- **2026-04-25** — *Pricing v2 closed* (Step 9). Variant-aware unique pricing + GGG Trade API source for rare custom-craft + PoB mod extraction + streaming planner with SSE progress & ETA.
+- **2026-05-15** — *Full frontend redesign: "Void Stone & Ember" theme.* The current Atlas-violet / purple-gradient theme (Mantine `astral` + `gold` palette, Inter body, starfield background) is generic AI-aesthetic and does not reflect PoE 1's visual identity. Decision: replace entirely with the "Void Stone & Ember" design system — near-black warm void backgrounds, amber-gold currency-orb accent (`#c8932a`), parchment text (`#e2d5b8`), dark blood accent (`#8b1a1a`), Cabinet Grotesk body, Cinzel headings only at H1/H2, Geist Mono for stat values. Glassmorphism used selectively on result cards (not everywhere). Animations via CSS keyframes only — no Framer Motion, no GSAP. Three sub-steps in sequence: 22a (design system), 22b (Finder), 22c (Planner + Analyze). Each sub-step must pass the full gate + deploy before the next begins. See §8 for the three prompts.
+- **2026-05-15** — *Cold-start banner: Divine Orb theme.* See §9 Old Prompt 007.
+- **2026-05-15** — *Analyze page full redesign.* See §9 Old Prompt 006.
+- **2026-05-14** — *Server-side Trade search impossible on Render (GGG 403).* Client-side redirect.
+- **2026-05-14** — *Dynamic synthesis over curated templates.* Steps 16-19.
+- **2026-05-14** — *Vendor data, don't fetch at runtime.* Passive tree + base items vendored.
+- **2026-05-14** — *External data source survey.* poe.ninja + repoe-fork + PoB Community. poedb + GGG OAuth out.
+- **2026-05-14** — *No PostgreSQL, no ETL.* diskcache model.
+- **2026-05-07** — *Backend migrated Fly.io → Render.* Free tier, ~30 s cold start.
+- **2026-04-25** — *Pricing v2 closed* (Step 9).
 
 ---
 
 ## 8. Prompt library
 
-Reusable templates. Each prompt should be self-contained — runnable today without context from a past chat. When a prompt becomes obsolete (e.g. the feature ships), move it to §9 archive instead of deleting it, so future Perplexity sessions see why it's no longer here.
+Reusable templates. Self-contained — runnable today without past-chat context. When a prompt ships, move to §9.
+
+---
+
+### Prompt — Step 22a: Design system — Void Stone & Ember
+
+```prompt
+You are working inside the `poe1-suite` mono-repo. Read CLAUDE.md and CLAUDE_PERPLEXITY_WORKFLOW.md first, then read the following files before touching anything:
+- `apps/shell/src/theme.ts`
+- `apps/shell/src/index.css`
+- `apps/shell/src/main.tsx`
+- `apps/shell/src/App.tsx`
+
+## Context
+
+The current theme (`astral` violet palette, Inter body, purple starfield background) is generic and does not reflect PoE 1's visual identity. Perplexity has designed a new design system called "Void Stone & Ember" and this step implements the system-level tokens only — no layout changes, no page rewrites. Steps 22b and 22c will handle per-page layout.
+
+## Goal
+
+Replace `theme.ts` and `index.css` entirely with the new design system. Zero layout changes. Zero new npm dependencies. Every existing component keeps its current structure; only colours, typography, spacing tokens, and global CSS change.
+
+## Design system spec — Void Stone & Ember
+
+### Colour tokens (CSS custom properties on `:root`)
+
+Define all colours as CSS variables in `index.css` AND mirror the primary ones into the Mantine theme's `colors` override:
+
+```css
+:root {
+  /* Backgrounds */
+  --vs-bg:           #080604;   /* void black, warm tint */
+  --vs-surface-1:    #111009;   /* primary card surface */
+  --vs-surface-2:    #1a1712;   /* elevated surface (tooltips, modals) */
+  --vs-surface-3:    #231e17;   /* highest elevation */
+
+  /* Ember gold — primary accent, currency-orb reference */
+  --vs-ember:        #c8932a;
+  --vs-ember-bright: #e8a832;
+  --vs-ember-dim:    rgba(200, 147, 42, 0.12);
+  --vs-ember-glow:   rgba(200, 147, 42, 0.25);
+  --vs-ember-border: rgba(200, 147, 42, 0.18);
+
+  /* Blood rare — secondary accent, rare-tier items, warnings */
+  --vs-blood:        #8b1a1a;
+  --vs-blood-dim:    rgba(139, 26, 26, 0.15);
+
+  /* Text — parchment hierarchy */
+  --vs-text:         #e2d5b8;   /* primary: aged parchment */
+  --vs-text-muted:   #9a8a6e;   /* secondary: faded inscription */
+  --vs-text-faint:   #5c5040;   /* tertiary: stone carving */
+  --vs-text-inverse: #0d0b08;   /* text on ember backgrounds */
+
+  /* Borders */
+  --vs-border:       rgba(200, 147, 42, 0.18);  /* default: ember trace */
+  --vs-border-faint: rgba(200, 147, 42, 0.08);  /* subtle dividers */
+  --vs-border-stone: rgba(255, 255, 255, 0.06); /* neutral separators */
+
+  /* Stat colours — PoE1 item rarity palette */
+  --vs-normal:   #c8c8c8;  /* white/normal */
+  --vs-magic:    #8888ff;  /* blue/magic */
+  --vs-rare:     #ffff77;  /* yellow/rare */
+  --vs-unique:   #af6025;  /* orange/unique */
+  --vs-gem:      #1aa29b;  /* teal/gem */
+  --vs-currency: #aa9e82;  /* tan/currency */
+
+  /* Shadows */
+  --vs-shadow-sm: 0 1px 3px rgba(0,0,0,0.5);
+  --vs-shadow-md: 0 4px 16px rgba(0,0,0,0.6);
+  --vs-shadow-lg: 0 8px 32px rgba(0,0,0,0.7), 0 0 64px rgba(200,147,42,0.04);
+
+  /* Radius */
+  --vs-radius-sm: 4px;
+  --vs-radius-md: 6px;
+  --vs-radius-lg: 10px;
+
+  /* Transitions */
+  --vs-transition: 160ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+```
+
+### Typography
+
+Load these fonts via `<link>` in `index.html` (check if it exists; if the entry point is `main.tsx` + Vite, add to `index.html`):
+
+```html
+<!-- Cabinet Grotesk (Fontshare) — body + UI -->
+<link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@400,500,700&display=swap" rel="stylesheet">
+
+<!-- Cinzel (Google Fonts) — headings H1/H2 only -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
+
+<!-- Geist Mono (Google Fonts) — stat values, numbers -->
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+```
+
+### CSS global overrides in `index.css`
+
+After the `:root` block, add:
+
+```css
+/* Reset body to void */
+body {
+  background-color: var(--vs-bg);
+  color: var(--vs-text);
+  font-family: 'Cabinet Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Subtle parchment noise texture — CSS only, no image asset */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 200px 200px;
+}
+
+/* All page content must sit above the noise layer */
+#root {
+  position: relative;
+  z-index: 1;
+}
+
+/* Headings: Cinzel only at H1/H2 */
+h1, h2 {
+  font-family: 'Cinzel', 'Marcellus', Georgia, serif;
+  letter-spacing: 0.04em;
+  color: var(--vs-text);
+}
+h3, h4, h5, h6 {
+  font-family: 'Cabinet Grotesk', sans-serif;
+  font-weight: 600;
+  color: var(--vs-text);
+}
+
+/* Monospace stat values */
+.stat-value, .mono {
+  font-family: 'Geist Mono', 'Fira Code', monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Ember scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--vs-bg); }
+::-webkit-scrollbar-thumb {
+  background: var(--vs-ember-border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--vs-ember); }
+
+/* Selection */
+::selection {
+  background: rgba(200, 147, 42, 0.3);
+  color: var(--vs-text);
+}
+```
+
+### Mantine theme overrides in `theme.ts`
+
+Replace the entire file with:
+
+```typescript
+import { createTheme, type MantineColorsTuple } from "@mantine/core";
+
+// Ember gold — 10-shade Mantine ramp. Shade 6 is the action colour.
+const ember: MantineColorsTuple = [
+  "#fdf5e6", // 0
+  "#f8e8c4", // 1
+  "#f0d090", // 2
+  "#e8b85c", // 3
+  "#dfa030", // 4
+  "#d49020", // 5
+  "#c8932a", // 6 ← primary action
+  "#a87820", // 7
+  "#8a6018", // 8
+  "#6a4810", // 9
+];
+
+// Blood — rare-tier accent, warnings, errors.
+const blood: MantineColorsTuple = [
+  "#fce8e8", // 0
+  "#f5c8c8", // 1
+  "#e89898", // 2
+  "#d86868", // 3
+  "#c84040", // 4
+  "#a82828", // 5
+  "#8b1a1a", // 6 ← secondary accent
+  "#721212", // 7
+  "#5a0c0c", // 8
+  "#420808", // 9
+];
+
+export const fobTheme = createTheme({
+  primaryColor: "ember",
+  primaryShade: { light: 6, dark: 6 },
+  colors: { ember, blood },
+  defaultRadius: "md",
+
+  fontFamily:
+    "'Cabinet Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+  fontFamilyMonospace:
+    "'Geist Mono', 'Fira Code', 'Cascadia Code', monospace",
+  headings: {
+    fontFamily: "'Cinzel', 'Marcellus', Georgia, serif",
+    fontWeight: "600",
+  },
+
+  black: "#080604",
+  white: "#e2d5b8",
+
+  components: {
+    AppShell: {
+      styles: {
+        main: {
+          background: "var(--vs-bg)",
+        },
+        navbar: {
+          background: "var(--vs-surface-1)",
+          borderRight: "1px solid var(--vs-border-faint)",
+        },
+        header: {
+          background: "rgba(8, 6, 4, 0.85)",
+          backdropFilter: "blur(12px)",
+          borderBottom: "1px solid var(--vs-border-faint)",
+        },
+      },
+    },
+    Card: {
+      defaultProps: {
+        radius: "md",
+      },
+      styles: {
+        root: {
+          background: "var(--vs-surface-1)",
+          border: "1px solid var(--vs-border)",
+          boxShadow: "var(--vs-shadow-md)",
+          transition: "border-color var(--vs-transition), box-shadow var(--vs-transition)",
+          "&:hover": {
+            borderColor: "var(--vs-ember)",
+            boxShadow: "var(--vs-shadow-lg)",
+          },
+        },
+      },
+    },
+    Button: {
+      defaultProps: { radius: "md" },
+      styles: (theme: ReturnType<typeof createTheme>, props: { variant?: string }) => ({
+        root:
+          props.variant === "filled"
+            ? {
+                background: "var(--vs-ember)",
+                color: "var(--vs-text-inverse)",
+                fontFamily: "'Cabinet Grotesk', sans-serif",
+                fontWeight: 600,
+                letterSpacing: "0.02em",
+                border: "1px solid transparent",
+                transition: "background var(--vs-transition), box-shadow var(--vs-transition)",
+                "&:hover": {
+                  background: "var(--vs-ember-bright)",
+                  boxShadow: "0 0 16px var(--vs-ember-glow)",
+                },
+              }
+            : props.variant === "outline"
+            ? {
+                background: "transparent",
+                color: "var(--vs-ember)",
+                border: "1px solid var(--vs-ember-border)",
+                transition: "background var(--vs-transition), border-color var(--vs-transition)",
+                "&:hover": {
+                  background: "var(--vs-ember-dim)",
+                  borderColor: "var(--vs-ember)",
+                },
+              }
+            : {},
+      }),
+    },
+    TextInput: {
+      styles: {
+        input: {
+          background: "var(--vs-surface-2)",
+          border: "1px solid var(--vs-border-faint)",
+          color: "var(--vs-text)",
+          fontFamily: "'Cabinet Grotesk', sans-serif",
+          "&:focus": {
+            borderColor: "var(--vs-ember)",
+            boxShadow: "0 0 0 2px var(--vs-ember-dim)",
+          },
+          "&::placeholder": {
+            color: "var(--vs-text-faint)",
+          },
+        },
+        label: {
+          color: "var(--vs-text-muted)",
+          fontFamily: "'Cabinet Grotesk', sans-serif",
+          fontSize: "0.75rem",
+          textTransform: "uppercase",
+          letterSpacing: "0.06em",
+        },
+      },
+    },
+    Textarea: {
+      styles: {
+        input: {
+          background: "var(--vs-surface-2)",
+          border: "1px solid var(--vs-border-faint)",
+          color: "var(--vs-text)",
+          fontFamily: "'Cabinet Grotesk', sans-serif",
+          "&:focus": {
+            borderColor: "var(--vs-ember)",
+            boxShadow: "0 0 0 2px var(--vs-ember-dim)",
+          },
+        },
+      },
+    },
+    Select: {
+      styles: {
+        input: {
+          background: "var(--vs-surface-2)",
+          border: "1px solid var(--vs-border-faint)",
+          color: "var(--vs-text)",
+          "&:focus": {
+            borderColor: "var(--vs-ember)",
+          },
+        },
+        dropdown: {
+          background: "var(--vs-surface-2)",
+          border: "1px solid var(--vs-border)",
+          boxShadow: "var(--vs-shadow-lg)",
+        },
+        option: {
+          color: "var(--vs-text)",
+          "&[data-selected]": {
+            background: "var(--vs-ember-dim)",
+            color: "var(--vs-ember)",
+          },
+          "&[data-hovered]": {
+            background: "var(--vs-surface-3)",
+          },
+        },
+      },
+    },
+    NumberInput: {
+      styles: {
+        input: {
+          background: "var(--vs-surface-2)",
+          border: "1px solid var(--vs-border-faint)",
+          color: "var(--vs-text)",
+          fontFamily: "'Geist Mono', monospace",
+          "&:focus": {
+            borderColor: "var(--vs-ember)",
+          },
+        },
+      },
+    },
+    Badge: {
+      styles: (theme: ReturnType<typeof createTheme>, props: { color?: string }) => ({
+        root: {
+          fontFamily: "'Cabinet Grotesk', sans-serif",
+          fontWeight: 600,
+          letterSpacing: "0.04em",
+          textTransform: "uppercase",
+          fontSize: "0.65rem",
+          background:
+            props.color === "ember" ? "var(--vs-ember-dim)" :
+            props.color === "blood" ? "var(--vs-blood-dim)" :
+            "rgba(255,255,255,0.06)",
+          color:
+            props.color === "ember" ? "var(--vs-ember)" :
+            props.color === "blood" ? "#c84040" :
+            "var(--vs-text-muted)",
+          border: "1px solid",
+          borderColor:
+            props.color === "ember" ? "var(--vs-ember-border)" :
+            props.color === "blood" ? "rgba(139,26,26,0.3)" :
+            "rgba(255,255,255,0.08)",
+        },
+      }),
+    },
+    Divider: {
+      styles: {
+        root: {
+          borderColor: "var(--vs-border-faint)",
+        },
+      },
+    },
+    Paper: {
+      styles: {
+        root: {
+          background: "var(--vs-surface-1)",
+          border: "1px solid var(--vs-border-faint)",
+        },
+      },
+    },
+    Tooltip: {
+      styles: {
+        tooltip: {
+          background: "var(--vs-surface-3)",
+          border: "1px solid var(--vs-border)",
+          color: "var(--vs-text)",
+          fontFamily: "'Cabinet Grotesk', sans-serif",
+          boxShadow: "var(--vs-shadow-lg)",
+        },
+      },
+    },
+    Modal: {
+      styles: {
+        content: {
+          background: "var(--vs-surface-1)",
+          border: "1px solid var(--vs-border)",
+        },
+        header: {
+          background: "var(--vs-surface-1)",
+          borderBottom: "1px solid var(--vs-border-faint)",
+        },
+        title: {
+          color: "var(--vs-text)",
+          fontFamily: "'Cinzel', serif",
+        },
+      },
+    },
+    Accordion: {
+      styles: {
+        item: {
+          border: "1px solid var(--vs-border-faint)",
+          background: "var(--vs-surface-1)",
+          "& + &": { marginTop: "4px" },
+        },
+        control: {
+          color: "var(--vs-text)",
+          "&:hover": { background: "var(--vs-ember-dim)" },
+        },
+        panel: {
+          color: "var(--vs-text-muted)",
+        },
+      },
+    },
+    Alert: {
+      styles: {
+        root: {
+          background: "var(--vs-surface-2)",
+          border: "1px solid var(--vs-border)",
+          color: "var(--vs-text)",
+        },
+      },
+    },
+    NavLink: {
+      styles: {
+        root: {
+          color: "var(--vs-text-muted)",
+          borderRadius: "var(--vs-radius-md)",
+          transition: "background var(--vs-transition), color var(--vs-transition)",
+          "&:hover": {
+            background: "var(--vs-ember-dim)",
+            color: "var(--vs-text)",
+          },
+          "&[data-active]": {
+            background: "var(--vs-ember-dim)",
+            color: "var(--vs-ember)",
+            borderLeft: "2px solid var(--vs-ember)",
+          },
+        },
+      },
+    },
+  },
+});
+
+export const PAYPAL_URL = "https://paypal.me/riclong";
+```
+
+### Nav / header (App.tsx)
+
+Update the header/navbar in `App.tsx` to use the new token colours. Replace any hardcoded purple/dark hex values with `var(--vs-*)` tokens. The nav brand text should use `font-family: 'Cinzel', serif`. Navigation links should use the `NavLink` Mantine component (now styled above).
+
+Do NOT change any routing, logic, or page-level JSX — only the colours and font references.
+
+### Remove the starfield background
+
+The current `index.css` likely has a `body` background set to a purple gradient or a starfield. Remove that entirely. The body background is now `var(--vs-bg)` (`#080604`); the parchment noise overlay is added by the `body::before` CSS above.
+
+## WarmupOverlay update
+
+The `WarmupOverlay` component from Step 21 uses hardcoded colours that must be updated to match the new theme. Find the inline styles in `WarmupOverlay.tsx` and replace:
+- The overlay background (`rgba(10, 8, 4, 0.92)`) stays — already correct.
+- The main text colour: replace with `var(--vs-text)` or `#e2d5b8`.
+- The subtitle colour: replace with `var(--vs-text-muted)` or `#9a8a6e`.
+- The text "Il server si sta risvegliando..." font: add `fontFamily: "'Cinzel', serif"` to the inline style.
+- The subtitle font: `fontFamily: "'Cabinet Grotesk', sans-serif"`.
+
+## Definition of done
+
+- The app builds without TypeScript errors.
+- All pages render correctly (no white text on white background, no invisible inputs).
+- The body background is `#080604`, not purple/violet.
+- Cards render with `var(--vs-surface-1)` background and ember-gold border trace.
+- Buttons use ember gold, not violet.
+- Headings (H1/H2) use Cinzel, body text uses Cabinet Grotesk.
+- Stat/number values use Geist Mono.
+- The noise texture is visible on the body (check at 200% zoom).
+- WarmupOverlay font is updated.
+- Gate passes: `uv run ruff check . && uv run ruff format --check . && uv run mypy . && uv run pytest`.
+- Frontend build succeeds (Vite `pnpm build` or equivalent).
+- Commit `feat(shell): Step 22a — Void Stone & Ember design system`, push to main.
+- Update §1 + §6 in `CLAUDE_PERPLEXITY_WORKFLOW.md`.
+```
+
+---
+
+### Prompt — Step 22b: Finder page redesign
+
+```prompt
+You are working inside the `poe1-suite` mono-repo. Read CLAUDE.md and CLAUDE_PERPLEXITY_WORKFLOW.md first. Step 22a (Void Stone & Ember design system) must already be merged before starting this step.
+
+Read these files before touching anything:
+- `apps/shell/src/pages/FinderPage.tsx`
+- `apps/shell/src/components/IntentCard.tsx`
+- `apps/shell/src/components/PopulationStatsPanel.tsx`
+- `apps/shell/src/index.css`
+- `apps/shell/src/theme.ts` (already updated by 22a)
+
+## Context
+
+The Finder is the primary page of the app — the oracle's interface. The current layout is a flat single-column form with stacked components. The redesign gives it the "oracle answers" feel: a large search input at the centre, results that are *revealed* rather than listed, and a sidebar for meta-statistics.
+
+## Layout changes
+
+### 1. Search area — oracle prompt
+
+The current `<Textarea>` + `<Button>` form should be redesigned as a centred hero-style search:
+
+```
+┌────────────────────────────────────────────────────┐
+│                                                  │
+│   Consulta l'oracolo                             │  <- H2, Cinzel
+│   Descrivi il build che cerchi in italiano       │  <- subtitle, muted
+│                                                  │
+│   ┌────────────────────────────────────────┐   │
+│   │ "cerca RF con 6k life almeno"            │   │
+│   └────────────────────────────────────────┘   │
+│              [ Consulta l'Oracolo ]              │  <- ember button
+│                                                  │
+└────────────────────────────────────────────────────┘
+```
+
+After the user submits, the search area **collapses** (Mantine `<Collapse>` or CSS max-height transition) to a single compact row showing the query text + a "modifica" ghost button. This frees screen space for results.
+
+### 2. Filter pill row
+
+The class/ascendancy/stat-floor filters move to a compact horizontal pill row below the collapsed search. Filters are Mantine `<Select>` and `<NumberInput>` at reduced size (`size="xs"`). On mobile, this row scrolls horizontally.
+
+### 3. Two-column layout (desktop) / single column (mobile)
+
+Above 1024px, split into:
+
+```
+┌────────────────────────────────────────────────────────────┐
+│                           │               │            │
+│   Result cards (2/3)      │  Meta sidebar  │ (1/3)      │
+│                           │  ───────────  │            │
+│  ┌───────┐ ┌───────┐  │  PopStats    │            │
+│  │ card  │ │ card  │  │  panel here  │            │
+│  └───────┘ └───────┘  │              │            │
+│  ┌───────┐ ┌───────┐  │              │            │
+│  │ card  │ │ card  │  │              │            │
+│  └───────┘ └───────┘  └──────────────┘            │
+└────────────────────────────────────────────────────────────┘
+```
+
+The `PopulationStatsPanel` moves to the sidebar. On mobile (< 1024px) it appears above the results as before.
+
+### 4. Result card redesign
+
+Each result card (create or update the component that renders a single ranked build) must show:
+
+- **Top row**: ascendancy badge (ember colour) + main skill name (bold, Cabinet Grotesk) + level `— Lv. 94` (mono, muted)
+- **Stats row**: three stat chips in Geist Mono — Life `♥ 5 840`, DPS `⚡ 4.2M`, EHP `⚡ 12 400`. Use PoE1 rarity colours: life = `var(--vs-blood)`, dps = `var(--vs-ember)`, ehp = `#4fa8a8` (gem teal).
+- **Character name** (bottom, faint, `var(--vs-text-faint)`)
+- Right edge: rank badge `#1`, `#2` etc. in small Cinzel, ember gold
+
+Card interaction:
+- `background: var(--vs-surface-1)`, border `var(--vs-border)`.
+- On hover: border becomes `var(--vs-ember)`, `box-shadow: var(--vs-shadow-lg)`. Transition `var(--vs-transition)`.
+- Glassmorphism: add `backdrop-filter: blur(8px)` to the card. This works because the noise texture on `body::before` creates a visible background. Test that it doesn't degrade to a plain block on Firefox (provide a `@supports` fallback).
+
+### 5. Reveal animation
+
+When the result list mounts or updates (new query result arrives), each card appears with a staggered reveal:
+
+```css
+@keyframes vs-card-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    clip-path: inset(0 0% 0 0);
+  }
+}
+
+.vs-card-reveal {
+  animation: vs-card-reveal 400ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vs-card-reveal { animation: none; }
+}
+```
+
+Apply `vs-card-reveal` to each result card with `animation-delay: calc(var(--card-index) * 50ms)` via an inline style `--card-index: N`.
+
+### 6. Empty state
+
+When no query has been submitted yet (initial page load), show a centred empty state instead of a blank space:
+
+```
+[ spark icon from lucide-react ]
+"L'oracolo attende la tua domanda"
+"Descrivi il build che cerchi — classe, skill, budget"
+```
+
+Icon: `<Sparkles>` or `<Eye>` from lucide-react (already a dependency? check; if not, use a simple inline SVG eye icon). Icon colour: `var(--vs-ember-border)`.
+
+## Definition of done
+
+- The Finder page renders with the hero search area, collapsing behaviour, pill filter row, 2-col desktop / 1-col mobile layout.
+- Result cards show the 3-stat row with PoE1 rarity colours.
+- Stagger reveal animation fires on each new result set.
+- glassmorphism cards with `@supports` fallback.
+- Empty state renders on initial load.
+- PopulationStatsPanel is in the sidebar on desktop.
+- All existing Finder functionality is preserved (NL extraction, class/asc/stat-floor filters, sort, population stats).
+- Gate passes. Frontend build succeeds.
+- Commit `feat(shell): Step 22b — Finder page redesign`, push to main.
+- Update §1 + §6 in `CLAUDE_PERPLEXITY_WORKFLOW.md`.
+```
+
+---
+
+### Prompt — Step 22c: Planner + Analyze redesign
+
+```prompt
+You are working inside the `poe1-suite` mono-repo. Read CLAUDE.md and CLAUDE_PERPLEXITY_WORKFLOW.md first. Steps 22a and 22b must already be merged before starting this step.
+
+Read these files before touching anything:
+- `apps/shell/src/pages/PlannerPage.tsx`
+- `apps/shell/src/pages/AnalyzePage.tsx`
+- `apps/shell/src/index.css`
+- `apps/shell/src/theme.ts`
+
+## Part A — Planner redesign
+
+### Current state
+The Planner page shows a form (query + PoB paste) that streams a `BuildPlan` via SSE, then renders 6 `StageCard` components stacked vertically.
+
+### New layout: Roman numerals timeline
+
+On desktop (≥ 1024px), replace the stacked cards with a horizontal timeline:
+
+```
+  I          II         III        IV          V          VI
+  ●─────────○─────────○─────────○─────────○─────────○
+[Oriath]  [Maps T1]  [Maps T6]  [Maps T11]  [Red Maps] [Endgame]
+```
+
+- The connecting line is `var(--vs-border)` (thin, ember-trace).
+- Completed/active stages: the dot fills with `var(--vs-ember)`; the line segment behind it fills too (progress bar effect).
+- Stages that haven't streamed yet: dot is `var(--vs-surface-3)`, label is `var(--vs-text-faint)`.
+- Clicking a stage dot expands an inline panel below the timeline (not a modal) with that stage's tree/gear/gem tabs. Only one stage can be expanded at a time; clicking a different dot collapses the current one first.
+- The inline panel expansion uses CSS `max-height` transition (0 → auto via a JS-assisted pattern, or Mantine `<Collapse>`).
+- On mobile (< 1024px): keep the current vertical stacked card layout (no timeline).
+
+### Stage labels
+
+Use Roman numerals as the visual label for each stage dot (I, II, III, IV, V, VI). The human-readable stage name ("Oriath", "White Maps", etc.) appears below the dot as a subtitle in `var(--vs-text-muted)`, Cabinet Grotesk, `font-size: 0.75rem`.
+
+### SSE streaming — progressive reveal
+
+While the SSE stream is in progress, stages animate in one at a time. As each `stage_update` event arrives:
+1. The dot for that stage transitions from faint to ember (CSS transition on `background-color`).
+2. The connecting line segment progresses (update a CSS custom property `--progress` on the line element).
+3. The stage card content fades in with `opacity: 0 → 1`, 300ms ease.
+
+This replaces the current spinner/loading state with a visible oracle-is-computing metaphor.
+
+### Input area
+
+Same collapsing pattern as Finder (Step 22b): the input form collapses to a compact summary row after the plan starts streaming. The summary row shows the query text + a "modifica" ghost button.
+
+## Part B — Analyze redesign
+
+### Current state
+Step 20 already rebuilt this into a PoB-style dashboard. The only changes needed are cosmetic: apply the new design tokens and add two micro-interactions.
+
+### Changes
+
+1. **Sticky character header**: the character header row (name, class, level, league) should become `position: sticky; top: 0; z-index: 10;` with `background: rgba(8, 6, 4, 0.9); backdrop-filter: blur(10px);` so it stays visible while the user scrolls through gear and skills.
+
+2. **Rarity colours on item borders**: the equipment grid already has left-border rarity colours. Ensure the colours use the PoE1 rarity CSS variables defined in Step 22a:
+   - Normal items: `var(--vs-normal)` (`#c8c8c8`)
+   - Magic items: `var(--vs-magic)` (`#8888ff`)
+   - Rare items: `var(--vs-rare)` (`#ffff77`)
+   - Unique items: `var(--vs-unique)` (`#af6025`)
+
+3. **Stat value fonts**: all numerical stat values in the key-stats grid must use the `.mono` class (Geist Mono) established in Step 22a.
+
+4. **Section reveal on mount**: when the snapshot first loads, the four main sections (character header, left column, right column, skill panel) appear sequentially with a 100ms stagger using the `vs-card-reveal` animation class defined in Step 22b's CSS. Do not re-animate on re-render.
+
+## Definition of done
+
+- Planner: horizontal timeline on desktop, vertical stacked cards on mobile. Stage dots animate as SSE events arrive. Input collapses after stream starts.
+- Analyze: sticky character header. Rarity border colours use the CSS variables. Numbers use Geist Mono. Section reveal on mount.
+- All existing Planner + Analyze functionality preserved.
+- Gate passes. Frontend build succeeds.
+- Commit `feat(shell): Step 22c — Planner timeline + Analyze polish`, push to main.
+- Update §1 + §6 in `CLAUDE_PERPLEXITY_WORKFLOW.md`.
+```
+
+---
 
 ### Prompt — Step 17 scaffolding
 
-```prompt
-You are working inside the `poe1-suite` mono-repo. Read CLAUDE.md (project contract) and CLAUDE_PERPLEXITY_WORKFLOW.md (workflow + decisions) first. The dynamic-synthesis pivot is in progress: Steps 16 + 18 closed, Step 17 (Dynamic Gear Progression) is next.
-
-Goal: implement `derive_gear_progression(snapshot, pricing)` in `packages/fob/src/poe1_fob/gear/dynamic.py`. Same shape as `poe1_fob.gems.dynamic.derive_gem_progression` and `poe1_fob.tree.dynamic.derive_tree_progression`.
-
-Algorithm (per the §6 backlog entry):
-
-1. For each item in `snapshot.items_by_slot`, classify into a cost tier:
-   - "mirror" — rare, 4+ T1 mods + specific influence combos (compute via existing `valuable_stat_filters_from_mods` count).
-   - "mageblood" — unique with poe.ninja chaos-equivalent > 100 div.
-   - "high" — unique 20-100 div.
-   - "mid" — unique 5-20 div.
-   - "cheap" — unique < 5 div.
-   - "leveling" — unique < 1 div.
-   - "cluster" — Large/Medium/Small Cluster Jewel (always endgame).
-   - "rare_craft" — non-unique non-cluster rare.
-
-2. Stage budget thresholds (divines): Stage 1 ≤ 0.5, Stage 2 ≤ 2, Stage 3 ≤ 10, Stage 4 ≤ 50, Stage 5 ≤ 200, Stage 6 = no cap.
-
-3. For each slot, at each stage:
-   - If the user's item's tier fits the stage budget: keep it.
-   - Otherwise substitute with a cheaper-tier placeholder using the vendored `repoe-fork/base_items.json` to pick a canonical base type for the slot, then describe the substitution as a `StageGearSlot(kind="rare_craft", item_name="rare X (life + 2 res)", notes=...)`.
-
-4. The pricing service is the existing `PricingService` (`packages/pricing/src/poe1_pricing/`); use the same patterns as `poe1_fob.planner.service._key_item_to_core_item`.
-
-Vendor `repoe-fork/base_items.json` first at `packages/fob/data/items/base_items.json` (write a small `scripts/extract_base_items.py` that fetches it from the upstream release URL). Bump the pre-commit `check-added-large-files` maxkb if needed.
-
-Write unit tests in `packages/fob/tests/test_gear_dynamic.py` covering: tier classification per item; stage budget filtering; substitution selection per slot; end-to-end on the existing fixture `packages/fob/tests/fixtures/pob_YNQeadFwNBmX.txt`.
-
-Wire `_compose_stage_export` in `packages/fob/src/poe1_fob/router.py` to prefer `derive_gear_progression` over `gear_progression_for(template_name)` when a snapshot is available, mirroring the dynamic-tree priority order.
-
-Run the full gate, commit, push. Baseline should land at ~680 tests, 116 mypy.
-```
+*(kept for reference — already shipped, see §9)*
 
 ### Prompt — Step 19 scaffolding
 
-```prompt
-You are working inside the `poe1-suite` mono-repo. Read CLAUDE.md and CLAUDE_PERPLEXITY_WORKFLOW.md first. Step 19 (Population data in Finder) is the last open item in the dynamic-synthesis pivot.
-
-Goal: surface aggregated `poe.ninja` ladder statistics in the Build Finder UI.
-
-Backend:
-
-1. New endpoint `GET /builds/population-stats?ascendancy=<name>` in `packages/builds/src/poe1_builds/router.py`. Output shape:
-   ```json
-   {
-     "ascendancy": "Slayer",
-     "total_builds": 4231,
-     "top_skills": [
-       {"skill": "Cyclone",      "count": 1183, "pct": 27.9},
-       {"skill": "Boneshatter",  "count": 920,  "pct": 21.7},
-       {"skill": "Tornado Shot", "count": 612,  "pct": 14.5}
-     ],
-     "stat_distributions": {
-       "life":  {"p25": 4200, "p50": 5800, "p75": 7300, "p90": 8900},
-       "ehp":   {"p25": 5500, "p50": 8300, "p75": 11200, "p90": 14800},
-       "dps":   {"p25": 800000, "p50": 2_400_000, "p75": 7_000_000, "p90": 18_000_000}
-     }
-   }
-   ```
-
-2. Aggregator: fetch the ladder via the existing `BuildsService` (which already speaks `poe.ninja` protobuf), group by ascendancy, compute top-N skills and stat percentiles. Cache the aggregated result per league per ascendancy for 24 h (use `diskcache` via `HttpClient`).
-
-Frontend:
-
-3. New `PopulationStatsPanel` component shown above the result list in `apps/shell/src/pages/FinderPage.tsx` when an ascendancy is selected (manually or extracted by intent).
-4. Render top-3 skills as Mantine `<Badge>`s with the percentage; render stat distribution as a small Mantine `<RangeSlider>` showing p25-p90 with markers.
-
-Tests: backend aggregator unit tests (synthetic ladder fixture); router smoke test (200 + valid shape).
-
-Run the full gate, commit, push.
-```
+*(kept for reference — already shipped, see §9)*
 
 ---
 
 ## 9. Prompt archive
 
-Closed prompts kept for context. Don't run these — they reflect earlier project shape.
+Closed prompts kept for context. Don't run these.
 
-- **Old Prompt 001 (Core DB schema)** — proposed a PostgreSQL schema (`dim_league`, `dim_currency`, `dim_base_item`, `fact_economy_snapshot`). **Rejected 2026-05-14**: no Postgres in this project (see §7). Replaced by live `poe.ninja` HTTP with `diskcache`.
-- **Old Prompt 002 (PoE Ninja ETL)** — proposed `scripts/poe_ninja_etl.py` writing into Postgres. **Rejected 2026-05-14**: same reason; we read on-demand and cache.
-- **Old Prompt 003 (Base items ETL)** — proposed `scripts/base_items_etl.py` writing to Postgres. **Rejected 2026-05-14**. The replacement is a much simpler `scripts/extract_base_items.py` (Step 17) that just vendors `repoe-fork/base_items.json` into the repo.
-- **Old Prompt 004 (Finder blank page bugfix, QA 2026-05-15)** — Build Finder went blank after "Analizza query": `TypeError: Cannot read properties of undefined (reading 'map')` in `IntentCard`, no `ErrorBoundary` so the whole page subtree unmounted. **Shipped 2026-05-15**: new `apps/shell/src/components/ErrorBoundary.tsx` wrapping IntentCard / PopulationStatsPanel / results in `FinderPage`; null-safe `??` defaults on every API-derived array access in IntentCard, PopulationStatsPanel, FinderPage. Pure frontend defensive fix, zero backend / API contract / test changes. Frontend build 567 KB / 176 KB gzip. ✅ User-confirmed fixed.
-- **Old Prompt 005 (PoB import `explodeSource` Lua crash, QA 2026-05-15)** — pasting a stage PoB code into PoB Community v2.65.0 crashed in the DPS-calc phase with `Data/Skills/other.lua:5364: attempt to index field 'explodeSource' (a nil value)`. **Shipped 2026-05-15** (commit `c3f5e9a`): the crash's root cause was the same as the "fake items" bug — `encode_pob_code` always synthesised a `<Skills>`/`<Items>` block instead of passing through the user's pasted PoB, and the synthesised `<Skills>` block was the only synthesised XML feeding PoB's offence calc. The stage-export passthrough fix (real `<Items>`/`<Skills>` copied verbatim) removes the synthesised skills entirely, so PoB now calcs the user's own (PoB-valid) skill set. No separate fix was needed. ✅ User-confirmed fixed.
-- **Old Prompt 006 (Step 20 — Analyze page full redesign)** — the `/analyze` page showed only four badges. **Shipped 2026-05-15**: `AnalyzePage.tsx` rebuilt into a PoB-style dashboard (compact collapsible input, character header + key-stats grid, equipment grid with per-item tooltips, flasks, tree jewels, skill-link panel); `types.ts` opaque `snapshot` replaced with typed `PobSnapshot` interfaces. Frontend-only, no backend change. Verified in browser with the real fixture PoB. See `CLAUDE.md` "Step 20" for the `is_main` / Mantine-nesting gotchas.
-- **Old Prompt 007 (Step 21 — Divine Orb cold-start overlay)** — Render free-tier cold start (~30 s) left new users staring at a blank page. **Shipped 2026-05-15**: new `useServerWarmup` hook (`/health` probe, `probing`→`cold`@3s→`warm`) + `WarmupOverlay` component rendering a hand-authored inline-SVG PoE1 Divine Orb (CSS-keyframe animation, `prefers-reduced-motion` aware), mounted at the `App.tsx` root. Frontend-only, no backend change, no new npm deps. See `CLAUDE.md` "Step 21".
+- **Old Prompt 001 (Core DB schema)** — PostgreSQL schema. Rejected 2026-05-14.
+- **Old Prompt 002 (PoE Ninja ETL)** — ETL into Postgres. Rejected 2026-05-14.
+- **Old Prompt 003 (Base items ETL)** — ETL into Postgres. Rejected 2026-05-14.
+- **Old Prompt 004 (Finder blank page bugfix)** — Shipped 2026-05-15. ✅
+- **Old Prompt 005 (PoB `explodeSource` crash)** — Shipped 2026-05-15. ✅
+- **Old Prompt 006 (Step 20 — Analyze page redesign)** — Shipped 2026-05-15. ✅
+- **Old Prompt 007 (Step 21 — Divine Orb cold-start overlay)** — Shipped 2026-05-15. ✅
+- **Old Prompt 008 (Step 17 scaffolding)** — Shipped 2026-05-15. ✅
+- **Old Prompt 009 (Step 19 scaffolding)** — Shipped 2026-05-15. ✅
