@@ -70,7 +70,7 @@ uv run mypy .
 uv run pytest
 ```
 
-All four must pass with zero errors. Current baseline: **702 tests green (2 skipped — integration/LLM), 121 files type-checked clean, 117 files formatted clean**. Frontend build 567 KB / 176 KB gzip.
+All four must pass with zero errors. Current baseline: **704 tests green (2 skipped — integration/LLM), 121 files type-checked clean, 117 files formatted clean**. Frontend build 567 KB / 176 KB gzip.
 
 > Note: a stale `.clone/worktrees/...` directory may exist locally from
 > earlier Claude sessions and trip ruff on its placeholder file. Run the
@@ -98,6 +98,19 @@ Frontend-only defensive fix (no backend / API contract change):
 Frontend build 567 KB / 176 KB gzip.
 
 **PoB import QA — confirmed working 2026-05-14**: real PoB → planner → "Importa stage in PoB" → paste in PoB Community 3.28 desktop → full build loads (tree 123/123 nodes including cluster jewel subgraph, mastery effects, items, gems, config, pantheon). Took 7 commits to debug, all guided by reading PathOfBuildingCommunity Lua source. Key learnings captured below.
+
+## Bug — Stage export emitted fake items + mis-labelled gems (2026-05-15) ✅ fixed
+
+QA found "Importa stage in PoB" producing a build where items were mod-less placeholders (a "Crafted Helmet" with no stats; uniques with `Implicits: 0` and no explicit block) and gem groups showed the gear slot ("Body Armour") as the Main Skill instead of the actual gem.
+
+**Root cause**: `encode_pob_code` inverted the precedence. When a user PoB was passed, the encoder still let the synthesised `gear`/`gems` parameters win — and since `derive_gear_progression` / `derive_gem_progression` *always* return something for a snapshot, the encoder *always* synthesised placeholder items + slot-labelled gem stubs and *never* passed through the user's real `<Items>`/`<Skills>`. That also silently dropped cluster jewels (the passthrough is what carries them).
+
+Fix in `packages/fob/src/poe1_fob/pob/encode.py`:
+
+- **Passthrough wins.** When `passthrough_user_pob` is supplied, the user's real `<Items>` and `<Skills>` are copied verbatim — real mods, real gem links, cluster jewels intact. The per-stage `gear`/`gems` parameters now only synthesise a block in the **no-PoB case**. Only the passive `tree` differs per stage; the exported build stays playable. The per-stage gear/gem *advice* still lives in the StageCard "Gear"/"Gems" tabs.
+- **Synth-path gem label fixed.** The no-PoB synth path stamped the gear slot name into `<Skill label>`, making PoB show "Body Armour" as the skill name. Now emits `label=""` so PoB auto-derives the group name from the first active gem.
+
+2 new tests in `test_pob_encode.py` verify the user's real items/skills survive even when a conflicting `gear`/`gems` param is also passed.
 
 ## Step 19 — Population stats in Finder (2026-05-15) ✅
 

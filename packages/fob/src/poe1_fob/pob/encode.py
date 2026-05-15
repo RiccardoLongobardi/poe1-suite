@@ -11,11 +11,14 @@ PoB code format:
 * zlib-compressed (default level 6, with a 2-byte zlib header).
 * url-safe base64 encoded, padding stripped (= replaced by nothing).
 
-This first iteration ships a **minimal but valid** XML — enough that
-the import dialog accepts it and shows the build's class, ascendancy,
-allocated tree, and gem groups. Items are emitted as placeholder
-declarations so the slot list is complete; full mod-line emission is
-a follow-up T4.5 (item base name + variants + mod tier matching).
+When the caller supplies the user's original PoB (``passthrough_user_pob``)
+the encoder patches it: only the passive ``tree`` is swapped per stage,
+while <Items>, <Skills>, <Config> and the rest are copied verbatim so
+the exported build stays fully playable (real items + mods, real gem
+links, cluster jewels). In the no-PoB case the encoder synthesises a
+minimal <Items>/<Skills> block from the ``gear``/``gems`` parameters —
+placeholder items without mod tiers, enough for the slot list to be
+complete.
 
 The most important guarantee is **roundtrip stability**: any
 ``StageTree`` we encode here must decode back via
@@ -140,20 +143,25 @@ def encode_pob_code(
         tree: which passive nodes are allocated. When omitted, an empty
             tree spec is emitted (PoB still imports — the user can
             allocate manually or paste their own tree URL).
-        gear: optional gear set. When omitted *and* no passthrough is
-            provided, no <Items> entries are emitted.
-        gems: optional gem links. When omitted *and* no passthrough is
-            provided, no <Skills> entries are emitted.
+        gear: optional gear set. Used to synthesise placeholder <Items>
+            **only when no passthrough is provided** (the no-PoB case).
+            When ``passthrough_user_pob`` is set, the user's real items
+            win — synthesised placeholders are mod-less and unplayable.
+        gems: optional gem links. Used to synthesise a <Skills> block
+            **only when no passthrough is provided**. When
+            ``passthrough_user_pob`` is set, the user's real gem groups
+            win.
         level: character level stamped on the build (default 90).
         passthrough_user_pob: optional raw PoB code from the user. When
             provided, the encoder copies the user's <Items>, <Skills>,
             <Config>, <Calcs>, <Party>, <Import>, <TreeView>, and
             <Notes> elements into the output verbatim — preserving
-            their cluster jewels (which is how PoB allocates the
-            cluster subgraph nodes), gem groups, configuration, and
-            other state. The ``gear`` and ``gems`` parameters take
-            precedence when set (curated stage progression beats the
-            user's own items/gems).
+            their real items + mods, cluster jewels (which is how PoB
+            allocates the cluster subgraph nodes), gem groups,
+            configuration, and other state. Only the passive ``tree``
+            differs per stage; items and gems stay the user's real
+            ones so the exported build is playable. The per-stage gear
+            and gem *advice* is surfaced separately in the UI.
     """
 
     xml_str = _build_xml(
@@ -282,11 +290,17 @@ def _build_xml(
     ET.SubElement(spec, "Sockets")
     ET.SubElement(spec, "Overrides")
 
-    # <Skills>: curated ``gems`` parameter wins. Otherwise passthrough
-    # the user's <Skills> element verbatim — that preserves every gem
-    # group, level, quality, and ID exactly as PoB stored them.
+    # <Skills>: when the user pasted a PoB, passthrough their <Skills>
+    # element verbatim — it carries every gem group with the correct
+    # gem names, levels, qualities, labels, and the active socket
+    # group. Synthesising from the per-stage gem progression produced
+    # mis-labelled groups (PoB displayed the gear slot, e.g.
+    # "Body Armour", as the skill name instead of the gem) and dropped
+    # the user's real gem links. The per-stage gem advice still lives
+    # in the StageCard "Gems" tab — the PoB export must stay playable.
+    # We only synthesise a <Skills> block in the no-PoB case.
     user_skills = user_root.find("Skills") if user_root is not None else None
-    if gems is None and user_skills is not None:
+    if user_skills is not None:
         root.append(_clone(user_skills))
     else:
         skills_elem = ET.SubElement(
@@ -315,7 +329,11 @@ def _build_xml(
                         "mainActiveSkillCalcs": "1",
                         "mainActiveSkill": "1",
                         "includeInFullDPS": "true",
-                        "label": _slot_to_pob_label(link.slot),
+                        # Empty label → PoB auto-derives the group name
+                        # from the first active gem. Stamping the slot
+                        # name here made PoB show "Body Armour" instead
+                        # of the actual skill in the Main Skill dropdown.
+                        "label": "",
                         "enabled": "true",
                         "slot": _slot_to_pob_label(link.slot),
                     },
@@ -323,13 +341,18 @@ def _build_xml(
                 for g in link.gems:
                     _gem_element(skill, g)
 
-    # <Items>: curated ``gear`` parameter wins. Otherwise passthrough
-    # the user's <Items> element verbatim. The passthrough is what makes
-    # cluster jewels survive the roundtrip — and with the cluster jewel
-    # items present, PoB allocates the cluster-subgraph nodes that show
-    # up as "missing" otherwise.
+    # <Items>: when the user pasted a PoB, passthrough their <Items>
+    # element verbatim. Synthesising placeholder items from the
+    # per-stage gear progression emitted mod-less fakes — a "Crafted
+    # Helmet" with no stats, a unique name with "Implicits: 0" and no
+    # explicit block — which makes the imported build unplayable.
+    # The passthrough is also what makes cluster jewels survive the
+    # roundtrip: with the cluster jewel items present, PoB re-allocates
+    # the cluster-subgraph nodes that show up as "missing" otherwise.
+    # The per-stage gear advice still lives in the StageCard "Gear" tab.
+    # We only synthesise an <Items> block in the no-PoB case.
     user_items = user_root.find("Items") if user_root is not None else None
-    if gear is None and user_items is not None:
+    if user_items is not None:
         root.append(_clone(user_items))
     else:
         items_elem = ET.SubElement(

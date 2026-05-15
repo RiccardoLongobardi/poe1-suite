@@ -440,3 +440,83 @@ def test_corrupted_code_raises_pob_parse_error() -> None:
 
     with pytest.raises(PobParseError):
         decode_export("@@@not-base64@@@")
+
+
+# ---------------------------------------------------------------------------
+# Passthrough wins over synthesised gear/gems (QA 2026-05-15)
+# ---------------------------------------------------------------------------
+
+
+def _real_pob_code() -> str:
+    from pathlib import Path
+
+    return (Path(__file__).parent / "fixtures" / "pob_YNQeadFwNBmX.txt").read_text().strip()
+
+
+def test_passthrough_items_win_over_synthesised_gear() -> None:
+    """With a user PoB, the real <Items> are kept — not mod-less placeholders.
+
+    Regression for QA 2026-05-15: the stage export emitted fake
+    "Crafted Helmet" items with no mods because the synthesised gear
+    progression always overrode the user's real items.
+    """
+
+    user_code = _real_pob_code()
+    user_snap = parse_snapshot(decode_export(user_code), export_code=user_code)
+
+    # A gear param whose placeholder name must NOT leak into the output.
+    gear = StageGearSet(
+        stage_key="high_investment",
+        slots=(
+            StageGearSlot(
+                slot=ItemSlot.HELMET,
+                item_name="PLACEHOLDER-FAKE-HELMET",
+                kind="rare_craft",
+            ),
+        ),
+    )
+    code = encode_pob_code(
+        character_class=user_snap.character_class.value.capitalize(),
+        ascendancy=None,
+        tree=StageTree(stage_key="high_investment", node_ids=(1, 2, 3)),
+        gear=gear,
+        passthrough_user_pob=user_code,
+    )
+    root = _decode_xml(code)
+    item_texts = "\n".join(item.text or "" for item in root.findall(".//Item"))
+    # The synthesised placeholder must be absent...
+    assert "PLACEHOLDER-FAKE-HELMET" not in item_texts
+    # ...and the user's real items must be present (non-empty <Items>).
+    assert len(root.findall(".//Item")) > 0
+    re_snap = parse_snapshot(decode_export(code), export_code=code)
+    assert len(re_snap.items_by_slot) == len(user_snap.items_by_slot)
+
+
+def test_passthrough_skills_win_over_synthesised_gems() -> None:
+    """With a user PoB, the real <Skills> are kept — not slot-labelled stubs."""
+
+    user_code = _real_pob_code()
+    user_snap = parse_snapshot(decode_export(user_code), export_code=user_code)
+
+    gems = StageGemLinks(
+        stage_key="high_investment",
+        links=(
+            GemLink(
+                slot=ItemSlot.BODY_ARMOUR,
+                sockets=1,
+                gems=(GemSpec(name="PlaceholderFakeGem", level=1, quality=0),),
+            ),
+        ),
+    )
+    code = encode_pob_code(
+        character_class=user_snap.character_class.value.capitalize(),
+        ascendancy=None,
+        tree=StageTree(stage_key="high_investment", node_ids=(1, 2, 3)),
+        gems=gems,
+        passthrough_user_pob=user_code,
+    )
+    root = _decode_xml(code)
+    gem_names = {g.attrib.get("nameSpec", "") for g in root.findall(".//Gem")}
+    assert "PlaceholderFakeGem" not in gem_names
+    re_snap = parse_snapshot(decode_export(code), export_code=code)
+    assert len(re_snap.skills) == len(user_snap.skills)
