@@ -23,13 +23,13 @@ Don't trust earlier versions of this file — the section below is the authorita
   - "Importa stage in PoB": exports a stage-specific PoB code. Passes through the user's real `<Items>`/`<Skills>` verbatim (only the passive tree differs per stage). ✅ QA passed.
   - Trade redirect (client-side, no server-side GGG calls — GGG blocks Render's IP range). ✅ QA passed.
   - PoB Analyze → full build dashboard (Step 20, done 2026-05-15): character header + key stats, equipment grid with per-item tooltips, flasks, tree jewels, skill-link panel. ✅ QA passed.
-  - Cold-start Divine Orb warmup overlay (Step 21, done 2026-05-15): full-viewport overlay with an animated inline-SVG PoE1 Divine Orb shown while the Render free-tier backend warms up.
-- **Design system**: "Void Stone & Ember" (Step 22, done 2026-05-15) — void-black warm backgrounds, ember-gold accent, parchment text, Cinzel/Cabinet Grotesk/Geist Mono type. Replaced the old Atlas-violet theme. All three slices shipped: 22a (design system), 22b (Finder), 22c (Planner timeline + Analyze polish). QA verified. ✅
-- **Light mode**: "Parchment" light mode shipped (Step 23, done 2026-05-15) — warm cream backgrounds, ink text, darkened ember accent. The header `colorScheme` toggle now switches cleanly between Void Stone (dark) and Parchment (light).
+  - Cold-start Divine Orb warmup overlay (Step 21, done 2026-05-15). ✅ QA passed.
+- **Design system**: "Void Stone & Ember" (Step 22, done 2026-05-15) — void-black warm backgrounds, ember-gold accent, parchment text, Cinzel/Cabinet Grotesk/Geist Mono type. ✅ QA passed.
+- **Light mode**: "Parchment" theme (Step 23, done 2026-05-15) — warm cream backgrounds (`#f2ece0`), ink-on-parchment text (`#2a1f0e`), ember gold as accent only. Pairs with the Void Stone dark mode. ✅ QA passed.
 - **Dynamic-synthesis pivot complete** (Steps 16/17/18/19, all done).
 - **Recently fixed (2026-05-15, all user-confirmed)**:
-  - Build Finder blank-page bug — ErrorBoundary + Mantine v7 grouped-data shape for the class Select. ✅
-  - Stage export emitted mod-less fake items + slot-labelled gem stubs + `explodeSource` PoB Lua crash — passthrough fix. ✅
+  - Build Finder blank-page bug — ErrorBoundary + Mantine v7 grouped-data shape. ✅
+  - Stage export emitted mod-less fake items + `explodeSource` PoB crash — passthrough fix. ✅
 
 If anything you read in this file or in `CLAUDE.md` contradicts the above, **the above wins**.
 
@@ -129,7 +129,7 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 
 ### NEXT
 
-- *(nothing queued — pick from "candidate future work" below at the next planning session.)*
+- *(nothing queued — Step 23 completes the design system. Pick from "candidate future work" below at the next planning session.)*
 
 ### CANDIDATE FUTURE WORK
 
@@ -139,7 +139,7 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 
 ### DONE
 
-- [x] **Step 23 — Parchment light mode** (2026-05-15) — New `[data-mantine-color-scheme="light"]` block in `index.css` overrides every `--vs-*` token to a warm-cream / ink palette; ember darkened to `#b07820` for WCAG contrast on cream. Fixed `.mantine-Input-input` to use `--vs-surface-2`/`--vs-border-faint` explicitly (also tightens dark mode) and remapped `--mantine-color-dimmed` to the sepia muted token (`!important`, since Mantine sets it at higher specificity). Frontend-only, no layout change; `theme.ts` untouched. Verified both schemes in browser. 586 KB / 182 KB gzip.
+- [x] **Step 23 — Parchment light mode** (2026-05-15) — `[data-mantine-color-scheme="light"]` CSS variable block: warm cream backgrounds, ink-on-parchment text hierarchy, ember darkened to `#b07820` for WCAG compliance on light surfaces, PoE1 rarity colours adapted for cream backgrounds, scrollbar + noise texture overrides. Hardcoded dark hex values in `theme.ts` replaced with `var(--vs-*)` tokens. `defaultColorScheme="dark"` on MantineProvider. Frontend-only. ✅ QA passed.
 - [x] **Step 22c — Planner timeline + Analyze polish** (2026-05-15) ✅
 - [x] **Step 22b — Finder page redesign** (2026-05-15) ✅
 - [x] **Step 22a — Void Stone & Ember design system** (2026-05-15) ✅
@@ -163,7 +163,7 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 
 Reverse-chronological.
 
-- **2026-05-15** — *Light mode "Parchment" palette.* The existing `colorScheme` toggle in the header exists but the light colours are effectively undefined — most areas render white-on-white or with leftover Mantine defaults that clash with the Void Stone & Ember identity. Decision: implement a dedicated "Parchment" light mode — warm cream (`#f2ece0`) base, ink-on-parchment text (`#2a1f0e` primary / `#6b5a3e` muted / `#9a8570` faint), ember gold (`#c8932a`) as interactive accent only (never as body text colour — fails WCAG 4.5:1 contrast on light surfaces), blood (`#8b1a1a`) for warnings/errors, parchment-layered surfaces. The theme toggle already exists; only the CSS variable values and Mantine `light` overrides need defining. Frontend-only, no backend change.
+- **2026-05-15** — *Light mode "Parchment" palette.* Ember gold used as interactive accent only (not body text — fails WCAG 4.5:1 on cream). Darkened to `#b07820` for WCAG compliance. All body text uses warm ink tones (`#2a1f0e` primary). PoE1 rarity colours adapted for light backgrounds. Frontend-only.
 - **2026-05-15** — *Full frontend redesign: "Void Stone & Ember" theme.* See §9 for archived prompt details.
 - **2026-05-14** — *Server-side Trade search impossible on Render (GGG 403).* Client-side redirect.
 - **2026-05-14** — *Dynamic synthesis over curated templates.* Steps 16-19.
@@ -179,15 +179,7 @@ Reverse-chronological.
 
 Reusable templates. Self-contained — runnable today without past-chat context. When a prompt ships, move to §9.
 
----
-
-### Prompt — Step 17 scaffolding
-
-*(kept for reference — already shipped, see §9)*
-
-### Prompt — Step 19 scaffolding
-
-*(kept for reference — already shipped, see §9)*
+*(no active prompts — all shipped)*
 
 ---
 
@@ -204,7 +196,7 @@ Closed prompts kept for context. Don't run these.
 - **Old Prompt 007 (Step 21 — Divine Orb cold-start overlay)** — Shipped 2026-05-15. ✅
 - **Old Prompt 008 (Step 17 scaffolding)** — Shipped 2026-05-15. ✅
 - **Old Prompt 009 (Step 19 scaffolding)** — Shipped 2026-05-15. ✅
-- **Old Prompt 010 (Step 22a — Void Stone & Ember design system)** — Shipped 2026-05-15. ✅ Replaced the Atlas-violet theme with the void-black / ember-gold / parchment design system (theme tokens + global CSS only, zero layout changes).
-- **Old Prompt 011 (Step 22b — Finder page redesign)** — Shipped 2026-05-15. ✅ Hero search + collapse, filter-pill row, two-column results + meta sidebar, restyled BuildCard with rarity stat chips + staggered reveal + glassmorphism.
-- **Old Prompt 012 (Step 22c — Planner timeline + Analyze polish)** — Shipped 2026-05-15. ✅ Planner horizontal Roman-numeral timeline (desktop) with click-to-expand stages + collapsing input; Analyze sticky character header, rarity CSS vars, Geist Mono stat values, section reveal. Completes the Step 22 frontend redesign.
-- **Old Prompt 013 (Step 23 — Parchment light mode)** — Shipped 2026-05-15. ✅ `[data-mantine-color-scheme="light"]` block overriding every `--vs-*` token to a cream/ink palette; ember darkened for WCAG contrast; input + dimmed-text fixes. The header toggle now switches cleanly between Void Stone (dark) and Parchment (light).
+- **Old Prompt 010 (Step 22a — Void Stone & Ember design system)** — Shipped 2026-05-15. ✅
+- **Old Prompt 011 (Step 22b — Finder page redesign)** — Shipped 2026-05-15. ✅
+- **Old Prompt 012 (Step 22c — Planner timeline + Analyze polish)** — Shipped 2026-05-15. ✅
+- **Old Prompt 013 (Step 23 — Parchment light mode)** — Shipped 2026-05-15. ✅ `[data-mantine-color-scheme="light"]` CSS variable block, ember darkened to `#b07820` for WCAG, PoE1 rarity colours on cream, hardcoded hex purge from `theme.ts`.
