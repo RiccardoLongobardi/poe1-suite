@@ -36,7 +36,7 @@ from poe1_shared.config import Settings
 from poe1_shared.http import HttpClient, HttpError
 from poe1_shared.logging import get_logger
 
-from .gear import GearProgression, gear_progression_for
+from .gear import GearProgression, derive_gear_progression, gear_progression_for
 from .gems import GemProgression, derive_gem_progression, gem_progression_for
 from .intent import IntentLlmError, extract_intent
 from .planner import (
@@ -935,8 +935,20 @@ def make_router(settings: Settings) -> APIRouter:
             else:
                 tree_source = "empty"
 
-        gear_prog = gear_progression_for(template_name)
-        stage_gear = gear_prog.for_stage(stage_key) if gear_prog is not None else None
+        # Step 17 — dynamic gear progression derived from the user's PoB
+        # takes precedence over the curated registry. Pricing is left
+        # off the hot path (would need an async fetch); the dynamic
+        # classifier falls back to a stable name-signature heuristic
+        # for unique tiers, which covers the ~30 famously-expensive
+        # uniques (Mageblood, Kaom's Heart, Watcher's Eye, ...).
+        stage_gear = None
+        if snapshot is not None:
+            dyn_gear_prog = derive_gear_progression(snapshot, target_name=template_name)
+            if dyn_gear_prog is not None:
+                stage_gear = dyn_gear_prog.for_stage(stage_key)
+        if stage_gear is None:
+            gear_prog = gear_progression_for(template_name)
+            stage_gear = gear_prog.for_stage(stage_key) if gear_prog is not None else None
 
         # Step 18 — dynamic gem progression derived from user PoB takes
         # precedence over the curated registry. The registry remains the

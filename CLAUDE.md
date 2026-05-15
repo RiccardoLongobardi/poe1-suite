@@ -70,9 +70,32 @@ uv run mypy .
 uv run pytest
 ```
 
-All four must pass with zero errors. Current baseline: **664 tests green (2 skipped — integration/LLM), 114 files type-checked clean, 112 files formatted clean**. Frontend build 551 KB / 168 KB gzip.
+All four must pass with zero errors. Current baseline: **691 tests green (2 skipped — integration/LLM), 117 files type-checked clean, 115 files formatted clean**. Frontend build 551 KB / 168 KB gzip.
 
 **PoB import QA — confirmed working 2026-05-14**: real PoB → planner → "Importa stage in PoB" → paste in PoB Community 3.28 desktop → full build loads (tree 123/123 nodes including cluster jewel subgraph, mastery effects, items, gems, config, pantheon). Took 7 commits to debug, all guided by reading PathOfBuildingCommunity Lua source. Key learnings captured below.
+
+## Step 17 — Dynamic Gear Progression (2026-05-15) ✅
+
+Third slice of the dynamic-synthesis pivot. Replaces `gear_progression_for(template_name)` for any build with a pasted PoB. The dynamic-pivot trio (16 / 17 / 18) is now complete; only Step 19 (population data) remains.
+
+- New `scripts/extract_base_items.py` — fetches `repoe-fork/repoe-fork.github.io` `base_items.json` (7.3 MB, 5052 entries), filters to **released gear bases only** (1034 entries spanning every PoB slot), slims schema to {name, item_class, drop_level, tags, implicits, inherits_from, requirements}, writes minified `packages/fob/data/items/base_items.json` (~357 KB).
+- New `poe1_fob.gear.base_items` — lazy-cached loader exposing:
+  - `BaseItem` dataclass with PoE name + item_class + slot mapping + tags.
+  - `get_base_catalogue()` → all 1034 bases.
+  - `base_for_name("Stygian Vise") → BaseItem` (canonical-name lookup).
+  - `bases_for_slot(ItemSlot.BODY_ARMOUR) → tuple[BaseItem, ...]` (substitution picker source).
+- New `poe1_fob.gear.dynamic.derive_gear_progression(snapshot, prices=None)`:
+  1. Classify each user item into one of 8 tiers (`mirror` / `mageblood` / `high` / `mid` / `cheap` / `leveling` / `cluster` / `rare_craft`). Cluster-jewel detection via base-type name; uniques classified by `prices[name]` when supplied, else by name-signature heuristic over ~40 famous uniques (Mageblood, Headhunter, Kaom's Heart, Goldrim, Tabula Rasa, …).
+  2. Per-stage tier ceiling (`leveling` → `cheap` → `mid` → `high` → `mirror` → `mirror`). User item fits ⇒ keep. Otherwise substitute.
+  3. Substitution: stage 1-2 → canonical leveling unique per slot (Goldrim, Wanderlust, Tabula Rasa, …); stage 3+ → generic rare-craft placeholder describing the typical mod set ("rare body 6L (life + 2 res)").
+  4. Pricing is **optional** — when `prices=None`, the deterministic name-signature path covers the ~40 expensive uniques. Async pricing fetch is the caller's responsibility (router doesn't fetch on the hot path to keep stage-export network-free).
+- **Router wiring**: `_compose_stage_export` prefers `derive_gear_progression` over `gear_progression_for` when a snapshot is available. Same pattern as Steps 16+18: registry stays as fallback for the no-PoB case.
+- **27 new tests** (`test_gear_dynamic.py`) — base catalogue shape, slot-mapping lookup, tier classification with + without prices, cluster detection, stage budget thresholds (parametrised), end-to-end on the real fixture (high_investment covers every user slot; early_campaign substitutes mid+ uniques with leveling placeholders).
+- **pre-commit** `check-added-large-files` already at 5000 KB ceiling from Step 16; base_items.json (357 KB) fits comfortably.
+
+Baseline: 691 verdi / 117 mypy / 115 format.
+
+Operational note: re-run `python scripts/extract_base_items.py` after each PoE league to refresh the catalogue. The upstream `repoe-fork/repoe-fork.github.io` lags one league behind 3.28 — acceptable since gear bases rarely change between minor patches.
 
 ## Step 16 — Dynamic Tree Progression (2026-05-14) ✅
 
