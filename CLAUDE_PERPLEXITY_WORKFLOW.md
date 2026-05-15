@@ -28,6 +28,7 @@ Don't trust earlier versions of this file — the section below is the authorita
   - Step 17 (Dynamic Gear Progression) — ✅ done 2026-05-15.
   - Step 18 (Dynamic Gem Progression) — ✅ done 2026-05-14.
   - Step 19 (Population data in Finder) — ✅ done 2026-05-15.
+- **Known open bug (2026-05-15)**: Build Finder crashes to blank page after "Analizza query". See §8 prompt "Bug — Finder blank page after intent extract" for details and fix scope.
 
 If anything you read in this file or in `CLAUDE.md` contradicts the above, **the above wins** and the older text needs correcting.
 
@@ -131,6 +132,7 @@ What Perplexity is uniquely good at and should own:
 - **Algorithm design** — drafting BFS / clustering / ranking strategies for new features before code is written.
 - **Comparative reviews** — "is library X or Y better for use case Z" with sources.
 - **Long-form research reports** that summarise multiple sources with citations.
+- **QA sessions** — manual QA of the live app, classification of bugs, and production of fix prompts for Claude Code.
 
 What Perplexity **does not** do in this workflow:
 
@@ -138,7 +140,7 @@ What Perplexity **does not** do in this workflow:
 - Modify Claude Code's session state or todos.
 - Update this file's *implementation status* (the §6 backlog) — only Claude Code updates that, since Claude Code is the one actually doing the work.
 
-Perplexity **may** propose updates to §5 (open questions) and §7 (decision log) when its research surfaces a decision point the project needs to settle.
+Perplexity **may** propose updates to §5 (open questions) and §7 (decision log) when its research surfaces a decision point the project needs to settle. Perplexity **also** writes fix prompts to §8 when QA surfaces bugs.
 
 ### 3.2 Claude Code — implementation
 
@@ -191,7 +193,7 @@ Authoritative status of the dynamic-synthesis pivot. Updated by Claude Code afte
 
 ### IN PROGRESS
 
-- *(dynamic-synthesis pivot complete; no active step between sessions.)*
+- **Bug — Finder blank page after intent extract** (surfaced QA 2026-05-15). See §8 prompt for fix scope. Priority: blocker — the Build Finder is not usable until this is resolved.
 
 ### NEXT
 
@@ -247,6 +249,60 @@ Reverse-chronological. Every decision that changes architecture, stack, or scope
 ## 8. Prompt library
 
 Reusable templates. Each prompt should be self-contained — runnable today without context from a past chat. When a prompt becomes obsolete (e.g. the feature ships), move it to §9 archive instead of deleting it, so future Perplexity sessions see why it's no longer here.
+
+### Prompt — Bug: Finder blank page after intent extract (QA 2026-05-15)
+
+**Priority: blocker.** The Build Finder is completely unusable in production.
+
+**Observed behaviour (manual QA, Vercel deploy):**
+
+1. User navigates to `/finder`.
+2. User types any query and clicks "Analizza query".
+3. The page goes blank — only the astral-purple background is visible. No intent card, no filters, no results.
+
+**Browser console output:**
+
+```
+Failed to load resource: net::ERR_BLOCKED_BY_CLIENT
+TypeError: Cannot read properties of undefined (reading 'map')
+    at Xb (index-7md_rEuA.js:83:169668)
+    ...
+Uncaught TypeError: Cannot read properties of undefined (reading 'map')
+```
+
+The `ERR_BLOCKED_BY_CLIENT` is an ad-blocker false positive on an unrelated network request and is **not** the cause of the crash.
+
+The `TypeError: Cannot read properties of undefined (reading 'map')` is a React render-time exception. Because `FinderPage` has no `ErrorBoundary`, the unhandled exception unmounts the entire page subtree, leaving only the `AppShell` background.
+
+**Files involved (read all before touching anything):**
+
+- `apps/shell/src/pages/FinderPage.tsx`
+- `apps/shell/src/components/IntentCard.tsx`
+- `apps/shell/src/components/PopulationStatsPanel.tsx`
+- `apps/shell/src/components/BuildCard.tsx`
+- `apps/shell/src/api/types.ts`
+- `apps/shell/src/api/builds.ts`
+- `apps/shell/src/api/fob.ts`
+
+**Fix scope:**
+
+1. Identify every location in the above files where `.map` (or any array method) is called on a value that originates from an API response and could realistically be `undefined` or `null` at runtime — even if the TypeScript type says otherwise.
+2. Make those call sites safe against `undefined`/`null` without changing the rendering logic or visual output when the data is well-formed.
+3. Add an `ErrorBoundary` wrapping the intent section in `FinderPage` so that any future render error in that subtree shows a graceful inline error state instead of blanking the entire page.
+4. Do **not** change any backend code, any API contract, or any test fixtures. This is a pure frontend defensive fix.
+
+Run the full gate after the fix:
+
+```bash
+uv run ruff check .
+uv run ruff format --check .
+uv run mypy .
+uv run pytest
+```
+
+Frontend build must still pass (`cd apps/shell && npm run build`). Commit and push to `main`.
+
+---
 
 ### Prompt — Step 17 scaffolding
 
