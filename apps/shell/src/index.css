@@ -110,3 +110,10 @@ body {
   box-shadow: 0 12px 32px rgba(110, 38, 255, 0.4);
   border-color: rgba(167, 139, 255, 0.6);
 }
+
+/* Analyze page: two-column dashboard at >=768px. */
+@media (min-width: 768px) {
+  .analyze-dashboard {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+  }
+}

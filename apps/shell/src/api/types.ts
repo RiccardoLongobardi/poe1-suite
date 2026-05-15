@@ -223,10 +223,97 @@ export interface Build {
   level: number;
 }
 
+// ---------------------------------------------------------------------------
+// PoB snapshot — full structured detail returned by POST /fob/analyze-pob.
+// Mirrors poe1_fob.pob.models.PobSnapshot (snake_case, no aliases).
+// ---------------------------------------------------------------------------
+
+export interface PobGem {
+  name: string;
+  skill_id: string;
+  level: number;
+  quality: number;
+  enabled: boolean;
+  is_support: boolean;
+}
+
+export interface PobSkillGroup {
+  socket_group: number;
+  label: string | null;
+  /** PoB <Skill slot> — the gear slot the gems live in. */
+  slot: string | null;
+  enabled: boolean;
+  is_main: boolean;
+  gems: PobGem[];
+}
+
+export interface PobItem {
+  pob_id: number;
+  rarity: ItemRarity;
+  /** Unique name or rare title; null for magic/normal items. */
+  name: string | null;
+  base_type: string;
+  item_level: number | null;
+  level_req: number | null;
+  /** Socket/link string, e.g. "R-G-B B". null when not specified. */
+  sockets: string | null;
+  implicits: string[];
+  explicits: string[];
+  corrupted: boolean;
+  raw_text: string;
+}
+
+export interface PobJewel {
+  slot_node_id: number;
+  item: PobItem;
+}
+
+export interface PobPassiveTree {
+  spec_title: string | null;
+  tree_version: string | null;
+  class_id: number;
+  ascendancy_id: number;
+  url: string;
+  node_ids: number[];
+  mastery_effects: Record<string, number>;
+}
+
+export interface PobPantheon {
+  major: string | null;
+  minor: string | null;
+}
+
+export interface PobConfigOption {
+  name: string;
+  value: string;
+}
+
+export interface PobSnapshot {
+  target_version: string;
+  character_class: string;
+  ascendancy: string | null;
+  level: number;
+  main_skill_group_index: number;
+  bandit: string;
+  pantheon: PobPantheon;
+  /** All PoB PlayerStat name→value pairs (Life, EnergyShield, FullDPS, …). */
+  stats: Record<string, number>;
+  skills: PobSkillGroup[];
+  /** One item per gear slot. Only the first ring is kept by the parser. */
+  items_by_slot: Partial<Record<ItemSlot, PobItem>>;
+  inventory: PobItem[];
+  flasks: PobItem[];
+  jewels: PobJewel[];
+  tree: PobPassiveTree;
+  notes: string;
+  config: PobConfigOption[];
+  export_code: string;
+  origin_url: string | null;
+}
+
 export interface AnalyzePobResponse {
   build: Build;
-  /** Full snapshot kept opaque — only what we display matters */
-  snapshot: Record<string, unknown>;
+  snapshot: PobSnapshot;
 }
 
 // ---------------------------------------------------------------------------

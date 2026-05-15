@@ -70,7 +70,22 @@ uv run mypy .
 uv run pytest
 ```
 
-All four must pass with zero errors. Current baseline: **704 tests green (2 skipped — integration/LLM), 121 files type-checked clean, 117 files formatted clean**. Frontend build 567 KB / 176 KB gzip.
+All four must pass with zero errors. Current baseline: **704 tests green (2 skipped — integration/LLM), 121 files type-checked clean, 117 files formatted clean**. Frontend build 581 KB / 180 KB gzip.
+
+## Step 20 — Analyze page full redesign (2026-05-15) ✅
+
+QA flagged `/analyze` as low-value — it showed only four badges (class, ascendancy, main skill, level). Fully rebuilt `apps/shell/src/pages/AnalyzePage.tsx` into a PoB-style dashboard. Frontend-only — `POST /fob/analyze-pob` already returns the full `PobSnapshot`; no backend / API contract change.
+
+- **`apps/shell/src/api/types.ts`** — the opaque `snapshot: Record<string, unknown>` is replaced by typed interfaces mirroring `poe1_fob.pob.models`: `PobGem`, `PobSkillGroup`, `PobItem`, `PobJewel`, `PobPassiveTree`, `PobPantheon`, `PobConfigOption`, `PobSnapshot`. Snake_case keys, no aliases (the Pydantic models define none).
+- **`AnalyzePage.tsx`** — compact single-line `<TextInput>` that collapses to a `<Code>` chip + "modifica" link after a successful analysis. Two-column dashboard (`.analyze-dashboard`, single column < 768 px):
+  - Left: character header + key-stats grid (Life / ES / EHP / DPS / top damage type / Armour / Evasion read from `snapshot.stats`), passive-tree link, build notes in an `<Accordion>`.
+  - Right: equipment grid via CSS `grid-template-areas` (helmet centred, weapons flanking body, etc.), 3px left-border rarity colour (normal grey / magic blue / rare gold / unique brown), `<Tooltip>` per item with implicits/explicits, socket dots, corrupted "C" badge. Flask row + tree-jewel grid below.
+  - Full-width skill-link panel: one strip per enabled `PobSkillGroup`, active gems filled / supports outlined, disabled gems at 40% opacity.
+- The whole result is wrapped in `<ErrorBoundary>`.
+
+**Gotcha — `PobSkillGroup.is_main` is NOT "the main group".** The parser sets `is_main` from PoB's per-`<Skill>` `mainActiveSkill` attribute, which PoB stamps on *every* group that has a main active skill selected — so it is true on almost all groups. The single main group is `PobSnapshot.main_skill_group_index` (1-based, matched against `socket_group`). Use that, not `is_main`, to highlight the main skill.
+
+**Mantine nesting gotcha**: a `<Badge>` (renders `<div>`) inside a `<Text>` (renders `<p>`) trips React's `validateDOMNesting`. Put the badge as a sibling inside a `<Group>`, not nested in the `<Text>`.
 
 > Note: a stale `.clone/worktrees/...` directory may exist locally from
 > earlier Claude sessions and trip ruff on its placeholder file. Run the
