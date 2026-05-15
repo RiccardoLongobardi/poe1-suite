@@ -20,9 +20,9 @@ Don't trust earlier versions of this file — the section below is the authorita
 - **Working features (all QA-verified 2026-05-15)**:
   - Build Finder with class/asc/stat-floor/sort filters + natural-language extraction (Step 15) + per-ascendancy population stats panel (Step 19). ✅ QA passed.
   - Planner with 6-stage `BuildPlan`, SSE streaming progress + ETA. ✅ QA passed.
-  - \"Importa stage in PoB\": exports a stage-specific PoB code. Passes through the user's real `<Items>`/`<Skills>` verbatim (only the passive tree differs per stage). ✅ QA passed — no fake items, no mis-labelled gems, no `explodeSource` crash.
+  - "Importa stage in PoB": exports a stage-specific PoB code. Passes through the user's real `<Items>`/`<Skills>` verbatim (only the passive tree differs per stage). ✅ QA passed — no fake items, no mis-labelled gems, no `explodeSource` crash.
   - Trade redirect (client-side, no server-side GGG calls — GGG blocks Render's IP range). ✅ QA passed.
-  - PoB Analyze → Build summary page. ⚠️ Low-value in current form — see §5 open question.
+  - PoB Analyze → Build summary page. ⚠️ Full redesign in progress (Step 20) — see §6.
 - **Dynamic-synthesis pivot complete** (Steps 16/17/18/19, all done):
   - Step 16 (Dynamic Tree Progression) — ✅ done 2026-05-14.
   - Step 17 (Dynamic Gear Progression) — ✅ done 2026-05-15.
@@ -185,7 +185,7 @@ What the user owns:
 
 Use this section to park "go research X" items. Claude Code can flag candidates here when a question surfaces mid-implementation that Perplexity is better placed to answer.
 
-- **Analyze page — redesign or remove?** QA 2026-05-15 flagged the `/analyze` page as low-value in its current form. Decision pending: (a) remove the route entirely, (b) repurpose it as a PoB-paste entry point that feeds directly into the Planner (bypassing the Finder), or (c) keep as-is. Riccardo to decide before the next planning session.
+- *(no open questions — §5 is clean as of 2026-05-15)*
 
 ---
 
@@ -195,11 +195,11 @@ Authoritative status of the dynamic-synthesis pivot. Updated by Claude Code afte
 
 ### IN PROGRESS
 
-- *(nothing in progress — backlog is clean as of 2026-05-15 QA sign-off)*
+- *(nothing actively in progress)*
 
 ### NEXT
 
-- *(to be decided — see §5 for the Analyze page open question)*
+- [ ] **Step 20 — Analyze page full redesign** — see §8 for the full prompt. Decision: keep the `/analyze` route but fully redesign the page to expose all useful build data from `PobSnapshot`. See §7 (2026-05-15 decision entry).
 
 ### CANDIDATE FUTURE WORK
 
@@ -209,7 +209,6 @@ These are *opportunities*, not commitments. Discuss with the user before promoti
 - [ ] **Pricing-aware gear classifier** — currently `derive_gear_progression` uses a name-signature heuristic for unique tiers when no `prices` map is provided. Wire `PricingService.snapshot()` into the router so the live prices feed the classifier (one extra async fetch per stage-export request, cacheable).
 - [ ] **Cold-start UX banner** — Render's free tier spins down after 15 min idle; first request takes ~30 s. Frontend should detect long pending `/health` probes and surface "warming up the server" so users don't think it's broken.
 - [ ] **Bundle code-splitting** — Vite build warns at 566 KB. Splitting Planner / Finder routes into lazy chunks would knock the initial JS to <300 KB.
-- [ ] **Analyze page redesign or removal** — see §5 open question.
 
 ### DONE
 
@@ -241,6 +240,7 @@ These were in earlier versions of this file or earlier backlogs; they are explic
 
 Reverse-chronological. Every decision that changes architecture, stack, or scope gets a line. Add (don't rewrite) past entries.
 
+- **2026-05-15** — *Analyze page: full redesign, route kept.* The existing `/analyze` page was QA-flagged as low-value (shows only class + ascendancy + main skill + level as coloured badges, nothing else). Decision: keep the route but fully rebuild the page. The redesign must expose all useful data already present in `PobSnapshot` (items_by_slot, jewels, flasks, skills, stats, pantheon, bandit, config, notes) without any new backend endpoints — `POST /fob/analyze-pob` already returns the full snapshot. The input area must be minimised (collapsible after submit) and must also accept `pobb.in` links (already supported by the backend's `load_pob`, just not surfaced in the UI label). See §8 Prompt — Step 20.
 - **2026-05-14** — *Server-side Trade search is impossible on Render.* GGG returns HTTP 403 from datacenter IP ranges (verified via direct curl). Removed `/fob/trade-search` + `/fob/extract-trade-mods` endpoints; frontend redirects directly to `pathofexile.com/trade/search/<league>` with item name in clipboard. The `/fob/trade-url` endpoint stays in the code (works in local dev) but the frontend doesn't call it from production. Re-attempt requires moving the backend to a non-blocked host.
 - **2026-05-14** — *Dynamic synthesis over curated templates.* Steps 16-19 replace `*_PROGRESSION` registries (only `rf_pohx` + `spectre_necromancer` were ever curated). Tree progression derives from BFS on the user's PoB; gem progression projects level/quality with Awakened-substitution; gear progression will classify by price tier; the 49 `BuildTemplate` classes stay for descriptive Italian rationale text + UI labels only.
 - **2026-05-14** — *Vendor data, don't fetch at runtime.* The PoE 1 passive tree JSON is committed at `packages/fob/data/tree/3_28.json` and refreshed manually per league via `scripts/extract_tree_data.py`. Same pattern will apply to `repoe-fork/base_items.json` for Step 17.
@@ -254,6 +254,102 @@ Reverse-chronological. Every decision that changes architecture, stack, or scope
 ## 8. Prompt library
 
 Reusable templates. Each prompt should be self-contained — runnable today without context from a past chat. When a prompt becomes obsolete (e.g. the feature ships), move it to §9 archive instead of deleting it, so future Perplexity sessions see why it's no longer here.
+
+### Prompt — Step 20: Analyze page full redesign
+
+```prompt
+You are working inside the `poe1-suite` mono-repo. Read CLAUDE.md (project contract) and CLAUDE_PERPLEXITY_WORKFLOW.md (workflow + decisions) first, then read the current `apps/shell/src/pages/AnalyzePage.tsx` and `apps/shell/src/api/types.ts` before touching anything.
+
+## Goal
+
+Fully redesign `AnalyzePage.tsx`. The existing page is not useful: it shows only four coloured badges (class, ascendancy, main skill, level) and nothing else. The new page must expose all meaningful data that `POST /fob/analyze-pob` already returns in the `snapshot` field (type `PobSnapshot`) without any new backend endpoints or API contract changes.
+
+## What the backend already returns
+
+`POST /fob/analyze-pob` → `AnalyzePobResponse { build: Build, snapshot: PobSnapshot }`.
+
+`PobSnapshot` (see `packages/fob/src/poe1_fob/pob/models.py`) contains:
+
+- `character_class`, `ascendancy`, `level`, `bandit`, `pantheon` (major + minor)
+- `stats: dict[str, float]` — all PlayerStat name/value pairs from PoB (Life, EnergyShield, EHP, TotalDPS, PhysicalDPS, ElementalDPS, ChaosDPS, Armour, Evasion, EnergyShieldFromTree, ManaRegen, etc.)
+- `skills: tuple[PobSkillGroup, ...]` — each group has `label`, `slot`, `is_main`, `enabled`, and `gems: tuple[PobGem, ...]` (name, level, quality, is_support, enabled)
+- `items_by_slot: dict[ItemSlot, PobItem]` — one item per gear slot. `PobItem` has `rarity`, `name`, `base_type`, `item_level`, `sockets`, `implicits`, `explicits`, `corrupted`
+- `flasks: tuple[PobItem, ...]`
+- `jewels: tuple[PobJewel, ...]` — each jewel has `slot_node_id` and the same `PobItem` shape
+- `notes: str` — the build notes from PoB
+- `config: tuple[PobConfigOption, ...]` — user-toggled PoB knobs (name + value)
+- `tree.url` — the passive tree share URL
+- `export_code` — the original base64 code (already in the frontend's input field)
+- `origin_url` — pobb.in / pastebin URL if the input was a link
+
+The TypeScript type for `snapshot` is currently `Record<string, unknown>` in `types.ts`. You must replace that opaque type with a proper typed interface mirroring the Python model above. Add the new TS interfaces to `apps/shell/src/api/types.ts` alongside the existing ones (do not remove or rename any existing types).
+
+## Input area requirements
+
+The current `<Textarea>` is the full height of the viewport and dominates the page. The new input area must:
+
+1. Be **compact by default**: a single-line `<TextInput>` (not Textarea) with a monospace font, placeholder `"https://pobb.in/xxxx  oppure  eNqtVct…"`, and an "Analizza" button on the same row.
+2. Accept both raw PoB export codes and `pobb.in` / `pastebin.com` links — the backend's `load_pob` already handles both; the frontend just needs to stop filtering them. Update the placeholder text and the helper label accordingly.
+3. After a successful response, **collapse the input row** to a single compact line (e.g. `<Code>` showing the truncated source_id + a small "modifica" link to expand it again). The full build dashboard should fill the remaining space.
+4. Keep Ctrl+Enter as the submit shortcut.
+
+## Page layout (after successful analysis)
+
+Design a two-column dashboard layout at ≥768 px (single-column on mobile):
+
+**Left column — character header + stats block**
+
+- Large heading: `{ascendancy ?? character_class}` + level badge
+- Bandit choice + Pantheon (major / minor) as small labelled chips
+- Key stats grid (read from `snapshot.stats`): Life, Energy Shield, EHP, Total DPS, the highest of Physical/Elemental/Chaos DPS, Armour, Evasion. Display each as a labelled number with a subtle icon (use Lucide icons or Mantine's built-in icon set — do not import a new icon library). Show "—" when a stat value is 0 or missing.
+- Passive tree link: a button "Apri albero passivo" that opens `snapshot.tree.url` in a new tab. Disable and hide if `tree.url` is null or empty.
+- Build notes (if `snapshot.notes` is non-empty): render in a collapsed `<Accordion>` labelled "Note build".
+
+**Right column — gear + jewels panel**
+
+Render the equipped items as a visual equipment grid, mirroring the slot layout used by poe.ninja and Path of Building:
+
+```
+[ Helmet        ]
+[ Weapon Main ] [ Body Armour ] [ Weapon Offhand ]
+[ Gloves       ]               [ Boots          ]
+[ Belt                                           ]
+[ Amulet ]  [ Ring (left) ]  [ Ring (right)     ]
+```
+
+Each slot cell must:
+- Show the item name (or "slot vuoto" greyed out when missing).
+- Show rarity via a left border colour: Normal = grey, Magic = blue, Rare = gold, Unique = brown/orange. **Do not use any other border decoration — no solid filled backgrounds, no thick coloured blocks, just a 3px left border.**
+- On hover, expand an inline tooltip (Mantine `<Tooltip multiline>` or a `<Popover>`) showing: base_type, item_level, implicits (separated from explicits by a divider), and explicit mod lines. Corrupted items get a small red "C" badge.
+- If `sockets` is set, render the socket string as small coloured dots below the item name (R=red, G=green, B=blue, W=white, A=abyss; `-` = linked).
+
+Below the gear grid, show flasks in a single horizontal row (5 slots), same hover-tooltip pattern.
+
+Below flasks, show jewels: a flat list of `PobJewel` entries, each as a small card showing `item.name ?? item.base_type`, rarity border, and hover-tooltip with implicits + explicits.
+
+**Full-width below both columns — skill links panel**
+
+For each `PobSkillGroup` where `enabled = true`, render a horizontal gem-link strip:
+- Group label on the left (use the `label` field if non-empty, otherwise the slot name).
+- Each gem as a small chip: name + level/quality badge. Active gems get a solid chip, support gems get an outlined chip. The `is_main` group gets a subtle highlight on the strip background.
+- Disabled gems (enabled = false) are rendered with 40% opacity.
+
+## Tech constraints
+
+- Use only Mantine v7 components already in the project. Do not add new npm dependencies.
+- Do not add any new backend endpoints. The `POST /fob/analyze-pob` response already contains everything needed.
+- The redesign is purely frontend (`apps/shell/src/pages/AnalyzePage.tsx` + type additions to `apps/shell/src/api/types.ts`). No changes to `packages/` or tests are required unless mypy / the gate forces a type fix.
+- Wrap the entire result section in an `<ErrorBoundary>` (the component already exists at `apps/shell/src/components/ErrorBoundary.tsx`) so a render error on a malformed snapshot doesn't blank the page.
+- All user-facing strings in Italian (consistent with the rest of the UI).
+
+## Definition of done
+
+- `AnalyzePage.tsx` renders the full dashboard described above for a real pobb.in link.
+- `types.ts` has the new `PobSnapshot`-mirroring interfaces; the opaque `Record<string, unknown>` is gone.
+- `apps/shell` builds without TypeScript errors (`pnpm tsc --noEmit` or equivalent in the project's build command).
+- The gate passes: `uv run ruff check . && uv run ruff format --check . && uv run mypy . && uv run pytest`.
+- Commit with message `feat(fob): Step 20 — Analyze page full redesign`, push to main, update §6 DONE and §1 in this file.
+```
 
 ### Prompt — Step 17 scaffolding
 
