@@ -77,18 +77,25 @@ All four must pass with zero errors. Current baseline: **702 tests green (2 skip
 > gate from a fresh checkout, or pass `--exclude .clone` /
 > `--ignore=.clone` to the relevant tools — it is *not* a real repo file.
 
-## Bug — Finder blank page (2026-05-15) ✅ fixed
+## Bug — Finder blank page (2026-05-15) ✅ fixed (took two passes)
 
-QA found the Build Finder going blank after "Analizza query": `TypeError: Cannot read properties of undefined (reading 'map')` thrown during the `IntentCard` render unmounted the entire `FinderPage` subtree because the page had no `ErrorBoundary`.
+QA found the Build Finder going blank after "Analizza query": `TypeError: Cannot read properties of undefined (reading 'map')` unmounted the entire `FinderPage` subtree because the page had no `ErrorBoundary`.
+
+**Root cause (pass 2)**: `<Select data={CLASS_OPTIONS}>` in the filter panel was receiving Mantine v6's flat grouped data shape `[{value, label, group}, ...]`. Mantine v7 requires the new grouped shape `[{group, items: [{value, label}, ...]}, ...]` — when v7 sees `group` on a flat item it tries to `.map` the (nonexistent) `items` array on the internal `useMemo` and crashes BEFORE our render runs, so the first round of ErrorBoundaries (which wrapped IntentCard / PopulationStatsPanel) never got a chance to catch it.
 
 Frontend-only defensive fix (no backend / API contract change):
 
 - **`apps/shell/src/components/ErrorBoundary.tsx`** new — generic React error boundary. Renders a Mantine `<Alert color="red">` with the error message instead of letting an exception propagate up to the AppShell. Logs to `console.error` so the stack is still visible in DevTools.
 - **`apps/shell/src/components/IntentCard.tsx`** — defaults `intent.hard_constraints`, `intent.content_focus`, `intent.confidence`, and `intent.parser_origin` against `undefined`/`null` payloads (older deploys, broken caches, ad-blocker JSON rewrites). `ContentFocusPills` accepts `items | null | undefined`.
 - **`apps/shell/src/components/PopulationStatsPanel.tsx`** — `stats.top_skills` and `stats.total_builds` defaulted.
-- **`apps/shell/src/pages/FinderPage.tsx`** — `result.ranked` and `result.total_candidates` defaulted; intent card, population panel, and results are each wrapped in their own `<ErrorBoundary>` so a crash in one panel renders an inline alert instead of blanking the whole page.
+- **`apps/shell/src/pages/FinderPage.tsx`** —
+  - `result.ranked` and `result.total_candidates` defaulted.
+  - `CLASS_OPTIONS` rewritten to Mantine v7's grouped data shape — this was the actual root cause.
+  - The entire `{intent && …}` block is now wrapped in a top-level `<ErrorBoundary>` (with two nested ones around the intent card and population panel) so a crash anywhere in the post-extract panel — including in `<Select>` / `<Collapse>` — renders an inline alert instead of blanking the page.
 
-Frontend build 567 KB / 176 KB gzip (+1 KB raw for the ErrorBoundary).
+**Mantine v7 grouped-data invariant**: when a `<Select>`, `<MultiSelect>`, or `<Autocomplete>` needs option groups, the `data` prop must be `[{group: "X", items: [{value, label}, ...]}, ...]`. **Never** pass a flat array with a `group` field per item — Mantine v7 will crash on a `useMemo` during the very first render and your ErrorBoundary won't help unless it wraps that subtree too.
+
+Frontend build 567 KB / 176 KB gzip.
 
 **PoB import QA — confirmed working 2026-05-14**: real PoB → planner → "Importa stage in PoB" → paste in PoB Community 3.28 desktop → full build loads (tree 123/123 nodes including cluster jewel subgraph, mastery effects, items, gems, config, pantheon). Took 7 commits to debug, all guided by reading PathOfBuildingCommunity Lua source. Key learnings captured below.
 

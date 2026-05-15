@@ -36,37 +36,80 @@ import { ErrorBoundary } from "../components/ErrorBoundary";
 import { IntentCard } from "../components/IntentCard";
 import { PopulationStatsPanel } from "../components/PopulationStatsPanel";
 
-// Class & ascendancy options — keep flat for a single Select. Display
-// labels are Title-Cased; values match the backend enum (lowercase).
-const CLASS_OPTIONS: { value: string; label: string; group?: string }[] = [
-  // Bare classes
-  { value: "marauder", label: "Marauder", group: "Classi" },
-  { value: "duelist", label: "Duelist", group: "Classi" },
-  { value: "ranger", label: "Ranger", group: "Classi" },
-  { value: "shadow", label: "Shadow", group: "Classi" },
-  { value: "witch", label: "Witch", group: "Classi" },
-  { value: "templar", label: "Templar", group: "Classi" },
-  { value: "scion", label: "Scion", group: "Classi" },
-  // Ascendancies
-  { value: "juggernaut", label: "Juggernaut", group: "Marauder" },
-  { value: "berserker", label: "Berserker", group: "Marauder" },
-  { value: "chieftain", label: "Chieftain", group: "Marauder" },
-  { value: "slayer", label: "Slayer", group: "Duelist" },
-  { value: "gladiator", label: "Gladiator", group: "Duelist" },
-  { value: "champion", label: "Champion", group: "Duelist" },
-  { value: "deadeye", label: "Deadeye", group: "Ranger" },
-  { value: "raider", label: "Raider", group: "Ranger" },
-  { value: "pathfinder", label: "Pathfinder", group: "Ranger" },
-  { value: "assassin", label: "Assassin", group: "Shadow" },
-  { value: "saboteur", label: "Saboteur", group: "Shadow" },
-  { value: "trickster", label: "Trickster", group: "Shadow" },
-  { value: "necromancer", label: "Necromancer", group: "Witch" },
-  { value: "occultist", label: "Occultist", group: "Witch" },
-  { value: "elementalist", label: "Elementalist", group: "Witch" },
-  { value: "inquisitor", label: "Inquisitor", group: "Templar" },
-  { value: "hierophant", label: "Hierophant", group: "Templar" },
-  { value: "guardian", label: "Guardian", group: "Templar" },
-  { value: "ascendant", label: "Ascendant", group: "Scion" },
+// Class & ascendancy options for the filter Select.
+//
+// Mantine v7 changed the grouped-data shape: in v6 you could pass a flat
+// array where each item carried a `group` field; in v7 you MUST pass
+// `[{group, items: [{value, label}, ...]}, ...]` or the internal
+// `useMemo` on the normalised data crashes with
+// `TypeError: Cannot read properties of undefined (reading 'map')`
+// before our render even runs (QA 2026-05-15: the second blank-page bug).
+// Values match the backend enum (lowercase); display labels are Title-Case.
+const CLASS_OPTIONS: { group: string; items: { value: string; label: string }[] }[] = [
+  {
+    group: "Classi",
+    items: [
+      { value: "marauder", label: "Marauder" },
+      { value: "duelist", label: "Duelist" },
+      { value: "ranger", label: "Ranger" },
+      { value: "shadow", label: "Shadow" },
+      { value: "witch", label: "Witch" },
+      { value: "templar", label: "Templar" },
+      { value: "scion", label: "Scion" },
+    ],
+  },
+  {
+    group: "Marauder",
+    items: [
+      { value: "juggernaut", label: "Juggernaut" },
+      { value: "berserker", label: "Berserker" },
+      { value: "chieftain", label: "Chieftain" },
+    ],
+  },
+  {
+    group: "Duelist",
+    items: [
+      { value: "slayer", label: "Slayer" },
+      { value: "gladiator", label: "Gladiator" },
+      { value: "champion", label: "Champion" },
+    ],
+  },
+  {
+    group: "Ranger",
+    items: [
+      { value: "deadeye", label: "Deadeye" },
+      { value: "raider", label: "Raider" },
+      { value: "pathfinder", label: "Pathfinder" },
+    ],
+  },
+  {
+    group: "Shadow",
+    items: [
+      { value: "assassin", label: "Assassin" },
+      { value: "saboteur", label: "Saboteur" },
+      { value: "trickster", label: "Trickster" },
+    ],
+  },
+  {
+    group: "Witch",
+    items: [
+      { value: "necromancer", label: "Necromancer" },
+      { value: "occultist", label: "Occultist" },
+      { value: "elementalist", label: "Elementalist" },
+    ],
+  },
+  {
+    group: "Templar",
+    items: [
+      { value: "inquisitor", label: "Inquisitor" },
+      { value: "hierophant", label: "Hierophant" },
+      { value: "guardian", label: "Guardian" },
+    ],
+  },
+  {
+    group: "Scion",
+    items: [{ value: "ascendant", label: "Ascendant" }],
+  },
 ];
 
 const SORT_OPTIONS: { value: SortKey; label: string }[] = [
@@ -229,9 +272,12 @@ export function FinderPage({ onSendToPlanner }: Props) {
         </Alert>
       )}
 
-      {/* Parsed intent */}
+      {/* Parsed intent — wrapped in a top-level ErrorBoundary so that
+          ANY render error in this subtree (intent card, population
+          panel, filter Select, NumberInputs, …) shows an inline alert
+          instead of unmounting the whole page (QA 2026-05-15). */}
       {intent && (
-        <>
+        <ErrorBoundary label="Errore nel pannello Finder">
           <ErrorBoundary label="Errore nel riepilogo intent">
             <IntentCard intent={applyOverrides(intent, overrides)} />
           </ErrorBoundary>
@@ -401,7 +447,7 @@ export function FinderPage({ onSendToPlanner }: Props) {
               Trova build →
             </Button>
           </Group>
-        </>
+        </ErrorBoundary>
       )}
 
       {/* Recommend error */}
