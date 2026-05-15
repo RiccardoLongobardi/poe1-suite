@@ -46,6 +46,7 @@ import {
   useNavigate,
 } from "react-router-dom";
 import { DonationModal } from "./components/DonationModal";
+import { WarmupOverlay } from "./components/WarmupOverlay";
 import { AnalyzePage } from "./pages/AnalyzePage";
 import { FinderPage } from "./pages/FinderPage";
 import { HomePage } from "./pages/HomePage";
@@ -68,18 +69,23 @@ export function App() {
     void prefetchLeague();
   }, []);
 
-  if (isWelcome) {
-    return (
-      <Routes>
-        <Route
-          path="/"
-          element={hasSeenWelcome() ? <Navigate to="/home" replace /> : <WelcomePage />}
-        />
-      </Routes>
-    );
-  }
-
-  return <ShellLayout />;
+  return (
+    <>
+      {/* Cold-start overlay — covers the whole viewport above every
+          route while the Render free-tier backend warms up. */}
+      <WarmupOverlay />
+      {isWelcome ? (
+        <Routes>
+          <Route
+            path="/"
+            element={hasSeenWelcome() ? <Navigate to="/home" replace /> : <WelcomePage />}
+          />
+        </Routes>
+      ) : (
+        <ShellLayout />
+      )}
+    </>
+  );
 }
 
 function ShellLayout() {

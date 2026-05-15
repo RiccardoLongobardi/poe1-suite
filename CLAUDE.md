@@ -70,7 +70,18 @@ uv run mypy .
 uv run pytest
 ```
 
-All four must pass with zero errors. Current baseline: **704 tests green (2 skipped — integration/LLM), 121 files type-checked clean, 117 files formatted clean**. Frontend build 581 KB / 180 KB gzip.
+All four must pass with zero errors. Current baseline: **704 tests green (2 skipped — integration/LLM), 121 files type-checked clean, 117 files formatted clean**. Frontend build 585 KB / 181 KB gzip.
+
+## Step 21 — Divine Orb cold-start overlay (2026-05-15) ✅
+
+Render's free tier spins the backend down after 15 min idle; the first request then takes ~30 s. New users saw no feedback and assumed the site was broken. Added an app-level loading overlay. Frontend-only — no backend change.
+
+- **`apps/shell/src/hooks/useServerWarmup.ts`** — fires one `GET /health` probe on mount. Returns `"probing"` → `"cold"` (probe still pending after 3 s) → `"warm"` (probe settled, ok/error/non-2xx alike — a failed probe never traps the user behind the overlay).
+- **`apps/shell/src/components/WarmupOverlay.tsx`** — full-viewport `fixed` overlay (z-index 9999) shown only on `"cold"`, fades out over 600 ms once `"warm"`. The loading indicator is a hand-authored inline SVG **Divine Orb** (PoE 1 currency aesthetic — golden radial-gradient sphere, classical female face in bas-relief, 14 ornamental studs, specular highlight). No external image, no animation library.
+- **`index.css`** — `@keyframes` for the orb pulse / glow / orbiting-ring; all disabled under `prefers-reduced-motion`.
+- Mounted in `App.tsx` at the root, above every route (welcome + shell branches).
+
+**Verification note**: the cold-start path can't be cleanly exercised in the local preview harness — editing a hook file triggers a full Vite reload that wipes any in-page `window.fetch` patch, so the delayed-`/health` simulation resets before the probe runs. Verified instead by (a) forcing the hook to `"cold"` and confirming the overlay renders with the correct SVG/styles/text via DOM inspection, and (b) confirming the warm path (fast probe → no overlay).
 
 ## Step 20 — Analyze page full redesign (2026-05-15) ✅
 

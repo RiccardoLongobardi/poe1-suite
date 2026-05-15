@@ -117,3 +117,86 @@ body {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
   }
 }
+
+/* ── Step 21: Divine Orb cold-start warmup overlay ────────────────── */
+
+.warmup-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: rgba(10, 8, 4, 0.92);
+  animation: warmup-fade-in 300ms ease-out;
+}
+
+.warmup-overlay--fading {
+  opacity: 0;
+  transition: opacity 600ms ease-out;
+}
+
+@keyframes warmup-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.warmup-orb-wrap {
+  border-radius: 50%;
+  animation: warmup-glow 2400ms ease-in-out infinite;
+}
+
+@keyframes warmup-glow {
+  0%, 100% { filter: drop-shadow(0 0 8px rgba(212, 165, 32, 0.35)); }
+  50% { filter: drop-shadow(0 0 26px rgba(255, 226, 122, 0.7)); }
+}
+
+.warmup-orb {
+  display: block;
+  animation: warmup-pulse 2400ms ease-in-out infinite;
+  transform-origin: center;
+}
+
+@keyframes warmup-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+
+.warmup-orb-ring {
+  transform-origin: 60px 60px;
+  animation: warmup-spin 3000ms linear infinite;
+}
+
+@keyframes warmup-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.warmup-title {
+  margin: 14px 0 0;
+  font-family: Cinzel, Marcellus, Georgia, serif;
+  font-style: italic;
+  font-size: 1.1rem;
+  color: #e8c97a;
+  text-align: center;
+}
+
+.warmup-subtitle {
+  margin: 2px 0 0;
+  font-size: 0.8rem;
+  color: #8a7a5a;
+  text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .warmup-overlay,
+  .warmup-overlay--fading,
+  .warmup-orb-wrap,
+  .warmup-orb,
+  .warmup-orb-ring {
+    animation: none !important;
+    transition: none !important;
+  }
+}
