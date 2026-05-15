@@ -21,7 +21,7 @@ Don't trust earlier versions of this file — the section below is the authorita
   - PoB analyze → Build summary.
   - Build Finder with class/asc/stat-floor/sort filters + natural-language extraction (Step 15) + per-ascendancy population stats panel (Step 19).
   - Planner with 6-stage `BuildPlan`, SSE streaming progress + ETA.
-  - "Importa stage in PoB": exports a stage-specific PoB code that imports cleanly in Path of Building Community 3.28 (tree + items + gems + config + pantheon). Per-stage tree / gear / gems are now **synthesised from the user's pasted PoB** (Steps 16/17/18 dynamic engines), not hand-curated.
+  - \"Importa stage in PoB\": exports a stage-specific PoB code — **QA 2026-05-15 found a Lua crash in PoB Community 3.28 on import (see §8 and §6 IN PROGRESS)**.
   - Trade redirect (client-side, no server-side GGG calls — GGG blocks Render's IP range).
 - **Dynamic-synthesis pivot complete** (Steps 16/17/18/19, all done):
   - Step 16 (Dynamic Tree Progression) — ✅ done 2026-05-14.
@@ -29,6 +29,7 @@ Don't trust earlier versions of this file — the section below is the authorita
   - Step 18 (Dynamic Gem Progression) — ✅ done 2026-05-14.
   - Step 19 (Population data in Finder) — ✅ done 2026-05-15.
 - **Recently fixed (2026-05-15)**: Build Finder blank-page bug — defensive frontend fix landed (ErrorBoundary + null-safe `.map` access in `IntentCard`, `PopulationStatsPanel`, `FinderPage`). See §9 archive for the original prompt.
+- **Open blocker (2026-05-15)**: \"Importa stage in PoB\" → PoB Lua crash `Data/Skills/other.lua:5364: attempt to index field 'explodeSource' (a nil value)`. See §8 for the fix prompt.
 
 If anything you read in this file or in `CLAUDE.md` contradicts the above, **the above wins** and the older text needs correcting.
 
@@ -183,7 +184,7 @@ What the user owns:
 
 Use this section to park "go research X" items. Claude Code can flag candidates here when a question surfaces mid-implementation that Perplexity is better placed to answer.
 
-- *(none open right now — Step 16 was the last research-gated item, addressed by the 2026-05-14 data-source survey.)*
+- **Analyze page — redesign or remove?** QA 2026-05-15 flagged the `/analyze` page as low-value in its current form. Decision pending: (a) remove the route entirely, (b) repurpose it as a PoB-paste entry point that feeds directly into the Planner (bypassing the Finder), or (c) keep as-is. Riccardo to decide before the next planning session.
 
 ---
 
@@ -193,11 +194,11 @@ Authoritative status of the dynamic-synthesis pivot. Updated by Claude Code afte
 
 ### IN PROGRESS
 
-- *(nothing in progress between sessions — dynamic-pivot quadrant 16/17/18/19 is closed and the Finder blank-page bug from QA 2026-05-15 is fixed.)*
+- **Bugfix — PoB import Lua crash `explodeSource` nil** (QA 2026-05-15) — BLOCKER for the "Importa stage in PoB" feature. See §8 for the fix prompt.
 
 ### NEXT
 
-- *(no strict next step queued — the dynamic-pivot quadrant 16/17/18/19 is closed. Pick from "candidate future work" below when starting a new session.)*
+- *(to be decided after the explodeSource blocker is resolved — see §5 for the Analyze page open question)*
 
 ### CANDIDATE FUTURE WORK
 
@@ -207,6 +208,7 @@ These are *opportunities*, not commitments. Discuss with the user before promoti
 - [ ] **Pricing-aware gear classifier** — currently `derive_gear_progression` uses a name-signature heuristic for unique tiers when no `prices` map is provided. Wire `PricingService.snapshot()` into the router so the live prices feed the classifier (one extra async fetch per stage-export request, cacheable).
 - [ ] **Cold-start UX banner** — Render's free tier spins down after 15 min idle; first request takes ~30 s. Frontend should detect long pending `/health` probes and surface "warming up the server" so users don't think it's broken.
 - [ ] **Bundle code-splitting** — Vite build warns at 566 KB. Splitting Planner / Finder routes into lazy chunks would knock the initial JS to <300 KB.
+- [ ] **Analyze page redesign or removal** — see §5 open question.
 
 ### DONE
 
@@ -217,8 +219,8 @@ These are *opportunities*, not commitments. Discuss with the user before promoti
 - [x] **Step 18 — Dynamic Gem Progression** (2026-05-14) — `derive_gem_progression(snapshot)` projects six GemSpec snapshots per gem; handles Awakened normalisation, Vaal normalisation, trigger-gem pinning, aura-like soft downscale. Replaces hand-curated `gem_progression_for(template_name)` for any build with a pasted PoB.
 - [x] **Step 16 — Dynamic Tree Progression** (2026-05-14) — Vendored GGG passive tree JSON (`packages/fob/data/tree/3_28.json`); `derive_tree_progression(snapshot)` BFSes the user's allocated subgraph from class start, buckets into 6 cumulative supersets at coverage 10/25/50/70/85/100; ascendancy distributed by lab order; cluster jewels stage 6 only.
 - [x] **Step 17 — Dynamic Gear Progression** (2026-05-15) — Vendored repoe-fork base-item catalogue (`packages/fob/data/items/base_items.json`, 357 KB minified, 1034 released gear bases). `derive_gear_progression(snapshot, prices=None)` tier-classifies user items (mirror / mageblood / high / mid / cheap / leveling / cluster / rare_craft), per-stage tier ceiling, substitutes over-budget items with canonical leveling uniques in stage 1-2 / generic rare-craft placeholders in stage 3+. Pricing is optional — name-signature heuristic covers the 40+ famous expensive uniques.
-- [x] **Bugfix — Finder blank page after intent extract** (2026-05-15, took two passes) — **Root cause**: `<Select data={CLASS_OPTIONS}>` was using Mantine v6's flat `{value,label,group}` shape; Mantine v7 needs the grouped `{group, items: [...]}` shape and crashes inside its internal `useMemo` before our render runs. Pass 1 added null-safe defaults + ErrorBoundary around IntentCard / PopulationStatsPanel / results, but the Select was outside those boundaries → still blank. Pass 2 rewrote `CLASS_OPTIONS` to the v7 grouped shape AND wrapped the entire post-intent block in a top-level ErrorBoundary so any future render error degrades to an inline alert. Frontend build 567 KB / 176 KB gzip. See §9 for the original QA prompt + Mantine v7 invariant in `CLAUDE.md`.
-- [x] **Step 19 — Population stats in Finder** (2026-05-15) — `compute_population_stats(refs)` aggregator (no HTTP, no state): top-N skill popularity + p25/p50/p75/p90 distributions for Life / ES / EHP / DPS / Level. Endpoint `GET /builds/population-stats?ascendancy=&top_n_per_class=&top_n_skills=&league=` reuses `BuildsService.fetch_refs` (15 min diskcache hit). Frontend `PopulationStatsPanel` rendered in `FinderPage` above the filter row when an ascendancy is set; reacts to the dropdown override via TanStack-Query cache key.
+- [x] **Bugfix — Finder blank page after intent extract** (2026-05-15, took two passes) — **Root cause**: `<Select data={CLASS_OPTIONS}>` was using Mantine v6's flat `{value,label,group}` shape; Mantine v7 needs the grouped `{group, items: [...]}` shape and crashes inside its internal `useMemo` before our render runs. Pass 1 added null-safe defaults + ErrorBoundary around IntentCard / PopulationStatsPanel / results, but the Select was outside those boundaries → still blank. Pass 2 rewrote `CLASS_OPTIONS` to the v7 grouped shape AND wrapped the entire post-intent block in a top-level ErrorBoundary so any future render error degrades to an inline alert instead of blanking the whole page. Frontend build 567 KB / 176 KB gzip. See §9 for the original QA prompt + Mantine v7 invariant in `CLAUDE.md`.
+- [x] **Step 19 — Population stats in Finder** (2026-05-15) — `compute_population_stats(refs)` aggregator (no HTTP, no state): top-N skill popularity + p25/p50/p75/p90 distributions for Life / ES / EHP / DPS / Level. Endpoint `GET /builds/population-stats?ascendancy=&top_n_per_class=&top_n_skills=&league=` reuses `BuildsService.fetch_refs` (15 min diskcache hit). Frontend `PopulationStatsPanel` rendered in `FinderPage` above the filter row when an ascendancy is selected (manually or extracted by intent); reacts to the dropdown override via TanStack-Query cache key.
 - [x] **Production deploy live** — Render (backend) + Vercel (frontend) on free tier. See `docs/DEPLOY.md`.
 
 ### REJECTED / OBSOLETE
@@ -250,6 +252,40 @@ Reverse-chronological. Every decision that changes architecture, stack, or scope
 ## 8. Prompt library
 
 Reusable templates. Each prompt should be self-contained — runnable today without context from a past chat. When a prompt becomes obsolete (e.g. the feature ships), move it to §9 archive instead of deleting it, so future Perplexity sessions see why it's no longer here.
+
+### Prompt — Bugfix: PoB import Lua crash `explodeSource` nil (QA 2026-05-15)
+
+**Context**: QA found that pasting a stage PoB code exported by "Importa stage in PoB" into Path of Building Community v2.65.0 crashes immediately on import with:
+
+```
+In 'OnFrame': Data/Skills/other.lua:5364: attempt to index field 'explodeSource' (a nil value)
+stack traceback:
+    Data/Skills/other.lua:5364: in function 'func'
+    Modules/CalcOffence.lua:475: in function 'runSkillFunc'
+    Modules/CalcOffence.lua:1829: in function <Modules/CalcOffence.lua:319>
+    Modules/CalcPerform.lua:3504: in function 'perform'
+    Modules/Calcs.lua:207: in function 'calcFullDPS'
+    Modules/Calcs.lua:425: in function 'buildOutput'
+    Classes/CalcsTab.lua:438: in function <Classes/CalcsTab.lua:420>
+    Modules/Build.lua:671: in function 'Init'
+    Classes/ImportTab.lua:328: in function 'importSelectedBuild'
+    Classes/ImportTab.lua:364: in function 'OnKeyUp'
+    Classes/ControlHost.lua:62: in function 'ProcessControlsInput'
+    Classes/ImportTab.lua:421: in function 'Draw'
+    Modules/Build.lua:1217: in function 'CallMode'
+    Modules/Main.lua:371: in function <Modules/Main.lua:341>
+    [C]: in function 'PCall'
+    Launch.lua:110: in function <Launch.lua:108>
+v2.65.0-7e38600e beta
+```
+
+The crash happens **during PoB's calc phase** (`CalcOffence.lua:1829`, triggered by `Build.lua:671 Init`), which means PoB is trying to compute offence stats for a skill gem that references an `explodeSource` field it cannot find. This is a PoB-side nil-access, not a PoB XML parse error — the build XML loaded far enough to trigger the DPS calc.
+
+**Your task**: Read `CLAUDE.md` and this file first. Then investigate the PoB XML produced by `_compose_stage_export` (in `packages/fob/src/poe1_fob/router.py`) and the modules it calls (`poe1_fob.gems.dynamic`, `poe1_fob.pob.encoder`). Find what in the exported XML causes PoB to try to index `explodeSource` on a nil skill table and fix it. Do not assume the cause — read the code, reproduce with the existing test fixtures if possible, identify the exact field or gem reference that triggers the nil access, then fix at the source.
+
+Run the full gate after the fix, update `CLAUDE.md` and this file's §6 (move the IN PROGRESS entry to DONE, move this prompt to §9 archive), commit, push.
+
+---
 
 ### Prompt — Step 17 scaffolding
 
@@ -336,3 +372,4 @@ Closed prompts kept for context. Don't run these — they reflect earlier projec
 - **Old Prompt 002 (PoE Ninja ETL)** — proposed `scripts/poe_ninja_etl.py` writing into Postgres. **Rejected 2026-05-14**: same reason; we read on-demand and cache.
 - **Old Prompt 003 (Base items ETL)** — proposed `scripts/base_items_etl.py` writing to Postgres. **Rejected 2026-05-14**. The replacement is a much simpler `scripts/extract_base_items.py` (Step 17) that just vendors `repoe-fork/base_items.json` into the repo.
 - **Old Prompt 004 (Finder blank page bugfix, QA 2026-05-15)** — Build Finder went blank after "Analizza query": `TypeError: Cannot read properties of undefined (reading 'map')` in `IntentCard`, no `ErrorBoundary` so the whole page subtree unmounted. **Shipped 2026-05-15**: new `apps/shell/src/components/ErrorBoundary.tsx` wrapping IntentCard / PopulationStatsPanel / results in `FinderPage`; null-safe `??` defaults on every API-derived array access in IntentCard, PopulationStatsPanel, FinderPage. Pure frontend defensive fix, zero backend / API contract / test changes. Frontend build 567 KB / 176 KB gzip.
+"
