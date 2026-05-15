@@ -282,13 +282,14 @@ h6 {
   }
 }
 
-/* Filter pill row scrolls horizontally on mobile. */
+/* Filter pill row — wraps to as many lines as the viewport needs so
+   every control (incl. "Trova build") is always visible regardless of
+   screen width. */
 .finder-filter-row {
   display: flex;
   gap: 8px;
   align-items: flex-end;
-  overflow-x: auto;
-  padding-bottom: 4px;
+  flex-wrap: wrap;
 }
 .finder-filter-row > * {
   flex: 0 0 auto;

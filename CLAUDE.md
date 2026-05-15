@@ -72,6 +72,15 @@ uv run pytest
 
 All four must pass with zero errors. Current baseline: **704 tests green (2 skipped — integration/LLM), 121 files type-checked clean, 117 files formatted clean**. Frontend build 585 KB / 181 KB gzip.
 
+## Bug — Step 22 QA: filter row clipped + Analyze stats hidden (2026-05-15) ✅ fixed
+
+Two QA findings on the Step 22 redesign:
+
+1. **Finder filter pill row clipped on wide screens.** `.finder-filter-row` used `overflow-x: auto` — on a large monitor the row didn't wrap and "Trova build" / "Reset" scrolled off the right edge, invisible. Fix: `flex-wrap: wrap` so every control wraps onto as many lines as needed and is always visible. Also bumped the app `<Container>` from `size="lg"` to `size="xl"` so the central content uses more of a wide screen.
+2. **Analyze page hid Vita / Energy Shield / EHP.** The Step 22c sticky character header was a `position: sticky` Box **inside** the left dashboard card, with negative margins — once the page scrolled it overlaid the card's own first stat tiles. Fix: the character header is now a standalone full-width sticky bar **above** the `.analyze-dashboard` grid (no negative margins), so it never covers the stat tiles. All 7 key stats (Vita, ES, EHP, DPS, top damage, Armour, Evasion) render.
+
+**Lesson**: a `position: sticky` element overlays siblings that scroll under it — never make a header sticky *inside* the same card whose content sits directly below it. Put the sticky header in its own element above the scrolling content.
+
 ## Step 22c — Planner timeline + Analyze polish (2026-05-15) ✅
 
 Final slice of the frontend redesign. Frontend-only, no backend / API contract change.

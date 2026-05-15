@@ -225,7 +225,7 @@ function ShellLayout() {
       </AppShell.Navbar>
 
       <AppShell.Main>
-        <Container size="lg">
+        <Container size="xl">
           <Routes>
             <Route path="/home" element={<HomePage />} />
             <Route

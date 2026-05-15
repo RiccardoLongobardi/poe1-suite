@@ -346,7 +346,55 @@ function BuildDashboard({ data }: { data: AnalyzePobResponse }) {
 
   return (
     <Stack gap="md">
-      {/* Two-column area: header/stats | gear */}
+      {/* Sticky character header — a full-width bar above the dashboard
+          so it stays visible while scrolling through gear/skills
+          without covering the left card's own stat tiles. */}
+      <Box
+        className="vs-card-reveal"
+        style={
+          {
+            position: "sticky",
+            top: 56,
+            zIndex: 10,
+            padding: "10px 14px",
+            background: "rgba(8, 6, 4, 0.92)",
+            backdropFilter: "blur(10px)",
+            WebkitBackdropFilter: "blur(10px)",
+            border: "1px solid var(--vs-border)",
+            borderRadius: "var(--vs-radius-md)",
+            "--card-index": 0,
+          } as React.CSSProperties
+        }
+      >
+        <Group gap={8} align="center">
+          <Title order={3}>{snap.ascendancy ?? snap.character_class}</Title>
+          <Badge color="gray" variant="outline" size="lg">
+            livello {snap.level}
+          </Badge>
+        </Group>
+        <Group gap={6} mt={6}>
+          {snap.ascendancy && (
+            <Badge color="indigo" variant="light">
+              {snap.character_class}
+            </Badge>
+          )}
+          <Badge color="teal" variant="light">
+            bandito: {snap.bandit}
+          </Badge>
+          {snap.pantheon.major && (
+            <Badge color="grape" variant="light">
+              {snap.pantheon.major}
+            </Badge>
+          )}
+          {snap.pantheon.minor && (
+            <Badge color="grape" variant="light">
+              {snap.pantheon.minor}
+            </Badge>
+          )}
+        </Group>
+      </Box>
+
+      {/* Two-column area: stats | gear */}
       <Box
         style={{
           display: "grid",
@@ -355,57 +403,15 @@ function BuildDashboard({ data }: { data: AnalyzePobResponse }) {
         }}
         className="analyze-dashboard"
       >
-        {/* Left — character header + stats */}
+        {/* Left — key stats */}
         <Card
           withBorder
           radius="md"
           p="md"
           className="vs-card-reveal"
-          style={{ "--card-index": 0 } as React.CSSProperties}
+          style={{ "--card-index": 1 } as React.CSSProperties}
         >
           <Stack gap="sm">
-            {/* Sticky character header — stays visible while scrolling. */}
-            <Box
-              style={{
-                position: "sticky",
-                top: 56,
-                zIndex: 10,
-                margin: "-16px -16px 0",
-                padding: "12px 16px",
-                background: "rgba(8, 6, 4, 0.9)",
-                backdropFilter: "blur(10px)",
-                WebkitBackdropFilter: "blur(10px)",
-                borderBottom: "1px solid var(--vs-border-faint)",
-              }}
-            >
-              <Group gap={8} align="center">
-                <Title order={3}>{snap.ascendancy ?? snap.character_class}</Title>
-                <Badge color="gray" variant="outline" size="lg">
-                  livello {snap.level}
-                </Badge>
-              </Group>
-              <Group gap={6} mt={6}>
-                {snap.ascendancy && (
-                  <Badge color="indigo" variant="light">
-                    {snap.character_class}
-                  </Badge>
-                )}
-                <Badge color="teal" variant="light">
-                  bandito: {snap.bandit}
-                </Badge>
-                {snap.pantheon.major && (
-                  <Badge color="grape" variant="light">
-                    {snap.pantheon.major}
-                  </Badge>
-                )}
-                {snap.pantheon.minor && (
-                  <Badge color="grape" variant="light">
-                    {snap.pantheon.minor}
-                  </Badge>
-                )}
-              </Group>
-            </Box>
-
             <Divider label="Statistiche chiave" labelPosition="left" />
             <Box
               style={{
