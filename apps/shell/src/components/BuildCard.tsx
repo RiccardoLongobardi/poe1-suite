@@ -16,6 +16,7 @@
 
 import {
   Badge,
+  Box,
   Button,
   Card,
   Collapse,
@@ -29,10 +30,13 @@ import {
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import {
+  IconBolt,
   IconCheck,
   IconCopy,
   IconExternalLink,
+  IconHeart,
   IconListCheck,
+  IconShieldHalf,
   IconSparkles,
 } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
@@ -42,6 +46,8 @@ import { ScoreBar } from "./ScoreBar";
 
 interface Props {
   build: RankedBuild;
+  /** Position in the result list — drives the staggered reveal delay. */
+  index?: number;
   onSendToPlanner?: (pobCode: string) => void;
 }
 
@@ -127,7 +133,45 @@ function GemChips({ gems }: { gems: GemRef[] }) {
   );
 }
 
-export function BuildCard({ build, onSendToPlanner }: Props) {
+/**
+ * One stat chip — icon + value in Geist Mono, tinted by PoE1 rarity
+ * convention (life red, dps ember gold, ehp gem teal).
+ */
+function StatChip({
+  icon,
+  label,
+  value,
+  color,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  color: string;
+}) {
+  return (
+    <Group
+      gap={4}
+      wrap="nowrap"
+      px={8}
+      py={3}
+      style={{
+        background: "rgba(255,255,255,0.04)",
+        border: "1px solid var(--vs-border-stone)",
+        borderRadius: 4,
+      }}
+    >
+      <Box style={{ color, display: "flex" }}>{icon}</Box>
+      <Text size="10px" c="dimmed" tt="uppercase" fw={600}>
+        {label}
+      </Text>
+      <Text className="mono" size="xs" fw={700} style={{ color }}>
+        {value}
+      </Text>
+    </Group>
+  );
+}
+
+export function BuildCard({ build, index, onSendToPlanner }: Props) {
   const [opened, { toggle }] = useDisclosure(false);
   const [planLoading, setPlanLoading] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
@@ -205,126 +249,153 @@ export function BuildCard({ build, onSendToPlanner }: Props) {
 
   const mainGroup = detailGroups ? pickMainGroup(detailGroups, ref.main_skill) : null;
 
+  const defValue =
+    defLabel === "ES"
+      ? fmt(ref.energy_shield)
+      : defLabel === "Hybrid"
+        ? `${fmt(ref.life)}/${fmt(ref.energy_shield)}`
+        : fmt(ref.life);
+
   return (
-    <Card withBorder radius="md" p="sm">
+    <Card
+      withBorder
+      radius="md"
+      p="sm"
+      className="vs-card-reveal vs-glass"
+      style={{ "--card-index": index ?? 0 } as React.CSSProperties}
+    >
       <UnstyledButton onClick={toggle} w="100%">
-        <Group justify="space-between" wrap="nowrap">
-          {/* Rank + score ring */}
-          <Group gap={8} wrap="nowrap">
-            <Text fw={700} c="dimmed" w={24} ta="right" style={{ flexShrink: 0 }}>
+        <Stack gap={8}>
+          {/* Row 1 — score ring + identity + rank */}
+          <Group justify="space-between" wrap="nowrap" align="flex-start">
+            <Group gap={8} wrap="nowrap" miw={0}>
+              <RingProgress
+                size={44}
+                thickness={4}
+                roundCaps
+                sections={[{ value: pct, color }]}
+                label={
+                  <Text ta="center" size="9px" fw={700} c={color} lh={1}>
+                    {pct}%
+                  </Text>
+                }
+              />
+              <Stack gap={2} miw={0}>
+                <Group gap={6} wrap="nowrap" miw={0}>
+                  <Badge color="ember" variant="light" size="sm">
+                    {ref["class"]}
+                  </Badge>
+                  {ref.main_skill && (
+                    <Text fw={700} size="sm" truncate>
+                      {ref.main_skill}
+                    </Text>
+                  )}
+                  <Text
+                    className="mono"
+                    size="xs"
+                    c="dimmed"
+                    style={{ flexShrink: 0 }}
+                  >
+                    — Lv. {ref.level}
+                  </Text>
+                </Group>
+                <Text
+                  size="xs"
+                  truncate
+                  style={{ color: "var(--vs-text-faint)" }}
+                >
+                  {ref.character}
+                </Text>
+              </Stack>
+            </Group>
+            <Text
+              fw={700}
+              size="sm"
+              style={{
+                fontFamily: "'Cinzel', serif",
+                color: "var(--vs-ember)",
+                flexShrink: 0,
+              }}
+            >
               #{build.rank}
             </Text>
-            <RingProgress
-              size={48}
-              thickness={4}
-              roundCaps
-              sections={[{ value: pct, color }]}
-              label={
-                <Text ta="center" size="9px" fw={700} c={color} lh={1}>
-                  {pct}%
-                </Text>
-              }
-            />
           </Group>
 
-          {/* Identity */}
-          <Stack gap={2} flex={1} miw={0}>
-            <Group gap={4} wrap="nowrap">
-              <Text fw={600} size="sm" truncate>
-                {ref["class"]}
-              </Text>
-              {ref.main_skill && (
-                <Badge color="grape" variant="light" size="xs">
-                  {ref.main_skill}
-                </Badge>
-              )}
+          {/* Row 2 — stat chips + actions */}
+          <Group justify="space-between" wrap="wrap" gap={8}>
+            <Group gap={6} wrap="wrap">
+              <StatChip
+                icon={<IconHeart size={13} />}
+                label={defLabel}
+                value={defValue}
+                color="#c84040"
+              />
+              <StatChip
+                icon={<IconBolt size={13} />}
+                label="DPS"
+                value={fmt(ref.dps)}
+                color="var(--vs-ember)"
+              />
+              <StatChip
+                icon={<IconShieldHalf size={13} />}
+                label="EHP"
+                value={fmt(ref.ehp)}
+                color="#4fa8a8"
+              />
             </Group>
-            <Text size="xs" c="dimmed" truncate>
-              {ref.character} · lv {ref.level}
-            </Text>
-          </Stack>
-
-          {/* Stats */}
-          <Group gap={10} wrap="nowrap" style={{ flexShrink: 0 }}>
-            <Stack gap={0} align="center">
-              <Text size="xs" c="dimmed">
-                {defLabel}
-              </Text>
-              <Text size="xs" fw={600}>
-                {defLabel === "ES"
-                  ? fmt(ref.energy_shield)
-                  : defLabel === "Hybrid"
-                    ? `${fmt(ref.life)}/${fmt(ref.energy_shield)}`
-                    : fmt(ref.life)}
-              </Text>
-            </Stack>
-            <Stack gap={0} align="center">
-              <Text size="xs" c="dimmed">
-                EHP
-              </Text>
-              <Text size="xs" fw={600}>
-                {fmt(ref.ehp)}
-              </Text>
-            </Stack>
-            <Stack gap={0} align="center">
-              <Text size="xs" c="dimmed">
-                DPS
-              </Text>
-              <Text size="xs" fw={600}>
-                {fmt(ref.dps)}
-              </Text>
-            </Stack>
-            {onSendToPlanner && (
-              <Button
-                size="xs"
-                variant="light"
-                color="teal"
-                leftSection={<IconListCheck size={13} />}
-                loading={planLoading}
-                onClick={handlePlan}
+            <Group gap={6} wrap="nowrap">
+              {onSendToPlanner && (
+                <Button
+                  size="xs"
+                  variant="light"
+                  color="teal"
+                  leftSection={<IconListCheck size={13} />}
+                  loading={planLoading}
+                  onClick={handlePlan}
+                >
+                  Pianifica
+                </Button>
+              )}
+              <Tooltip
+                label="Apri il profilo poe.ninja in una nuova scheda"
+                withArrow
+                position="top"
               >
-                Pianifica
-              </Button>
-            )}
-            <Tooltip
-              label="Apri il profilo poe.ninja in una nuova scheda"
-              withArrow
-              position="top"
-            >
-              <Button
-                size="xs"
-                variant="light"
-                color="blue"
-                leftSection={<IconExternalLink size={13} />}
-                component="a"
-                href={poeNinjaUrl(ref.league, ref.account, ref.character)}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
+                <Button
+                  size="xs"
+                  variant="light"
+                  color="blue"
+                  leftSection={<IconExternalLink size={13} />}
+                  component="a"
+                  href={poeNinjaUrl(ref.league, ref.account, ref.character)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  Apri PoB
+                </Button>
+              </Tooltip>
+              <Tooltip
+                label={linkCopied ? "Link copiato!" : "Copia link poe.ninja"}
+                withArrow
+                position="top"
               >
-                Apri PoB
-              </Button>
-            </Tooltip>
-            <Tooltip
-              label={linkCopied ? "Link copiato!" : "Copia link poe.ninja"}
-              withArrow
-              position="top"
-            >
-              <Button
-                size="xs"
-                variant="light"
-                color={linkCopied ? "teal" : "ember"}
-                leftSection={
-                  linkCopied ? <IconCheck size={13} /> : <IconCopy size={13} />
-                }
-                onClick={handleCopyLink}
-                px="xs"
-              >
-                {linkCopied ? "Copiato" : "Copia link"}
-              </Button>
-            </Tooltip>
+                <Button
+                  size="xs"
+                  variant="light"
+                  color={linkCopied ? "teal" : "ember"}
+                  leftSection={
+                    linkCopied ? <IconCheck size={13} /> : <IconCopy size={13} />
+                  }
+                  onClick={handleCopyLink}
+                  px="xs"
+                >
+                  {linkCopied ? "Copiato" : "Copia link"}
+                </Button>
+              </Tooltip>
+            </Group>
           </Group>
-        </Group>
+        </Stack>
       </UnstyledButton>
 
       {/* Expanded content: score breakdown + main gems */}

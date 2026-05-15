@@ -24,7 +24,7 @@ Don't trust earlier versions of this file — the section below is the authorita
   - Trade redirect (client-side, no server-side GGG calls — GGG blocks Render's IP range). ✅ QA passed.
   - PoB Analyze → full build dashboard (Step 20, done 2026-05-15): character header + key stats, equipment grid with per-item tooltips, flasks, tree jewels, skill-link panel. ✅ QA passed.
   - Cold-start Divine Orb warmup overlay (Step 21, done 2026-05-15): full-viewport overlay with an animated inline-SVG PoE1 Divine Orb shown while the Render free-tier backend warms up.
-- **Design system**: "Void Stone & Ember" (Step 22a, done 2026-05-15) — void-black warm backgrounds, ember-gold accent, parchment text, Cinzel/Cabinet Grotesk/Geist Mono type. Replaced the old Atlas-violet theme. Per-page redesigns: 22b (Finder) next, 22c (Planner + Analyze) queued.
+- **Design system**: "Void Stone & Ember" (Step 22a, done 2026-05-15) — void-black warm backgrounds, ember-gold accent, parchment text, Cinzel/Cabinet Grotesk/Geist Mono type. Replaced the old Atlas-violet theme. Per-page redesigns: 22b (Finder) done, 22c (Planner + Analyze) next.
 - **Dynamic-synthesis pivot complete** (Steps 16/17/18/19, all done).
 - **Recently fixed (2026-05-15, all user-confirmed)**:
   - Build Finder blank-page bug — ErrorBoundary + Mantine v7 grouped-data shape for the class Select. ✅
@@ -128,11 +128,7 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 
 ### NEXT
 
-- [ ] **Step 22b — Finder page redesign** — New layout + animations for FinderPage + FinderResultCard, on the Void Stone & Ember design system (22a, merged). See §8 Prompt — Step 22b.
-
-### QUEUED (run in sequence after 22b)
-
-- [ ] **Step 22c — Planner + Analyze redesign** — Timeline layout for Planner, sticky header + reveal animations for Analyze. Depends on 22b being merged. See §8 Prompt — Step 22c.
+- [ ] **Step 22c — Planner + Analyze redesign** — Timeline layout for Planner, sticky header + reveal animations for Analyze, on the Void Stone & Ember design system (22a + 22b merged). See §8 Prompt — Step 22c.
 
 ### CANDIDATE FUTURE WORK
 
@@ -142,6 +138,7 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 
 ### DONE
 
+- [x] **Step 22b — Finder page redesign** (2026-05-15) — `FinderPage.tsx` rebuilt: centred hero search that collapses to a compact query chip after extract, horizontal filter-pill row, two-column results + meta-sidebar layout (`PopulationStatsPanel` in the sidebar, above results on mobile), `OracleEmptyState`. `BuildCard.tsx` restyled — two-row header with score ring + class badge + main skill + Cinzel rank, three rarity-coloured stat chips (Life/DPS/EHP), staggered `vs-card-reveal`, glassmorphism (`.vs-glass`, `@supports` fallback). All Finder functionality preserved. Frontend-only. Verified in browser. 585 KB / 181 KB gzip.
 - [x] **Step 22a — Void Stone & Ember design system** (2026-05-15) — Replaced the Atlas-violet theme with the new system: `theme.ts` rewritten with `ember`/`blood`/`dark` Mantine ramps (overriding `dark` auto-themes void bg + parchment text + surfaces), `autoContrast` for readable ember buttons; `index.css` rewritten with `--vs-*` tokens, parchment-noise body overlay, Cinzel-forced H1/H2, and global `.mantine-*` rules for interactive states (Mantine v7 `styles` can't nest pseudo-selectors); `index.html` font links; `App.tsx` recoloured; all `astral`/`gold` colour props + hardcoded violet rgba recoloured to ember. System-level only — zero layout changes. Frontend-only. Verified in browser. 585 KB / 181 KB gzip.
 - [x] **Step 21 — Divine Orb cold-start overlay** (2026-05-15) — `useServerWarmup` hook + `WarmupOverlay` component. Hand-authored inline-SVG PoE1 Divine Orb, CSS keyframe animation, `prefers-reduced-motion` aware. Mounted at `App.tsx` root. Frontend-only, no backend change. 585 KB / 181 KB gzip.
 - [x] **Step 20 — Analyze page full redesign** (2026-05-15) — PoB-style dashboard. 581 KB / 180 KB gzip. ✅ QA passed.
@@ -186,139 +183,6 @@ Reverse-chronological.
 ## 8. Prompt library
 
 Reusable templates. Self-contained — runnable today without past-chat context. When a prompt ships, move to §9.
-
----
-
-### Prompt — Step 22b: Finder page redesign
-
-```prompt
-You are working inside the `poe1-suite` mono-repo. Read CLAUDE.md and CLAUDE_PERPLEXITY_WORKFLOW.md first. Step 22a (Void Stone & Ember design system) must already be merged before starting this step.
-
-Read these files before touching anything:
-- `apps/shell/src/pages/FinderPage.tsx`
-- `apps/shell/src/components/IntentCard.tsx`
-- `apps/shell/src/components/PopulationStatsPanel.tsx`
-- `apps/shell/src/index.css`
-- `apps/shell/src/theme.ts` (already updated by 22a)
-
-## Context
-
-The Finder is the primary page of the app — the oracle's interface. The current layout is a flat single-column form with stacked components. The redesign gives it the "oracle answers" feel: a large search input at the centre, results that are *revealed* rather than listed, and a sidebar for meta-statistics.
-
-## Layout changes
-
-### 1. Search area — oracle prompt
-
-The current `<Textarea>` + `<Button>` form should be redesigned as a centred hero-style search:
-
-```
-┌────────────────────────────────────────────────────┐
-│                                                  │
-│   Consulta l'oracolo                             │  <- H2, Cinzel
-│   Descrivi il build che cerchi in italiano       │  <- subtitle, muted
-│                                                  │
-│   ┌────────────────────────────────────────┐   │
-│   │ "cerca RF con 6k life almeno"            │   │
-│   └────────────────────────────────────────┘   │
-│              [ Consulta l'Oracolo ]              │  <- ember button
-│                                                  │
-└────────────────────────────────────────────────────┘
-```
-
-After the user submits, the search area **collapses** (Mantine `<Collapse>` or CSS max-height transition) to a single compact row showing the query text + a "modifica" ghost button. This frees screen space for results.
-
-### 2. Filter pill row
-
-The class/ascendancy/stat-floor filters move to a compact horizontal pill row below the collapsed search. Filters are Mantine `<Select>` and `<NumberInput>` at reduced size (`size="xs"`). On mobile, this row scrolls horizontally.
-
-### 3. Two-column layout (desktop) / single column (mobile)
-
-Above 1024px, split into:
-
-```
-┌────────────────────────────────────────────────────────────┐
-│                           │               │            │
-│   Result cards (2/3)      │  Meta sidebar  │ (1/3)      │
-│                           │  ───────────  │            │
-│  ┌───────┐ ┌───────┐  │  PopStats    │            │
-│  │ card  │ │ card  │  │  panel here  │            │
-│  └───────┘ └───────┘  │              │            │
-│  ┌───────┐ ┌───────┐  │              │            │
-│  │ card  │ │ card  │  │              │            │
-│  └───────┘ └───────┘  └──────────────┘            │
-└────────────────────────────────────────────────────────────┘
-```
-
-The `PopulationStatsPanel` moves to the sidebar. On mobile (< 1024px) it appears above the results as before.
-
-### 4. Result card redesign
-
-Each result card (create or update the component that renders a single ranked build) must show:
-
-- **Top row**: ascendancy badge (ember colour) + main skill name (bold, Cabinet Grotesk) + level `— Lv. 94` (mono, muted)
-- **Stats row**: three stat chips in Geist Mono — Life `♥ 5 840`, DPS `⚡ 4.2M`, EHP `⚡ 12 400`. Use PoE1 rarity colours: life = `var(--vs-blood)`, dps = `var(--vs-ember)`, ehp = `#4fa8a8` (gem teal).
-- **Character name** (bottom, faint, `var(--vs-text-faint)`)
-- Right edge: rank badge `#1`, `#2` etc. in small Cinzel, ember gold
-
-Card interaction:
-- `background: var(--vs-surface-1)`, border `var(--vs-border)`.
-- On hover: border becomes `var(--vs-ember)`, `box-shadow: var(--vs-shadow-lg)`. Transition `var(--vs-transition)`.
-- Glassmorphism: add `backdrop-filter: blur(8px)` to the card. This works because the noise texture on `body::before` creates a visible background. Test that it doesn't degrade to a plain block on Firefox (provide a `@supports` fallback).
-
-### 5. Reveal animation
-
-When the result list mounts or updates (new query result arrives), each card appears with a staggered reveal:
-
-```css
-@keyframes vs-card-reveal {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-    clip-path: inset(0 100% 0 0);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-    clip-path: inset(0 0% 0 0);
-  }
-}
-
-.vs-card-reveal {
-  animation: vs-card-reveal 400ms cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .vs-card-reveal { animation: none; }
-}
-```
-
-Apply `vs-card-reveal` to each result card with `animation-delay: calc(var(--card-index) * 50ms)` via an inline style `--card-index: N`.
-
-### 6. Empty state
-
-When no query has been submitted yet (initial page load), show a centred empty state instead of a blank space:
-
-```
-[ spark icon from lucide-react ]
-"L'oracolo attende la tua domanda"
-"Descrivi il build che cerchi — classe, skill, budget"
-```
-
-Icon: `<Sparkles>` or `<Eye>` from lucide-react (already a dependency? check; if not, use a simple inline SVG eye icon). Icon colour: `var(--vs-ember-border)`.
-
-## Definition of done
-
-- The Finder page renders with the hero search area, collapsing behaviour, pill filter row, 2-col desktop / 1-col mobile layout.
-- Result cards show the 3-stat row with PoE1 rarity colours.
-- Stagger reveal animation fires on each new result set.
-- glassmorphism cards with `@supports` fallback.
-- Empty state renders on initial load.
-- PopulationStatsPanel is in the sidebar on desktop.
-- All existing Finder functionality is preserved (NL extraction, class/asc/stat-floor filters, sort, population stats).
-- Gate passes. Frontend build succeeds.
-- Commit `feat(shell): Step 22b — Finder page redesign`, push to main.
-- Update §1 + §6 in `CLAUDE_PERPLEXITY_WORKFLOW.md`.
-```
 
 ---
 
@@ -427,3 +291,4 @@ Closed prompts kept for context. Don't run these.
 - **Old Prompt 008 (Step 17 scaffolding)** — Shipped 2026-05-15. ✅
 - **Old Prompt 009 (Step 19 scaffolding)** — Shipped 2026-05-15. ✅
 - **Old Prompt 010 (Step 22a — Void Stone & Ember design system)** — Shipped 2026-05-15. ✅ Replaced the Atlas-violet theme with the void-black / ember-gold / parchment design system (theme tokens + global CSS only, zero layout changes).
+- **Old Prompt 011 (Step 22b — Finder page redesign)** — Shipped 2026-05-15. ✅ Hero search + collapse, filter-pill row, two-column results + meta sidebar, restyled BuildCard with rarity stat chips + staggered reveal + glassmorphism.

@@ -72,6 +72,16 @@ uv run pytest
 
 All four must pass with zero errors. Current baseline: **704 tests green (2 skipped — integration/LLM), 121 files type-checked clean, 117 files formatted clean**. Frontend build 585 KB / 181 KB gzip.
 
+## Step 22b — Finder page redesign (2026-05-15) ✅
+
+Second slice of the frontend redesign, on top of the 22a design system. Rebuilds `FinderPage.tsx` into the "oracle" interface and restyles the result card. Frontend-only, no backend / API contract change.
+
+- **`FinderPage.tsx`** — rewritten. Centred hero search (H2 "Consulta l'oracolo" + Textarea + ember button) that **collapses** to a compact `<Code>` query chip + "modifica" link after a successful extract (mirrors the AnalyzePage `editing` pattern). Filters moved to a single horizontal **pill row** (`.finder-filter-row`, `size="xs"` Selects/NumberInputs, scrolls horizontally on mobile) — replaces the old collapsible "Filtri avanzati" panel. Two-column layout via `.finder-grid` (results 2fr + meta sidebar 1fr at ≥1024 px, single column below). The `PopulationStatsPanel` lives in the sidebar — on mobile it sits above the results via CSS `order` (`.finder-sidebar`). New `OracleEmptyState` (eye icon + Italian copy) shown before any search and while no result set is loaded.
+- **`BuildCard.tsx`** — result card restyled. Two-row header: row 1 = score ring + class badge (ember) + main skill + `— Lv. N` (Geist Mono) + rank `#N` (Cinzel ember, right edge); row 2 = three `StatChip`s (Life red, DPS ember, EHP gem-teal, values in Geist Mono) + the Pianifica / Apri PoB / Copia link actions. Accepts an `index` prop that drives the staggered reveal. Expand section (score breakdown + lazy main gems) unchanged.
+- **`index.css`** — `.finder-grid` / `.finder-filter-row` / `.finder-sidebar` layout, `.vs-glass` glassmorphism (`backdrop-filter: blur(8px)` with an `@supports` solid fallback), `vs-card-reveal` keyframe + `--card-index` stagger (disabled under `prefers-reduced-motion`).
+
+All existing Finder functionality preserved — NL extraction, class/asc/stat-floor filters, sort, population stats, the recommend flow.
+
 ## Step 22a — Void Stone & Ember design system (2026-05-15) ✅
 
 First slice of the full frontend redesign. Replaces the old Atlas-violet theme with the "Void Stone & Ember" design system — system-level tokens only, **zero layout changes** (per-page redesigns are Steps 22b/22c). Frontend-only, no backend change, no new npm deps.

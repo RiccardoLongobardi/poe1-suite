@@ -267,6 +267,83 @@ h6 {
   }
 }
 
+/* ── Step 22b: Finder page redesign ────────────────────────────────── */
+
+/* Two-column layout: results (2fr) + meta sidebar (1fr) at >=1024px. */
+.finder-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+@media (min-width: 1024px) {
+  .finder-grid {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  }
+}
+
+/* Filter pill row scrolls horizontally on mobile. */
+.finder-filter-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+.finder-filter-row > * {
+  flex: 0 0 auto;
+}
+
+/* Meta sidebar: above results on mobile, right column on desktop. */
+.finder-sidebar {
+  order: -1;
+}
+@media (min-width: 1024px) {
+  .finder-sidebar {
+    order: 0;
+  }
+}
+
+/* Glassmorphism surface — relies on the body noise texture showing
+   through. Plain solid fallback for browsers without backdrop-filter. */
+.vs-glass {
+  background: var(--vs-surface-1);
+}
+@supports (
+  (backdrop-filter: blur(8px)) or (-webkit-backdrop-filter: blur(8px))
+) {
+  .vs-glass {
+    background: rgba(17, 16, 9, 0.62);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+}
+
+/* Staggered result-card reveal. */
+@keyframes vs-card-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    clip-path: inset(0 0% 0 0);
+  }
+}
+
+.vs-card-reveal {
+  animation: vs-card-reveal 400ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--card-index, 0) * 50ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vs-card-reveal {
+    animation: none !important;
+  }
+}
+
 /* ── Step 21: Divine Orb cold-start warmup overlay ─────────────────── */
 
 .warmup-overlay {
