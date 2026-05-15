@@ -22,7 +22,7 @@ Don't trust earlier versions of this file — the section below is the authorita
   - Planner with 6-stage `BuildPlan`, SSE streaming progress + ETA. ✅ QA passed.
   - "Importa stage in PoB": exports a stage-specific PoB code. Passes through the user's real `<Items>`/`<Skills>` verbatim (only the passive tree differs per stage). ✅ QA passed — no fake items, no mis-labelled gems, no `explodeSource` crash.
   - Trade redirect (client-side, no server-side GGG calls — GGG blocks Render's IP range). ✅ QA passed.
-  - PoB Analyze → full build dashboard (Step 20, done 2026-05-15): character header + key stats, equipment grid with per-item tooltips, flasks, tree jewels, skill-link panel. ✅
+  - PoB Analyze → full build dashboard (Step 20, done 2026-05-15): character header + key stats, equipment grid with per-item tooltips, flasks, tree jewels, skill-link panel. ✅ QA passed.
 - **Dynamic-synthesis pivot complete** (Steps 16/17/18/19, all done):
   - Step 16 (Dynamic Tree Progression) — ✅ done 2026-05-14.
   - Step 17 (Dynamic Gear Progression) — ✅ done 2026-05-15.
@@ -199,7 +199,7 @@ Authoritative status of the dynamic-synthesis pivot. Updated by Claude Code afte
 
 ### NEXT
 
-- *(nothing queued — pick from "candidate future work" below at the next planning session)*
+- [ ] **Step 21 — Cold-start UX: Divine Orb loading banner** — see §8 for the full prompt. A branded, interactive loading banner themed around Path of Exile 1's Divine Orb, shown while the Render free-tier backend warms up (~30 s cold start). Pure frontend, no backend change.
 
 ### CANDIDATE FUTURE WORK
 
@@ -207,12 +207,11 @@ These are *opportunities*, not commitments. Discuss with the user before promoti
 
 - [ ] **Finder result-list polish** — sort indicator showing which sort key produced the order; "this ascendancy is 47% of the meta this league" line from population stats; per-skill drill-down panel.
 - [ ] **Pricing-aware gear classifier** — currently `derive_gear_progression` uses a name-signature heuristic for unique tiers when no `prices` map is provided. Wire `PricingService.snapshot()` into the router so the live prices feed the classifier (one extra async fetch per stage-export request, cacheable).
-- [ ] **Cold-start UX banner** — Render's free tier spins down after 15 min idle; first request takes ~30 s. Frontend should detect long pending `/health` probes and surface "warming up the server" so users don't think it's broken.
-- [ ] **Bundle code-splitting** — Vite build warns at 566 KB. Splitting Planner / Finder routes into lazy chunks would knock the initial JS to <300 KB.
+- [ ] **Bundle code-splitting** — Vite build warns at 581 KB. Splitting Planner / Finder routes into lazy chunks would knock the initial JS to <300 KB.
 
 ### DONE
 
-- [x] **Step 20 — Analyze page full redesign** (2026-05-15) — Rebuilt `apps/shell/src/pages/AnalyzePage.tsx` from a four-badge stub into a PoB-style dashboard: compact collapsible input, two-column layout (character header + key stats | equipment grid with per-item tooltips, flasks, tree jewels), full-width skill-link panel. `types.ts` opaque `snapshot: Record<string, unknown>` replaced with typed `PobSnapshot` interfaces mirroring `poe1_fob.pob.models`. Frontend-only — no backend/API change. Gotcha noted in `CLAUDE.md`: `PobSkillGroup.is_main` is true on almost every group (it's PoB's per-group `mainActiveSkill` attr); the real main group is `main_skill_group_index`. Verified in browser with the real fixture PoB. Frontend build 581 KB / 180 KB gzip.
+- [x] **Step 20 — Analyze page full redesign** (2026-05-15) — Rebuilt `apps/shell/src/pages/AnalyzePage.tsx` from a four-badge stub into a PoB-style dashboard: compact collapsible input, two-column layout (character header + key stats | equipment grid with per-item tooltips, flasks, tree jewels), full-width skill-link panel. `types.ts` opaque `snapshot: Record<string, unknown>` replaced with typed `PobSnapshot` interfaces mirroring `poe1_fob.pob.models`. Frontend-only — no backend/API change. Gotcha noted in `CLAUDE.md`: `PobSkillGroup.is_main` is true on almost every group (it's PoB's per-group `mainActiveSkill` attr); the real main group is `main_skill_group_index`. Verified in browser with the real fixture PoB. Frontend build 581 KB / 180 KB gzip. ✅ QA passed 2026-05-15.
 - [x] **Step 1-13** — Core domain models, PoE Ninja + Trade pricing, ranking engine, planner v2 reverse-mode, UI shell. (See `CLAUDE.md` for per-step detail.)
 - [x] **Step 14 T1-T5** — Tree + gear + gem progression scaffolding, PoB XML encoder + decoder, StageCard tabs UI, "Importa stage in PoB" button.
 - [x] **PoB import QA** (2026-05-14) — Verified the export-then-paste flow against Path of Building Community 3.28 desktop. Took 7 commits to debug the tree URL header, mastery effects, cluster jewel passthrough — see `CLAUDE.md` "Lessons from the PoB-import-debug sprint".
@@ -241,6 +240,7 @@ These were in earlier versions of this file or earlier backlogs; they are explic
 
 Reverse-chronological. Every decision that changes architecture, stack, or scope gets a line. Add (don't rewrite) past entries.
 
+- **2026-05-15** — *Cold-start banner: Divine Orb theme, interactive, pure frontend.* The Render free-tier cold start (~30 s) makes new users think the site is broken. Decision: add an app-level loading overlay that fires when `/health` takes >2 s to respond; style it as an animated SVG Divine Orb (PoE 1 aesthetic — golden sphere with classical female face in bas-relief, dark parchment background, ornamental border, warm amber/gold palette). The orb must be a hand-authored inline SVG (no external image asset, no new npm deps); animation via CSS keyframes only (no Framer Motion, no GSAP). Overlay dismisses automatically once `/health` responds. See §8 Prompt — Step 21.
 - **2026-05-15** — *Analyze page: full redesign, route kept.* The existing `/analyze` page was QA-flagged as low-value (shows only class + ascendancy + main skill + level as coloured badges, nothing else). Decision: keep the route but fully rebuild the page. The redesign must expose all useful data already present in `PobSnapshot` (items_by_slot, jewels, flasks, skills, stats, pantheon, bandit, config, notes) without any new backend endpoints — `POST /fob/analyze-pob` already returns the full snapshot. The input area must be minimised (collapsible after submit) and must also accept `pobb.in` links (already supported by the backend's `load_pob`, just not surfaced in the UI label). Shipped 2026-05-15 — see §9 Old Prompt 006.
 - **2026-05-14** — *Server-side Trade search is impossible on Render.* GGG returns HTTP 403 from datacenter IP ranges (verified via direct curl). Removed `/fob/trade-search` + `/fob/extract-trade-mods` endpoints; frontend redirects directly to `pathofexile.com/trade/search/<league>` with item name in clipboard. The `/fob/trade-url` endpoint stays in the code (works in local dev) but the frontend doesn't call it from production. Re-attempt requires moving the backend to a non-blocked host.
 - **2026-05-14** — *Dynamic synthesis over curated templates.* Steps 16-19 replace `*_PROGRESSION` registries (only `rf_pohx` + `spectre_necromancer` were ever curated). Tree progression derives from BFS on the user's PoB; gem progression projects level/quality with Awakened-substitution; gear progression will classify by price tier; the 49 `BuildTemplate` classes stay for descriptive Italian rationale text + UI labels only.
@@ -255,6 +255,113 @@ Reverse-chronological. Every decision that changes architecture, stack, or scope
 ## 8. Prompt library
 
 Reusable templates. Each prompt should be self-contained — runnable today without context from a past chat. When a prompt becomes obsolete (e.g. the feature ships), move it to §9 archive instead of deleting it, so future Perplexity sessions see why it's no longer here.
+
+### Prompt — Step 21: Cold-start UX — Divine Orb loading banner
+
+```prompt
+You are working inside the `poe1-suite` mono-repo. Read CLAUDE.md (project contract) and CLAUDE_PERPLEXITY_WORKFLOW.md (workflow + decisions) first, then read `apps/shell/src/main.tsx`, `apps/shell/src/App.tsx`, and `apps/shell/src/api/client.ts` before touching anything.
+
+## Context
+
+The backend runs on Render's free tier and spins down after 15 minutes of inactivity. The first HTTP request after a cold period takes ~30 seconds to respond. Right now users who open the site during a cold start see no feedback at all and assume the site is broken.
+
+## Goal
+
+Add an app-level loading overlay that:
+1. Appears automatically when the backend is cold (detected via a slow `/health` probe).
+2. Is themed around the **Path of Exile 1 Divine Orb** — a recognisable, iconic PoE1 currency item.
+3. Dismisses automatically once `/health` responds, with a smooth fade-out.
+4. Is entirely pure frontend — zero backend changes, zero new npm dependencies.
+
+## Visual design — the Divine Orb
+
+The Divine Orb in PoE 1 is a hand-crafted golden sphere with:
+- A **classical female face** sculpted in bas-relief at the centre (Roman/Greek aesthetic — high cheekbones, closed eyes, serene expression, wavy hair).
+- A warm **amber/gold** colour palette: deep bronze outer ring → bright gold highlight at centre → dark shadow in recesses.
+- An **ornamental border** of small studs or rivets around the circumference.
+- A **dark background** — near-black parchment or void, so the orb glows.
+
+You must implement the orb as a **hand-authored inline SVG** directly in the component. Do not use an external image file, a CDN-hosted image, or any new asset. No Framer Motion, no GSAP — CSS `@keyframes` only.
+
+The SVG must be self-contained and credible as a PoE1 currency item. Required elements:
+- Outer ring: dark stroke, `fill: #1a1008` (near-black bronze).
+- Main sphere: radial gradient from `#d4a520` (bright gold, centre) → `#7a4e10` (dark bronze, edge).
+- Face: simplified bas-relief using ellipse + path shapes for eyes, nose bridge, cheekbones, lips. Monochrome, uses `opacity` and `fill` relative to the sphere colour — not a separate colour.
+- Ornamental studs: 12–16 small circles evenly distributed around the outer ring circumference.
+- Inner highlight: a small off-centre ellipse at `fill: rgba(255,230,120,0.35)` to simulate a light source from top-left.
+- The whole SVG should render crisply at **120×120 px** (the size shown in the overlay).
+
+Animation (CSS keyframes only):
+- The orb pulses gently: `transform: scale(1.0) → scale(1.06) → scale(1.0)` on a 2.4 s ease-in-out loop.
+- A soft golden glow behind the orb (`box-shadow` or `filter: drop-shadow`) pulses in sync, from dim to bright.
+- A rotating outer ring of light: a thin arc (`stroke-dasharray`) that orbits the orb on a 3 s linear loop.
+- The entire overlay fades in over 300 ms on mount; fades out over 600 ms on dismiss.
+
+## Text in the overlay
+
+Below the orb, show two text lines:
+
+1. **"Il server si sta risvegliando..."** — in the PoE1 UI font style: serif, italic, warm parchment colour (`#e8c97a`), `font-size: 1.1rem`.
+2. A subtle subtitle: **"Render free tier — attendi qualche secondo"** — smaller, muted (`#8a7a5a`), `font-size: 0.8rem`.
+
+Do not show a spinner, progress bar, or percentage. The orb animation IS the loading indicator.
+
+## Detection logic
+
+The overlay must fire on **cold start only**, not on every page load. Use this strategy:
+
+```typescript
+// In a new file: apps/shell/src/hooks/useServerWarmup.ts
+// On mount, fire a GET /health request with a 3-second timeout race.
+// If the request resolves in < 3 s → server is warm, never show the overlay.
+// If the request is still pending after 3 s → show the overlay.
+// When the request finally resolves (regardless of how long it took) → dismiss the overlay.
+// If /health returns a non-ok status or throws → dismiss the overlay anyway (don't block the user).
+```
+
+The overlay component must be placed in `App.tsx` (or `main.tsx` if that's where the root layout lives), rendered above all routes, and positioned `fixed` + `z-index: 9999` so it covers the entire viewport.
+
+## Overlay layout
+
+```
+┌─────────────────────────────────────────────┐
+│                                             │
+│             [Divine Orb SVG]                │
+│               120 × 120 px                  │
+│                                             │
+│      Il server si sta risvegliando...       │
+│    Render free tier — attendi qualche       │
+│               secondo                       │
+│                                             │
+└─────────────────────────────────────────────┘
+```
+
+Background: `rgba(10, 8, 4, 0.92)` — near-black with a very slight warm tint, covers the whole viewport. Content centred both axes.
+
+## Files to create / modify
+
+- **Create** `apps/shell/src/hooks/useServerWarmup.ts` — the detection hook.
+- **Create** `apps/shell/src/components/WarmupOverlay.tsx` — the overlay component with the inline SVG orb.
+- **Modify** `apps/shell/src/App.tsx` (or `main.tsx`) — mount `<WarmupOverlay />` at the root, above all routes.
+- **Do not** modify any file under `packages/`, any backend router, any test file.
+
+## Tech constraints
+
+- Mantine v7 for the overlay wrapper if convenient, but plain `div` + CSS is fine — this component has no Mantine-specific requirements.
+- The SVG must be inline JSX — no `<img src>`, no external file, no `dangerouslySetInnerHTML`.
+- All CSS animations must respect `prefers-reduced-motion`: if the media query is active, skip the pulse and rotation animations entirely and show the orb statically.
+- `apps/shell` must build without TypeScript errors after this change.
+
+## Definition of done
+
+- On a cold-start (simulated by running `curl https://fob-api-rtgg.onrender.com/health` after the backend has been idle), the overlay appears within 3 s and dismisses once the backend responds.
+- On a warm start (backend already responding), the overlay never appears.
+- The orb SVG is visually recognisable as a PoE1-style golden currency orb with a classical face.
+- `prefers-reduced-motion` respected: static orb, no animation.
+- `pnpm tsc --noEmit` (or the project's equivalent TS check) passes.
+- Gate passes: `uv run ruff check . && uv run ruff format --check . && uv run mypy . && uv run pytest`.
+- Commit with message `feat(shell): Step 21 — Divine Orb cold-start warmup overlay`, push to main, update §6 DONE and §1 in this file.
+```
 
 ### Prompt — Step 17 scaffolding
 
