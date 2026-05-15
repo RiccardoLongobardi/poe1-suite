@@ -72,6 +72,19 @@ uv run pytest
 
 All four must pass with zero errors. Current baseline: **704 tests green (2 skipped — integration/LLM), 121 files type-checked clean, 117 files formatted clean**. Frontend build 585 KB / 181 KB gzip.
 
+## Step 23 — Parchment light mode (2026-05-15) ✅
+
+The `colorScheme` toggle in the header existed but light mode was broken — Mantine fell back to its default white/black/violet palette, white-on-white in places. Step 23 defines the "Parchment" light mode that pairs with the "Void Stone & Ember" dark mode. Frontend-only, zero layout changes, no new deps.
+
+- **`index.css`** — new `[data-mantine-color-scheme="light"]` block (Mantine v7 stamps that attribute on `<html>`) overrides every `--vs-*` token: warm cream backgrounds, dark-walnut ink text, ember gold *darkened* to `#b07820` so it clears WCAG 4.5:1 on cream (ember stays an accent, never body text). The whole design system cascades from those vars, so nothing else needed per-component changes for the main surfaces. Plus: stronger noise opacity (`0.04`) and an `!important` AppShell-main background pin for light mode.
+- **Two fixes that also tighten dark mode**:
+  - `.mantine-Input-input` now sets `background: var(--vs-surface-2)` / `border-color: var(--vs-border-faint)` / `color: var(--vs-text)` explicitly. Before, inputs took Mantine's per-scheme `white`/`dark` defaults — in light mode that surfaced the `white` theme token (`#e2d5b8`) instead of the cream surface.
+  - `--mantine-color-dimmed` is remapped to `var(--vs-text-muted)` in the light block (`!important` — Mantine sets it at higher specificity). Mantine's default dimmed grey `#868e96` fails contrast on cream; sepia `#6b5a3e` passes.
+
+**Mantine v7 colour-scheme-var gotcha**: Mantine sets its built-in CSS vars (`--mantine-color-dimmed`, etc.) on a higher-specificity selector than a plain `[data-mantine-color-scheme="light"]` block. To override one, use `!important` on the custom-property declaration (custom properties accept `!important`).
+
+`theme.ts` needed no changes — its only hardcoded hex are the legitimate `ember`/`blood`/`dark` colour ramps + `black`/`white` base tokens; component styling lives entirely in `index.css` global rules keyed off `var(--vs-*)`.
+
 ## Bug — Step 22 QA: filter row clipped + Analyze stats hidden (2026-05-15) ✅ fixed
 
 Two QA findings on the Step 22 redesign:

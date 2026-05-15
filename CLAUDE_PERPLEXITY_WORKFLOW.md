@@ -25,7 +25,7 @@ Don't trust earlier versions of this file — the section below is the authorita
   - PoB Analyze → full build dashboard (Step 20, done 2026-05-15): character header + key stats, equipment grid with per-item tooltips, flasks, tree jewels, skill-link panel. ✅ QA passed.
   - Cold-start Divine Orb warmup overlay (Step 21, done 2026-05-15): full-viewport overlay with an animated inline-SVG PoE1 Divine Orb shown while the Render free-tier backend warms up.
 - **Design system**: "Void Stone & Ember" (Step 22, done 2026-05-15) — void-black warm backgrounds, ember-gold accent, parchment text, Cinzel/Cabinet Grotesk/Geist Mono type. Replaced the old Atlas-violet theme. All three slices shipped: 22a (design system), 22b (Finder), 22c (Planner timeline + Analyze polish). QA verified. ✅
-- **Light mode**: currently broken / effectively absent — Mantine `colorScheme` toggle exists in the header but the light colours are not defined and render white-on-white in many areas. Step 23 will fix this with the "Parchment" light-mode palette. See §8.
+- **Light mode**: "Parchment" light mode shipped (Step 23, done 2026-05-15) — warm cream backgrounds, ink text, darkened ember accent. The header `colorScheme` toggle now switches cleanly between Void Stone (dark) and Parchment (light).
 - **Dynamic-synthesis pivot complete** (Steps 16/17/18/19, all done).
 - **Recently fixed (2026-05-15, all user-confirmed)**:
   - Build Finder blank-page bug — ErrorBoundary + Mantine v7 grouped-data shape for the class Select. ✅
@@ -129,7 +129,7 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 
 ### NEXT
 
-- [ ] **Step 23 — Light mode "Parchment"** — Define a complete, QA-ready light-mode palette that pairs with the existing "Void Stone & Ember" dark mode. Warm cream backgrounds, ink-on-parchment text, ember gold as accent only (not text). See §8 Prompt — Step 23.
+- *(nothing queued — pick from "candidate future work" below at the next planning session.)*
 
 ### CANDIDATE FUTURE WORK
 
@@ -139,6 +139,7 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 
 ### DONE
 
+- [x] **Step 23 — Parchment light mode** (2026-05-15) — New `[data-mantine-color-scheme="light"]` block in `index.css` overrides every `--vs-*` token to a warm-cream / ink palette; ember darkened to `#b07820` for WCAG contrast on cream. Fixed `.mantine-Input-input` to use `--vs-surface-2`/`--vs-border-faint` explicitly (also tightens dark mode) and remapped `--mantine-color-dimmed` to the sepia muted token (`!important`, since Mantine sets it at higher specificity). Frontend-only, no layout change; `theme.ts` untouched. Verified both schemes in browser. 586 KB / 182 KB gzip.
 - [x] **Step 22c — Planner timeline + Analyze polish** (2026-05-15) ✅
 - [x] **Step 22b — Finder page redesign** (2026-05-15) ✅
 - [x] **Step 22a — Void Stone & Ember design system** (2026-05-15) ✅
@@ -180,164 +181,6 @@ Reusable templates. Self-contained — runnable today without past-chat context.
 
 ---
 
-### Prompt — Step 23: Light mode "Parchment"
-
-```prompt
-You are working inside the `poe1-suite` mono-repo. Read CLAUDE.md and CLAUDE_PERPLEXITY_WORKFLOW.md first, then read the following files before touching anything:
-- `apps/shell/src/theme.ts`
-- `apps/shell/src/index.css`
-- `apps/shell/src/main.tsx` (or wherever MantineProvider is configured)
-
-## Context
-
-The "Void Stone & Ember" dark mode is complete and QA-verified (Step 22). A `colorScheme` toggle already exists in the header. The problem: the light mode is broken — Mantine falls back to its default light palette, producing white backgrounds, black text, and violet accents that clash entirely with the Void Stone & Ember identity. Many areas are white-on-white or otherwise illegible.
-
-This step defines a complete "Parchment" light mode that pairs with the dark mode. It is **frontend-only, zero layout changes, zero new npm dependencies**.
-
-## Design spec — "Parchment" light mode
-
-### Colour philosophy
-
-The Parchment theme is the daytime counterpart to Void Stone. Same PoE1 identity (parchment, ember gold, ink), different luminosity. Ember gold is used exclusively as an **interactive accent** (borders on hover, button backgrounds, badge colours) — never as body text, because `#c8932a` on a light cream surface fails WCAG 4.5:1 contrast. All body text uses warm dark ink tones.
-
-### CSS variables — light mode overrides
-
-In `index.css`, add a `[data-mantine-color-scheme="light"]` block (Mantine v7 uses this attribute on `<html>`) that overrides the `--vs-*` tokens defined in the dark `:root`:
-
-```css
-[data-mantine-color-scheme="light"] {
-  /* Backgrounds — warm cream, layered parchment */
-  --vs-bg:           #f2ece0;   /* base: aged parchment */
-  --vs-surface-1:    #ede5d2;   /* primary card surface */
-  --vs-surface-2:    #e8ddc8;   /* elevated surface (tooltips, modals) */
-  --vs-surface-3:    #e2d5bc;   /* highest elevation */
-
-  /* Ember gold — accent only, NOT text */
-  --vs-ember:        #b07820;   /* darkened for light bg — still amber, now 4.6:1 on --vs-bg */
-  --vs-ember-bright: #c8932a;   /* hover state */
-  --vs-ember-dim:    rgba(176, 120, 32, 0.10);
-  --vs-ember-glow:   rgba(176, 120, 32, 0.20);
-  --vs-ember-border: rgba(176, 120, 32, 0.25);
-
-  /* Blood — secondary accent */
-  --vs-blood:        #7a1515;
-  --vs-blood-dim:    rgba(122, 21, 21, 0.10);
-
-  /* Text — ink on parchment */
-  --vs-text:         #2a1f0e;   /* primary: dark walnut ink */
-  --vs-text-muted:   #6b5a3e;   /* secondary: sepia */
-  --vs-text-faint:   #9a8570;   /* tertiary: faded inscription */
-  --vs-text-inverse: #f2ece0;   /* text on ember/dark backgrounds */
-
-  /* Borders */
-  --vs-border:       rgba(176, 120, 32, 0.25);  /* ember trace, visible on cream */
-  --vs-border-faint: rgba(176, 120, 32, 0.12);
-  --vs-border-stone: rgba(42, 31, 14, 0.08);    /* neutral ink divider */
-
-  /* Stat colours — PoE1 rarity, adjusted for light background readability */
-  --vs-normal:   #555555;  /* dark gray on cream */
-  --vs-magic:    #4444cc;  /* dark blue */
-  --vs-rare:     #8a7a00;  /* dark gold/yellow */
-  --vs-unique:   #8b4513;  /* dark orange/saddle brown */
-  --vs-gem:      #0d7a75;  /* dark teal */
-  --vs-currency: #6b5a3e;  /* same as text-muted */
-
-  /* Shadows — warm ink tint */
-  --vs-shadow-sm: 0 1px 3px rgba(42, 31, 14, 0.12);
-  --vs-shadow-md: 0 4px 16px rgba(42, 31, 14, 0.15);
-  --vs-shadow-lg: 0 8px 32px rgba(42, 31, 14, 0.18), 0 0 64px rgba(176, 120, 32, 0.06);
-}
-```
-
-### Noise texture in light mode
-
-The `body::before` parchment noise overlay defined in the dark mode is already `position: fixed` and `opacity: 0.025`. In light mode, the same texture should be slightly more visible:
-
-```css
-[data-mantine-color-scheme="light"] body::before {
-  opacity: 0.04;
-}
-```
-
-### Mantine theme — light colour overrides in `theme.ts`
-
-Mantine v7's `createTheme` supports `light`/`dark` object variants for component styles. Read the existing `theme.ts` carefully — it may already use `colorScheme`-conditional styles or it may use hardcoded `var(--vs-*)` tokens.
-
-**If `theme.ts` uses `var(--vs-*)` tokens directly** (the preferred approach from Step 22a), then the CSS variable overrides above are sufficient — no changes to `theme.ts` are needed for most components, because the CSS vars cascade automatically.
-
-**However**, some Mantine component styles may have hardcoded dark hex values (e.g. `background: "#080604"`, `color: "#e2d5b8"`) that were added as one-off fixes during Step 22. Find all such hardcoded dark values in `theme.ts` and replace them with the appropriate `var(--vs-*)` token so they adapt automatically to both modes.
-
-Additionally, ensure the Mantine `MantineProvider` in `main.tsx` (or wherever it is configured) has:
-
-```tsx
-<MantineProvider theme={fobTheme} defaultColorScheme="dark">
-```
-
-The `defaultColorScheme="dark"` ensures new visitors see the dark mode. The existing header toggle already writes `data-mantine-color-scheme` to `<html>`.
-
-### Body background in light mode
-
-The current `index.css` likely sets `body { background-color: var(--vs-bg); }` globally. Since `--vs-bg` is now overridden in light mode, this should work automatically. Verify it does — if Mantine's `AppShell` overrides the body background with its own value, add:
-
-```css
-[data-mantine-color-scheme="light"] body,
-[data-mantine-color-scheme="light"] .mantine-AppShell-main {
-  background-color: var(--vs-bg) !important;
-}
-```
-
-### Scrollbar in light mode
-
-```css
-[data-mantine-color-scheme="light"] ::-webkit-scrollbar-track {
-  background: var(--vs-bg);
-}
-[data-mantine-color-scheme="light"] ::-webkit-scrollbar-thumb {
-  background: var(--vs-ember-border);
-}
-[data-mantine-color-scheme="light"] ::-webkit-scrollbar-thumb:hover {
-  background: var(--vs-ember);
-}
-```
-
-### WarmupOverlay in light mode
-
-The `WarmupOverlay` uses `rgba(8, 6, 4, 0.92)` as its overlay background — this is correct and intentional regardless of colour scheme (it's a full-screen takeover, not a surface). No change needed.
-
-### BuildCard glassmorphism in light mode
-
-The `.vs-glass` class uses `backdrop-filter: blur(8px)`. In light mode the noise texture is the backdrop; the blur effect will be subtle but visible. No change needed — the existing `@supports` fallback handles browsers without backdrop-filter.
-
-## Verification checklist
-
-After implementing, toggle the colour scheme and verify each of the following in the browser:
-
-- [ ] Body background is warm cream (`#f2ece0`), not white and not purple.
-- [ ] Cards render with `--vs-surface-1` (`#ede5d2`) background and a visible ember-trace border.
-- [ ] Primary text (`--vs-text`, `#2a1f0e`) is readable on every surface — dark walnut ink.
-- [ ] Muted text (`--vs-text-muted`, `#6b5a3e`) is readable — sepia tone.
-- [ ] Ember buttons: background `#b07820`, text `--vs-text-inverse` (`#f2ece0`). Readable.
-- [ ] Outline buttons: ember border visible, background cream.
-- [ ] Inputs: background `--vs-surface-2`, border `--vs-border-faint`, focus ring ember.
-- [ ] Badges: ember-dim background, ember text.
-- [ ] PoE1 rarity colours (normal/magic/rare/unique/gem/currency) are all legible on cream.
-- [ ] Finder stat chips (Life/DPS/EHP) are legible.
-- [ ] Planner timeline dots use `--vs-ember` for active stages — visible on cream.
-- [ ] Analyze sticky header: readable text, visible background.
-- [ ] Dark mode is unaffected — toggling back to dark produces the original Void Stone look.
-- [ ] No white-on-white or invisible text anywhere.
-
-## Definition of done
-
-- All verification checklist items pass.
-- Gate passes: `uv run ruff check . && uv run ruff format --check . && uv run mypy . && uv run pytest`.
-- Frontend build succeeds (Vite `pnpm build` or equivalent).
-- Commit `feat(shell): Step 23 — Parchment light mode`, push to main.
-- Update §1 + §6 in `CLAUDE_PERPLEXITY_WORKFLOW.md`.
-```
-
----
-
 ### Prompt — Step 17 scaffolding
 
 *(kept for reference — already shipped, see §9)*
@@ -364,3 +207,4 @@ Closed prompts kept for context. Don't run these.
 - **Old Prompt 010 (Step 22a — Void Stone & Ember design system)** — Shipped 2026-05-15. ✅ Replaced the Atlas-violet theme with the void-black / ember-gold / parchment design system (theme tokens + global CSS only, zero layout changes).
 - **Old Prompt 011 (Step 22b — Finder page redesign)** — Shipped 2026-05-15. ✅ Hero search + collapse, filter-pill row, two-column results + meta sidebar, restyled BuildCard with rarity stat chips + staggered reveal + glassmorphism.
 - **Old Prompt 012 (Step 22c — Planner timeline + Analyze polish)** — Shipped 2026-05-15. ✅ Planner horizontal Roman-numeral timeline (desktop) with click-to-expand stages + collapsing input; Analyze sticky character header, rarity CSS vars, Geist Mono stat values, section reveal. Completes the Step 22 frontend redesign.
+- **Old Prompt 013 (Step 23 — Parchment light mode)** — Shipped 2026-05-15. ✅ `[data-mantine-color-scheme="light"]` block overriding every `--vs-*` token to a cream/ink palette; ember darkened for WCAG contrast; input + dimmed-text fixes. The header toggle now switches cleanly between Void Stone (dark) and Parchment (light).

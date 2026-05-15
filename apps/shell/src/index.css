@@ -61,6 +61,63 @@
   --astral-glow: var(--vs-ember);
 }
 
+/* ────────────────────────────────────────────────────────────────────
+   "Parchment" light mode (Step 23) — daytime counterpart of Void Stone.
+   Mantine v7 stamps data-mantine-color-scheme on <html>; overriding the
+   --vs-* tokens here cascades through every global rule + component.
+   Ember gold is darkened to #b07820 so it clears WCAG 4.5:1 on cream;
+   it is used as an accent only, never as body text.
+   ──────────────────────────────────────────────────────────────────── */
+[data-mantine-color-scheme="light"] {
+  /* Backgrounds — warm cream, layered parchment */
+  --vs-bg:           #f2ece0;
+  --vs-surface-1:    #ede5d2;
+  --vs-surface-2:    #e8ddc8;
+  --vs-surface-3:    #e2d5bc;
+
+  /* Ember gold — accent only, NOT text */
+  --vs-ember:        #b07820;
+  --vs-ember-bright: #c8932a;
+  --vs-ember-dim:    rgba(176, 120, 32, 0.1);
+  --vs-ember-glow:   rgba(176, 120, 32, 0.2);
+  --vs-ember-border: rgba(176, 120, 32, 0.25);
+
+  /* Blood — secondary accent */
+  --vs-blood:        #7a1515;
+  --vs-blood-dim:    rgba(122, 21, 21, 0.1);
+
+  /* Text — ink on parchment */
+  --vs-text:         #2a1f0e;
+  --vs-text-muted:   #6b5a3e;
+  --vs-text-faint:   #9a8570;
+  --vs-text-inverse: #f2ece0;
+
+  /* Borders */
+  --vs-border:       rgba(176, 120, 32, 0.25);
+  --vs-border-faint: rgba(176, 120, 32, 0.12);
+  --vs-border-stone: rgba(42, 31, 14, 0.08);
+
+  /* Stat colours — PoE1 rarity, darkened for cream readability */
+  --vs-normal:   #555555;
+  --vs-magic:    #4444cc;
+  --vs-rare:     #8a7a00;
+  --vs-unique:   #8b4513;
+  --vs-gem:      #0d7a75;
+  --vs-currency: #6b5a3e;
+
+  /* Shadows — warm ink tint */
+  --vs-shadow-sm: 0 1px 3px rgba(42, 31, 14, 0.12);
+  --vs-shadow-md: 0 4px 16px rgba(42, 31, 14, 0.15);
+  --vs-shadow-lg: 0 8px 32px rgba(42, 31, 14, 0.18),
+    0 0 64px rgba(176, 120, 32, 0.06);
+
+  /* Mantine's default dimmed grey (#868e96) fails contrast on cream —
+     remap <Text c="dimmed"> to the sepia muted token. `!important`
+     because Mantine sets this var at a higher specificity. Dark scheme
+     keeps Mantine's default, which is legible on the void. */
+  --mantine-color-dimmed: var(--vs-text-muted) !important;
+}
+
 html,
 body,
 #root {
@@ -94,6 +151,16 @@ body::before {
 #root {
   position: relative;
   z-index: 1;
+}
+
+/* Light mode: the parchment noise reads a touch stronger on cream, and
+   Mantine's AppShell main can override the body background — pin it. */
+[data-mantine-color-scheme="light"] body::before {
+  opacity: 0.04;
+}
+[data-mantine-color-scheme="light"] body,
+[data-mantine-color-scheme="light"] .mantine-AppShell-main {
+  background-color: var(--vs-bg) !important;
 }
 
 /* Headings: Cinzel only at H1/H2 (forced over Mantine's Title class). */
@@ -181,7 +248,17 @@ h6 {
 }
 
 /* Inputs (TextInput / Textarea / Select / NumberInput all share
-   .mantine-Input-input) get an ember focus ring. */
+   .mantine-Input-input). Base surface + ember focus ring — set
+   explicitly so both colour schemes use the --vs-* tokens rather than
+   Mantine's per-scheme `white`/`dark` defaults. */
+.mantine-Input-input {
+  background: var(--vs-surface-2);
+  border-color: var(--vs-border-faint);
+  color: var(--vs-text);
+}
+.mantine-Input-input::placeholder {
+  color: var(--vs-text-faint);
+}
 .mantine-Input-input:focus,
 .mantine-Input-input:focus-within {
   border-color: var(--vs-ember);
