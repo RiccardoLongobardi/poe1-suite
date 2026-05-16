@@ -72,6 +72,15 @@ uv run pytest
 
 All four must pass with zero errors. Current baseline: **704 tests green (2 skipped — integration/LLM), 121 files type-checked clean, 117 files formatted clean**. Frontend build 585 KB / 181 KB gzip.
 
+## Patch Notes page (2026-05-15) ✅
+
+New `/patch-notes` route — a static, data-driven changelog covering the full project history (Steps 1–23, the deploy phases, the dynamic-synthesis pivot, the redesign) newest-first.
+
+- **`apps/shell/src/pages/PatchNotesPage.tsx`** — a `RELEASES` array (16 entries, Italian copy) mapped to `ReleaseCard`s: each is an ember-left-border `<Card>` with a date badge, title, optional summary, and bullet list.
+- **`App.tsx`** — `/patch-notes` route + a low-prominence navbar entry: a `<Divider mt="auto">` pushes a small "Note di rilascio" `NavLink` (smaller font, muted colour, `IconHistory`) to the bottom of the navbar, visually secondary to the four main links.
+
+Frontend-only, no backend change. To keep it current, add a new entry at the top of the `RELEASES` array when a feature ships.
+
 ## Step 23 — Parchment light mode (2026-05-15) ✅
 
 The `colorScheme` toggle in the header existed but light mode was broken — Mantine fell back to its default white/black/violet palette, white-on-white in places. Step 23 defines the "Parchment" light mode that pairs with the "Void Stone & Ember" dark mode. Frontend-only, zero layout changes, no new deps.

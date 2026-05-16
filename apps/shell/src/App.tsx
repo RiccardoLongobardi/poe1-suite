@@ -19,6 +19,7 @@ import {
   Burger,
   Button,
   Container,
+  Divider,
   Group,
   NavLink,
   Text,
@@ -28,6 +29,7 @@ import {
 import { useDisclosure } from "@mantine/hooks";
 import {
   IconHeart,
+  IconHistory,
   IconHome,
   IconListCheck,
   IconMoon,
@@ -50,6 +52,7 @@ import { WarmupOverlay } from "./components/WarmupOverlay";
 import { AnalyzePage } from "./pages/AnalyzePage";
 import { FinderPage } from "./pages/FinderPage";
 import { HomePage } from "./pages/HomePage";
+import { PatchNotesPage } from "./pages/PatchNotesPage";
 import { PlannerPage } from "./pages/PlannerPage";
 import { WelcomePage } from "./pages/WelcomePage";
 import { hasSeenWelcome } from "./state/welcome";
@@ -211,13 +214,23 @@ function ShellLayout() {
           onClick={navTo("/planner")}
           variant="light"
         />
+
+        {/* Secondary — pushed to the bottom, low prominence. */}
+        <Divider mt="auto" mb={4} color="var(--vs-border-faint)" />
+        <NavLink
+          label="Note di rilascio"
+          leftSection={<IconHistory size={14} />}
+          active={isActive("/patch-notes")}
+          onClick={navTo("/patch-notes")}
+          variant="light"
+          styles={{ label: { fontSize: "0.78rem", color: "var(--vs-text-muted)" } }}
+        />
         <Button
           size="xs"
           variant="subtle"
           color="ember"
           leftSection={<IconHeart size={14} />}
           onClick={donation.open}
-          mt="auto"
           hiddenFrom="sm"
         >
           Supporta
@@ -237,6 +250,7 @@ function ShellLayout() {
               path="/planner"
               element={<PlannerPage initialInput={plannerInput} />}
             />
+            <Route path="/patch-notes" element={<PatchNotesPage />} />
             <Route path="*" element={<Navigate to="/home" replace />} />
           </Routes>
         </Container>
