@@ -139,6 +139,7 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 
 ### DONE
 
+- [x] **Patch Notes page** (2026-05-15) — New `/patch-notes` route: a static, data-driven changelog of the whole project history (Steps 1–23, deploy phases, the dynamic pivot, the redesign), newest first. Low-prominence navbar entry at the bottom, below a divider. Frontend-only. To keep it current, prepend a new entry to the `RELEASES` array in `PatchNotesPage.tsx` when a feature ships.
 - [x] **Step 23 — Parchment light mode** (2026-05-15) — `[data-mantine-color-scheme="light"]` CSS variable block: warm cream backgrounds, ink-on-parchment text hierarchy, ember darkened to `#b07820` for WCAG compliance on light surfaces, PoE1 rarity colours adapted for cream backgrounds, scrollbar + noise texture overrides. Hardcoded dark hex values in `theme.ts` replaced with `var(--vs-*)` tokens. `defaultColorScheme="dark"` on MantineProvider. Frontend-only. ✅ QA passed.
 - [x] **Step 22c — Planner timeline + Analyze polish** (2026-05-15) ✅
 - [x] **Step 22b — Finder page redesign** (2026-05-15) ✅
