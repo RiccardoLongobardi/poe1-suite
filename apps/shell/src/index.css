@@ -250,11 +250,14 @@ h6 {
 /* Inputs (TextInput / Textarea / Select / NumberInput all share
    .mantine-Input-input). Base surface + ember focus ring — set
    explicitly so both colour schemes use the --vs-* tokens rather than
-   Mantine's per-scheme `white`/`dark` defaults. */
+   Mantine's per-scheme `white`/`dark` defaults. The monospace family
+   is applied here so every input + its placeholder hint is uniform
+   across all pages (matches the Analyze / Home code aesthetic). */
 .mantine-Input-input {
   background: var(--vs-surface-2);
   border-color: var(--vs-border-faint);
   color: var(--vs-text);
+  font-family: var(--mantine-font-family-monospace);
 }
 .mantine-Input-input::placeholder {
   color: var(--vs-text-faint);

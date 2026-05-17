@@ -8,6 +8,7 @@ import {
   Title,
 } from "@mantine/core";
 import type { BuildIntent, ContentFocusWeight } from "../api/types";
+import { useT } from "../i18n";
 
 interface Props {
   intent: BuildIntent;
@@ -42,6 +43,7 @@ function ContentFocusPills({ items }: { items: ContentFocusWeight[] | null | und
 }
 
 export function IntentCard({ intent }: Props) {
+  const t = useT();
   // Defensive: backend Pydantic models default these tuples to empty,
   // but in the wild (older deploys, partial payloads, fetch interceptors,
   // ad blockers rewriting JSON) we've seen them arrive `undefined`,
@@ -57,11 +59,11 @@ export function IntentCard({ intent }: Props) {
       <Stack gap="xs">
         <Group justify="space-between" align="center">
           <Title order={5} c="dimmed">
-            Intent parsed
+            {t({ it: "Intent estratto", en: "Parsed intent" })}
           </Title>
           <Group gap={6}>
             <Text size="xs" c="dimmed">
-              confidence
+              {t({ it: "confidenza", en: "confidence" })}
             </Text>
             <Progress
               value={confidencePct}
@@ -131,7 +133,8 @@ export function IntentCard({ intent }: Props) {
         <ContentFocusPills items={contentFocus} />
 
         <Text size="xs" c="dimmed" fs="italic">
-          via {(intent.parser_origin ?? "rule_based").replace(/_/g, " ")}
+          {t({ it: "via", en: "via" })}{" "}
+          {(intent.parser_origin ?? "rule_based").replace(/_/g, " ")}
         </Text>
       </Stack>
     </Card>

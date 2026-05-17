@@ -25,6 +25,7 @@ import { IconChartHistogram, IconTrophy } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { getPopulationStats } from "../api/builds";
 import type { StatDistribution } from "../api/types";
+import { useT } from "../i18n";
 
 interface Props {
   /** Ascendancy filter from the Finder. null/undefined disables the panel. */
@@ -40,9 +41,11 @@ function compactNumber(n: number): string {
 function DistributionRow({
   label,
   dist,
+  noData,
 }: {
   label: string;
   dist: StatDistribution | null;
+  noData: string;
 }) {
   if (!dist) {
     return (
@@ -50,7 +53,7 @@ function DistributionRow({
         <Table.Td>{label}</Table.Td>
         <Table.Td colSpan={4} ta="center">
           <Text size="xs" c="dimmed" fs="italic">
-            no data
+            {noData}
           </Text>
         </Table.Td>
       </Table.Tr>
@@ -88,6 +91,7 @@ function DistributionRow({
 }
 
 export function PopulationStatsPanel({ ascendancy }: Props) {
+  const t = useT();
   const enabled = !!ascendancy && ascendancy.trim().length > 0;
   // Capitalise: backend matches poe.ninja's "Slayer" rather than "slayer".
   const ascCapitalised = ascendancy
@@ -108,7 +112,10 @@ export function PopulationStatsPanel({ ascendancy }: Props) {
         <Group gap={8}>
           <Loader size="xs" />
           <Text size="sm" c="dimmed">
-            Carico le statistiche di popolazione per {ascCapitalised}…
+            {t({
+              it: `Carico le statistiche di popolazione per ${ascCapitalised}…`,
+              en: `Loading population stats for ${ascCapitalised}…`,
+            })}
           </Text>
         </Group>
       </Card>
@@ -118,7 +125,10 @@ export function PopulationStatsPanel({ ascendancy }: Props) {
     return (
       <Card withBorder radius="md" p="md">
         <Text size="sm" c="red">
-          Errore nel caricamento delle statistiche di popolazione.
+          {t({
+            it: "Errore nel caricamento delle statistiche di popolazione.",
+            en: "Failed to load population stats.",
+          })}
         </Text>
       </Card>
     );
@@ -132,7 +142,10 @@ export function PopulationStatsPanel({ ascendancy }: Props) {
     return (
       <Card withBorder radius="md" p="md">
         <Text size="sm" c="dimmed">
-          Nessun build {ascCapitalised} trovato nella ladder corrente.
+          {t({
+            it: `Nessun build ${ascCapitalised} trovato nella ladder corrente.`,
+            en: `No ${ascCapitalised} build found in the current ladder.`,
+          })}
         </Text>
       </Card>
     );
@@ -146,11 +159,24 @@ export function PopulationStatsPanel({ ascendancy }: Props) {
             <ThemeIcon variant="light" color="ember" size="md" radius="md">
               <IconChartHistogram size={16} />
             </ThemeIcon>
-            <Title order={5}>Popolazione ladder — {stats.ascendancy ?? "tutte le classi"}</Title>
+            <Title order={5}>
+              {t({ it: "Popolazione ladder", en: "Ladder population" })} —{" "}
+              {stats.ascendancy ??
+                t({ it: "tutte le classi", en: "all classes" })}
+            </Title>
           </Group>
-          <Tooltip label="Dati live da poe.ninja, cache 15 min" withArrow>
+          <Tooltip
+            label={t({
+              it: "Dati live da poe.ninja, cache 15 min",
+              en: "Live data from poe.ninja, 15 min cache",
+            })}
+            withArrow
+          >
             <Text size="xs" c="dimmed">
-              {(stats.total_builds ?? 0).toLocaleString()} build nel campione
+              {t({
+                it: `${(stats.total_builds ?? 0).toLocaleString()} build nel campione`,
+                en: `${(stats.total_builds ?? 0).toLocaleString()} builds in the sample`,
+              })}
             </Text>
           </Tooltip>
         </Group>
@@ -161,14 +187,17 @@ export function PopulationStatsPanel({ ascendancy }: Props) {
             <Group gap={6}>
               <IconTrophy size={14} />
               <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
-                Top skill
+                {t({ it: "Top skill", en: "Top skills" })}
               </Text>
             </Group>
             <Group gap={6} wrap="wrap">
               {topSkills.slice(0, 5).map((s, i) => (
                 <Tooltip
                   key={s.skill}
-                  label={`${s.count} build su ${stats.total_builds ?? 0}`}
+                  label={t({
+                    it: `${s.count} build su ${stats.total_builds ?? 0}`,
+                    en: `${s.count} builds of ${stats.total_builds ?? 0}`,
+                  })}
                   withArrow
                 >
                   <Badge
@@ -187,24 +216,49 @@ export function PopulationStatsPanel({ ascendancy }: Props) {
         {/* Stat distributions */}
         <Stack gap={4}>
           <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
-            Distribuzione stat (percentili)
+            {t({
+              it: "Distribuzione stat (percentili)",
+              en: "Stat distribution (percentiles)",
+            })}
           </Text>
           <Table withTableBorder withColumnBorders striped highlightOnHover>
             <Table.Thead>
               <Table.Tr>
                 <Table.Th>Stat</Table.Th>
                 <Table.Th ta="right">p25</Table.Th>
-                <Table.Th ta="right">mediana</Table.Th>
+                <Table.Th ta="right">
+                  {t({ it: "mediana", en: "median" })}
+                </Table.Th>
                 <Table.Th ta="right">p75</Table.Th>
                 <Table.Th ta="right">p90</Table.Th>
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
-              <DistributionRow label="Vita" dist={stats.life} />
-              <DistributionRow label="ES" dist={stats.energy_shield} />
-              <DistributionRow label="EHP" dist={stats.ehp} />
-              <DistributionRow label="DPS" dist={stats.dps} />
-              <DistributionRow label="Livello" dist={stats.level} />
+              <DistributionRow
+                label={t({ it: "Vita", en: "Life" })}
+                dist={stats.life}
+                noData={t({ it: "n/d", en: "no data" })}
+              />
+              <DistributionRow
+                label="ES"
+                dist={stats.energy_shield}
+                noData={t({ it: "n/d", en: "no data" })}
+              />
+              <DistributionRow
+                label="EHP"
+                dist={stats.ehp}
+                noData={t({ it: "n/d", en: "no data" })}
+              />
+              <DistributionRow
+                label="DPS"
+                dist={stats.dps}
+                noData={t({ it: "n/d", en: "no data" })}
+              />
+              <DistributionRow
+                label={t({ it: "Livello", en: "Level" })}
+                dist={stats.level}
+                noData={t({ it: "n/d", en: "no data" })}
+              />
             </Table.Tbody>
           </Table>
         </Stack>

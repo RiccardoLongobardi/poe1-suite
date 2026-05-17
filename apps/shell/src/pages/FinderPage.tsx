@@ -35,6 +35,7 @@ import { BuildCard } from "../components/BuildCard";
 import { ErrorBoundary } from "../components/ErrorBoundary";
 import { IntentCard } from "../components/IntentCard";
 import { PopulationStatsPanel } from "../components/PopulationStatsPanel";
+import { useT } from "../i18n";
 
 // Class & ascendancy options for the filter Select.
 //
@@ -108,12 +109,13 @@ const CLASS_OPTIONS: { group: string; items: { value: string; label: string }[] 
   },
 ];
 
-const SORT_OPTIONS: { value: SortKey; label: string }[] = [
-  { value: "score", label: "Score (fit)" },
-  { value: "dps", label: "DPS ↓" },
-  { value: "life", label: "Vita ↓" },
-  { value: "ehp", label: "EHP ↓" },
-  { value: "level", label: "Livello ↓" },
+/** Sort options — labels resolved per-language inside the component. */
+const SORT_KEYS: { value: SortKey; it: string; en: string }[] = [
+  { value: "score", it: "Score (fit)", en: "Score (fit)" },
+  { value: "dps", it: "DPS ↓", en: "DPS ↓" },
+  { value: "life", it: "Vita ↓", en: "Life ↓" },
+  { value: "ehp", it: "EHP ↓", en: "EHP ↓" },
+  { value: "level", it: "Livello ↓", en: "Level ↓" },
 ];
 
 interface Props {
@@ -176,20 +178,32 @@ function applyOverrides(intent: BuildIntent, ov: FilterOverrides): BuildIntent {
 
 /** Centred placeholder shown before any search has been run. */
 function OracleEmptyState() {
+  const t = useT();
   return (
     <Stack align="center" gap={6} py={48}>
       <IconEye size={48} color="var(--vs-ember-border)" stroke={1.4} />
       <Text fw={600} size="lg" style={{ fontFamily: "'Cinzel', serif" }}>
-        L'oracolo attende la tua domanda
+        {t({
+          it: "L'oracolo attende la tua domanda",
+          en: "The oracle awaits your question",
+        })}
       </Text>
       <Text size="sm" c="dimmed" ta="center" maw={420}>
-        Descrivi il build che cerchi — classe, skill, budget, contenuto.
+        {t({
+          it: "Descrivi il build che cerchi — classe, skill, budget, contenuto.",
+          en: "Describe the build you want — class, skill, budget, content.",
+        })}
       </Text>
     </Stack>
   );
 }
 
 export function FinderPage({ onSendToPlanner }: Props) {
+  const t = useT();
+  const sortOptions = SORT_KEYS.map((s) => ({
+    value: s.value,
+    label: t({ it: s.it, en: s.en }),
+  }));
   const [query, setQuery] = useState("");
   const [topN, setTopN] = useState<number>(10);
   const [intent, setIntent] = useState<BuildIntent | null>(null);
@@ -234,16 +248,21 @@ export function FinderPage({ onSendToPlanner }: Props) {
       {editing ? (
         <Stack align="center" gap="sm" py="md">
           <Title order={2} ta="center">
-            Consulta l'oracolo
+            {t({ it: "Consulta l'oracolo", en: "Consult the oracle" })}
           </Title>
           <Text c="dimmed" ta="center" size="sm" maw={520}>
-            Descrivi il build che cerchi in italiano o inglese — es.{" "}
-            <em>"cold self-cast per mapping, budget basso"</em>
+            {t({
+              it: 'Descrivi il build che cerchi in italiano o inglese — es. "cold self-cast per mapping, budget basso"',
+              en: 'Describe the build you want in Italian or English — e.g. "cold self-cast for mapping, low budget"',
+            })}
           </Text>
           <Textarea
             w="100%"
             maw={620}
-            placeholder="cerca RF con 6k life almeno..."
+            placeholder={t({
+              it: "cerca RF con 6k life almeno...",
+              en: "search RF with at least 6k life...",
+            })}
             value={query}
             onChange={(e) => setQuery(e.currentTarget.value)}
             minRows={2}
@@ -258,7 +277,7 @@ export function FinderPage({ onSendToPlanner }: Props) {
             loading={extractMut.isPending}
             disabled={!query.trim()}
           >
-            Consulta l'Oracolo
+            {t({ it: "Consulta l'Oracolo", en: "Consult the Oracle" })}
           </Button>
           <Text size="xs" c="dimmed">
             Ctrl+Enter
@@ -274,29 +293,29 @@ export function FinderPage({ onSendToPlanner }: Props) {
             onClick={() => setEditing(true)}
             style={{ flexShrink: 0 }}
           >
-            modifica
+            {t({ it: "modifica", en: "edit" })}
           </Anchor>
         </Group>
       )}
 
       {extractMut.isError && (
-        <Alert color="red" title="Errore extract-intent">
+        <Alert color="red" title={t({ it: "Errore extract-intent", en: "Intent extraction error" })}>
           {extractMut.error.message}
         </Alert>
       )}
 
       {/* ── Parsed intent + filters + results ───────────────────────── */}
       {intent && (
-        <ErrorBoundary label="Errore nel pannello Finder">
-          <ErrorBoundary label="Errore nel riepilogo intent">
+        <ErrorBoundary label={t({ it: "Errore nel pannello Finder", en: "Finder panel error" })}>
+          <ErrorBoundary label={t({ it: "Errore nel riepilogo intent", en: "Intent summary error" })}>
             <IntentCard intent={applyOverrides(intent, overrides)} />
           </ErrorBoundary>
 
           {/* Filter pill row — scrolls horizontally on mobile. */}
           <div className="finder-filter-row">
             <Select
-              label="Classe / Asc."
-              placeholder="Qualsiasi"
+              label={t({ it: "Classe / Asc.", en: "Class / Asc." })}
+              placeholder={t({ it: "Qualsiasi", en: "Any" })}
               data={CLASS_OPTIONS}
               value={overrides.class_filter}
               onChange={(v) => patchOverrides({ class_filter: v })}
@@ -306,8 +325,8 @@ export function FinderPage({ onSendToPlanner }: Props) {
               w={170}
             />
             <Select
-              label="Ordina"
-              data={SORT_OPTIONS}
+              label={t({ it: "Ordina", en: "Sort" })}
+              data={sortOptions}
               value={overrides.sort_by}
               onChange={(v) => patchOverrides({ sort_by: (v as SortKey) ?? "score" })}
               allowDeselect={false}
@@ -315,7 +334,7 @@ export function FinderPage({ onSendToPlanner }: Props) {
               w={130}
             />
             <NumberInput
-              label="Min Vita"
+              label={t({ it: "Min Vita", en: "Min Life" })}
               placeholder="5000"
               value={overrides.min_life ?? ""}
               onChange={(v) =>
@@ -354,7 +373,7 @@ export function FinderPage({ onSendToPlanner }: Props) {
               w={110}
             />
             <NumberInput
-              label="Min DPS"
+              label={t({ it: "Min DPS", en: "Min DPS" })}
               placeholder="500000"
               value={overrides.min_dps ?? ""}
               onChange={(v) =>
@@ -367,7 +386,7 @@ export function FinderPage({ onSendToPlanner }: Props) {
               w={120}
             />
             <NumberInput
-              label="Min Lv"
+              label={t({ it: "Min Lv", en: "Min Lv" })}
               placeholder="90"
               value={overrides.min_level ?? ""}
               onChange={(v) =>
@@ -379,7 +398,7 @@ export function FinderPage({ onSendToPlanner }: Props) {
               w={90}
             />
             <NumberInput
-              label="Max Lv"
+              label={t({ it: "Max Lv", en: "Max Lv" })}
               placeholder="100"
               value={overrides.max_level ?? ""}
               onChange={(v) =>
@@ -391,7 +410,7 @@ export function FinderPage({ onSendToPlanner }: Props) {
               w={90}
             />
             <NumberInput
-              label="Risultati"
+              label={t({ it: "Risultati", en: "Results" })}
               value={topN}
               onChange={(v) => setTopN(typeof v === "number" ? v : 10)}
               min={1}
@@ -404,7 +423,7 @@ export function FinderPage({ onSendToPlanner }: Props) {
               onClick={handleRecommend}
               loading={recommendMut.isPending}
             >
-              Trova build →
+              {t({ it: "Trova build →", en: "Find builds →" })}
             </Button>
             <Button
               size="xs"
@@ -412,12 +431,12 @@ export function FinderPage({ onSendToPlanner }: Props) {
               color="gray"
               onClick={() => setOverrides(emptyOverrides())}
             >
-              Reset
+              {t({ it: "Reset", en: "Reset" })}
             </Button>
           </div>
 
           {recommendMut.isError && (
-            <Alert color="red" title="Errore recommend">
+            <Alert color="red" title={t({ it: "Errore recommend", en: "Recommend error" })}>
               {recommendMut.error.message}
             </Alert>
           )}
@@ -431,17 +450,19 @@ export function FinderPage({ onSendToPlanner }: Props) {
                   <Loader />
                 </Box>
               ) : result ? (
-                <ErrorBoundary label="Errore nel rendering dei risultati">
+                <ErrorBoundary label={t({ it: "Errore nel rendering dei risultati", en: "Results rendering error" })}>
                   {(() => {
                     const ranked = result.ranked ?? [];
+                    const total = (result.total_candidates ?? 0).toLocaleString();
                     return (
                       <Stack gap="xs">
                         <Divider
                           label={
                             <Text size="sm" fw={500}>
-                              Top {ranked.length} builds su{" "}
-                              {(result.total_candidates ?? 0).toLocaleString()}{" "}
-                              candidati
+                              {t({
+                                it: `Top ${ranked.length} build su ${total} candidati`,
+                                en: `Top ${ranked.length} builds of ${total} candidates`,
+                              })}
                             </Text>
                           }
                         />
@@ -455,7 +476,10 @@ export function FinderPage({ onSendToPlanner }: Props) {
                         ))}
                         {ranked.length === 0 && (
                           <Text c="dimmed" ta="center" py="xl">
-                            Nessun candidato supera i filtri hard-constraint.
+                            {t({
+                              it: "Nessun candidato supera i filtri hard-constraint.",
+                              en: "No candidate passes the hard-constraint filters.",
+                            })}
                           </Text>
                         )}
                       </Stack>
@@ -469,7 +493,7 @@ export function FinderPage({ onSendToPlanner }: Props) {
 
             {/* Meta sidebar — population stats. Above results on mobile. */}
             <div className="finder-sidebar">
-              <ErrorBoundary label="Errore nelle statistiche di popolazione">
+              <ErrorBoundary label={t({ it: "Errore nelle statistiche di popolazione", en: "Population stats error" })}>
                 <PopulationStatsPanel ascendancy={overrides.class_filter} />
               </ErrorBoundary>
             </div>

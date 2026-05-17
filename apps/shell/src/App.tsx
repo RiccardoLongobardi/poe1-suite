@@ -22,6 +22,7 @@ import {
   Divider,
   Group,
   NavLink,
+  SegmentedControl,
   Text,
   Title,
   useMantineColorScheme,
@@ -49,6 +50,7 @@ import {
 } from "react-router-dom";
 import { DonationModal } from "./components/DonationModal";
 import { WarmupOverlay } from "./components/WarmupOverlay";
+import { useLang, useT } from "./i18n";
 import { AnalyzePage } from "./pages/AnalyzePage";
 import { FinderPage } from "./pages/FinderPage";
 import { HomePage } from "./pages/HomePage";
@@ -98,6 +100,8 @@ function ShellLayout() {
   const [plannerInput, setPlannerInput] = useState<string | undefined>(undefined);
   const [donationOpen, donation] = useDisclosure(false);
   const { colorScheme, toggleColorScheme } = useMantineColorScheme();
+  const { lang, setLang } = useLang();
+  const t = useT();
 
   const onSendToPlanner = (pobCode: string) => {
     setPlannerInput(pobCode);
@@ -150,6 +154,7 @@ function ShellLayout() {
               <Text size="xs" c="dimmed" visibleFrom="sm">
                 Frusta Oracle Builder
               </Text>
+              {/* brand tagline kept untranslated — it is the project name */}
             </Group>
           </Group>
           <Group gap={8}>
@@ -161,12 +166,22 @@ function ShellLayout() {
               onClick={donation.open}
               visibleFrom="sm"
             >
-              Supporta
+              {t({ it: "Supporta", en: "Support" })}
             </Button>
+            <SegmentedControl
+              size="xs"
+              value={lang}
+              onChange={(v) => setLang(v === "en" ? "en" : "it")}
+              data={[
+                { value: "it", label: "IT" },
+                { value: "en", label: "EN" },
+              ]}
+              aria-label={t({ it: "Lingua", en: "Language" })}
+            />
             <ActionIcon
               variant="subtle"
               onClick={toggleColorScheme}
-              title="Cambia tema"
+              title={t({ it: "Cambia tema", en: "Toggle theme" })}
               size="lg"
             >
               {colorScheme === "dark" ? (
@@ -187,28 +202,28 @@ function ShellLayout() {
         }}
       >
         <NavLink
-          label="Home"
+          label={t({ it: "Home", en: "Home" })}
           leftSection={<IconHome size={16} />}
           active={isActive("/home")}
           onClick={navTo("/home")}
           variant="light"
         />
         <NavLink
-          label="Build Finder"
+          label={t({ it: "Build Finder", en: "Build Finder" })}
           leftSection={<IconSearch size={16} />}
           active={isActive("/finder")}
           onClick={navTo("/finder")}
           variant="light"
         />
         <NavLink
-          label="Analizza PoB"
+          label={t({ it: "Analizza PoB", en: "Analyse PoB" })}
           leftSection={<IconTool size={16} />}
           active={isActive("/analyze")}
           onClick={navTo("/analyze")}
           variant="light"
         />
         <NavLink
-          label="Planner"
+          label={t({ it: "Planner", en: "Planner" })}
           leftSection={<IconListCheck size={16} />}
           active={isActive("/planner")}
           onClick={navTo("/planner")}
@@ -218,7 +233,7 @@ function ShellLayout() {
         {/* Secondary — pushed to the bottom, low prominence. */}
         <Divider mt="auto" mb={4} color="var(--vs-border-faint)" />
         <NavLink
-          label="Note di rilascio"
+          label={t({ it: "Note di rilascio", en: "Patch notes" })}
           leftSection={<IconHistory size={14} />}
           active={isActive("/patch-notes")}
           onClick={navTo("/patch-notes")}
@@ -233,7 +248,7 @@ function ShellLayout() {
           onClick={donation.open}
           hiddenFrom="sm"
         >
-          Supporta
+          {t({ it: "Supporta", en: "Support" })}
         </Button>
       </AppShell.Navbar>
 

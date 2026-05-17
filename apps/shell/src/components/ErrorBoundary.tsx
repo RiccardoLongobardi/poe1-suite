@@ -15,6 +15,19 @@ import { Alert } from "@mantine/core";
 import { IconAlertTriangle } from "@tabler/icons-react";
 import { Component, type ErrorInfo, type ReactNode } from "react";
 
+/**
+ * ErrorBoundary is a class component, so it can't use the `useT` hook.
+ * It reads the persisted language straight from localStorage instead —
+ * good enough for the rare error path.
+ */
+function lang(): "it" | "en" {
+  try {
+    return localStorage.getItem("fob_lang") === "en" ? "en" : "it";
+  } catch {
+    return "it";
+  }
+}
+
 interface Props {
   children: ReactNode;
   /** Optional label shown in the alert title. */
@@ -51,10 +64,15 @@ export class ErrorBoundary extends Component<Props, State> {
         color="red"
         variant="light"
         icon={<IconAlertTriangle size={16} />}
-        title={this.props.label ?? "Errore di rendering"}
+        title={
+          this.props.label ??
+          (lang() === "en" ? "Rendering error" : "Errore di rendering")
+        }
       >
-        Qualcosa è andato storto durante il rendering di questa sezione. Prova
-        a ricaricare la pagina. Dettaglio tecnico:&nbsp;
+        {lang() === "en"
+          ? "Something went wrong while rendering this section. Try reloading the page. Technical detail:"
+          : "Qualcosa è andato storto durante il rendering di questa sezione. Prova a ricaricare la pagina. Dettaglio tecnico:"}
+        &nbsp;
         <code>{error.message}</code>
       </Alert>
     );

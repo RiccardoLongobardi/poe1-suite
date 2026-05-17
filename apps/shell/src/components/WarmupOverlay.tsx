@@ -11,6 +11,7 @@
 
 import { useEffect, useState } from "react";
 import { useServerWarmup } from "../hooks/useServerWarmup";
+import { useT } from "../i18n";
 
 /** The Divine Orb itself — self-contained inline SVG, crisp at 120px. */
 function DivineOrb() {
@@ -154,6 +155,7 @@ function DivineOrb() {
 }
 
 export function WarmupOverlay() {
+  const t = useT();
   const state = useServerWarmup();
   // `render` keeps the overlay mounted through the fade-out; `fading`
   // triggers the opacity transition once the backend is warm.
@@ -166,8 +168,8 @@ export function WarmupOverlay() {
       setFading(false);
     } else if (state === "warm" && render) {
       setFading(true);
-      const t = window.setTimeout(() => setRender(false), 600);
-      return () => window.clearTimeout(t);
+      const timer = window.setTimeout(() => setRender(false), 600);
+      return () => window.clearTimeout(timer);
     }
   }, [state, render]);
 
@@ -182,8 +184,8 @@ export function WarmupOverlay() {
       <div className="warmup-orb-wrap">
         <DivineOrb />
       </div>
-      <p className="warmup-title">Il server si sta risvegliando...</p>
-      <p className="warmup-subtitle">Render free tier — attendi qualche secondo</p>
+      <p className="warmup-title">{t({ it: "Il server si sta risvegliando...", en: "The server is waking up..." })}</p>
+      <p className="warmup-subtitle">{t({ it: "Render free tier — attendi qualche secondo", en: "Render free tier — hold on a few seconds" })}</p>
     </div>
   );
 }

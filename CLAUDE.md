@@ -70,7 +70,24 @@ uv run mypy .
 uv run pytest
 ```
 
-All four must pass with zero errors. Current baseline: **704 tests green (2 skipped — integration/LLM), 121 files type-checked clean, 117 files formatted clean**. Frontend build 585 KB / 181 KB gzip.
+All four must pass with zero errors. Current baseline: **704 tests green (2 skipped — integration/LLM), 121 files type-checked clean, 117 files formatted clean**. Frontend build 610 KB / 190 KB gzip.
+
+## English support + uniform input font (2026-05-15) ✅
+
+Two frontend-only changes; no backend / API change.
+
+**1. Uniform input font.** Every `<TextInput>`/`<Textarea>`/`<Select>`/`<NumberInput>` (all share `.mantine-Input-input`) now uses `var(--mantine-font-family-monospace)` (Geist Mono) via one global rule in `index.css` — matching the Home/Analyze code aesthetic. The per-component `fontFamily: "monospace"` / `ff="monospace"` overrides on the Analyze and Planner inputs were removed so the global rule is the single source.
+
+**2. Bilingual UI (IT / EN).** New lightweight i18n — no external dependency:
+
+- **`apps/shell/src/i18n.tsx`** — `LangProvider` + `useLang()` + `useT()`. Translations are **co-located**, written inline as `t({ it: "...", en: "..." })` rather than a central key dictionary — no key bookkeeping, no missing keys, type-safe. The chosen language persists to `localStorage.fob_lang`.
+- **`main.tsx`** — `<LangProvider>` wraps `<App>`.
+- **Header** — a compact `IT | EN` `SegmentedControl` sits next to the theme toggle.
+- Every page + component is translated: App nav, Home, Welcome, Finder (+ IntentCard, PopulationStatsPanel, BuildCard), Planner (+ StageCard), Analyze, Patch Notes (the full release history is bilingual), DonationModal, WarmupOverlay.
+- **`ErrorBoundary`** is a class component (no hooks) — it reads `localStorage.fob_lang` directly via a small `lang()` helper for its two fallback strings.
+- Module-level option arrays that held Italian labels (`SORT_OPTIONS` in FinderPage, `TARGET_OPTIONS` in PlannerPage) were converted to `{value, it, en}` key arrays and the `data` for the `Select`/`SegmentedControl` is built inside the component with `t()`.
+
+**Pattern for future strings**: call `const t = useT();` in the component and wrap every user-facing string as `t({ it: "...", en: "..." })`. Game/PoE terms (skill names, "EHP", "DPS", enum values) stay untranslated.
 
 ## Patch Notes page (2026-05-15) ✅
 

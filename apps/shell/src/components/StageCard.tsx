@@ -61,6 +61,7 @@ import type {
   StageTree,
 } from "../api/types";
 import { openTradeForItem } from "../api/tradeRedirect";
+import { useT } from "../i18n";
 
 const CONFIDENCE_COLOR: Record<Confidence, string> = {
   low: "gray",
@@ -85,6 +86,7 @@ function ItemRow({
   item: CoreItem;
   onTradeClick: (item: CoreItem) => void;
 }) {
+  const t = useT();
   const price = item.price_estimate;
   return (
     <Table.Tr>
@@ -119,13 +121,16 @@ function ItemRow({
           </Group>
         ) : (
           <Text size="xs" c="dimmed" fs="italic">
-            n/d
+            {t({ it: "n/d", en: "n/a" })}
           </Text>
         )}
       </Table.Td>
       <Table.Td style={{ width: 36 }}>
         <Tooltip
-          label="Apri pathofexile.com/trade — il nome è copiato negli appunti, incollalo nella search e premi Cerca"
+          label={t({
+            it: "Apri pathofexile.com/trade — il nome è copiato negli appunti, incollalo nella search e premi Cerca",
+            en: "Open pathofexile.com/trade — the name is copied to the clipboard, paste it into the search and hit Search",
+          })}
           withArrow
           multiline
           w={260}
@@ -135,7 +140,7 @@ function ItemRow({
             color="ember"
             size="sm"
             onClick={() => onTradeClick(item)}
-            aria-label="Apri su Trade"
+            aria-label={t({ it: "Apri su Trade", en: "Open on Trade" })}
           >
             <IconExternalLink size={14} />
           </ActionIcon>
@@ -170,6 +175,7 @@ export function StageCard({
   ascendancy,
   userPobCode,
 }: Props) {
+  const t = useT();
   const accent = index === 0 ? "teal" : index === 1 ? "blue" : "grape";
 
   function openTradeDialog(item: CoreItem) {
@@ -366,7 +372,9 @@ export function StageCard({
                       <Table.Th style={{ width: 36 }} />
                       <Table.Th>Item</Table.Th>
                       <Table.Th>Slot</Table.Th>
-                      <Table.Th ta="right">Prezzo</Table.Th>
+                      <Table.Th ta="right">
+                        {t({ it: "Prezzo", en: "Price" })}
+                      </Table.Th>
                       <Table.Th style={{ width: 36 }} />
                     </Table.Tr>
                   </Table.Thead>
@@ -469,7 +477,7 @@ export function StageCard({
               {stage.tree_changes.length > 0 && (
                 <Stack gap={4}>
                   <Text size="sm" fw={600}>
-                    Albero passive
+                    {t({ it: "Albero passivo", en: "Passive tree" })}
                   </Text>
                   <List size="sm" spacing={2}>
                     {stage.tree_changes.map((t, i) => (
@@ -516,8 +524,14 @@ export function StageCard({
                 disabled={exportLoading}
               >
                 {exportCode
-                  ? "Codice PoB pronto (copiato negli appunti)"
-                  : "Importa stage in PoB"}
+                  ? t({
+                      it: "Codice PoB pronto (copiato negli appunti)",
+                      en: "PoB code ready (copied to clipboard)",
+                    })
+                  : t({
+                      it: "Importa stage in PoB",
+                      en: "Import stage into PoB",
+                    })}
               </Button>
               {exportCode && (
                 <CopyButton value={exportCode} timeout={1500}>
@@ -535,7 +549,9 @@ export function StageCard({
                       }
                       onClick={copy}
                     >
-                      {copied ? "Copiato" : "Copia di nuovo"}
+                      {copied
+                        ? t({ it: "Copiato", en: "Copied" })
+                        : t({ it: "Copia di nuovo", en: "Copy again" })}
                     </Button>
                   )}
                 </CopyButton>
@@ -549,10 +565,19 @@ export function StageCard({
             {exportCode && exportTreeSource && (
               <Text size="xs" c="dimmed">
                 {exportTreeSource === "progression"
-                  ? "Tree: progressione curata per questo template."
+                  ? t({
+                      it: "Tree: progressione curata per questo template.",
+                      en: "Tree: curated progression for this template.",
+                    })
                   : exportTreeSource === "user_pob"
-                    ? "Tree: preservato dal tuo PoB originale (nessuna progressione curata per questo template)."
-                    : "Tree: vuoto — incolla il tuo albero in PoB dopo l'import."}
+                    ? t({
+                        it: "Tree: preservato dal tuo PoB originale (nessuna progressione curata per questo template).",
+                        en: "Tree: preserved from your original PoB (no curated progression for this template).",
+                      })
+                    : t({
+                        it: "Tree: vuoto — incolla il tuo albero in PoB dopo l'import.",
+                        en: "Tree: empty — paste your tree into PoB after importing.",
+                      })}
               </Text>
             )}
             {exportCode && (
@@ -583,7 +608,7 @@ export function StageCard({
             </ThemeIcon>
             <Text size="xs" c="dimmed" fs="italic">
               <Text span fw={600} c="orange">
-                Next step:{" "}
+                {t({ it: "Prossimo step:", en: "Next step:" })}{" "}
               </Text>
               {stage.next_step_trigger}
             </Text>
@@ -606,15 +631,27 @@ function TreePanel({
   stageTree: StageTree | null | undefined;
   accent: string;
 }) {
-  if (stageTree === undefined) return <PanelLoader label="Carico tree…" />;
+  const t = useT();
+  if (stageTree === undefined)
+    return <PanelLoader label={t({ it: "Carico tree…", en: "Loading tree…" })} />;
   if (stageTree === null)
-    return <PanelEmpty label="Tree progression non ancora disponibile per questo template." />;
+    return (
+      <PanelEmpty
+        label={t({
+          it: "Tree progression non ancora disponibile per questo template.",
+          en: "Tree progression not yet available for this template.",
+        })}
+      />
+    );
 
   return (
     <Stack gap="sm">
       <Group gap={8} wrap="wrap">
         <Badge size="md" variant="light" color={accent}>
-          {stageTree.node_ids.length} passive allocate
+          {t({
+            it: `${stageTree.node_ids.length} passive allocate`,
+            en: `${stageTree.node_ids.length} passives allocated`,
+          })}
         </Badge>
         {stageTree.ascendancy_nodes.length > 0 && (
           <Badge size="md" variant="light" color="grape">
@@ -625,7 +662,7 @@ function TreePanel({
       {stageTree.notables.length > 0 && (
         <Stack gap={4}>
           <Text size="sm" fw={600}>
-            Notables chiave
+            {t({ it: "Notable chiave", en: "Key notables" })}
           </Text>
           <Group gap={4} wrap="wrap">
             {stageTree.notables.map((n) => (
@@ -661,7 +698,10 @@ function TreePanel({
           rel="noopener noreferrer"
           leftSection={<IconExternalLink size={14} />}
         >
-          Apri tree su pathofexile.com
+          {t({
+            it: "Apri tree su pathofexile.com",
+            en: "Open tree on pathofexile.com",
+          })}
         </Button>
       )}
     </Stack>
@@ -675,9 +715,18 @@ function GearPanel({
   stageGear: StageGearSet | null | undefined;
   accent: string;
 }) {
-  if (stageGear === undefined) return <PanelLoader label="Carico gear…" />;
+  const t = useT();
+  if (stageGear === undefined)
+    return <PanelLoader label={t({ it: "Carico gear…", en: "Loading gear…" })} />;
   if (stageGear === null)
-    return <PanelEmpty label="Gear progression non ancora disponibile per questo template." />;
+    return (
+      <PanelEmpty
+        label={t({
+          it: "Gear progression non ancora disponibile per questo template.",
+          en: "Gear progression not yet available for this template.",
+        })}
+      />
+    );
 
   const KIND_COLOR: Record<string, string> = {
     unique: "yellow",
@@ -698,8 +747,8 @@ function GearPanel({
           <Table.Tr>
             <Table.Th>Slot</Table.Th>
             <Table.Th>Item</Table.Th>
-            <Table.Th>Tipo</Table.Th>
-            <Table.Th>Note</Table.Th>
+            <Table.Th>{t({ it: "Tipo", en: "Type" })}</Table.Th>
+            <Table.Th>{t({ it: "Note", en: "Notes" })}</Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
@@ -740,9 +789,18 @@ function GemsPanel({
   stageGems: StageGemLinks | null | undefined;
   accent: string;
 }) {
-  if (stageGems === undefined) return <PanelLoader label="Carico gemme…" />;
+  const t = useT();
+  if (stageGems === undefined)
+    return <PanelLoader label={t({ it: "Carico gemme…", en: "Loading gems…" })} />;
   if (stageGems === null)
-    return <PanelEmpty label="Gem progression non ancora disponibile per questo template." />;
+    return (
+      <PanelEmpty
+        label={t({
+          it: "Gem progression non ancora disponibile per questo template.",
+          en: "Gem progression not yet available for this template.",
+        })}
+      />
+    );
 
   return (
     <Stack gap="sm">

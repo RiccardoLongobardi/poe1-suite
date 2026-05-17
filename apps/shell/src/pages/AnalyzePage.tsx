@@ -47,6 +47,7 @@ import type {
   PobSnapshot,
 } from "../api/types";
 import { ErrorBoundary } from "../components/ErrorBoundary";
+import { useT } from "../i18n";
 
 // ---------------------------------------------------------------------------
 // Formatting helpers
@@ -121,6 +122,7 @@ function SocketDots({ sockets }: { sockets: string }) {
 
 /** Tooltip body: base type, item level, implicits / explicits. */
 function ItemTooltipBody({ item }: { item: PobItem }) {
+  const t = useT();
   return (
     <Stack gap={4} style={{ maxWidth: 320 }}>
       <Text size="xs" fw={600}>
@@ -158,7 +160,7 @@ function ItemTooltipBody({ item }: { item: PobItem }) {
       )}
       {item.corrupted && (
         <Text size="xs" c="red.5" fw={600}>
-          Corrotto
+          {t({ it: "Corrotto", en: "Corrupted" })}
         </Text>
       )}
     </Stack>
@@ -175,6 +177,7 @@ function GearCell({
   item: PobItem | undefined;
   style?: React.CSSProperties;
 }) {
+  const t = useT();
   if (!item) {
     return (
       <Box
@@ -192,7 +195,7 @@ function GearCell({
           {label}
         </Text>
         <Text size="xs" c="dimmed" fs="italic">
-          slot vuoto
+          {t({ it: "slot vuoto", en: "empty slot" })}
         </Text>
       </Box>
     );
@@ -277,7 +280,11 @@ function SkillGroupStrip({
   group: PobSkillGroup;
   isMain: boolean;
 }) {
-  const title = group.label?.trim() || group.slot?.trim() || "Gruppo gemme";
+  const t = useT();
+  const title =
+    group.label?.trim() ||
+    group.slot?.trim() ||
+    t({ it: "Gruppo gemme", en: "Gem group" });
   return (
     <Group
       gap={8}
@@ -326,21 +333,35 @@ function bestDps(stats: Record<string, number>): number {
   );
 }
 
-function topDamageType(stats: Record<string, number>): { label: string; value: number } {
+type DamageKind = "none" | "phys" | "ele" | "chaos";
+
+function topDamageType(stats: Record<string, number>): {
+  kind: DamageKind;
+  value: number;
+} {
   const phys = stats.PhysicalDPS ?? 0;
   const ele = (stats.FireDPS ?? 0) + (stats.ColdDPS ?? 0) + (stats.LightningDPS ?? 0);
   const chaos = stats.ChaosDPS ?? 0;
   const max = Math.max(phys, ele, chaos);
-  if (max === 0) return { label: "Danno tipo", value: 0 };
-  if (max === phys) return { label: "DPS fisico", value: phys };
-  if (max === ele) return { label: "DPS elementale", value: ele };
-  return { label: "DPS caos", value: chaos };
+  if (max === 0) return { kind: "none", value: 0 };
+  if (max === phys) return { kind: "phys", value: phys };
+  if (max === ele) return { kind: "ele", value: ele };
+  return { kind: "chaos", value: chaos };
 }
 
 function BuildDashboard({ data }: { data: AnalyzePobResponse }) {
+  const t = useT();
   const snap: PobSnapshot = data.snapshot;
   const slots = snap.items_by_slot;
   const dmg = topDamageType(snap.stats);
+  const dmgLabel = t(
+    {
+      none: { it: "Danno tipo", en: "Damage type" },
+      phys: { it: "DPS fisico", en: "Physical DPS" },
+      ele: { it: "DPS elementale", en: "Elemental DPS" },
+      chaos: { it: "DPS caos", en: "Chaos DPS" },
+    }[dmg.kind],
+  );
   const enabledGroups = snap.skills.filter((g) => g.enabled);
   const treeUrl = snap.tree?.url?.trim();
 
@@ -369,7 +390,7 @@ function BuildDashboard({ data }: { data: AnalyzePobResponse }) {
         <Group gap={8} align="center">
           <Title order={3}>{snap.ascendancy ?? snap.character_class}</Title>
           <Badge color="gray" variant="outline" size="lg">
-            livello {snap.level}
+            {t({ it: "livello", en: "level" })} {snap.level}
           </Badge>
         </Group>
         <Group gap={6} mt={6}>
@@ -379,7 +400,7 @@ function BuildDashboard({ data }: { data: AnalyzePobResponse }) {
             </Badge>
           )}
           <Badge color="teal" variant="light">
-            bandito: {snap.bandit}
+            {t({ it: "bandito", en: "bandit" })}: {snap.bandit}
           </Badge>
           {snap.pantheon.major && (
             <Badge color="grape" variant="light">
@@ -412,7 +433,10 @@ function BuildDashboard({ data }: { data: AnalyzePobResponse }) {
           style={{ "--card-index": 1 } as React.CSSProperties}
         >
           <Stack gap="sm">
-            <Divider label="Statistiche chiave" labelPosition="left" />
+            <Divider
+              label={t({ it: "Statistiche chiave", en: "Key stats" })}
+              labelPosition="left"
+            />
             <Box
               style={{
                 display: "grid",
@@ -422,7 +446,7 @@ function BuildDashboard({ data }: { data: AnalyzePobResponse }) {
             >
               <StatTile
                 icon={<IconHeart size={20} />}
-                label="Vita"
+                label={t({ it: "Vita", en: "Life" })}
                 value={snap.stats.Life ?? 0}
               />
               <StatTile
@@ -437,22 +461,22 @@ function BuildDashboard({ data }: { data: AnalyzePobResponse }) {
               />
               <StatTile
                 icon={<IconSword size={20} />}
-                label="DPS totale"
+                label={t({ it: "DPS totale", en: "Total DPS" })}
                 value={bestDps(snap.stats)}
               />
               <StatTile
                 icon={<IconBolt size={20} />}
-                label={dmg.label}
+                label={dmgLabel}
                 value={dmg.value}
               />
               <StatTile
                 icon={<IconShield size={20} />}
-                label="Armatura"
+                label={t({ it: "Armatura", en: "Armour" })}
                 value={snap.stats.Armour ?? 0}
               />
               <StatTile
                 icon={<IconEye size={20} />}
-                label="Evasione"
+                label={t({ it: "Evasione", en: "Evasion" })}
                 value={snap.stats.Evasion ?? 0}
               />
             </Box>
@@ -468,14 +492,16 @@ function BuildDashboard({ data }: { data: AnalyzePobResponse }) {
                 leftSection={<IconExternalLink size={15} />}
                 mt={4}
               >
-                Apri albero passivo
+                {t({ it: "Apri albero passivo", en: "Open passive tree" })}
               </Button>
             )}
 
             {snap.notes.trim() && (
               <Accordion variant="contained" mt={4}>
                 <Accordion.Item value="notes">
-                  <Accordion.Control>Note build</Accordion.Control>
+                  <Accordion.Control>
+                    {t({ it: "Note build", en: "Build notes" })}
+                  </Accordion.Control>
                   <Accordion.Panel>
                     <Text size="xs" style={{ whiteSpace: "pre-wrap" }}>
                       {snap.notes}
@@ -496,7 +522,10 @@ function BuildDashboard({ data }: { data: AnalyzePobResponse }) {
           style={{ "--card-index": 2 } as React.CSSProperties}
         >
           <Stack gap="sm">
-            <Divider label="Equipaggiamento" labelPosition="left" />
+            <Divider
+              label={t({ it: "Equipaggiamento", en: "Equipment" })}
+              labelPosition="left"
+            />
             <Box
               style={{
                 display: "grid",
@@ -511,28 +540,59 @@ function BuildDashboard({ data }: { data: AnalyzePobResponse }) {
                 gap: 8,
               }}
             >
-              <GearCell label="Elmo" item={slots.helmet} style={{ gridArea: "helmet" }} />
               <GearCell
-                label="Arma princ."
+                label={t({ it: "Elmo", en: "Helmet" })}
+                item={slots.helmet}
+                style={{ gridArea: "helmet" }}
+              />
+              <GearCell
+                label={t({ it: "Arma princ.", en: "Main weapon" })}
                 item={slots.weapon_main}
                 style={{ gridArea: "wmain" }}
               />
-              <GearCell label="Corpo" item={slots.body_armour} style={{ gridArea: "body" }} />
               <GearCell
-                label="Arma sec."
+                label={t({ it: "Corpo", en: "Body" })}
+                item={slots.body_armour}
+                style={{ gridArea: "body" }}
+              />
+              <GearCell
+                label={t({ it: "Arma sec.", en: "Off-hand" })}
                 item={slots.weapon_offhand}
                 style={{ gridArea: "woff" }}
               />
-              <GearCell label="Guanti" item={slots.gloves} style={{ gridArea: "gloves" }} />
-              <GearCell label="Stivali" item={slots.boots} style={{ gridArea: "boots" }} />
-              <GearCell label="Cintura" item={slots.belt} style={{ gridArea: "belt" }} />
-              <GearCell label="Amuleto" item={slots.amulet} style={{ gridArea: "amulet" }} />
-              <GearCell label="Anello" item={slots.ring} style={{ gridArea: "ring" }} />
+              <GearCell
+                label={t({ it: "Guanti", en: "Gloves" })}
+                item={slots.gloves}
+                style={{ gridArea: "gloves" }}
+              />
+              <GearCell
+                label={t({ it: "Stivali", en: "Boots" })}
+                item={slots.boots}
+                style={{ gridArea: "boots" }}
+              />
+              <GearCell
+                label={t({ it: "Cintura", en: "Belt" })}
+                item={slots.belt}
+                style={{ gridArea: "belt" }}
+              />
+              <GearCell
+                label={t({ it: "Amuleto", en: "Amulet" })}
+                item={slots.amulet}
+                style={{ gridArea: "amulet" }}
+              />
+              <GearCell
+                label={t({ it: "Anello", en: "Ring" })}
+                item={slots.ring}
+                style={{ gridArea: "ring" }}
+              />
             </Box>
 
             {snap.flasks.length > 0 && (
               <>
-                <Divider label="Flasche" labelPosition="left" />
+                <Divider
+                  label={t({ it: "Flasche", en: "Flasks" })}
+                  labelPosition="left"
+                />
                 <Box
                   style={{
                     display: "grid",
@@ -553,7 +613,13 @@ function BuildDashboard({ data }: { data: AnalyzePobResponse }) {
 
             {snap.jewels.length > 0 && (
               <>
-                <Divider label={`Gioielli (${snap.jewels.length})`} labelPosition="left" />
+                <Divider
+                  label={t({
+                    it: `Gioielli (${snap.jewels.length})`,
+                    en: `Jewels (${snap.jewels.length})`,
+                  })}
+                  labelPosition="left"
+                />
                 <Box
                   style={{
                     display: "grid",
@@ -564,7 +630,7 @@ function BuildDashboard({ data }: { data: AnalyzePobResponse }) {
                   {snap.jewels.map((jewel, i) => (
                     <GearCell
                       key={`jewel-${jewel.item.pob_id}-${i}`}
-                      label="Gioiello"
+                      label={t({ it: "Gioiello", en: "Jewel" })}
                       item={jewel.item}
                     />
                   ))}
@@ -585,7 +651,10 @@ function BuildDashboard({ data }: { data: AnalyzePobResponse }) {
           style={{ "--card-index": 4 } as React.CSSProperties}
         >
           <Stack gap={8}>
-            <Divider label="Gemme e collegamenti" labelPosition="left" />
+            <Divider
+              label={t({ it: "Gemme e collegamenti", en: "Gems and links" })}
+              labelPosition="left"
+            />
             {enabledGroups.map((group) => (
               <SkillGroupStrip
                 key={group.socket_group}
@@ -605,6 +674,7 @@ function BuildDashboard({ data }: { data: AnalyzePobResponse }) {
 // ---------------------------------------------------------------------------
 
 export function AnalyzePage() {
+  const t = useT();
   const [input, setInput] = useState("");
   const [result, setResult] = useState<AnalyzePobResponse | null>(null);
   const [editing, setEditing] = useState(true);
@@ -623,13 +693,15 @@ export function AnalyzePage() {
 
   return (
     <Stack gap="md">
-      <Title order={3}>Analizza PoB</Title>
+      <Title order={3}>{t({ it: "Analizza PoB", en: "Analyse PoB" })}</Title>
 
       {editing ? (
         <>
           <Text c="dimmed" size="sm">
-            Incolla un codice di esportazione PoB oppure un link pobb.in /
-            pastebin.
+            {t({
+              it: "Incolla un codice di esportazione PoB oppure un link pobb.in / pastebin.",
+              en: "Paste a PoB export code or a pobb.in / pastebin link.",
+            })}
           </Text>
           <Group align="flex-end" gap="sm" wrap="nowrap">
             <TextInput
@@ -637,17 +709,16 @@ export function AnalyzePage() {
               placeholder="https://pobb.in/xxxx  oppure  eNqtVct…"
               value={input}
               onChange={(e) => setInput(e.currentTarget.value)}
-              styles={{ input: { fontFamily: "monospace" } }}
               onKeyDown={(e) => {
                 if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) submit();
               }}
             />
             <Button onClick={submit} loading={mut.isPending} disabled={!input.trim()}>
-              Analizza
+              {t({ it: "Analizza", en: "Analyse" })}
             </Button>
           </Group>
           <Text size="xs" c="dimmed">
-            Ctrl+Enter per inviare
+            {t({ it: "Ctrl+Enter per inviare", en: "Ctrl+Enter to submit" })}
           </Text>
         </>
       ) : (
@@ -656,19 +727,24 @@ export function AnalyzePage() {
             {result?.build.source_id ?? input.slice(0, 48)}
           </Code>
           <Anchor size="xs" onClick={() => setEditing(true)} style={{ flexShrink: 0 }}>
-            modifica
+            {t({ it: "modifica", en: "edit" })}
           </Anchor>
         </Group>
       )}
 
       {mut.isError && (
-        <Alert color="red" title="Errore">
+        <Alert color="red" title={t({ it: "Errore", en: "Error" })}>
           {mut.error.message}
         </Alert>
       )}
 
       {result && (
-        <ErrorBoundary label="Errore nel rendering della build">
+        <ErrorBoundary
+          label={t({
+            it: "Errore nel rendering della build",
+            en: "Build rendering error",
+          })}
+        >
           <BuildDashboard data={result} />
         </ErrorBoundary>
       )}

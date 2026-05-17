@@ -37,11 +37,12 @@ import type {
   TargetGoal,
 } from "../api/types";
 import { StageCard } from "../components/StageCard";
+import { useT } from "../i18n";
 
-const TARGET_OPTIONS: { value: TargetGoal; label: string }[] = [
-  { value: "mapping_only", label: "Solo Mapping" },
-  { value: "mapping_and_boss", label: "Mapping + Boss" },
-  { value: "uber_capable", label: "Uber capable" },
+const TARGET_KEYS: { value: TargetGoal; it: string; en: string }[] = [
+  { value: "mapping_only", it: "Solo Mapping", en: "Mapping only" },
+  { value: "mapping_and_boss", it: "Mapping + Boss", en: "Mapping + Boss" },
+  { value: "uber_capable", it: "Uber capable", en: "Uber capable" },
 ];
 
 function formatPrice(p: PriceRange): string {
@@ -53,6 +54,7 @@ function formatPrice(p: PriceRange): string {
 }
 
 function PlanSummary({ plan }: { plan: BuildPlan }) {
+  const t = useT();
   const totalItems = plan.stages.reduce(
     (acc, s) => acc + s.core_items.length,
     0,
@@ -66,7 +68,7 @@ function PlanSummary({ plan }: { plan: BuildPlan }) {
           </ThemeIcon>
           <Stack gap={0}>
             <Text size="xs" c="dimmed">
-              Costo totale stimato
+              {t({ it: "Costo totale stimato", en: "Total estimated cost" })}
             </Text>
             <Text size="xl" fw={700}>
               {formatPrice(plan.total_estimated_cost)}
@@ -79,7 +81,7 @@ function PlanSummary({ plan }: { plan: BuildPlan }) {
           </ThemeIcon>
           <Stack gap={0}>
             <Text size="xs" c="dimmed">
-              Item core
+              {t({ it: "Item core", en: "Core items" })}
             </Text>
             <Text size="xl" fw={700}>
               {totalItems}
@@ -110,6 +112,7 @@ function formatSeconds(s: number): string {
  * decrements between events using a 100ms tick.
  */
 function PricingProgressBar({ progress }: { progress: PricingProgress }) {
+  const t = useT();
   const [displayEta, setDisplayEta] = useState(progress.eta_seconds);
   const lastEventAt = useRef(performance.now());
 
@@ -146,7 +149,8 @@ function PricingProgressBar({ progress }: { progress: PricingProgress }) {
               <IconClock size={14} />
             </ThemeIcon>
             <Text size="sm" fw={500} truncate>
-              {progress.status || "Pricing in corso..."}
+              {progress.status ||
+                t({ it: "Pricing in corso...", en: "Pricing in progress..." })}
             </Text>
           </Group>
           <Group gap={12} wrap="nowrap">
@@ -154,7 +158,9 @@ function PricingProgressBar({ progress }: { progress: PricingProgress }) {
               {progress.item_index}/{progress.total_items}
             </Text>
             <Badge variant="light" color={color}>
-              {isDone ? "completato" : `~${formatSeconds(displayEta)}`}
+              {isDone
+                ? t({ it: "completato", en: "done" })
+                : `~${formatSeconds(displayEta)}`}
             </Badge>
           </Group>
         </Group>
@@ -168,7 +174,8 @@ function PricingProgressBar({ progress }: { progress: PricingProgress }) {
         />
         <Group justify="space-between">
           <Text size="xs" c="dimmed">
-            elapsed: {formatSeconds(progress.elapsed_seconds)}
+            {t({ it: "trascorso", en: "elapsed" })}:{" "}
+            {formatSeconds(progress.elapsed_seconds)}
           </Text>
           <Text size="xs" c="dimmed">
             {pct.toFixed(0)}%
@@ -268,6 +275,12 @@ export function PlannerPage({ initialInput }: Props) {
   // desktop so there's no layout flash.
   const isDesktop = useMediaQuery("(min-width: 1024px)") !== false;
 
+  const t = useT();
+  const targetOptions = TARGET_KEYS.map((o) => ({
+    value: o.value,
+    label: t({ it: o.it, en: o.en }),
+  }));
+
   const start = useCallback(async () => {
     if (!input.trim() || running) return;
 
@@ -340,14 +353,15 @@ export function PlannerPage({ initialInput }: Props) {
 
   return (
     <Stack gap="md">
-      <Title order={3}>Planner build</Title>
+      <Title order={3}>{t({ it: "Planner build", en: "Build Planner" })}</Title>
 
       {editing ? (
         <>
           <Text c="dimmed" size="sm">
-            Incolla un codice di esportazione PoB o un link pobb.in /
-            pastebin: il planner analizza la build, prezza ogni unique su
-            poe.ninja e ti restituisce un piano di upgrade in 6 stage.
+            {t({
+              it: "Incolla un codice di esportazione PoB o un link pobb.in / pastebin: il planner analizza la build, prezza ogni unique su poe.ninja e ti restituisce un piano di upgrade in 6 stage.",
+              en: "Paste a PoB export code or a pobb.in / pastebin link: the planner analyses the build, prices every unique on poe.ninja and returns a 6-stage upgrade plan.",
+            })}
           </Text>
 
           <Textarea
@@ -356,7 +370,6 @@ export function PlannerPage({ initialInput }: Props) {
             onChange={(e) => setInput(e.currentTarget.value)}
             minRows={3}
             autosize
-            ff="monospace"
             onKeyDown={(e) => {
               if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) start();
             }}
@@ -364,7 +377,7 @@ export function PlannerPage({ initialInput }: Props) {
 
           <Group justify="space-between" wrap="wrap">
             <SegmentedControl
-              data={TARGET_OPTIONS}
+              data={targetOptions}
               value={target}
               onChange={(v) => setTarget(v as TargetGoal)}
               size="sm"
@@ -375,7 +388,7 @@ export function PlannerPage({ initialInput }: Props) {
                 loading={running}
                 disabled={!input.trim() || running}
               >
-                Genera piano
+                {t({ it: "Genera piano", en: "Generate plan" })}
               </Button>
               <Text size="xs" c="dimmed">
                 Ctrl+Enter
@@ -387,13 +400,19 @@ export function PlannerPage({ initialInput }: Props) {
             <Tooltip
               multiline
               w={320}
-              label="Quando attivo, ogni KeyItem endgame della tua build genera una upgrade ladder personalizzata (Mageblood → Bottled Faith → flask rare; Awakened gem 5 → 1 → support regular). Le rationale dei rung vengono mostrate nei rispettivi stage."
+              label={t({
+                it: "Quando attivo, ogni KeyItem endgame della tua build genera una upgrade ladder personalizzata (Mageblood → Bottled Faith → flask rare; Awakened gem 5 → 1 → support regular). Le rationale dei rung vengono mostrate nei rispettivi stage.",
+                en: "When enabled, each endgame KeyItem of your build generates a personalised upgrade ladder (Mageblood → Bottled Faith → rare flask; Awakened gem 5 → 1 → regular support). Each rung's rationale is shown in the matching stage.",
+              })}
               withArrow
             >
               <Switch
                 checked={reverseMode}
                 onChange={(e) => setReverseMode(e.currentTarget.checked)}
-                label="Modalità reverse-progression (sperimentale)"
+                label={t({
+                  it: "Modalità reverse-progression (sperimentale)",
+                  en: "Reverse-progression mode (experimental)",
+                })}
                 size="sm"
               />
             </Tooltip>
@@ -409,13 +428,13 @@ export function PlannerPage({ initialInput }: Props) {
             onClick={() => setEditing(true)}
             style={{ flexShrink: 0 }}
           >
-            modifica
+            {t({ it: "modifica", en: "edit" })}
           </Anchor>
         </Group>
       )}
 
       {error && (
-        <Alert color="red" title="Errore">
+        <Alert color="red" title={t({ it: "Errore", en: "Error" })}>
           {error}
         </Alert>
       )}
@@ -424,7 +443,11 @@ export function PlannerPage({ initialInput }: Props) {
 
       {result && (
         <>
-          <Divider my="xs" label="Piano generato" labelPosition="center" />
+          <Divider
+            my="xs"
+            label={t({ it: "Piano generato", en: "Generated plan" })}
+            labelPosition="center"
+          />
           <PlanSummary plan={result.plan} />
           <Divider my="xs" label="Stage" labelPosition="center" />
           {isDesktop ? (

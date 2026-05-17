@@ -15,10 +15,12 @@
 import { Box, Button, Group, Stack, Text, Title } from "@mantine/core";
 import { IconArrowRight, IconSparkles } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
+import { useT } from "../i18n";
 import { markWelcomeSeen } from "../state/welcome";
 
 export function WelcomePage() {
   const navigate = useNavigate();
+  const t = useT();
 
   const enter = () => {
     markWelcomeSeen();
@@ -100,7 +102,10 @@ export function WelcomePage() {
             Frusta Oracle Builder
           </Text>
           <Text size="sm" c="dimmed" style={{ marginTop: 8, textAlign: "center" }}>
-            L'oracolo del tuo prossimo personaggio in Path of Exile
+            {t({
+              it: "L'oracolo del tuo prossimo personaggio in Path of Exile",
+              en: "The oracle for your next Path of Exile character",
+            })}
           </Text>
         </Stack>
 
@@ -118,7 +123,7 @@ export function WelcomePage() {
               boxShadow: "0 0 20px rgba(200, 147, 42, 0.6)",
             }}
           >
-            Inizia
+            {t({ it: "Inizia", en: "Enter" })}
           </Button>
         </Group>
       </Stack>

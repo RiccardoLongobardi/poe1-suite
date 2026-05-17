@@ -9,6 +9,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import { App } from "./App";
+import { LangProvider } from "./i18n";
 import { fobTheme } from "./theme";
 
 const queryClient = new QueryClient({
@@ -26,8 +27,10 @@ createRoot(rootEl).render(
     <BrowserRouter>
       <QueryClientProvider client={queryClient}>
         <MantineProvider theme={fobTheme} defaultColorScheme="dark">
-          <Notifications />
-          <App />
+          <LangProvider>
+            <Notifications />
+            <App />
+          </LangProvider>
         </MantineProvider>
       </QueryClientProvider>
     </BrowserRouter>

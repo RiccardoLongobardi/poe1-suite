@@ -42,6 +42,7 @@ import {
 import { useEffect, useState } from "react";
 import { getDetail, getDetailFull, type GemRef, type SkillGroup } from "../api/builds";
 import type { RankedBuild } from "../api/types";
+import { useT } from "../i18n";
 import { ScoreBar } from "./ScoreBar";
 
 interface Props {
@@ -107,10 +108,11 @@ function pickMainGroup(
  * a coloured background; supports stay subtle.
  */
 function GemChips({ gems }: { gems: GemRef[] }) {
+  const t = useT();
   if (gems.length === 0) {
     return (
       <Text size="xs" c="dimmed">
-        Nessun gem visibile.
+        {t({ it: "Nessun gem visibile.", en: "No gems visible." })}
       </Text>
     );
   }
@@ -172,6 +174,7 @@ function StatChip({
 }
 
 export function BuildCard({ build, index, onSendToPlanner }: Props) {
+  const t = useT();
   const [opened, { toggle }] = useDisclosure(false);
   const [planLoading, setPlanLoading] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
@@ -217,7 +220,12 @@ export function BuildCard({ build, index, onSendToPlanner }: Props) {
       const code = await getDetail(ref.account, ref.character);
       onSendToPlanner(code);
     } catch (err) {
-      alert(`Errore nel caricare il PoB: ${(err as Error).message}`);
+      alert(
+        t({
+          it: `Errore nel caricare il PoB: ${(err as Error).message}`,
+          en: `Failed to load the PoB: ${(err as Error).message}`,
+        }),
+      );
     } finally {
       setPlanLoading(false);
     }
@@ -234,7 +242,10 @@ export function BuildCard({ build, index, onSendToPlanner }: Props) {
       setTimeout(() => setLinkCopied(false), 1500);
     } catch {
       // Fallback for browsers that block clipboard access (Safari old, etc.).
-      window.prompt("Copia il link manualmente:", url);
+      window.prompt(
+        t({ it: "Copia il link manualmente:", en: "Copy the link manually:" }),
+        url,
+      );
     }
   }
 
@@ -353,11 +364,14 @@ export function BuildCard({ build, index, onSendToPlanner }: Props) {
                   loading={planLoading}
                   onClick={handlePlan}
                 >
-                  Pianifica
+                  {t({ it: "Pianifica", en: "Plan" })}
                 </Button>
               )}
               <Tooltip
-                label="Apri il profilo poe.ninja in una nuova scheda"
+                label={t({
+                  it: "Apri il profilo poe.ninja in una nuova scheda",
+                  en: "Open the poe.ninja profile in a new tab",
+                })}
                 withArrow
                 position="top"
               >
@@ -372,11 +386,15 @@ export function BuildCard({ build, index, onSendToPlanner }: Props) {
                   rel="noopener noreferrer"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  Apri PoB
+                  {t({ it: "Apri PoB", en: "Open PoB" })}
                 </Button>
               </Tooltip>
               <Tooltip
-                label={linkCopied ? "Link copiato!" : "Copia link poe.ninja"}
+                label={
+                  linkCopied
+                    ? t({ it: "Link copiato!", en: "Link copied!" })
+                    : t({ it: "Copia link poe.ninja", en: "Copy poe.ninja link" })
+                }
                 withArrow
                 position="top"
               >
@@ -390,7 +408,9 @@ export function BuildCard({ build, index, onSendToPlanner }: Props) {
                   onClick={handleCopyLink}
                   px="xs"
                 >
-                  {linkCopied ? "Copiato" : "Copia link"}
+                  {linkCopied
+                    ? t({ it: "Copiato", en: "Copied" })
+                    : t({ it: "Copia link", en: "Copy link" })}
                 </Button>
               </Tooltip>
             </Group>
@@ -407,13 +427,16 @@ export function BuildCard({ build, index, onSendToPlanner }: Props) {
               <Group gap={6}>
                 <IconSparkles size={14} color="var(--vs-ember)" />
                 <Text size="xs" fw={600} c="dimmed" tt="uppercase">
-                  Main gems
+                  {t({ it: "Gemme principali", en: "Main gems" })}
                 </Text>
                 {detailLoading && <Loader size={12} />}
               </Group>
               {detailGroups === null && !detailLoading && (
                 <Text size="xs" c="dimmed">
-                  Espandi la card per caricare i gem...
+                  {t({
+                    it: "Espandi la card per caricare i gem...",
+                    en: "Expand the card to load the gems...",
+                  })}
                 </Text>
               )}
               {mainGroup ? (
@@ -422,7 +445,10 @@ export function BuildCard({ build, index, onSendToPlanner }: Props) {
                 detailGroups !== null &&
                 !detailLoading && (
                   <Text size="xs" c="dimmed">
-                    Skill groups non disponibili per questa build.
+                    {t({
+                      it: "Skill group non disponibili per questa build.",
+                      en: "Skill groups unavailable for this build.",
+                    })}
                   </Text>
                 )
               )}
