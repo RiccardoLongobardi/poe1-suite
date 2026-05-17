@@ -398,6 +398,12 @@ h6 {
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
   }
+  /* Light mode: the dark void rgba above would render as a muddy grey
+     on the cream parchment background. Use a translucent warm cream
+     tint instead so the card stays a light parchment surface. */
+  [data-mantine-color-scheme="light"] .vs-glass {
+    background: rgba(237, 229, 210, 0.78);
+  }
 }
 
 /* Staggered result-card reveal. */

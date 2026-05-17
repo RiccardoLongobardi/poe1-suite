@@ -98,6 +98,21 @@ New `/patch-notes` route — a static, data-driven changelog covering the full p
 
 Frontend-only, no backend change. To keep it current, add a new entry at the top of the `RELEASES` array when a feature ships.
 
+## Bug — Finder result cards muddy grey in light mode (2026-05-17) ✅ fixed
+
+QA: the Build Finder result cards rendered as an embarrassing muddy
+grey/brown on the cream parchment background in light mode. Root cause:
+`.vs-glass` (the glassmorphism class on `BuildCard`) hardcoded a dark
+void rgba `rgba(17, 16, 9, 0.62)` inside its `@supports (backdrop-filter)`
+block — that dark translucent fill applied in **both** colour schemes.
+On the cream light background it became a dim grey wash.
+
+Fix (`index.css`, frontend-only): added a
+`[data-mantine-color-scheme="light"] .vs-glass` override inside the same
+`@supports` block that uses a translucent warm cream tint
+`rgba(237, 229, 210, 0.78)`, so the card stays a light parchment surface
+in light mode while dark mode keeps the void rgba.
+
 ## Step 23 — Parchment light mode (2026-05-15) ✅
 
 The `colorScheme` toggle in the header existed but light mode was broken — Mantine fell back to its default white/black/violet palette, white-on-white in places. Step 23 defines the "Parchment" light mode that pairs with the "Void Stone & Ember" dark mode. Frontend-only, zero layout changes, no new deps.
