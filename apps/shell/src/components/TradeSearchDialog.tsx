@@ -145,9 +145,12 @@ export function TradeSearchDialog({
           ? { stat_id: r.mod.stat_id as string, min }
           : { stat_id: r.mod.stat_id as string };
       });
+    // The base type is always sent: for a unique-by-name search GGG
+    // wants name + type together (a name-only query is unreliable);
+    // for a base search it's the only filter.
     const req: TradeUrlRequest = {
       item_name: byName ? itemName : undefined,
-      item_type: byName ? undefined : (itemType ?? undefined),
+      item_type: itemType ?? undefined,
       stats: stats.length > 0 ? stats : undefined,
       min_links: links === "any" ? undefined : Number(links),
     };

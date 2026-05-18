@@ -248,12 +248,17 @@ class TradeQuery:
     name: str | None = None
     stats: tuple[StatFilter, ...] = ()
     online_only: bool = True
+    status_option: str | None = None
+    """Explicit GGG ``status`` option (e.g. ``"securable"`` = Instant
+    Buyout, ``"online"`` = In Person Online). When set it overrides the
+    ``online_only`` flag."""
     extra_filters: dict[str, Any] | None = None
 
     def to_payload(self) -> dict[str, Any]:
         """Render the JSON body GGG expects under ``POST /search/<league>``."""
 
-        query: dict[str, Any] = {"status": {"option": "online" if self.online_only else "any"}}
+        status = self.status_option or ("online" if self.online_only else "any")
+        query: dict[str, Any] = {"status": {"option": status}}
         if self.name is not None:
             query["name"] = self.name
         if self.type is not None:

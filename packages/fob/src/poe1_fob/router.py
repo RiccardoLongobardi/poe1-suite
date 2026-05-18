@@ -785,14 +785,17 @@ def make_router(settings: Settings) -> APIRouter:
                 },
             }
 
-        # When we have a unique name, search by name (Trade resolves
-        # the base automatically). When we have only a rare base, search
-        # by type. Sending both confuses GGG's filter set.
+        # Pass name + base type together — that's what the official
+        # trade site sends when you pick a unique from autocomplete, and
+        # a name-only query does not reliably resolve uniques. For a
+        # rare `item_name` is None, so only `type` is sent.
+        # `status_option="securable"` defaults the search to Instant
+        # Buyout (matches what the user expects on the trade page).
         query = TradeQuery(
             name=payload.item_name,
-            type=payload.item_type if not payload.item_name else None,
+            type=payload.item_type,
             stats=tuple(stats),
-            online_only=True,
+            status_option="securable",
             extra_filters=extra_filters,
         )
 

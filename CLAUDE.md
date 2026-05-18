@@ -118,6 +118,13 @@ Prompt 020. Four frontend-only "make it feel alive" changes. No backend, no new 
 
 Gate: 706 tests / 123 mypy / 318 ruff-format. Frontend build main 449 KB / 143 KB gzip.
 
+## Bug — Trade dialog: unique name search + Instant Buyout default (2026-05-18) ✅ fixed
+
+QA on the Trade dialog (Steps 31/32):
+
+1. **Unique search by name returned nothing.** `/fob/trade-url` built `TradeQuery(name=item_name, type=None if item_name)` — it dropped the base type whenever a name was present, sending GGG a name-only query. A name-only query does not reliably resolve a unique. Fix: send **`name` + `type` together** (what the official trade site sends when you pick a unique from autocomplete). `TradeSearchDialog` now always includes `item_type`; `/fob/trade-url` passes both to `TradeQuery`.
+2. **Search should default to Instant Buyout.** GGG's `/api/trade/data/filters` shows the buyout dropdown is the `status` filter — `securable` = "Instant Buyout". Added `TradeQuery.status_option` (overrides the `online_only` flag); `/fob/trade-url` sets `status_option="securable"` so every prefilled search opens on Instant Buyout. The pricer's own `TradeQuery` calls are untouched (no `status_option` → still `online`).
+
 ## Step 32 — Trade dialog: full GGG stat DB + all mods (2026-05-18) ✅
 
 QA on Step 31: the dialog only listed mods recognised by the ~30-entry hand-written `MOD_PATTERNS` table — most of an item's mods (incl. unique-specific ones like Widowhail's quiver mod) never appeared, so the user couldn't toggle them. The dialog must show **every** mod and make as many as possible toggleable filters. Also: the modal must be bigger.

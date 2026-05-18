@@ -667,3 +667,5 @@ def test_trade_url_with_stats_and_links(
         # The 6-link socket constraint reached GGG.
         links = query["filters"]["socket_filters"]["filters"]["links"]
         assert links["min"] == 6
+        # The search defaults to Instant Buyout (status = "securable").
+        assert query["status"]["option"] == "securable"

@@ -29,6 +29,23 @@ interface Release {
 const RELEASES: Release[] = [
   {
     date: { it: "18 mag 2026", en: "18 May 2026" },
+    title: {
+      it: "Fix ricerca Trade per gli unique",
+      en: "Trade search fix for uniques",
+    },
+    entries: [
+      {
+        it: "La ricerca per nome degli oggetti unique ora funziona: nome e tipo base vengono inviati insieme a pathofexile.com/trade.",
+        en: "Searching uniques by name now works: the name and base type are sent together to pathofexile.com/trade.",
+      },
+      {
+        it: "Le ricerche Trade si aprono di default con il filtro \"Instant Buyout\".",
+        en: 'Trade searches now open with the "Instant Buyout" filter by default.',
+      },
+    ],
+  },
+  {
+    date: { it: "18 mag 2026", en: "18 May 2026" },
     title: { it: "Interfaccia viva", en: "Living interface" },
     summary: {
       it: "Il sito ora respira: particelle, shimmer, numeri animati e caricamenti raffinati.",
