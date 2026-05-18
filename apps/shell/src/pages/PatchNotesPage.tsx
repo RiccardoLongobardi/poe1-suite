@@ -30,6 +30,39 @@ const RELEASES: Release[] = [
   {
     date: { it: "18 mag 2026", en: "18 May 2026" },
     title: {
+      it: "Correzioni QA + stato persistente",
+      en: "QA fixes + persistent state",
+    },
+    summary: {
+      it: "Cinque migliorie su Finder, Analizza e Planner.",
+      en: "Five improvements across Finder, Analyse and Planner.",
+    },
+    entries: [
+      {
+        it: 'Il pulsante "Copia PoB" nel Finder ora copia il codice PoB della build (importabile in Path of Building), non il link al profilo.',
+        en: 'The Finder "Copy PoB" button now copies the build\'s PoB code (importable into Path of Building), not the profile link.',
+      },
+      {
+        it: "La pagina Analizza e il Planner accettano anche l'URL di un personaggio poe.ninja, oltre al codice PoB e ai link pobb.in.",
+        en: "The Analyse page and the Planner now also accept a poe.ninja character URL, on top of PoB codes and pobb.in links.",
+      },
+      {
+        it: "Corretti i colori di Analizza e Planner nel tema chiaro: niente più riquadri scuri sullo sfondo crema.",
+        en: "Fixed the Analyse and Planner colours in light mode: no more dark patches on the cream background.",
+      },
+      {
+        it: "Il campo di input del Planner è ora compatto, coerente con quello di Analizza.",
+        en: "The Planner input field is now compact, consistent with the Analyse one.",
+      },
+      {
+        it: "Finder, Analizza e Planner conservano ricerca e risultati quando navighi tra le pagine — niente più dati persi.",
+        en: "Finder, Analyse and Planner keep your search and results when you navigate between pages — no more lost work.",
+      },
+    ],
+  },
+  {
+    date: { it: "18 mag 2026", en: "18 May 2026" },
+    title: {
       it: "Rifinitura risultati Finder",
       en: "Finder result-list polish",
     },

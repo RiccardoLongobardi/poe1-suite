@@ -87,6 +87,32 @@ export async function getDetailFull(
 
 
 /**
+ * Parse a poe.ninja character-profile URL into its account + character
+ * pair. Returns null for any URL that is not a
+ * `.../character/<account>/<character>` profile link (e.g. a generic
+ * build-list page, which can't be resolved to a single build).
+ *
+ * Live poe.ninja format (post-PoE2 migration):
+ *   https://poe.ninja/builds/<league-slug>/character/<account>/<character>
+ */
+export function parsePoeNinjaCharacterUrl(
+  url: string,
+): { account: string; character: string } | null {
+  const m = url.match(
+    /poe\.ninja\/builds\/[^/]+\/character\/([^/?#]+)\/([^/?#]+)/i,
+  );
+  if (!m) return null;
+  const safeDecode = (s: string): string => {
+    try {
+      return decodeURIComponent(s);
+    } catch {
+      return s;
+    }
+  };
+  return { account: safeDecode(m[1]), character: safeDecode(m[2]) };
+}
+
+/**
  * GET /builds/population-stats?ascendancy=<name>
  *
  * Aggregated poe.ninja ladder stats (top skills + percentile

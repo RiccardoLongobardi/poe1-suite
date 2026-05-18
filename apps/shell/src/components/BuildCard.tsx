@@ -194,6 +194,7 @@ export function BuildCard({
   const [opened, { toggle }] = useDisclosure(false);
   const [planLoading, setPlanLoading] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
+  const [linkLoading, setLinkLoading] = useState(false);
   const [detailGroups, setDetailGroups] = useState<SkillGroup[] | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const { ref, score } = build;
@@ -247,21 +248,46 @@ export function BuildCard({
     }
   }
 
-  async function handleCopyLink(e: React.MouseEvent) {
+  /**
+   * Copy the build's Path of Building import code to the clipboard.
+   *
+   * The `RemoteBuildRef` carries no PoB field, so the code is fetched
+   * on demand via `/builds/detail` (the same call `handlePlan` uses).
+   * We copy the raw PoB code — not a `pobb.in/<code>` URL: pobb.in
+   * mints short IDs server-side and does NOT resolve a raw base64 code
+   * in its path, so such a link would 404. The raw code pastes
+   * straight into PoB Community or pobb.in's import box.
+   */
+  async function handleCopyPob(e: React.MouseEvent) {
     e.stopPropagation(); // don't toggle collapse
-    const url = poeNinjaUrl(ref.league, ref.account, ref.character);
+    setLinkLoading(true);
     try {
-      await navigator.clipboard.writeText(url);
-      setLinkCopied(true);
-      // Reset the icon after a short window so the user sees the confirmation
-      // but the button stays usable.
-      setTimeout(() => setLinkCopied(false), 1500);
-    } catch {
-      // Fallback for browsers that block clipboard access (Safari old, etc.).
-      window.prompt(
-        t({ it: "Copia il link manualmente:", en: "Copy the link manually:" }),
-        url,
+      const code = await getDetail(ref.account, ref.character);
+      try {
+        await navigator.clipboard.writeText(code);
+        setLinkCopied(true);
+        // Reset after a short window so the user sees the confirmation
+        // but the button stays usable.
+        setTimeout(() => setLinkCopied(false), 1500);
+      } catch {
+        // Fallback for browsers that block clipboard access.
+        window.prompt(
+          t({
+            it: "Copia il codice PoB manualmente:",
+            en: "Copy the PoB code manually:",
+          }),
+          code,
+        );
+      }
+    } catch (err) {
+      alert(
+        t({
+          it: `Errore nel caricare il PoB: ${(err as Error).message}`,
+          en: `Failed to load the PoB: ${(err as Error).message}`,
+        }),
       );
+    } finally {
+      setLinkLoading(false);
     }
   }
 
@@ -451,8 +477,11 @@ export function BuildCard({
               <Tooltip
                 label={
                   linkCopied
-                    ? t({ it: "Link copiato!", en: "Link copied!" })
-                    : t({ it: "Copia link poe.ninja", en: "Copy poe.ninja link" })
+                    ? t({ it: "Codice PoB copiato!", en: "PoB code copied!" })
+                    : t({
+                        it: "Copia il codice PoB della build negli appunti",
+                        en: "Copy the build's PoB code to the clipboard",
+                      })
                 }
                 withArrow
                 position="top"
@@ -464,12 +493,13 @@ export function BuildCard({
                   leftSection={
                     linkCopied ? <IconCheck size={13} /> : <IconCopy size={13} />
                   }
-                  onClick={handleCopyLink}
+                  loading={linkLoading}
+                  onClick={handleCopyPob}
                   px="xs"
                 >
                   {linkCopied
                     ? t({ it: "Copiato", en: "Copied" })
-                    : t({ it: "Copia link", en: "Copy link" })}
+                    : t({ it: "Copia PoB", en: "Copy PoB" })}
                 </Button>
               </Tooltip>
             </Group>

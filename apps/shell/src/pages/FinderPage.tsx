@@ -29,15 +29,20 @@ import {
 } from "@mantine/core";
 import { IconEye, IconSortDescending } from "@tabler/icons-react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { getPopulationStats } from "../api/builds";
 import { extractIntent, recommend } from "../api/fob";
-import type { BuildIntent, RecommendResponse, SortKey } from "../api/types";
+import type { BuildIntent, SortKey } from "../api/types";
 import { BuildCard } from "../components/BuildCard";
 import { ErrorBoundary } from "../components/ErrorBoundary";
 import { IntentCard } from "../components/IntentCard";
 import { PopulationStatsPanel } from "../components/PopulationStatsPanel";
 import { useT } from "../i18n";
+import {
+  emptyFinderFilters,
+  type FinderFilters,
+  usePageStore,
+} from "../store/pageStore";
 
 // Class & ascendancy options for the filter Select.
 //
@@ -124,34 +129,12 @@ interface Props {
   onSendToPlanner?: (pobCode: string) => void;
 }
 
-/** Subset of BuildIntent fields editable via the manual filter UI.
- * Kept in a separate state slice so editing them never overwrites the
- * parsed intent's other dimensions. */
-interface FilterOverrides {
-  class_filter: string | null;
-  sort_by: SortKey;
-  min_life: number | null;
-  min_es: number | null;
-  min_ehp: number | null;
-  min_dps: number | null;
-  min_level: number | null;
-  max_level: number | null;
-}
+// The editable filter subset (`FinderFilters`) lives in the Zustand
+// `pageStore` so it survives cross-route navigation. Kept separate
+// from the parsed intent so editing a filter never clobbers the
+// intent's other dimensions.
 
-function emptyOverrides(): FilterOverrides {
-  return {
-    class_filter: null,
-    sort_by: "score",
-    min_life: null,
-    min_es: null,
-    min_ehp: null,
-    min_dps: null,
-    min_level: null,
-    max_level: null,
-  };
-}
-
-function overridesFromIntent(intent: BuildIntent): FilterOverrides {
+function overridesFromIntent(intent: BuildIntent): FinderFilters {
   return {
     class_filter: intent.class_filter,
     sort_by: intent.sort_by ?? "score",
@@ -164,7 +147,7 @@ function overridesFromIntent(intent: BuildIntent): FilterOverrides {
   };
 }
 
-function applyOverrides(intent: BuildIntent, ov: FilterOverrides): BuildIntent {
+function applyOverrides(intent: BuildIntent, ov: FinderFilters): BuildIntent {
   return {
     ...intent,
     class_filter: ov.class_filter,
@@ -206,34 +189,30 @@ export function FinderPage({ onSendToPlanner }: Props) {
     value: s.value,
     label: t({ it: s.it, en: s.en }),
   }));
-  const [query, setQuery] = useState("");
-  const [topN, setTopN] = useState<number>(10);
-  const [intent, setIntent] = useState<BuildIntent | null>(null);
-  const [overrides, setOverrides] = useState<FilterOverrides>(emptyOverrides());
-  const [result, setResult] = useState<RecommendResponse | null>(null);
-  // Drill-down: when set, the result list is filtered client-side to
-  // builds whose main skill matches. Driven by clicking a skill name.
-  const [skillFilter, setSkillFilter] = useState<string | null>(null);
-  // The hero search collapses to a compact row after a successful
-  // extract; "modifica" expands it again.
-  const [editing, setEditing] = useState(true);
+  // Cross-route persistent state — query, parsed intent, filter
+  // overrides, results, drill-down skill filter and the editing flag
+  // all survive navigating away and back (Zustand `pageStore`).
+  const { query, topN, intent, overrides, result, skillFilter, editing } =
+    usePageStore((s) => s.finder);
+  const setFinder = usePageStore((s) => s.setFinder);
 
   const extractMut = useMutation({
     mutationFn: () => extractIntent(query),
     onSuccess: (data) => {
-      setIntent(data);
-      setOverrides(overridesFromIntent(data));
-      setResult(null);
-      setSkillFilter(null);
-      setEditing(false);
+      setFinder({
+        intent: data,
+        overrides: overridesFromIntent(data),
+        result: null,
+        skillFilter: null,
+        editing: false,
+      });
     },
   });
 
   const recommendMut = useMutation({
     mutationFn: () => recommend(applyOverrides(intent!, overrides), topN),
     onSuccess: (data) => {
-      setResult(data);
-      setSkillFilter(null);
+      setFinder({ result: data, skillFilter: null });
     },
   });
 
@@ -263,13 +242,16 @@ export function FinderPage({ onSendToPlanner }: Props) {
 
   /** Toggle the drill-down skill filter (clicking the active one clears it). */
   function handleDrillSkill(skill: string) {
-    setSkillFilter((cur) =>
-      cur && cur.toLowerCase() === skill.toLowerCase() ? null : skill,
-    );
+    setFinder({
+      skillFilter:
+        skillFilter && skillFilter.toLowerCase() === skill.toLowerCase()
+          ? null
+          : skill,
+    });
   }
 
-  function patchOverrides(p: Partial<FilterOverrides>) {
-    setOverrides((cur) => ({ ...cur, ...p }));
+  function patchOverrides(p: Partial<FinderFilters>) {
+    setFinder({ overrides: { ...overrides, ...p } });
   }
 
   const handleExtract = () => {
@@ -304,7 +286,7 @@ export function FinderPage({ onSendToPlanner }: Props) {
               en: "search RF with at least 6k life...",
             })}
             value={query}
-            onChange={(e) => setQuery(e.currentTarget.value)}
+            onChange={(e) => setFinder({ query: e.currentTarget.value })}
             minRows={2}
             autosize
             onKeyDown={(e) => {
@@ -330,7 +312,7 @@ export function FinderPage({ onSendToPlanner }: Props) {
           </Code>
           <Anchor
             size="xs"
-            onClick={() => setEditing(true)}
+            onClick={() => setFinder({ editing: true })}
             style={{ flexShrink: 0 }}
           >
             {t({ it: "modifica", en: "edit" })}
@@ -452,7 +434,9 @@ export function FinderPage({ onSendToPlanner }: Props) {
             <NumberInput
               label={t({ it: "Risultati", en: "Results" })}
               value={topN}
-              onChange={(v) => setTopN(typeof v === "number" ? v : 10)}
+              onChange={(v) =>
+                setFinder({ topN: typeof v === "number" ? v : 10 })
+              }
               min={1}
               max={50}
               size="xs"
@@ -469,7 +453,7 @@ export function FinderPage({ onSendToPlanner }: Props) {
               size="xs"
               variant="subtle"
               color="gray"
-              onClick={() => setOverrides(emptyOverrides())}
+              onClick={() => setFinder({ overrides: emptyFinderFilters() })}
             >
               {t({ it: "Reset", en: "Reset" })}
             </Button>
@@ -536,7 +520,7 @@ export function FinderPage({ onSendToPlanner }: Props) {
                               <Pill
                                 withRemoveButton
                                 size="md"
-                                onRemove={() => setSkillFilter(null)}
+                                onRemove={() => setFinder({ skillFilter: null })}
                               >
                                 {t({ it: "skill", en: "skill" })}: {skillFilter}
                               </Pill>

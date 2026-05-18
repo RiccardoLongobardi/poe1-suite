@@ -107,6 +107,20 @@ Frontend-only, no backend change.
 > Updating the `.md` files without updating the Patch Notes is an
 > incomplete step.
 
+## Step 27 — QA batch fixes + Zustand state persistence (2026-05-18) ✅
+
+Prompt 017. Five frontend-only fixes. No backend / API change, no new endpoint. New npm dependency: `zustand` 5.
+
+- **Fix 1 — Finder "Copia link" copies the PoB code.** `BuildCard`'s copy action copied the poe.ninja profile URL. It now fetches the build's PoB code via `/builds/detail` (`getDetail`) and copies that. **Deviation from the prompt**: the prompt said copy `https://pobb.in/<code>` — but pobb.in mints short IDs server-side and does NOT resolve a raw base64 code in its path (such a link 404s), so we copy the raw PoB code, which pastes straight into PoB Community / pobb.in's import box. Button relabelled "Copia PoB" / "Copy PoB".
+- **Fix 2 — Analyze accepts poe.ninja character URLs.** New `parsePoeNinjaCharacterUrl()` in `api/builds.ts` extracts `account` + `character` from a `.../character/<account>/<character>` URL. `AnalyzePage`'s mutation detects a poe.ninja URL, resolves it to a PoB code via the existing `/builds/detail` endpoint, then analyses. **No new backend endpoint needed** — `/builds/detail` already hydrates any character. Pure frontend.
+- **Fix 3 — light-mode colours on Analyze + Planner.** `AnalyzePage` hardcoded `var(--mantine-color-dark-N)` (which do NOT flip per scheme) on gear cells, socket separators and skill-link strips, plus a `rgba(8,6,4,0.92)` sticky header — all dark patches on cream. Replaced with `var(--vs-*)` tokens; the sticky header now uses the `.vs-glass` class (whose light override already exists). `PlannerPage`'s `PlanSummary` card had `bg="dark.7"` → `bg="var(--vs-surface-2)"`.
+- **Fix 4 — Planner compact input.** The oversized autosize `<Textarea>` is now a single-line `<TextInput>` matching Analyze. The Planner input also accepts poe.ninja URLs (same resolution as Fix 2, applied inside `start()` before streaming; the resolved code is stashed in `planner.resolvedCode` and passed to stage export as `userPobCode`).
+- **Fix 5 — cross-route state persistence (Zustand).** New `apps/shell/src/store/pageStore.ts` — one Zustand store, three slices (`finder` / `analyze` / `planner`). Finder/Analyze/Planner replaced their local `useState` for query/result/filters/intent/editing/activeStage with store reads/writes, so navigating away and back no longer resets them. Transient flags (SSE `progress`, `error`, `running`, per-action loading) stay as local `useState` — they must reset. `persist` middleware mirrors the store to `sessionStorage` (survives in-session reload, not across sessions); a `resilientStorage` wrapper falls back to an in-memory `Map` when `sessionStorage` throws (private mode, sandboxed iframe).
+
+Planner gotcha: `start()` gained an optional `codeOverride` arg so the `initialInput` effect (Finder "Pianifica →" lift) can drive a run without waiting for a store commit to round-trip. The effect skips auto-firing when the store already holds that same input (avoids re-running a restored plan on navbar-return).
+
+Gate: 704 tests / 121 mypy / 316 ruff-format. Frontend build: main 440 KB / 140 KB gzip + a 29 KB `pageStore` chunk (zustand).
+
 ## Step 26 — Route-level code-splitting (2026-05-18) ✅
 
 Prompt 016. The Vite build had been warning that the single bundle exceeded 500 KB. `App.tsx` now lazy-loads the three heaviest feature pages. Frontend-only, no behaviour change.

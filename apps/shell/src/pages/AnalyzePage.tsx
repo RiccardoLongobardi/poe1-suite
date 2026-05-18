@@ -38,9 +38,10 @@ import {
   IconSword,
 } from "@tabler/icons-react";
 import { useMutation } from "@tanstack/react-query";
-import { useState } from "react";
+import { getDetail, parsePoeNinjaCharacterUrl } from "../api/builds";
 import { analyzePob } from "../api/fob";
 import { openTradeForItem } from "../api/tradeRedirect";
+import { usePageStore } from "../store/pageStore";
 import type {
   AnalyzePobResponse,
   ItemRarity,
@@ -98,7 +99,7 @@ function SocketDots({ sockets }: { sockets: string }) {
           return (
             <Box
               key={key}
-              style={{ width: 6, height: 2, background: "var(--mantine-color-dark-2)" }}
+              style={{ width: 6, height: 2, background: "var(--vs-border)" }}
             />
           );
         }
@@ -184,9 +185,9 @@ function GearCell({
     return (
       <Box
         style={{
-          borderLeft: "3px solid var(--mantine-color-dark-4)",
+          borderLeft: "3px solid var(--vs-border-faint)",
           padding: "6px 10px",
-          background: "var(--mantine-color-dark-7)",
+          background: "var(--vs-surface-1)",
           borderRadius: 4,
           minWidth: 0,
           overflow: "hidden",
@@ -213,7 +214,7 @@ function GearCell({
         style={{
           borderLeft: `3px solid ${rarityColor(item.rarity)}`,
           padding: "6px 10px",
-          background: "var(--mantine-color-dark-6)",
+          background: "var(--vs-surface-2)",
           borderRadius: 4,
           cursor: "help",
           minWidth: 0,
@@ -318,8 +319,8 @@ function SkillGroupStrip({
       style={{
         borderRadius: 6,
         background: isMain
-          ? "var(--mantine-color-dark-5)"
-          : "var(--mantine-color-dark-7)",
+          ? "var(--vs-surface-3)"
+          : "var(--vs-surface-1)",
       }}
     >
       <Group gap={4} w={130} style={{ flexShrink: 0 }} wrap="nowrap">
@@ -395,16 +396,13 @@ function BuildDashboard({ data }: { data: AnalyzePobResponse }) {
           so it stays visible while scrolling through gear/skills
           without covering the left card's own stat tiles. */}
       <Box
-        className="vs-card-reveal"
+        className="vs-card-reveal vs-glass"
         style={
           {
             position: "sticky",
             top: 56,
             zIndex: 10,
             padding: "10px 14px",
-            background: "rgba(8, 6, 4, 0.92)",
-            backdropFilter: "blur(10px)",
-            WebkitBackdropFilter: "blur(10px)",
             border: "1px solid var(--vs-border)",
             borderRadius: "var(--vs-radius-md)",
             "--card-index": 0,
@@ -699,15 +697,35 @@ function BuildDashboard({ data }: { data: AnalyzePobResponse }) {
 
 export function AnalyzePage() {
   const t = useT();
-  const [input, setInput] = useState("");
-  const [result, setResult] = useState<AnalyzePobResponse | null>(null);
-  const [editing, setEditing] = useState(true);
+  // Cross-route persistent state — survives navigation away and back.
+  const { input, result, editing } = usePageStore((s) => s.analyze);
+  const setAnalyze = usePageStore((s) => s.setAnalyze);
 
+  // Resolve the input then analyse it. The input may be:
+  //  - a raw PoB export code or a pobb.in / pastebin link → passed
+  //    straight to /fob/analyze-pob (it already accepts those);
+  //  - a poe.ninja character URL → resolved client-side to a PoB code
+  //    via /builds/detail before analysing (no new backend endpoint).
   const mut = useMutation({
-    mutationFn: () => analyzePob(input),
+    mutationFn: async () => {
+      const raw = input.trim();
+      if (/^https?:\/\//i.test(raw) && /poe\.ninja/i.test(raw)) {
+        const parsed = parsePoeNinjaCharacterUrl(raw);
+        if (!parsed) {
+          throw new Error(
+            t({
+              it: "Link poe.ninja non valido — incolla l'URL di un personaggio (…/character/<account>/<nome>).",
+              en: "Invalid poe.ninja link — paste a character URL (…/character/<account>/<name>).",
+            }),
+          );
+        }
+        const code = await getDetail(parsed.account, parsed.character);
+        return analyzePob(code);
+      }
+      return analyzePob(raw);
+    },
     onSuccess: (data) => {
-      setResult(data);
-      setEditing(false);
+      setAnalyze({ result: data, editing: false });
     },
   });
 
@@ -723,16 +741,16 @@ export function AnalyzePage() {
         <>
           <Text c="dimmed" size="sm">
             {t({
-              it: "Incolla un codice di esportazione PoB oppure un link pobb.in / pastebin.",
-              en: "Paste a PoB export code or a pobb.in / pastebin link.",
+              it: "Incolla un codice di esportazione PoB, un link pobb.in / pastebin oppure l'URL di un personaggio poe.ninja.",
+              en: "Paste a PoB export code, a pobb.in / pastebin link, or a poe.ninja character URL.",
             })}
           </Text>
           <Group align="flex-end" gap="sm" wrap="nowrap">
             <TextInput
               flex={1}
-              placeholder="https://pobb.in/xxxx  oppure  eNqtVct…"
+              placeholder="https://pobb.in/xxxx  ·  poe.ninja/builds/…  ·  eNqtVct…"
               value={input}
-              onChange={(e) => setInput(e.currentTarget.value)}
+              onChange={(e) => setAnalyze({ input: e.currentTarget.value })}
               onKeyDown={(e) => {
                 if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) submit();
               }}
@@ -750,7 +768,11 @@ export function AnalyzePage() {
           <Code style={{ overflow: "hidden", textOverflow: "ellipsis" }}>
             {result?.build.source_id ?? input.slice(0, 48)}
           </Code>
-          <Anchor size="xs" onClick={() => setEditing(true)} style={{ flexShrink: 0 }}>
+          <Anchor
+            size="xs"
+            onClick={() => setAnalyze({ editing: true })}
+            style={{ flexShrink: 0 }}
+          >
             {t({ it: "modifica", en: "edit" })}
           </Anchor>
         </Group>

@@ -16,7 +16,7 @@ Don't trust earlier versions of this file — the section below is the authorita
   - Frontend: <https://fob-ten.vercel.app> (Vercel, auto-deploy from `main`).
   - Backend: <https://fob-api-rtgg.onrender.com> (Render, region Frankfurt, auto-deploy from `main`).
   - Cost: **$0/month**.
-- **Baseline gate**: 704 tests green / 121 mypy / 117 format. Frontend build 438 KB / 139 KB gzip.
+- **Baseline gate**: 704 tests green / 121 mypy / 316 ruff-format files. Frontend build main 440 KB / 140 KB gzip + lazy route + `pageStore` chunks.
 - **Working features (all QA-verified 2026-05-18)**:
   - Build Finder with class/asc/stat-floor/sort filters + natural-language extraction (Step 15) + per-ascendancy population stats panel (Step 19). ✅ QA passed.
   - Planner with 6-stage `BuildPlan`, SSE streaming progress + ETA. ✅ QA passed.
@@ -26,7 +26,8 @@ Don't trust earlier versions of this file — the section below is the authorita
 - **Design system**: \"Void Stone & Ember\" (Step 22, done 2026-05-15) — void-black warm backgrounds, ember-gold accent, parchment text, Cinzel/Cabinet Grotesk/Geist Mono type. ✅ QA passed.
 - **Light mode**: \"Parchment\" theme (Step 23, done 2026-05-15) — warm cream backgrounds (`#f2ece0`), ink-on-parchment text (`#2a1f0e`), ember gold as accent only. Pairs with the Void Stone dark mode. ✅ QA passed.
 - **Dynamic-synthesis pivot complete** (Steps 16/17/18/19, all done).
-- **Step 27 (QA batch) IN PROGRESS** — see §6 and Prompt 017 in §8.
+- **Step 27 (QA batch + Zustand state persistence) DONE 2026-05-18** — see §6.
+- **Step 28 (Trade redirect v2) NEXT** — blocked on a Perplexity technical brief.
 
 If anything you read in this file or in `CLAUDE.md` contradicts the above, **the above wins**.
 
@@ -123,11 +124,11 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 
 ### IN PROGRESS
 
-- **Step 27 — QA batch fixes + Zustand state persistence** (Prompt 017) — see §8 for the full prompt.
+- *(nothing)*
 
 ### NEXT
 
-- **Step 28 — Trade redirect v2** (prefilled URL) — blocked on Step 27 completion + Perplexity technical brief.
+- **Step 28 — Trade redirect v2** (prefilled URL) — blocked on a Perplexity technical brief on the browser-side fetch pattern (see §5). Then Prompt 018.
 
 ### CANDIDATE FUTURE WORK
 
@@ -135,6 +136,7 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 
 ### DONE
 
+- [x] **Step 27 — QA batch fixes + Zustand state persistence** (2026-05-18, Prompt 017) — Five frontend-only fixes: Finder "Copy PoB" copies the PoB code; Analyze + Planner accept poe.ninja character URLs (resolved via existing `/builds/detail` — no new endpoint); light-mode colour fixes on Analyze + Planner (`var(--mantine-color-dark-N)` / `bg="dark.7"` → `var(--vs-*)` tokens); Planner input compacted to a `TextInput`; cross-route state persistence via a new Zustand `pageStore` (`sessionStorage`-backed, in-memory fallback). New dep: `zustand` 5. Deviation: Fix 1 copies the raw PoB code, not a `pobb.in/<code>` URL (pobb.in does not resolve raw codes in its path).
 - [x] **Step 26 — Route-level code-splitting** (2026-05-18, Prompt 016) — `App.tsx` lazy-loads Finder/Analyze/Planner via `React.lazy` + `Suspense`; a small Cinzel `RouteFallback` loader covers the chunk fetch. Initial bundle 616 KB → 438 KB (gzip 192 → 139 KB), Vite chunk-size warning gone. Frontend-only.
 - [x] **Step 25 — Trade redirect on Planner gear + Analyze equipment** (2026-05-18, Prompt 015) — Extended the existing client-side Trade redirect to the Planner Gear tab rows (`kind ∈ {unique, leveling}`) and every Analyze equipment/flask/jewel cell. New `tradeClipboardText()` copies the unique name for uniques and the base type for rares. True prefilled Trade URLs are unreachable (GGG 403 from Render IP + CORS block on a browser fetch) — documented in `tradeRedirect.ts`. Frontend-only.
 - [x] **Step 24 — Finder result-list polish** (2026-05-18, Prompt 014) — Active sort indicator badge in the result header; \"X% del meta\" outline badge per BuildCard (population-stats `useQuery` shares the `PopulationStatsPanel` cache key — no extra HTTP); clickable main-skill name → client-side drill-down filter with a removable Pill chip. Frontend-only.
@@ -184,105 +186,7 @@ Reverse-chronological.
 
 Reusable templates. Self-contained — runnable today without past-chat context. When a prompt ships, move to §9.
 
-### Prompt 017 — Step 27: QA batch fixes + Zustand state persistence
-
-**Context for Claude (read before starting):**
-This is a frontend-only step. No backend / API contract changes. No new npm dependencies except `zustand`. Run the full gate at the end.
-
-**Read first**: `CLAUDE.md` (conventions, gate), `apps/shell/src/` directory tree.
-
----
-
-**Scope — 5 independent fixes, implement in this order:**
-
-#### Fix 1 — Finder: "Copy link" must copy the PoB link, not the poe.ninja URL
-
-In `BuildCard.tsx` the "Copia link / Copy link" action currently copies the poe.ninja character URL. It must instead copy the **PoB pastebin link** for the build.
-
-- The `BuildRef` (or equivalent type coming from the API) has a field for the PoB code/link. Identify the correct field (likely `pob_code`, `pob_url`, or similar in `apps/shell/src/api/types.ts`).
-- If only a raw PoB base64 code is available (not a URL), copy `https://pobb.in/<code>` — that is the canonical PoB sharing URL used by the community.
-- The clipboard action label and tooltip already say "link build" — just fix the value being copied.
-
-#### Fix 2 — Analyze: accept poe.ninja character URLs as input
-
-`AnalyzePage.tsx` currently only accepts a raw PoB base64 code. It must also accept a **poe.ninja character URL** (e.g. `https://poe.ninja/builds/<league>?...` or a direct character profile URL) and resolve it to a PoB code before calling `POST /fob/analyze-pob`.
-
-- On input submit, detect whether the value looks like a URL (`startsWith("http")`).
-- If it is a poe.ninja URL, call `GET /builds/fetch-pob?url=<encoded_url>` (or the existing equivalent endpoint if one exists — check `packages/builds/src/poe1_builds/router.py`). If no such endpoint exists, add it: it should fetch the poe.ninja character page, extract the PoB export code, and return `{ pob_code: string }`.
-- Then proceed with the resolved `pob_code` as normal.
-- Show a loading indicator while resolving.
-
-#### Fix 3 — Analyze + Planner: fix broken colours in light mode
-
-The Analyze and Planner pages have the same muddy-grey-in-light-mode bug that was already fixed on Finder (commit: "Bugfix — Finder result cards muddy grey in light mode").
-
-- Apply the **identical fix** already present for Finder: inside `index.css`, add `[data-mantine-color-scheme="light"]` overrides for any `.vs-glass` usages and any other elements in `AnalyzePage.tsx` / `PlannerPage.tsx` / `StageCard.tsx` that hardcode dark void rgba values.
-- Cross-check by switching to light mode and verifying both pages look correct (warm cream surfaces, readable text, no dark patches).
-
-#### Fix 4 — Planner: build input box must match Analyze's compact style
-
-`PlannerPage.tsx` has an oversized `<Textarea>` for pasting the build code/link. It must be replaced with a compact `<TextInput>` (single-line) **identical in style and behaviour to the one in `AnalyzePage.tsx`**:
-
-- Same height, same Geist Mono font, same placeholder copy (adapted for Planner context: e.g. "Incolla codice PoB o link poe.ninja / Paste PoB code or poe.ninja link").
-- Same "collapse to `<Code>` chip + modifica/edit link" pattern once a plan has been successfully generated.
-- The Planner input must also accept poe.ninja URLs (same detection logic as Fix 2, but the Planner already passes the code to the backend — just normalise the input before submission).
-
-#### Fix 5 — Cross-route state persistence with Zustand
-
-Currently, navigating away from Finder / Analyze / Planner resets their state (last query, results, active filters). This must be fixed.
-
-**Install Zustand:**
-```bash
-cd apps/shell && pnpm add zustand
-```
-
-**Create `apps/shell/src/store/pageStore.ts`** with three slices:
-
-```ts
-// Finder slice
-interface FinderState {
-  query: string;
-  result: FinderResult | null;     // whatever type FinderPage uses today
-  filters: FinderFilters;          // class, asc, stat floors, sort
-  skillFilter: string | null;
-}
-
-// Analyze slice
-interface AnalyzeState {
-  input: string;
-  snapshot: PobSnapshot | null;
-  editing: boolean;
-}
-
-// Planner slice
-interface PlannerState {
-  input: string;
-  plan: BuildPlan | null;
-  editing: boolean;
-  activeStage: number;
-}
-```
-
-- Each page reads its slice on mount (no re-fetch — just restore UI state).
-- Each page writes to its slice on every meaningful state change (query change, result received, filter change, etc.).
-- Use **Zustand's `persist` middleware with `sessionStorage`** (not `localStorage` — we want the state to survive in-session navigation but not persist across browser sessions, and `sessionStorage` is not blocked in the Vercel iframe unlike `localStorage`).
-
-> **Note for Claude**: if `sessionStorage` is also blocked in the Vercel sandbox, fall back to in-memory Zustand store (no `persist` middleware) — the state will survive navigation within a session since the store lives outside the React component tree.
-
-**Wire each page**: replace local `useState` calls for query/result/filters/snapshot/plan/editing/activeStage with reads/writes to the Zustand store.
-
----
-
-**Gate (run before declaring done):**
-```bash
-uv run ruff check .
-uv run ruff format --check .
-uv run mypy .
-uv run pytest
-cd apps/shell && pnpm build
-```
-
-All must pass. Update `CLAUDE.md` (new Step 27 section) and this file's §6 (move Step 27 to DONE, update baseline gate numbers) **and** prepend a new entry to the `RELEASES` array in `apps/shell/src/pages/PatchNotesPage.tsx` — bilingual, user-friendly copy — in the same commit.
+*(no active prompts — Prompt 017 shipped, see §9)*
 
 ---
 
@@ -306,3 +210,4 @@ Closed prompts kept for context. Don't run these.
 - **Old Prompt 014 (Step 24 — Finder result-list polish)** — Shipped 2026-05-18. ✅ Active sort indicator badge, \"X% del meta\" badge per BuildCard (shared population-stats query cache), clickable skill drill-down with removable Pill chip.
 - **Old Prompt 015 (Step 25 — Trade redirect on Planner gear + Analyze equipment)** — Shipped 2026-05-18. ✅ `tradeClipboardText()` smart clipboard term; Trade ActionIcon on Planner Gear-tab rows + Analyze equipment cells. True prefilled URL impossible (GGG 403 + CORS).
 - **Old Prompt 016 (Step 26 — Route-level code-splitting)** — Shipped 2026-05-18. ✅ `React.lazy` + `Suspense` for Finder/Analyze/Planner; `RouteFallback` Cinzel loader. Initial bundle 616 KB → 438 KB (gzip 192 → 139 KB).
+- **Old Prompt 017 (Step 27 — QA batch fixes + Zustand state persistence)** — Shipped 2026-05-18. ✅ Finder "Copy PoB"; Analyze/Planner accept poe.ninja URLs (via existing `/builds/detail`, no new endpoint); light-mode colour fixes; compact Planner input; Zustand `pageStore` cross-route persistence (`sessionStorage` + in-memory fallback). New dep `zustand` 5. Fix 1 copies the raw PoB code (pobb.in does not resolve raw codes in its path).

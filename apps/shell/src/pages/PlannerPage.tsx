@@ -20,7 +20,7 @@ import {
   Stack,
   Switch,
   Text,
-  Textarea,
+  TextInput,
   ThemeIcon,
   Title,
   Tooltip,
@@ -28,6 +28,7 @@ import {
 import { useMediaQuery } from "@mantine/hooks";
 import { IconClock, IconCoinFilled, IconStack3 } from "@tabler/icons-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { getDetail, parsePoeNinjaCharacterUrl } from "../api/builds";
 import { planBuildReverseStream, planBuildStream } from "../api/fob";
 import type {
   Build,
@@ -38,6 +39,7 @@ import type {
 } from "../api/types";
 import { StageCard } from "../components/StageCard";
 import { useT } from "../i18n";
+import { usePageStore } from "../store/pageStore";
 
 const TARGET_KEYS: { value: TargetGoal; it: string; en: string }[] = [
   { value: "mapping_only", it: "Solo Mapping", en: "Mapping only" },
@@ -60,7 +62,7 @@ function PlanSummary({ plan }: { plan: BuildPlan }) {
     0,
   );
   return (
-    <Card withBorder radius="md" p="md" bg="dark.7">
+    <Card withBorder radius="md" p="md" bg="var(--vs-surface-2)">
       <Group justify="space-between" wrap="wrap">
         <Group gap={10}>
           <ThemeIcon variant="light" color="yellow" size="lg" radius="md">
@@ -209,8 +211,10 @@ function StageTimeline({
   ascendancy,
   userPobCode,
 }: TimelineProps) {
-  const [expanded, setExpanded] = useState<number>(0);
-  const safeIndex = Math.min(expanded, stages.length - 1);
+  // The open stage is persisted in the store so it survives navigation.
+  const activeStage = usePageStore((s) => s.planner.activeStage);
+  const setPlanner = usePageStore((s) => s.setPlanner);
+  const safeIndex = Math.min(activeStage, stages.length - 1);
   return (
     <Stack gap="sm">
       <div className="planner-timeline">
@@ -221,7 +225,7 @@ function StageTimeline({
             className="planner-stage"
             data-expanded={i === safeIndex}
             style={{ "--dot-index": i } as React.CSSProperties}
-            onClick={() => setExpanded(i)}
+            onClick={() => setPlanner({ activeStage: i })}
           >
             <span className="planner-dot" />
             <span className="planner-roman">{ROMAN[i] ?? String(i + 1)}</span>
@@ -249,24 +253,18 @@ interface Props {
   initialInput?: string;
 }
 
-interface PlanResult {
-  build: Build;
-  plan: BuildPlan;
-  /** Identifier of the template the planner picked (Step 14 T5+). */
-  templateName: string | null;
-}
-
 export function PlannerPage({ initialInput }: Props) {
-  const [input, setInput] = useState(initialInput ?? "");
-  const [target, setTarget] = useState<TargetGoal>("mapping_and_boss");
-  const [reverseMode, setReverseMode] = useState(false);
+  // Cross-route persistent state — input, target, mode, the generated
+  // plan and the editing flag survive navigating away and back
+  // (Zustand `pageStore`).
+  const { input, resolvedCode, target, reverseMode, result, editing } =
+    usePageStore((s) => s.planner);
+  const setPlanner = usePageStore((s) => s.setPlanner);
+  // Transient flags — intentionally NOT persisted; they reset on
+  // navigation (an in-flight stream does not survive a page swap).
   const [progress, setProgress] = useState<PricingProgress | null>(null);
-  const [result, setResult] = useState<PlanResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [running, setRunning] = useState(false);
-  // The input form collapses to a compact row once a plan starts
-  // streaming; "modifica" expands it again.
-  const [editing, setEditing] = useState(true);
   const abortRef = useRef<AbortController | null>(null);
   const autoFired = useRef(false);
 
@@ -281,67 +279,100 @@ export function PlannerPage({ initialInput }: Props) {
     label: t({ it: o.it, en: o.en }),
   }));
 
-  const start = useCallback(async () => {
-    if (!input.trim() || running) return;
+  const start = useCallback(
+    async (codeOverride?: string) => {
+      // `codeOverride` lets the initial-input effect drive a run
+      // without waiting for a store commit to round-trip.
+      const raw = (codeOverride ?? input).trim();
+      if (!raw || running) return;
 
-    // Cancel any in-flight request.
-    abortRef.current?.abort();
-    const ctrl = new AbortController();
-    abortRef.current = ctrl;
+      // Cancel any in-flight request.
+      abortRef.current?.abort();
+      const ctrl = new AbortController();
+      abortRef.current = ctrl;
 
-    setError(null);
-    setProgress(null);
-    setResult(null);
-    setRunning(true);
-    setEditing(false);
+      setError(null);
+      setProgress(null);
+      setPlanner({ input: raw, result: null, editing: false });
+      setRunning(true);
 
-    try {
-      // Both template and reverse modes stream via SSE so the UI gets
-      // per-item progress + ETA. Reverse mode's 'done' event carries
-      // the merged plan with [target] ladder rationales.
-      const stream = reverseMode
-        ? planBuildReverseStream(input, target, ctrl.signal)
-        : planBuildStream(input, target, ctrl.signal);
-      let lastEvent: PricingProgress | null = null;
-      for await (const event of stream) {
-        if (ctrl.signal.aborted) return;
-        lastEvent = event;
-        setProgress(event);
+      try {
+        // The input may be a poe.ninja character URL — resolve it to a
+        // PoB code client-side before streaming (the plan endpoints
+        // accept raw PoB codes + pobb.in/pastebin links, not poe.ninja
+        // profile URLs).
+        let resolved = raw;
+        if (/^https?:\/\//i.test(resolved) && /poe\.ninja/i.test(resolved)) {
+          const parsed = parsePoeNinjaCharacterUrl(resolved);
+          if (!parsed) {
+            throw new Error(
+              t({
+                it: "Link poe.ninja non valido — incolla l'URL di un personaggio (…/character/<account>/<nome>).",
+                en: "Invalid poe.ninja link — paste a character URL (…/character/<account>/<name>).",
+              }),
+            );
+          }
+          resolved = await getDetail(parsed.account, parsed.character);
+        }
+        // Stash the resolved PoB code so stage export can pass through
+        // the user's real tree/items even when the input was a URL.
+        setPlanner({ resolvedCode: resolved });
+        // Both template and reverse modes stream via SSE so the UI gets
+        // per-item progress + ETA. Reverse mode's 'done' event carries
+        // the merged plan with [target] ladder rationales.
+        const stream = reverseMode
+          ? planBuildReverseStream(resolved, target, ctrl.signal)
+          : planBuildStream(resolved, target, ctrl.signal);
+        let lastEvent: PricingProgress | null = null;
+        for await (const event of stream) {
+          if (ctrl.signal.aborted) return;
+          lastEvent = event;
+          setProgress(event);
+        }
+        // The 'done' event carries the BuildPlan + (Step 14 T5+) the
+        // analyzed Build summary and the picked template name. Older
+        // server versions return only `final_plan`, so we still
+        // synthesize a stub Build when those fields are missing.
+        if (lastEvent?.kind === "done" && lastEvent.final_plan) {
+          const stubBuild: Build = {
+            source_id: lastEvent.final_plan.build_source_id,
+            character_class: "",
+            ascendancy: null,
+            main_skill: null,
+            level: 1,
+          };
+          setPlanner({
+            result: {
+              build: lastEvent.build ?? stubBuild,
+              plan: lastEvent.final_plan,
+              templateName: lastEvent.template_name ?? null,
+            },
+            activeStage: 0,
+          });
+        }
+      } catch (err) {
+        if ((err as Error).name !== "AbortError") {
+          setError((err as Error).message);
+        }
+      } finally {
+        setRunning(false);
       }
-      // The 'done' event carries the BuildPlan + (Step 14 T5+) the
-      // analyzed Build summary and the picked template name. Older
-      // server versions return only `final_plan`, so we still
-      // synthesize a stub Build when those fields are missing.
-      if (lastEvent?.kind === "done" && lastEvent.final_plan) {
-        const stubBuild: Build = {
-          source_id: lastEvent.final_plan.build_source_id,
-          character_class: "",
-          ascendancy: null,
-          main_skill: null,
-          level: 1,
-        };
-        setResult({
-          build: lastEvent.build ?? stubBuild,
-          plan: lastEvent.final_plan,
-          templateName: lastEvent.template_name ?? null,
-        });
-      }
-    } catch (err) {
-      if ((err as Error).name !== "AbortError") {
-        setError((err as Error).message);
-      }
-    } finally {
-      setRunning(false);
-    }
-  }, [input, target, reverseMode, running]);
+    },
+    [input, target, reverseMode, running, t, setPlanner],
+  );
 
   // Auto-trigger when the page is opened with a pre-filled PoB code
-  // (coming from Build Finder "Pianifica →" button).
+  // from the Build Finder "Pianifica →" button. Skipped when the store
+  // already holds that same input (e.g. the user just navigated back
+  // to the Planner) so a restored plan is not needlessly re-run.
   useEffect(() => {
-    if (initialInput && !autoFired.current) {
+    if (
+      initialInput &&
+      !autoFired.current &&
+      initialInput.trim() !== input.trim()
+    ) {
       autoFired.current = true;
-      setInput(initialInput);
-      setTimeout(() => start(), 50);
+      void start(initialInput);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialInput]);
@@ -359,19 +390,17 @@ export function PlannerPage({ initialInput }: Props) {
         <>
           <Text c="dimmed" size="sm">
             {t({
-              it: "Incolla un codice di esportazione PoB o un link pobb.in / pastebin: il planner analizza la build, prezza ogni unique su poe.ninja e ti restituisce un piano di upgrade in 6 stage.",
-              en: "Paste a PoB export code or a pobb.in / pastebin link: the planner analyses the build, prices every unique on poe.ninja and returns a 6-stage upgrade plan.",
+              it: "Incolla un codice di esportazione PoB, un link pobb.in / pastebin oppure l'URL di un personaggio poe.ninja: il planner analizza la build, prezza ogni unique su poe.ninja e ti restituisce un piano di upgrade in 6 stage.",
+              en: "Paste a PoB export code, a pobb.in / pastebin link, or a poe.ninja character URL: the planner analyses the build, prices every unique on poe.ninja and returns a 6-stage upgrade plan.",
             })}
           </Text>
 
-          <Textarea
-            placeholder="https://pobb.in/xxxx  oppure  eNqtVct..."
+          <TextInput
+            placeholder="https://pobb.in/xxxx  ·  poe.ninja/builds/…  ·  eNqtVct…"
             value={input}
-            onChange={(e) => setInput(e.currentTarget.value)}
-            minRows={3}
-            autosize
+            onChange={(e) => setPlanner({ input: e.currentTarget.value })}
             onKeyDown={(e) => {
-              if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) start();
+              if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) void start();
             }}
           />
 
@@ -379,12 +408,12 @@ export function PlannerPage({ initialInput }: Props) {
             <SegmentedControl
               data={targetOptions}
               value={target}
-              onChange={(v) => setTarget(v as TargetGoal)}
+              onChange={(v) => setPlanner({ target: v as TargetGoal })}
               size="sm"
             />
             <Group>
               <Button
-                onClick={start}
+                onClick={() => void start()}
                 loading={running}
                 disabled={!input.trim() || running}
               >
@@ -408,7 +437,9 @@ export function PlannerPage({ initialInput }: Props) {
             >
               <Switch
                 checked={reverseMode}
-                onChange={(e) => setReverseMode(e.currentTarget.checked)}
+                onChange={(e) =>
+                  setPlanner({ reverseMode: e.currentTarget.checked })
+                }
                 label={t({
                   it: "Modalità reverse-progression (sperimentale)",
                   en: "Reverse-progression mode (experimental)",
@@ -425,7 +456,7 @@ export function PlannerPage({ initialInput }: Props) {
           </Code>
           <Anchor
             size="xs"
-            onClick={() => setEditing(true)}
+            onClick={() => setPlanner({ editing: true })}
             style={{ flexShrink: 0 }}
           >
             {t({ it: "modifica", en: "edit" })}
@@ -456,7 +487,7 @@ export function PlannerPage({ initialInput }: Props) {
               templateName={result.templateName}
               characterClass={result.build.character_class || null}
               ascendancy={result.build.ascendancy ?? null}
-              userPobCode={input.trim() || null}
+              userPobCode={resolvedCode}
             />
           ) : (
             <Stack gap="md">
@@ -468,7 +499,7 @@ export function PlannerPage({ initialInput }: Props) {
                   templateName={result.templateName}
                   characterClass={result.build.character_class || null}
                   ascendancy={result.build.ascendancy ?? null}
-                  userPobCode={input.trim() || null}
+                  userPobCode={resolvedCode}
                 />
               ))}
             </Stack>
