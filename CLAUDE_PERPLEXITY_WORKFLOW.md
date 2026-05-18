@@ -10,26 +10,23 @@ This file's only job is to keep the two tools in sync — what each is responsib
 
 ## 1. Where the project actually stands (read first)
 
-Don't trust earlier versions of this file — the section below is the authoritative snapshot. As of **2026-05-15**:
+Don't trust earlier versions of this file — the section below is the authoritative snapshot. As of **2026-05-18**:
 
 - **FOB is live in production**, free tier:
   - Frontend: <https://fob-ten.vercel.app> (Vercel, auto-deploy from `main`).
   - Backend: <https://fob-api-rtgg.onrender.com> (Render, region Frankfurt, auto-deploy from `main`).
   - Cost: **$0/month**.
-- **Baseline gate**: 704 tests green / 121 mypy / 117 format. Frontend build 586 KB / 182 KB gzip.
-- **Working features (all QA-verified 2026-05-15)**:
+- **Baseline gate**: 704 tests green / 121 mypy / 117 format. Frontend build 438 KB / 139 KB gzip.
+- **Working features (all QA-verified 2026-05-18)**:
   - Build Finder with class/asc/stat-floor/sort filters + natural-language extraction (Step 15) + per-ascendancy population stats panel (Step 19). ✅ QA passed.
   - Planner with 6-stage `BuildPlan`, SSE streaming progress + ETA. ✅ QA passed.
-  - "Importa stage in PoB": exports a stage-specific PoB code. Passes through the user's real `<Items>`/`<Skills>` verbatim (only the passive tree differs per stage). ✅ QA passed.
-  - Trade redirect (client-side, no server-side GGG calls — GGG blocks Render's IP range). ✅ QA passed.
+  - \"Importa stage in PoB\": exports a stage-specific PoB code. Passes through the user's real `<Items>`/`<Skills>` verbatim (only the passive tree differs per stage). ✅ QA passed.
   - PoB Analyze → full build dashboard (Step 20, done 2026-05-15): character header + key stats, equipment grid with per-item tooltips, flasks, tree jewels, skill-link panel. ✅ QA passed.
   - Cold-start Divine Orb warmup overlay (Step 21, done 2026-05-15). ✅ QA passed.
-- **Design system**: "Void Stone & Ember" (Step 22, done 2026-05-15) — void-black warm backgrounds, ember-gold accent, parchment text, Cinzel/Cabinet Grotesk/Geist Mono type. ✅ QA passed.
-- **Light mode**: "Parchment" theme (Step 23, done 2026-05-15) — warm cream backgrounds (`#f2ece0`), ink-on-parchment text (`#2a1f0e`), ember gold as accent only. Pairs with the Void Stone dark mode. ✅ QA passed.
+- **Design system**: \"Void Stone & Ember\" (Step 22, done 2026-05-15) — void-black warm backgrounds, ember-gold accent, parchment text, Cinzel/Cabinet Grotesk/Geist Mono type. ✅ QA passed.
+- **Light mode**: \"Parchment\" theme (Step 23, done 2026-05-15) — warm cream backgrounds (`#f2ece0`), ink-on-parchment text (`#2a1f0e`), ember gold as accent only. Pairs with the Void Stone dark mode. ✅ QA passed.
 - **Dynamic-synthesis pivot complete** (Steps 16/17/18/19, all done).
-- **Recently fixed (2026-05-15, all user-confirmed)**:
-  - Build Finder blank-page bug — ErrorBoundary + Mantine v7 grouped-data shape. ✅
-  - Stage export emitted mod-less fake items + `explodeSource` PoB crash — passthrough fix. ✅
+- **Step 27 (QA batch) IN PROGRESS** — see §6 and Prompt 017 in §8.
 
 If anything you read in this file or in `CLAUDE.md` contradicts the above, **the above wins**.
 
@@ -118,7 +115,7 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 
 ## 5. Open questions for Perplexity
 
-- *(none as of 2026-05-15)*
+- **Trade redirect v2** — after Step 27 ships, research whether poe.ninja's approach to opening a prefilled Trade URL is replicable in this stack (browser-side fetch to GGG `/api/trade/search` + redirect to `/trade/search/<league>/<id>`). Perplexity to produce a technical brief + Prompt 018 once Step 27 is confirmed done.
 
 ---
 
@@ -126,25 +123,25 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 
 ### IN PROGRESS
 
-- *(nothing)*
+- **Step 27 — QA batch fixes + Zustand state persistence** (Prompt 017) — see §8 for the full prompt.
 
 ### NEXT
 
-- *(nothing queued — Step 23 completes the design system. Pick from "candidate future work" below at the next planning session.)*
+- **Step 28 — Trade redirect v2** (prefilled URL) — blocked on Step 27 completion + Perplexity technical brief.
 
 ### CANDIDATE FUTURE WORK
 
-- *(nothing queued — Prompts 014/015/016 all shipped. Pick the next slice at the next planning session.)*
+- *(nothing else queued)*
 
 ### DONE
 
 - [x] **Step 26 — Route-level code-splitting** (2026-05-18, Prompt 016) — `App.tsx` lazy-loads Finder/Analyze/Planner via `React.lazy` + `Suspense`; a small Cinzel `RouteFallback` loader covers the chunk fetch. Initial bundle 616 KB → 438 KB (gzip 192 → 139 KB), Vite chunk-size warning gone. Frontend-only.
 - [x] **Step 25 — Trade redirect on Planner gear + Analyze equipment** (2026-05-18, Prompt 015) — Extended the existing client-side Trade redirect to the Planner Gear tab rows (`kind ∈ {unique, leveling}`) and every Analyze equipment/flask/jewel cell. New `tradeClipboardText()` copies the unique name for uniques and the base type for rares. True prefilled Trade URLs are unreachable (GGG 403 from Render IP + CORS block on a browser fetch) — documented in `tradeRedirect.ts`. Frontend-only.
-- [x] **Step 24 — Finder result-list polish** (2026-05-18, Prompt 014) — Active sort indicator badge in the result header; "X% del meta" outline badge per BuildCard (population-stats `useQuery` shares the `PopulationStatsPanel` cache key — no extra HTTP); clickable main-skill name → client-side drill-down filter with a removable Pill chip. Frontend-only.
+- [x] **Step 24 — Finder result-list polish** (2026-05-18, Prompt 014) — Active sort indicator badge in the result header; \"X% del meta\" outline badge per BuildCard (population-stats `useQuery` shares the `PopulationStatsPanel` cache key — no extra HTTP); clickable main-skill name → client-side drill-down filter with a removable Pill chip. Frontend-only.
 - [x] **Bugfix — Finder result cards muddy grey in light mode** (2026-05-17) — `.vs-glass` hardcoded a dark void rgba inside its `@supports (backdrop-filter)` block, applying in both colour schemes. Added a `[data-mantine-color-scheme="light"] .vs-glass` override with a translucent warm cream tint. Frontend-only.
-- [x] **English support + uniform input font** (2026-05-15) — Lightweight in-house i18n (no dependency): `i18n.tsx` with `LangProvider` / `useT()`; translations co-located as `t({ it, en })`; language persisted to `localStorage`. Compact `IT | EN` toggle in the header next to the theme switch. Every page + component translated (App nav, Home, Welcome, Finder, Planner, Analyze, Patch Notes — fully bilingual — DonationModal, WarmupOverlay, ErrorBoundary). Also: all input fields unified to the Geist Mono font via one global `.mantine-Input-input` rule. Frontend-only. Build 610 KB / 190 KB gzip.
-- [x] **Patch Notes page** (2026-05-15) — New `/patch-notes` route: a static, data-driven changelog of the whole project history (Steps 1–23, deploy phases, the dynamic pivot, the redesign), newest first. Low-prominence navbar entry at the bottom, below a divider. Frontend-only. To keep it current, prepend a new entry to the `RELEASES` array in `PatchNotesPage.tsx` when a feature ships.
-- [x] **Step 23 — Parchment light mode** (2026-05-15) — `[data-mantine-color-scheme="light"]` CSS variable block: warm cream backgrounds, ink-on-parchment text hierarchy, ember darkened to `#b07820` for WCAG compliance on light surfaces, PoE1 rarity colours adapted for cream backgrounds, scrollbar + noise texture overrides. Hardcoded dark hex values in `theme.ts` replaced with `var(--vs-*)` tokens. `defaultColorScheme="dark"` on MantineProvider. Frontend-only. ✅ QA passed.
+- [x] **English support + uniform input font** (2026-05-15) — Lightweight in-house i18n (no dependency): `i18n.tsx` with `LangProvider` / `useT()`; translations co-located as `t({ it, en })`; language persisted to `localStorage`. Compact `IT | EN` toggle in the header next to the theme switch. Every page + component translated. Also: all input fields unified to the Geist Mono font via one global `.mantine-Input-input` rule. Frontend-only.
+- [x] **Patch Notes page** (2026-05-15) — New `/patch-notes` route. Frontend-only.
+- [x] **Step 23 — Parchment light mode** (2026-05-15) ✅
 - [x] **Step 22c — Planner timeline + Analyze polish** (2026-05-15) ✅
 - [x] **Step 22b — Finder page redesign** (2026-05-15) ✅
 - [x] **Step 22a — Void Stone & Ember design system** (2026-05-15) ✅
@@ -168,9 +165,11 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 
 Reverse-chronological.
 
+- **2026-05-18** — *Trade redirect v2 deferred to Step 28.* The current clipboard-copy approach is insufficient. Riccardo confirmed he wants a prefilled Trade URL (other webapps already do this). Architecture decision deferred to Claude — Perplexity will supply a technical brief on the browser-side fetch pattern before Prompt 018 is written.
+- **2026-05-18** — *Zustand chosen for cross-route state persistence.* Finder / Analyze / Planner pages must not reset on navigation. Zustand store will hold last query + results per page; Mantine `keepMounted` is NOT sufficient alone since pages are lazy-loaded.
 - **2026-05-18** — *Pricing-aware gear classifier postponed.* Pricing-aware gear classifier (wiring `PricingService.snapshot()` into stage export) is postponed; instead, focus is on a trade-aware redirect that opens official PoE Trade with prefilled filters, no live pricing logic.
-- **2026-05-15** — *Light mode "Parchment" palette.* Ember gold used as interactive accent only (not body text — fails WCAG 4.5:1 on cream). Darkened to `#b07820` for WCAG compliance. All body text uses warm ink tones (`#2a1f0e` primary). PoE1 rarity colours adapted for light backgrounds. Frontend-only.
-- **2026-05-15** — *Full frontend redesign: "Void Stone & Ember" theme.* See §9 for archived prompt details.
+- **2026-05-15** — *Light mode \"Parchment\" palette.* Ember gold used as interactive accent only (not body text — fails WCAG 4.5:1 on cream). Darkened to `#b07820` for WCAG compliance. All body text uses warm ink tones (`#2a1f0e` primary). PoE1 rarity colours adapted for light backgrounds. Frontend-only.
+- **2026-05-15** — *Full frontend redesign: \"Void Stone & Ember\" theme.* See §9 for archived prompt details.
 - **2026-05-14** — *Server-side Trade search impossible on Render (GGG 403).* Client-side redirect.
 - **2026-05-14** — *Dynamic synthesis over curated templates.* Steps 16-19.
 - **2026-05-14** — *Vendor data, don't fetch at runtime.* Passive tree + base items vendored.
@@ -185,7 +184,105 @@ Reverse-chronological.
 
 Reusable templates. Self-contained — runnable today without past-chat context. When a prompt ships, move to §9.
 
-*(no active prompts — Prompts 014/015/016 all shipped, see §9)*
+### Prompt 017 — Step 27: QA batch fixes + Zustand state persistence
+
+**Context for Claude (read before starting):**
+This is a frontend-only step. No backend / API contract changes. No new npm dependencies except `zustand`. Run the full gate at the end.
+
+**Read first**: `CLAUDE.md` (conventions, gate), `apps/shell/src/` directory tree.
+
+---
+
+**Scope — 5 independent fixes, implement in this order:**
+
+#### Fix 1 — Finder: "Copy link" must copy the PoB link, not the poe.ninja URL
+
+In `BuildCard.tsx` the "Copia link / Copy link" action currently copies the poe.ninja character URL. It must instead copy the **PoB pastebin link** for the build.
+
+- The `BuildRef` (or equivalent type coming from the API) has a field for the PoB code/link. Identify the correct field (likely `pob_code`, `pob_url`, or similar in `apps/shell/src/api/types.ts`).
+- If only a raw PoB base64 code is available (not a URL), copy `https://pobb.in/<code>` — that is the canonical PoB sharing URL used by the community.
+- The clipboard action label and tooltip already say "link build" — just fix the value being copied.
+
+#### Fix 2 — Analyze: accept poe.ninja character URLs as input
+
+`AnalyzePage.tsx` currently only accepts a raw PoB base64 code. It must also accept a **poe.ninja character URL** (e.g. `https://poe.ninja/builds/<league>?...` or a direct character profile URL) and resolve it to a PoB code before calling `POST /fob/analyze-pob`.
+
+- On input submit, detect whether the value looks like a URL (`startsWith("http")`).
+- If it is a poe.ninja URL, call `GET /builds/fetch-pob?url=<encoded_url>` (or the existing equivalent endpoint if one exists — check `packages/builds/src/poe1_builds/router.py`). If no such endpoint exists, add it: it should fetch the poe.ninja character page, extract the PoB export code, and return `{ pob_code: string }`.
+- Then proceed with the resolved `pob_code` as normal.
+- Show a loading indicator while resolving.
+
+#### Fix 3 — Analyze + Planner: fix broken colours in light mode
+
+The Analyze and Planner pages have the same muddy-grey-in-light-mode bug that was already fixed on Finder (commit: "Bugfix — Finder result cards muddy grey in light mode").
+
+- Apply the **identical fix** already present for Finder: inside `index.css`, add `[data-mantine-color-scheme="light"]` overrides for any `.vs-glass` usages and any other elements in `AnalyzePage.tsx` / `PlannerPage.tsx` / `StageCard.tsx` that hardcode dark void rgba values.
+- Cross-check by switching to light mode and verifying both pages look correct (warm cream surfaces, readable text, no dark patches).
+
+#### Fix 4 — Planner: build input box must match Analyze's compact style
+
+`PlannerPage.tsx` has an oversized `<Textarea>` for pasting the build code/link. It must be replaced with a compact `<TextInput>` (single-line) **identical in style and behaviour to the one in `AnalyzePage.tsx`**:
+
+- Same height, same Geist Mono font, same placeholder copy (adapted for Planner context: e.g. "Incolla codice PoB o link poe.ninja / Paste PoB code or poe.ninja link").
+- Same "collapse to `<Code>` chip + modifica/edit link" pattern once a plan has been successfully generated.
+- The Planner input must also accept poe.ninja URLs (same detection logic as Fix 2, but the Planner already passes the code to the backend — just normalise the input before submission).
+
+#### Fix 5 — Cross-route state persistence with Zustand
+
+Currently, navigating away from Finder / Analyze / Planner resets their state (last query, results, active filters). This must be fixed.
+
+**Install Zustand:**
+```bash
+cd apps/shell && pnpm add zustand
+```
+
+**Create `apps/shell/src/store/pageStore.ts`** with three slices:
+
+```ts
+// Finder slice
+interface FinderState {
+  query: string;
+  result: FinderResult | null;     // whatever type FinderPage uses today
+  filters: FinderFilters;          // class, asc, stat floors, sort
+  skillFilter: string | null;
+}
+
+// Analyze slice
+interface AnalyzeState {
+  input: string;
+  snapshot: PobSnapshot | null;
+  editing: boolean;
+}
+
+// Planner slice
+interface PlannerState {
+  input: string;
+  plan: BuildPlan | null;
+  editing: boolean;
+  activeStage: number;
+}
+```
+
+- Each page reads its slice on mount (no re-fetch — just restore UI state).
+- Each page writes to its slice on every meaningful state change (query change, result received, filter change, etc.).
+- Use **Zustand's `persist` middleware with `sessionStorage`** (not `localStorage` — we want the state to survive in-session navigation but not persist across browser sessions, and `sessionStorage` is not blocked in the Vercel iframe unlike `localStorage`).
+
+> **Note for Claude**: if `sessionStorage` is also blocked in the Vercel sandbox, fall back to in-memory Zustand store (no `persist` middleware) — the state will survive navigation within a session since the store lives outside the React component tree.
+
+**Wire each page**: replace local `useState` calls for query/result/filters/snapshot/plan/editing/activeStage with reads/writes to the Zustand store.
+
+---
+
+**Gate (run before declaring done):**
+```bash
+uv run ruff check .
+uv run ruff format --check .
+uv run mypy .
+uv run pytest
+cd apps/shell && pnpm build
+```
+
+All must pass. Update `CLAUDE.md` (new Step 27 section) and this file's §6 (move Step 27 to DONE, update baseline gate numbers) **and** prepend a new entry to the `RELEASES` array in `apps/shell/src/pages/PatchNotesPage.tsx` — bilingual, user-friendly copy — in the same commit.
 
 ---
 
@@ -206,6 +303,6 @@ Closed prompts kept for context. Don't run these.
 - **Old Prompt 011 (Step 22b — Finder page redesign)** — Shipped 2026-05-15. ✅
 - **Old Prompt 012 (Step 22c — Planner timeline + Analyze polish)** — Shipped 2026-05-15. ✅
 - **Old Prompt 013 (Step 23 — Parchment light mode)** — Shipped 2026-05-15. ✅ `[data-mantine-color-scheme="light"]` CSS variable block, ember darkened to `#b07820` for WCAG, PoE1 rarity colours on cream, hardcoded hex purge from `theme.ts`.
-- **Old Prompt 014 (Step 24 — Finder result-list polish)** — Shipped 2026-05-18. ✅ Active sort indicator badge, "X% del meta" badge per BuildCard (shared population-stats query cache), clickable skill drill-down with removable Pill chip.
+- **Old Prompt 014 (Step 24 — Finder result-list polish)** — Shipped 2026-05-18. ✅ Active sort indicator badge, \"X% del meta\" badge per BuildCard (shared population-stats query cache), clickable skill drill-down with removable Pill chip.
 - **Old Prompt 015 (Step 25 — Trade redirect on Planner gear + Analyze equipment)** — Shipped 2026-05-18. ✅ `tradeClipboardText()` smart clipboard term; Trade ActionIcon on Planner Gear-tab rows + Analyze equipment cells. True prefilled URL impossible (GGG 403 + CORS).
 - **Old Prompt 016 (Step 26 — Route-level code-splitting)** — Shipped 2026-05-18. ✅ `React.lazy` + `Suspense` for Finder/Analyze/Planner; `RouteFallback` Cinzel loader. Initial bundle 616 KB → 438 KB (gzip 192 → 139 KB).
