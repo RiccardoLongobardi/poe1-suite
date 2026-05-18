@@ -107,6 +107,20 @@ Frontend-only, no backend change.
 > Updating the `.md` files without updating the Patch Notes is an
 > incomplete step.
 
+## Step 32 — Trade dialog: full GGG stat DB + all mods (2026-05-18) ✅
+
+QA on Step 31: the dialog only listed mods recognised by the ~30-entry hand-written `MOD_PATTERNS` table — most of an item's mods (incl. unique-specific ones like Widowhail's quiver mod) never appeared, so the user couldn't toggle them. The dialog must show **every** mod and make as many as possible toggleable filters. Also: the modal must be bigger.
+
+**New vendored data source — GGG's full Trade stat database.**
+
+- `scripts/extract_trade_stats.py` — fetches `https://www.pathofexile.com/api/trade/data/stats` (~1.9 MB, every searchable stat grouped by domain), flattens it to a `{normalized_text: stat_id}` map preferring `explicit` > `implicit` > … (skips `pseudo`/`monster`), writes `packages/fob/data/trade/stats.json` (~9530 ids, 779 KB minified). Re-run per league: `uv run python scripts/extract_trade_stats.py`.
+- `poe1_fob.trade_stats` — `normalize_mod_text()` (lower-case, numbers → `#`, drop `+`, strip trailing `(Local)`-style tags) makes a PoB mod line and a GGG stat template collapse to the same key. `resolve_mod()` / `resolve_mods()` then resolve any mod line to a `stat_id` (or `None`) by dict lookup. `first_number()` pulls the rolled value for the strictness slider.
+- `POST /fob/extract-trade-mods` now uses `resolve_mods` instead of `MOD_PATTERNS` — it returns **every** mod line (PoB metadata lines dropped), each with `stat_id: str | None`. Coverage jumps from ~30 hand-written patterns to ~9.5k GGG stats. `ExtractedTradeMod.stat_id` / `.value` are now nullable.
+
+**Frontend** — `TradeSearchDialog` is `size="xl"` (was `lg`); the mod list shows **all** of the item's mods. Resolved mods (a `stat_id`) are toggleable with the strictness slider; unresolved ones are listed under a "Non ricercabili su Trade" divider, dimmed. `ExtractedTradeMod` type made nullable; `value == null` mods send a presence-only filter (no `min`).
+
+Gate: 706 tests / 123 mypy / 318 ruff-format.
+
 ## Step 31 — poe.ninja-style Trade-search dialog (2026-05-18) ✅
 
 QA on Step 30: a plain name/base trade redirect is too coarse — for a corrupted/variable unique it returns every copy, not the user's. Replicates poe.ninja's configurable trade dialog. Backend + frontend.

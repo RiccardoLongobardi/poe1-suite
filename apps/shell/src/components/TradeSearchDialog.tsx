@@ -4,22 +4,22 @@
  * A modal opened from any "Trade" icon. The user picks:
  *
  *  - **Search by** — the unique name or the base type.
- *  - **Mods** — each recognised mod from the item, toggled on/off with
- *    a per-mod strictness slider (50-100 %, default 80). The min value
- *    sent to Trade is `rolled value × strictness`.
+ *  - **Mods** — *every* mod line of the item is listed. Lines that
+ *    resolve to a GGG stat (via `POST /fob/extract-trade-mods`, backed
+ *    by the vendored GGG stat database) are toggleable filters, each
+ *    with a 50-100 % strictness slider (min sent = `rolled value ×
+ *    strictness`). Lines that resolve to no stat are still shown, just
+ *    disabled.
  *  - **Links** — optional 5-link / 6-link socket constraint.
  *
  * "Cerca su Trade" builds a `TradeUrlRequest`, asks the backend for a
- * prefilled `/trade/search/<league>/<id>` URL and opens it in a new
- * tab (see `openTradeUrl`).
- *
- * Mod rows come from `POST /fob/extract-trade-mods` — only mods the
- * backend can map to a GGG `stat_id` are shown; the rest are dropped.
+ * prefilled `/trade/search/<league>/<id>` URL and opens it.
  */
 
 import {
   Badge,
   Button,
+  Divider,
   Group,
   Loader,
   Modal,
@@ -58,9 +58,18 @@ interface ModRow {
   strictness: number;
 }
 
-/** Min value sent to Trade for a row: rolled value × strictness. */
-function rowMin(row: ModRow): number {
-  return Math.max(1, Math.round(((row.mod.value * row.strictness) / 100) * 10) / 10);
+/** Whether a row resolved to a searchable GGG stat. */
+function isSearchable(row: ModRow): boolean {
+  return row.mod.stat_id != null;
+}
+
+/** Min value sent to Trade for a row, or null when the mod has no number. */
+function rowMin(row: ModRow): number | null {
+  if (row.mod.value == null) return null;
+  return Math.max(
+    1,
+    Math.round(((row.mod.value * row.strictness) / 100) * 10) / 10,
+  );
 }
 
 export function TradeSearchDialog({
@@ -79,7 +88,7 @@ export function TradeSearchDialog({
   const [rows, setRows] = useState<ModRow[]>([]);
   const [extracting, setExtracting] = useState(false);
 
-  const rawModsKey = (rawMods ?? []).join("");
+  const rawModsKey = (rawMods ?? []).join("");
 
   // Reset the search-by choice + link filter whenever a new item opens.
   useEffect(() => {
@@ -88,13 +97,10 @@ export function TradeSearchDialog({
     setLinks("any");
   }, [opened, itemName]);
 
-  // Extract the recognised mod rows from the raw mod text on open.
+  // Extract every mod line into a row on open. Searchable mods come
+  // first (default ON), unsearchable ones last (forced OFF).
   useEffect(() => {
-    if (!opened) {
-      setRows([]);
-      return;
-    }
-    if (!rawMods || rawMods.length === 0) {
+    if (!opened || !rawMods || rawMods.length === 0) {
       setRows([]);
       return;
     }
@@ -103,9 +109,15 @@ export function TradeSearchDialog({
     extractTradeMods(rawMods)
       .then((resp) => {
         if (cancelled) return;
-        setRows(
-          resp.mods.map((m) => ({ mod: m, enabled: true, strictness: 80 })),
+        const mapped: ModRow[] = resp.mods.map((m) => ({
+          mod: m,
+          enabled: m.stat_id != null,
+          strictness: 80,
+        }));
+        mapped.sort(
+          (a, b) => Number(isSearchable(b)) - Number(isSearchable(a)),
         );
+        setRows(mapped);
       })
       .catch(() => {
         if (!cancelled) setRows([]);
@@ -126,8 +138,13 @@ export function TradeSearchDialog({
   function handleSearch() {
     const byName = searchBy === "name" && !!itemName;
     const stats: TradeStatFilterInput[] = rows
-      .filter((r) => r.enabled)
-      .map((r) => ({ stat_id: r.mod.stat_id, min: rowMin(r) }));
+      .filter((r) => r.enabled && r.mod.stat_id != null)
+      .map((r) => {
+        const min = rowMin(r);
+        return min != null
+          ? { stat_id: r.mod.stat_id as string, min }
+          : { stat_id: r.mod.stat_id as string };
+      });
     const req: TradeUrlRequest = {
       item_name: byName ? itemName : undefined,
       item_type: byName ? undefined : (itemType ?? undefined),
@@ -143,14 +160,16 @@ export function TradeSearchDialog({
   if (itemName) searchByData.push({ value: "name", label: t({ it: "Nome", en: "Name" }) });
   if (itemType) searchByData.push({ value: "type", label: t({ it: "Base", en: "Base" }) });
 
-  const enabledCount = rows.filter((r) => r.enabled).length;
+  const searchable = rows.filter(isSearchable);
+  const unsearchable = rows.filter((r) => !isSearchable(r));
+  const enabledCount = searchable.filter((r) => r.enabled).length;
 
   return (
     <Modal
       opened={opened}
       onClose={onClose}
       centered
-      size="lg"
+      size="xl"
       overlayProps={{ backgroundOpacity: 0.6, blur: 3 }}
       title={
         <Group gap={8}>
@@ -164,47 +183,50 @@ export function TradeSearchDialog({
       }
     >
       <Stack gap="md">
-        {/* Search by — name vs base type */}
-        {searchByData.length > 1 && (
+        <Group gap="xl" align="flex-start" wrap="wrap">
+          {/* Search by — name vs base type */}
+          {searchByData.length > 1 && (
+            <Stack gap={4}>
+              <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
+                {t({ it: "Cerca per", en: "Search by" })}
+              </Text>
+              <SegmentedControl
+                size="xs"
+                data={searchByData}
+                value={searchBy}
+                onChange={(v) => setSearchBy(v === "name" ? "name" : "type")}
+              />
+            </Stack>
+          )}
+
+          {/* Links */}
           <Stack gap={4}>
             <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
-              {t({ it: "Cerca per", en: "Search by" })}
+              {t({ it: "Link", en: "Links" })}
             </Text>
             <SegmentedControl
               size="xs"
-              data={searchByData}
-              value={searchBy}
-              onChange={(v) => setSearchBy(v === "name" ? "name" : "type")}
+              data={[
+                { value: "any", label: t({ it: "Qualsiasi", en: "Any" }) },
+                { value: "5", label: "5L" },
+                { value: "6", label: "6L" },
+              ]}
+              value={links}
+              onChange={(v) => setLinks(v as "any" | "5" | "6")}
             />
           </Stack>
-        )}
-
-        {/* Links */}
-        <Stack gap={4}>
-          <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
-            {t({ it: "Link", en: "Links" })}
-          </Text>
-          <SegmentedControl
-            size="xs"
-            data={[
-              { value: "any", label: t({ it: "Qualsiasi", en: "Any" }) },
-              { value: "5", label: "5L" },
-              { value: "6", label: "6L" },
-            ]}
-            value={links}
-            onChange={(v) => setLinks(v as "any" | "5" | "6")}
-          />
-        </Stack>
+        </Group>
 
         {/* Mods */}
         <Stack gap={6}>
           <Group justify="space-between">
             <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
-              {t({ it: "Mod", en: "Mods" })}
+              {t({ it: "Mod dell'oggetto", en: "Item mods" })}
             </Text>
-            {rows.length > 0 && (
+            {searchable.length > 0 && (
               <Text size="xs" c="dimmed">
-                {enabledCount}/{rows.length} {t({ it: "attivi", en: "active" })}
+                {enabledCount}/{searchable.length}{" "}
+                {t({ it: "attivi", en: "active" })}
               </Text>
             )}
           </Group>
@@ -219,56 +241,79 @@ export function TradeSearchDialog({
           {!extracting && rows.length === 0 && (
             <Text size="xs" c="dimmed" fs="italic">
               {t({
-                it: "Nessun mod ricercabile — la ricerca userà solo nome / base.",
-                en: "No searchable mods — the search will use name / base only.",
+                it: "Nessun mod sull'oggetto — la ricerca userà solo nome / base.",
+                en: "No mods on the item — the search will use name / base only.",
               })}
             </Text>
           )}
           {rows.length > 0 && (
-            <ScrollArea.Autosize mah={280}>
-              <Stack gap={10} pr={8}>
-                {rows.map((row, i) => (
-                  <Stack key={`${row.mod.stat_id}-${i}`} gap={2}>
-                    <Switch
-                      size="xs"
-                      color="ember"
-                      checked={row.enabled}
-                      onChange={(e) =>
-                        patchRow(i, { enabled: e.currentTarget.checked })
-                      }
-                      label={
-                        <Text size="sm">
-                          {row.mod.label}{" "}
-                          <Text span c="dimmed" size="xs">
-                            ({t({ it: "rollato", en: "rolled" })} {row.mod.value})
-                          </Text>
-                        </Text>
-                      }
+            <ScrollArea.Autosize mah={420}>
+              <Stack gap={12} pr={10}>
+                {searchable.map((row) => {
+                  const idx = rows.indexOf(row);
+                  const min = rowMin(row);
+                  return (
+                    <Stack key={`${row.mod.stat_id}-${idx}`} gap={2}>
+                      <Switch
+                        size="xs"
+                        color="ember"
+                        checked={row.enabled}
+                        onChange={(e) =>
+                          patchRow(idx, { enabled: e.currentTarget.checked })
+                        }
+                        label={<Text size="sm">{row.mod.label}</Text>}
+                      />
+                      {row.enabled && row.mod.value != null && (
+                        <Group gap={8} pl={34} wrap="nowrap">
+                          <Slider
+                            flex={1}
+                            size="xs"
+                            color="ember"
+                            min={50}
+                            max={100}
+                            step={5}
+                            label={(v) => `${v}%`}
+                            value={row.strictness}
+                            onChange={(v) => patchRow(idx, { strictness: v })}
+                            marks={[
+                              { value: 80, label: "80%" },
+                              { value: 100, label: "100%" },
+                            ]}
+                          />
+                          {min != null && (
+                            <Badge variant="light" color="ember" size="sm">
+                              min {min}
+                            </Badge>
+                          )}
+                        </Group>
+                      )}
+                    </Stack>
+                  );
+                })}
+
+                {/* Mods that resolved to no GGG stat — shown but not
+                    filterable. */}
+                {unsearchable.length > 0 && (
+                  <>
+                    <Divider
+                      label={t({
+                        it: "Non ricercabili su Trade",
+                        en: "Not searchable on Trade",
+                      })}
+                      labelPosition="left"
                     />
-                    {row.enabled && (
-                      <Group gap={8} pl={34} wrap="nowrap">
-                        <Slider
-                          flex={1}
-                          size="xs"
-                          color="ember"
-                          min={50}
-                          max={100}
-                          step={5}
-                          label={(v) => `${v}%`}
-                          value={row.strictness}
-                          onChange={(v) => patchRow(i, { strictness: v })}
-                          marks={[
-                            { value: 80, label: "80%" },
-                            { value: 100, label: "100%" },
-                          ]}
-                        />
-                        <Badge variant="light" color="ember" size="sm">
-                          min {rowMin(row)}
-                        </Badge>
-                      </Group>
-                    )}
-                  </Stack>
-                ))}
+                    {unsearchable.map((row, i) => (
+                      <Text
+                        key={`uns-${i}`}
+                        size="sm"
+                        c="dimmed"
+                        style={{ opacity: 0.7 }}
+                      >
+                        {row.mod.label}
+                      </Text>
+                    ))}
+                  </>
+                )}
               </Stack>
             </ScrollArea.Autosize>
           )}

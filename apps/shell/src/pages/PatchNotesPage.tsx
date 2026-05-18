@@ -30,6 +30,23 @@ const RELEASES: Release[] = [
   {
     date: { it: "18 mag 2026", en: "18 May 2026" },
     title: {
+      it: "Pannello Trade: tutte le mod dell'oggetto",
+      en: "Trade panel: all of the item's mods",
+    },
+    entries: [
+      {
+        it: "Il pannello di ricerca Trade ora è più grande e mostra tutte le mod dell'oggetto, non solo quelle più comuni.",
+        en: "The Trade search panel is now bigger and shows every mod of the item, not just the common ones.",
+      },
+      {
+        it: "Ogni mod riconosciuta è attivabile come filtro: il riconoscimento usa l'intero database delle stat di pathofexile.com (~9500 voci).",
+        en: "Every recognised mod can be toggled as a filter: recognition uses the full pathofexile.com stat database (~9,500 entries).",
+      },
+    ],
+  },
+  {
+    date: { it: "18 mag 2026", en: "18 May 2026" },
+    title: {
       it: "Pannello ricerca Trade stile poe.ninja",
       en: "poe.ninja-style Trade search panel",
     },

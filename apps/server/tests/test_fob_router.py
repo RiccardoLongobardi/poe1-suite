@@ -580,23 +580,34 @@ def test_trade_url_returns_rate_limited_on_429(
         assert body["url"] is None
 
 
-def test_extract_trade_mods_returns_recognised_rows(settings: Settings) -> None:
-    """POST /fob/extract-trade-mods maps known mod text → dialog rows."""
+def test_extract_trade_mods_returns_all_rows_with_stat_ids(settings: Settings) -> None:
+    """POST /fob/extract-trade-mods resolves mod lines via the GGG stat DB.
+
+    Every input mod line comes back as a row; recognised lines carry a
+    GGG ``stat_id``. PoB metadata lines (Item Level, …) are dropped.
+    """
 
     app = create_app(settings)
     with TestClient(app) as client:
         r = client.post(
             "/fob/extract-trade-mods",
-            json={"mods": ["+85 to maximum Life", "+42% to Cold Resistance"]},
+            json={
+                "mods": [
+                    "+85 to maximum Life",
+                    "+42% to Cold Resistance",
+                    "Item Level: 84",
+                ]
+            },
         )
         assert r.status_code == 200, r.text
         mods = r.json()["mods"]
-        # Both lines match MOD_PATTERNS — each row carries a stat_id + value.
-        assert len(mods) >= 1
+        # The two real mods survive; the metadata line is cleaned out.
+        assert len(mods) == 2
+        # Both resolve against the vendored GGG stat database.
         for row in mods:
-            assert row["stat_id"]
+            assert row["stat_id"], row
+            assert row["stat_id"].startswith("explicit.")
             assert isinstance(row["value"], (int, float))
-            assert row["line"]
 
 
 def test_trade_url_with_stats_and_links(

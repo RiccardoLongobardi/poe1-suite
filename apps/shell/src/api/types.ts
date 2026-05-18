@@ -529,11 +529,12 @@ export interface TradeUrlRequest {
   min_links?: number | null;
 }
 
-/** One recognised mod row returned by POST /fob/extract-trade-mods. */
+/** One mod row returned by POST /fob/extract-trade-mods.
+ * `stat_id` is null when the line resolved to no GGG stat template. */
 export interface ExtractedTradeMod {
   line: string;
-  stat_id: string;
-  value: number;
+  stat_id: string | null;
+  value: number | null;
   label: string;
 }
 

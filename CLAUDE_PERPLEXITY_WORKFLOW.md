@@ -29,7 +29,8 @@ Don't trust earlier versions of this file — the section below is the authorita
 - **Step 27 (QA batch + Zustand state persistence) DONE 2026-05-18** — see §6.
 - **Step 28/29 (client-side prefilled Trade URL) — ABANDONED.** The `?redirect&source=` GET-prefill mechanism does not exist; GGG 403s any direct navigation to a `/api/` path. Superseded by Step 30.
 - **Step 30 (Trade prefill via backend + Planner collapsed-input fix) DONE 2026-05-18** — `POST /fob/trade-url` works again from Render. Planner collapsed `<Code>` no longer balloons.
-- **Step 31 (poe.ninja-style Trade-search dialog) DONE 2026-05-18** — the Trade icon opens a configurable `TradeSearchDialog` (search-by name/base, per-mod toggle + strictness slider, 5L/6L). Backend: re-added `/fob/extract-trade-mods`, extended `/fob/trade-url` with `stats[]` + `min_links`. See §6.
+- **Step 31 (poe.ninja-style Trade-search dialog) DONE 2026-05-18** — the Trade icon opens a configurable `TradeSearchDialog` (search-by name/base, per-mod toggle + strictness slider, 5L/6L). Backend: re-added `/fob/extract-trade-mods`, extended `/fob/trade-url` with `stats[]` + `min_links`.
+- **Step 32 (Trade dialog: full GGG stat DB + all mods) DONE 2026-05-18** — vendored GGG's full `/api/trade/data/stats` (~9.5k stats) → `poe1_fob.trade_stats` resolver; the dialog now lists every mod of the item, bigger modal. See §6.
 
 If anything you read in this file or in `CLAUDE.md` contradicts the above, **the above wins**.
 
@@ -140,6 +141,7 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 
 ### DONE
 
+- [x] **Step 32 — Trade dialog: full GGG stat DB + all mods** (2026-05-18) — Vendored GGG's `/api/trade/data/stats` (`scripts/extract_trade_stats.py` → `packages/fob/data/trade/stats.json`, ~9.5k stats). New `poe1_fob.trade_stats` resolver (`normalize_mod_text` + dict lookup). `/fob/extract-trade-mods` now returns every mod line with a nullable `stat_id` — the dialog lists *all* of an item's mods (resolved = toggleable, unresolved = dimmed) and is `size="xl"`. 706 tests / 123 mypy / 318 format.
 - [x] **Step 31 — poe.ninja-style Trade-search dialog** (2026-05-18) — New `TradeSearchDialog`: search-by name/base `SegmentedControl`, per-mod toggle + 50-100% strictness slider, 5L/6L link filter; opened from every Trade icon (Planner Overview + Gear tab, Analyze equipment/flasks/jewels). Backend: re-added `POST /fob/extract-trade-mods`; `POST /fob/trade-url` extended with explicit `stats[]` + `min_links` (→ GGG `socket_filters`). 706 tests / 121 mypy / 316 format. Property filters (DPS/APS/crit) intentionally not replicated — FOB has no computed weapon stats.
 - [x] **Step 30 — Trade prefill via backend + Planner collapsed-input fix** (2026-05-18) — QA fix for Steps 28/29. `openTradeSearch()` opens a blank tab synchronously, calls `POST /fob/trade-url` (re-verified working from Render — GGG returns a real `search_id`), and navigates the tab to the prefilled `/trade/search/<league>/<id>` URL; bare-page + clipboard fallback on error/429. Planner collapsed `<Code>` chip no longer balloons (`whiteSpace:nowrap` + `minWidth:0`). Frontend-only.
 - [x] **Step 29 — Trade redirect 403 fix + Planner input parity** (2026-05-18, Prompt 019) — `openTradeSearch()` navigates via a programmatic `<a>` click instead of `window.open` (GGG/Cloudflare 403'd the `window.open` Referer); the Planner PoB input form now mirrors Analyze (flex `TextInput` + button in one row, Ctrl+Enter hint below, Planner controls underneath). Frontend-only.

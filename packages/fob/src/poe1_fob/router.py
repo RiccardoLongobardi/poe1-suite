@@ -58,6 +58,7 @@ from .pob import (
 from .pob import clean_mod_lines as _clean_mod_lines
 from .pob import extract_mods as _extract_mod_patterns
 from .ranking import RankingEngine, RecommendRequest, RecommendResponse, SourceAggregator
+from .trade_stats import resolve_mods
 from .tree import (
     StageTree,
     TreeProgression,
@@ -277,14 +278,22 @@ class TradeModExtractRequest(BaseModel):
 
 
 class ExtractedTradeMod(BaseModel):
-    """One recognised mod row for the Trade-search dialog."""
+    """One mod row for the Trade-search dialog.
+
+    Every mod line of the item is returned — ``stat_id`` is ``None``
+    when the line matched no GGG stat template (the dialog still shows
+    it, just not as a toggleable filter).
+    """
 
     model_config = ConfigDict(frozen=True)
 
-    line: str = Field(..., description="Original mod line that matched.")
-    stat_id: str = Field(..., description="GGG stat id keyed by the matching pattern.")
-    value: float = Field(..., description="Numeric value rolled on the item.")
-    label: str = Field(..., description="Human-readable label (e.g. '+# to maximum Life').")
+    line: str = Field(..., description="Original mod line.")
+    stat_id: str | None = Field(
+        default=None,
+        description="GGG stat id, or null when the line resolved to no stat.",
+    )
+    value: float | None = Field(default=None, description="First numeric value on the line.")
+    label: str = Field(..., description="Human-readable label shown in the dialog.")
 
 
 class TradeModExtractResponse(BaseModel):
@@ -849,31 +858,27 @@ def make_router(settings: Settings) -> APIRouter:
     async def extract_trade_mods_endpoint(
         payload: Annotated[TradeModExtractRequest, Body()],
     ) -> TradeModExtractResponse:
-        """Pure-extraction preview for the Trade-search dialog.
+        """Resolve an item's mod lines to GGG Trade stat ids.
 
-        The frontend sends verbatim mod text lines from an item and
-        gets back the rows ready to render: ``stat_id``, label, rolled
-        value. Lines that don't match any pattern in MOD_PATTERNS are
-        silently dropped. Stateless and offline — no HTTP, no rate
-        limit.
+        The frontend sends the verbatim mod text lines from an item;
+        every line comes back as a dialog row. Lines that resolve
+        against the vendored GGG stat database carry a ``stat_id`` (and
+        become toggleable filters); lines that don't are still returned
+        with ``stat_id = null`` so the dialog can show the full mod
+        list. PoB metadata lines (Item Level, Sockets, …) are dropped.
+        Stateless and offline — no HTTP, no rate limit.
         """
 
-        cleaned = _clean_mod_lines(payload.mods)
-        extracted = _extract_mod_patterns(cleaned)
-        seen: set[str] = set()
-        out: list[ExtractedTradeMod] = []
-        for em in extracted:
-            if em.stat_id in seen:
-                continue
-            seen.add(em.stat_id)
-            out.append(
-                ExtractedTradeMod(
-                    line=em.line,
-                    stat_id=em.stat_id,
-                    value=em.value,
-                    label=em.label,
-                )
+        cleaned = list(_clean_mod_lines(payload.mods))
+        out = [
+            ExtractedTradeMod(
+                line=r.line,
+                stat_id=r.stat_id,
+                value=r.value,
+                label=r.line,
             )
+            for r in resolve_mods(cleaned)
+        ]
         return TradeModExtractResponse(mods=tuple(out))
 
     @router.get(
