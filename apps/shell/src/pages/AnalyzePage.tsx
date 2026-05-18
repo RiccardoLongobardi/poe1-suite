@@ -40,7 +40,7 @@ import {
 import { useMutation } from "@tanstack/react-query";
 import { getDetail, parsePoeNinjaCharacterUrl } from "../api/builds";
 import { analyzePob } from "../api/fob";
-import { openTradeForItem } from "../api/tradeRedirect";
+import { openTradeSearch } from "../api/tradeRedirect";
 import { usePageStore } from "../store/pageStore";
 import type {
   AnalyzePobResponse,
@@ -237,13 +237,13 @@ function GearCell({
               color="ember"
               size="xs"
               title={t({
-                it: "Apri su pathofexile.com/trade (termine copiato negli appunti)",
-                en: "Open on pathofexile.com/trade (search term copied to clipboard)",
+                it: "Apri una ricerca pre-compilata su pathofexile.com/trade",
+                en: "Open a prefilled pathofexile.com/trade search",
               })}
               aria-label={t({ it: "Apri su Trade", en: "Open on Trade" })}
               onClick={(e) => {
                 e.stopPropagation();
-                openTradeForItem({
+                openTradeSearch({
                   name: item.name ?? item.base_type,
                   rarity: item.rarity,
                   base_type: item.base_type,

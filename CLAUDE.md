@@ -107,6 +107,23 @@ Frontend-only, no backend change.
 > Updating the `.md` files without updating the Patch Notes is an
 > incomplete step.
 
+## Step 28 — Trade redirect v2: prefilled URLs (2026-05-18) ✅
+
+Prompt 018. The Trade redirect now opens a **prefilled** pathofexile.com/trade search instead of the bare league page + clipboard copy. Frontend-only, no backend / API change, no new deps.
+
+**The mechanism** — GGG's browser-navigation redirect endpoint:
+
+```
+GET https://www.pathofexile.com/api/trade/search/<league>?redirect&source=<url-encoded JSON query>
+```
+
+Opened via `window.open` (a **top-level navigation, NOT a `fetch`**), GGG runs the POST search on its own infrastructure and 302s the tab to the fully prefilled `/trade/search/<league>/<id>` results page. Because it is a navigation and not an XHR, **CORS does not apply** and no backend is involved — this is how poe.ninja opens prefilled searches. This **supersedes the Step 25 conclusion** ("true prefilled URLs impossible"): that conclusion was about a *server-side* POST (still 403 from Render's IP) and a *browser `fetch`* (still CORS-blocked) — the `?redirect&source=` navigation sidesteps both.
+
+- **`tradeRedirect.ts`** — new `openTradeSearch(item)` replaces `openTradeForItem`. `buildTradeQuery()` builds the JSON: uniques get `name` + `type` (base), rares/magics get `type` (base) only — a rare's roll-generated name returns nothing on Trade. `stats` is always `[{type:"and",filters:[]}]`. New `getResolvedLeague()` returns the league or `null` (no fallback substitution — must not point the user at the wrong league's trade site).
+- **League source** — reuses the existing `prefetchLeague()` / cached-league machinery (fed by `/health` at app mount). **No `useLeague()` hook and no `/league` endpoint were added** — `getResolvedLeague()` is synchronous, which is required to keep `window.open` inside the user-gesture window (an async React-Query read could miss it and trip popup blockers).
+- **Graceful fallback** — when the league hasn't resolved yet (Render cold start) or the item has no searchable name/base, `openTradeSearch` degrades to `openTradeFallback` (bare league page + clipboard copy of the search term) and shows a `@mantine/notifications` toast. `tradeClipboardText()` is kept for that path.
+- **Call sites** — the Trade `ActionIcon` on the Planner Overview rows, Planner Gear-tab rows, and every Analyze equipment/flask/jewel cell now call `openTradeSearch`. Same icon/position; only the click behaviour changed. Tooltips updated ("Apri una ricerca pre-compilata…").
+
 ## Step 27 — QA batch fixes + Zustand state persistence (2026-05-18) ✅
 
 Prompt 017. Five frontend-only fixes. No backend / API change, no new endpoint. New npm dependency: `zustand` 5.

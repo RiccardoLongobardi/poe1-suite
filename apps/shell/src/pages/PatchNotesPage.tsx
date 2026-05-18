@@ -30,6 +30,27 @@ const RELEASES: Release[] = [
   {
     date: { it: "18 mag 2026", en: "18 May 2026" },
     title: {
+      it: "Ricerca Trade pre-compilata",
+      en: "Prefilled Trade search",
+    },
+    summary: {
+      it: "Il pulsante Trade apre direttamente la ricerca giusta.",
+      en: "The Trade button opens the right search directly.",
+    },
+    entries: [
+      {
+        it: "Cliccando l'icona Trade su un item del Planner o di Analizza si apre ora pathofexile.com/trade con la ricerca già compilata: nome per gli unique, tipo base per i rari.",
+        en: "Clicking the Trade icon on a Planner or Analyse item now opens pathofexile.com/trade with the search already filled in: name for uniques, base type for rares.",
+      },
+      {
+        it: "Niente più copia-incolla manuale: il risultato è a un solo click.",
+        en: "No more manual copy-paste: the result is a single click away.",
+      },
+    ],
+  },
+  {
+    date: { it: "18 mag 2026", en: "18 May 2026" },
+    title: {
       it: "Correzioni QA + stato persistente",
       en: "QA fixes + persistent state",
     },

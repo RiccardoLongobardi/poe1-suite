@@ -60,7 +60,7 @@ import type {
   StageGemLinks,
   StageTree,
 } from "../api/types";
-import { openTradeForItem } from "../api/tradeRedirect";
+import { openTradeSearch } from "../api/tradeRedirect";
 import { useT } from "../i18n";
 
 const CONFIDENCE_COLOR: Record<Confidence, string> = {
@@ -128,8 +128,8 @@ function ItemRow({
       <Table.Td style={{ width: 36 }}>
         <Tooltip
           label={t({
-            it: "Apri pathofexile.com/trade — il nome è copiato negli appunti, incollalo nella search e premi Cerca",
-            en: "Open pathofexile.com/trade — the name is copied to the clipboard, paste it into the search and hit Search",
+            it: "Apri una ricerca pre-compilata su pathofexile.com/trade",
+            en: "Open a prefilled pathofexile.com/trade search",
           })}
           withArrow
           multiline
@@ -179,12 +179,10 @@ export function StageCard({
   const accent = index === 0 ? "teal" : index === 1 ? "blue" : "grape";
 
   function openTradeDialog(item: CoreItem) {
-    // Synchronous: opens pathofexile.com/trade/search/<league> in a new
-    // tab and copies the item name to the clipboard. Server-side
-    // pre-filtering via GGG /api/trade/search/<league> is blocked
-    // (HTTP 403 from Render's IP range — datacenter blacklist). See
-    // ../api/tradeRedirect.ts for the full diagnosis.
-    openTradeForItem({
+    // Opens a prefilled pathofexile.com/trade search in a new tab via
+    // GGG's ?redirect&source= browser-navigation endpoint. See
+    // ../api/tradeRedirect.ts for the mechanism.
+    openTradeSearch({
       name: item.name,
       rarity: item.rarity,
       base_type: item.base_type,
@@ -783,8 +781,8 @@ function GearPanel({
                 {TRADEABLE_KINDS.has(s.kind) && (
                   <Tooltip
                     label={t({
-                      it: "Apri pathofexile.com/trade — il nome è copiato negli appunti, incollalo nella search",
-                      en: "Open pathofexile.com/trade — the name is copied to the clipboard, paste it into the search",
+                      it: "Apri una ricerca pre-compilata su pathofexile.com/trade",
+                      en: "Open a prefilled pathofexile.com/trade search",
                     })}
                     withArrow
                     multiline
@@ -795,7 +793,7 @@ function GearPanel({
                       color="ember"
                       size="sm"
                       onClick={() =>
-                        openTradeForItem({ name: s.item_name, rarity: "unique" })
+                        openTradeSearch({ name: s.item_name, rarity: "unique" })
                       }
                       aria-label={t({ it: "Apri su Trade", en: "Open on Trade" })}
                     >

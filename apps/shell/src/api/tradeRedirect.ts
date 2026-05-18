@@ -1,25 +1,31 @@
 /**
  * Client-side Trade redirect helper.
  *
- * Why we open the bare /trade/search/<league> page instead of a
- * pre-filtered search URL: GGG's ``/api/trade/search/<league>`` POST
- * (the API that returns a search_id we'd embed in the URL) is blocked
- * with HTTP 403 from cloud datacenter IPs — including Render's IP
- * range where the FOB backend runs. Confirmed empirically on
- * 2026-05-14: identical request from a home/residential IP returns
- * 200 + a valid search_id, from Render it always 403s.
+ * `openTradeSearch` opens a **prefilled** GGG Trade search via GGG's
+ * browser-navigation redirect endpoint:
  *
- * The server-side endpoint ``POST /fob/trade-url`` does exist (with
- * an in-memory cache) and works fine when FOB is run locally on a
- * machine whose IP isn't blocked. Production simply can't use it.
+ *   GET /api/trade/search/<league>?redirect&source=<url-encoded JSON>
  *
- * So the prod flow is: open the bare search page synchronously (one
- * click, no popup blocker, no white-tab UX) and copy the item name
- * to the clipboard so the user pastes-and-searches in one move.
+ * Opened with `window.open` (a top-level navigation, NOT a `fetch`),
+ * GGG runs the POST search on its own infrastructure and 302s the tab
+ * to the fully prefilled `/trade/search/<league>/<id>` results page.
+ * Because it is a navigation and not an XHR, CORS does not apply and
+ * no FOB backend involvement is needed — this is how poe.ninja and
+ * similar tools open prefilled searches.
  *
- * The league name (e.g. "Mirage") is prefetched from ``/health`` on
- * app mount so the redirect stays synchronous on first click.
+ * (A *server-side* POST to `/api/trade/search` is still blocked with
+ * HTTP 403 from Render's datacenter IP range — so that route stays
+ * dead. The `?redirect&source=` navigation sidesteps it entirely
+ * because the request originates from the user's own browser.)
+ *
+ * Fallback: when the active league has not resolved yet (Render cold
+ * start) the redirect can't be built, so `openTradeSearch` degrades
+ * to the bare league search page + a clipboard copy of the search
+ * term, and shows a toast. The league name (e.g. "Mirage") is
+ * prefetched from `/health` on app mount so this fallback is rare.
  */
+
+import { notifications } from "@mantine/notifications";
 
 const BASE = (import.meta.env.VITE_API_BASE ?? "").replace(/\/+$/, "");
 
@@ -60,6 +66,18 @@ export function getLeague(): string {
   return cachedLeague ?? FALLBACK_LEAGUE;
 }
 
+/**
+ * Returns the resolved league synchronously, or `null` when the
+ * `/health` probe hasn't settled yet.
+ *
+ * Unlike :func:`getLeague` this does NOT substitute a fallback —
+ * callers that need a *correct* league (the prefilled Trade redirect)
+ * must not point the user at the wrong league's trade site.
+ */
+export function getResolvedLeague(): string | null {
+  return cachedLeague;
+}
+
 /** Subset of CoreItem fields the redirect helper needs. */
 export interface TradeRedirectItem {
   name: string;
@@ -87,34 +105,111 @@ export function tradeClipboardText(item: TradeRedirectItem): string {
   return item.name;
 }
 
+/** The UI language picked by the i18n `LangProvider`. Read straight
+ * from `localStorage` because this module is not a React component. */
+function uiLang(): "it" | "en" {
+  try {
+    return localStorage.getItem("fob_lang") === "en" ? "en" : "it";
+  } catch {
+    return "it";
+  }
+}
+
+/** A GGG Trade JSON query payload. */
+interface TradeQueryPayload {
+  query: Record<string, unknown>;
+  sort: Record<string, unknown>;
+}
+
 /**
- * Open the GGG Trade search page in a new tab and copy the most useful
- * search term to the clipboard so the user can paste-and-search.
+ * Build the GGG Trade JSON query for an item.
  *
- * Synchronous so it stays inside the user-gesture window (popup
- * blockers stay quiet). The clipboard write is best-effort: it can
- * fail silently on insecure contexts or denied permission, but the
- * redirect still happens.
+ * * Unique → `name` (the unique's name) + `type` (its base type, when
+ *   known) for the tightest match.
+ * * Rare / magic / normal → `type` only. A rare's roll-generated name
+ *   returns nothing on Trade; the base type is the searchable handle.
  *
- * The clipboard term is the unique name for uniques, the base type for
- * rares/magics — see :func:`tradeClipboardText`.
- *
- * Pre-filling the search itself (name / base / mods → a search_id in
- * the URL) requires calling GGG's ``/api/trade/search`` endpoint. That
- * is blocked with HTTP 403 from Render's datacenter IP range, and a
- * direct browser ``fetch`` to it fails CORS — so a true prefilled
- * Trade URL is not reachable from the deployed SPA. We open the bare
- * league search page and pre-copy the term instead. See the module
- * docstring for the full diagnosis.
+ * `stats` is always present as a single empty `and` group — Trade
+ * accepts an empty filter array.
  */
-export function openTradeForItem(item: TradeRedirectItem): void {
+function buildTradeQuery(item: TradeRedirectItem): TradeQueryPayload {
+  const isUnique = (item.rarity ?? "").toLowerCase() === "unique";
+  const base = item.base_type?.trim();
+  const name = item.name?.trim();
+  const query: Record<string, unknown> = {
+    status: { option: "online" },
+    stats: [{ type: "and", filters: [] }],
+  };
+  if (isUnique) {
+    if (name) query.name = name;
+    if (base) query.type = base;
+  } else if (base) {
+    query.type = base;
+  }
+  return { query, sort: { price: "asc" } };
+}
+
+/**
+ * Fallback path: open the bare league search page and pre-copy the
+ * search term to the clipboard. Used when the active league hasn't
+ * resolved yet or the item carries nothing searchable.
+ */
+function openTradeFallback(item: TradeRedirectItem): void {
   try {
     void navigator.clipboard.writeText(tradeClipboardText(item));
   } catch {
-    // Non-secure context or denied — silently skip the clipboard
-    // write. The user can still type the term manually on Trade.
+    // Insecure context or denied — skip; the user can still type the
+    // term manually on Trade.
   }
-  const league = getLeague();
-  const url = `https://www.pathofexile.com/trade/search/${encodeURIComponent(league)}`;
+  const url = `https://www.pathofexile.com/trade/search/${encodeURIComponent(getLeague())}`;
+  window.open(url, "_blank", "noopener,noreferrer");
+}
+
+/**
+ * Open a **prefilled** GGG Trade search for an item in a new tab.
+ *
+ * Uses GGG's browser-navigation redirect endpoint:
+ *
+ *   GET /api/trade/search/<league>?redirect&source=<url-encoded JSON>
+ *
+ * Opened via `window.open` — NOT `fetch`. The redirect only works as a
+ * top-level browser navigation: GGG runs the POST search server-side
+ * and issues a 302 to the prefilled `/trade/search/<league>/<id>`
+ * results page. A `fetch` would be blocked by CORS; a navigation is
+ * not. This is how poe.ninja and other tools open prefilled searches.
+ *
+ * Synchronous so it stays inside the user-gesture window (popup
+ * blockers stay quiet).
+ *
+ * Degrades to :func:`openTradeFallback` (bare page + clipboard) when
+ * the active league hasn't resolved yet (Render cold start) or the
+ * item has no searchable name/base — and shows a toast in the
+ * league-missing case so the user knows to retry.
+ */
+export function openTradeSearch(item: TradeRedirectItem): void {
+  const league = getResolvedLeague();
+  const built = buildTradeQuery(item);
+  const hasFilter = !!built.query.name || !!built.query.type;
+
+  if (!league || !hasFilter) {
+    openTradeFallback(item);
+    if (!league) {
+      const l = uiLang();
+      notifications.show({
+        color: "yellow",
+        title: l === "en" ? "League not ready" : "Lega non ancora pronta",
+        message:
+          l === "en"
+            ? "Opened a generic Trade search — the active league is still loading. Try again in a moment for a prefilled search."
+            : "Aperta una ricerca Trade generica — la lega attiva si sta ancora caricando. Riprova tra un istante per una ricerca pre-compilata.",
+      });
+    }
+    return;
+  }
+
+  const encoded = encodeURIComponent(JSON.stringify(built));
+  const url = `https://www.pathofexile.com/api/trade/search/${encodeURIComponent(
+    league,
+  )}?redirect&source=${encoded}`;
   window.open(url, "_blank", "noopener,noreferrer");
 }
