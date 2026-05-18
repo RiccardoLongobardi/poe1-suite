@@ -24,8 +24,8 @@ interface Particle {
   vy: number;
 }
 
-const COUNT = 44;
-const LINK_DIST = 120;
+const COUNT = 72;
+const LINK_DIST = 130;
 const MOUSE_DIST = 80;
 
 function isLightScheme(): boolean {
@@ -81,8 +81,8 @@ export const ParticleCanvas = memo(function ParticleCanvas() {
 
     const frame = (): void => {
       const rgb = light ? "42, 31, 14" : "200, 147, 42";
-      const dotAlpha = light ? 0.1 : 0.28;
-      const lineAlpha = light ? 0.05 : 0.08;
+      const dotAlpha = light ? 0.34 : 0.4;
+      const lineAlpha = light ? 0.16 : 0.13;
 
       ctx.clearRect(0, 0, w, h);
 

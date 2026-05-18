@@ -811,8 +811,13 @@ function GearPanel({
                 <Text
                   size="sm"
                   fw={500}
-                  className={
-                    s.kind === "unique" ? "vs-unique-shimmer" : undefined
+                  className="vs-rarity"
+                  data-rarity={
+                    s.kind === "unique" || s.kind === "leveling"
+                      ? "unique"
+                      : s.kind === "rare_craft"
+                        ? "rare"
+                        : "normal"
                   }
                   display="inline-block"
                 >

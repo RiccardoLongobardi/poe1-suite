@@ -215,7 +215,8 @@ function GearCell({
       transitionProps={{ duration: 120 }}
     >
       <Box
-        className={item.rarity === "unique" ? "vs-unique-shimmer" : undefined}
+        className="vs-rarity"
+        data-rarity={item.rarity}
         style={{
           borderLeft: `3px solid ${rarityColor(item.rarity)}`,
           padding: "6px 10px",

@@ -422,51 +422,66 @@ h6 {
   text-underline-offset: 2px;
 }
 
-/* ── Unique item foil shimmer (Step 33) ───────────────────────────────
-   A gold sheen scrolls diagonally across elements tagged
-   `.vs-unique-shimmer` (unique gear cells / rows). CSS-only. */
-.vs-unique-shimmer {
+/* ── Rarity hover glow + shimmer (Step 33, revised) ───────────────────
+   Gear cells/rows tagged `.vs-rarity` + a `data-rarity` attribute stay
+   inert until hovered — then they light up with a diagonal sweep and a
+   glow in the PoE rarity colour (grey / blue / yellow / orange). */
+.vs-rarity {
   position: relative;
   overflow: hidden;
+  transition: box-shadow 160ms ease;
+  /* default = normal rarity */
+  --rarity-tint: rgba(200, 200, 200, 0.16);
+  --rarity-glow: rgba(200, 200, 200, 0.22);
 }
-.vs-unique-shimmer::after {
+[data-rarity="magic"] {
+  --rarity-tint: rgba(120, 130, 255, 0.24);
+  --rarity-glow: rgba(120, 130, 255, 0.36);
+}
+[data-rarity="rare"] {
+  --rarity-tint: rgba(255, 226, 90, 0.24);
+  --rarity-glow: rgba(255, 226, 90, 0.34);
+}
+[data-rarity="unique"] {
+  --rarity-tint: rgba(214, 128, 46, 0.28);
+  --rarity-glow: rgba(214, 128, 46, 0.42);
+}
+.vs-rarity::after {
   content: "";
   position: absolute;
   inset: 0;
   pointer-events: none;
+  opacity: 0;
   background: linear-gradient(
     115deg,
-    rgba(200, 147, 42, 0) 30%,
-    rgba(232, 184, 75, 0.18) 50%,
-    rgba(200, 147, 42, 0) 70%
+    transparent 35%,
+    var(--rarity-tint) 50%,
+    transparent 65%
   );
-  background-size: 200% 100%;
+  background-size: 220% 100%;
   background-repeat: no-repeat;
-  animation: vs-unique-shimmer 3.5s ease-in-out infinite;
+  transition: opacity 180ms ease;
 }
-@keyframes vs-unique-shimmer {
+.vs-rarity:hover {
+  box-shadow:
+    0 0 0 1px var(--rarity-glow),
+    0 0 16px var(--rarity-glow);
+}
+.vs-rarity:hover::after {
+  opacity: 1;
+  animation: vs-rarity-shimmer 1.5s ease-in-out infinite;
+}
+@keyframes vs-rarity-shimmer {
   from {
-    background-position: -200% 0;
+    background-position: -160% 0;
   }
   to {
-    background-position: 200% 0;
+    background-position: 160% 0;
   }
 }
-/* Light mode: dial the sheen down ~40 %. */
-[data-mantine-color-scheme="light"] .vs-unique-shimmer::after {
-  background: linear-gradient(
-    115deg,
-    rgba(176, 120, 32, 0) 30%,
-    rgba(176, 120, 32, 0.1) 50%,
-    rgba(176, 120, 32, 0) 70%
-  );
-  background-size: 200% 100%;
-  background-repeat: no-repeat;
-}
 @media (prefers-reduced-motion: reduce) {
-  .vs-unique-shimmer::after {
+  .vs-rarity:hover::after {
     animation: none;
-    background: rgba(200, 147, 42, 0.07);
   }
 }
 

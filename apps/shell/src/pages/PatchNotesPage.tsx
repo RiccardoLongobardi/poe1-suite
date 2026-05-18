@@ -40,8 +40,8 @@ const RELEASES: Release[] = [
         en: "Animated ember particle background that reacts to mouse movement.",
       },
       {
-        it: "Gli oggetti Unique hanno un effetto shimmer dorato che scorre.",
-        en: "Unique items have a scrolling gold shimmer effect.",
+        it: "Gli oggetti si illuminano al passaggio del mouse con un bagliore nel colore della loro rarità (blu magico, giallo raro, arancio unique).",
+        en: "Items light up on hover with a glow in their rarity colour (magic blue, rare yellow, unique orange).",
       },
       {
         it: "Le statistiche chiave (Vita, DPS, EHP…) si animano contando da zero all'apertura.",
