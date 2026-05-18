@@ -22,7 +22,83 @@ interface Release {
 }
 
 // Newest first. Compiled from the project's step-by-step history.
+//
+// IMPORTANT: this array MUST be updated whenever a feature ships —
+// always together with CLAUDE.md / CLAUDE_PERPLEXITY_WORKFLOW.md.
+// Prepend a new entry with user-facing (not technical) bilingual copy.
 const RELEASES: Release[] = [
+  {
+    date: { it: "18 mag 2026", en: "18 May 2026" },
+    title: {
+      it: "Rifinitura risultati Finder",
+      en: "Finder result-list polish",
+    },
+    summary: {
+      it: "Più contesto su ogni build trovata.",
+      en: "More context on every build found.",
+    },
+    entries: [
+      {
+        it: "Quando ordini per DPS, vita, EHP o livello, un'etichetta nell'intestazione dei risultati lo segnala chiaramente.",
+        en: "When you sort by DPS, life, EHP or level, a label in the results header makes it clear.",
+      },
+      {
+        it: 'Ogni build mostra "X% del meta": quanto è popolare la sua skill nella ladder attuale.',
+        en: 'Each build shows "X% of meta": how popular its skill is in the current ladder.',
+      },
+      {
+        it: "Clicca il nome della skill su una card per filtrare al volo i risultati su quella skill.",
+        en: "Click a skill name on a card to instantly filter the results to that skill.",
+      },
+    ],
+  },
+  {
+    date: { it: "18 mag 2026", en: "18 May 2026" },
+    title: {
+      it: "Ricerca su Trade da gear e Analyze",
+      en: "Trade search from gear and Analyze",
+    },
+    summary: {
+      it: "Apri pathofexile.com/trade con un click da più punti.",
+      en: "Open pathofexile.com/trade in one click from more places.",
+    },
+    entries: [
+      {
+        it: "Il pulsante per cercare un item su Trade è ora disponibile anche nella scheda Gear del Planner e su ogni pezzo di equipaggiamento della pagina Analyze.",
+        en: "The button to search an item on Trade is now also on the Planner Gear tab and on every equipment piece in the Analyze page.",
+      },
+      {
+        it: "Per gli unique viene copiato il nome, per i rari il tipo base — il termine giusto da incollare nella ricerca.",
+        en: "For uniques the name is copied, for rares the base type — the right term to paste into the search.",
+      },
+    ],
+  },
+  {
+    date: { it: "18 mag 2026", en: "18 May 2026" },
+    title: {
+      it: "Caricamento più veloce",
+      en: "Faster loading",
+    },
+    entries: [
+      {
+        it: "Il sito ora carica solo il codice della pagina che apri: il pacchetto iniziale è quasi un terzo più leggero e l'avvio è più rapido.",
+        en: "The site now loads only the code of the page you open: the initial bundle is almost a third lighter and startup is faster.",
+      },
+    ],
+  },
+  {
+    date: { it: "17 mag 2026", en: "17 May 2026" },
+    title: {
+      it: "Fix: card del Finder in light mode",
+      en: "Fix: Finder cards in light mode",
+    },
+    entries: [
+      {
+        it: "Le card dei risultati del Build Finder apparivano di un grigio sporco sullo sfondo crema del tema chiaro. Ora hanno la corretta tinta pergamena.",
+        en: "The Build Finder result cards showed a muddy grey on the light theme's cream background. They now have the correct parchment tint.",
+      },
+    ],
+  },
   {
     date: { it: "15 mag 2026", en: "15 May 2026" },
     title: {

@@ -96,7 +96,16 @@ New `/patch-notes` route — a static, data-driven changelog covering the full p
 - **`apps/shell/src/pages/PatchNotesPage.tsx`** — a `RELEASES` array (16 entries, Italian copy) mapped to `ReleaseCard`s: each is an ember-left-border `<Card>` with a date badge, title, optional summary, and bullet list.
 - **`App.tsx`** — `/patch-notes` route + a low-prominence navbar entry: a `<Divider mt="auto">` pushes a small "Note di rilascio" `NavLink` (smaller font, muted colour, `IconHistory`) to the bottom of the navbar, visually secondary to the four main links.
 
-Frontend-only, no backend change. To keep it current, add a new entry at the top of the `RELEASES` array when a feature ships.
+Frontend-only, no backend change.
+
+> **MANDATORY — keep the Patch Notes in sync.** Whenever a feature/fix
+> ships, you MUST prepend a new entry to the `RELEASES` array in
+> `apps/shell/src/pages/PatchNotesPage.tsx` **in the same commit** that
+> updates `CLAUDE.md` / `CLAUDE_PERPLEXITY_WORKFLOW.md`. The Patch
+> Notes are user-facing — write bilingual (`it` / `en`), user-friendly
+> copy, NOT technical jargon (no file names, no internal step numbers).
+> Updating the `.md` files without updating the Patch Notes is an
+> incomplete step.
 
 ## Step 26 — Route-level code-splitting (2026-05-18) ✅
 
@@ -973,7 +982,8 @@ Deliverable: `/builds/population-stats?ascendancy=X` endpoint + Finder UI panel.
 3. Create a new `packages/<name>/` following the pricing/builds template: `src/poe1_<name>/{__init__.py, models.py, service.py, sources/*.py, router.py}`, `tests/{conftest.py, fixtures/, test_*.py}`, `pyproject.toml` declaring the package and its deps.
 4. Capture real fixtures first, then write models to match them, then write the source adapter, then the service facade, then the router.
 5. Close the step by running the full gate and updating this file's "What's built" table.
-6. Commit and **push** the worktree branch: `git push origin claude/friendly-kowalevski-9d17f8`. This is mandatory after every step — don't ask, just do it.
+6. **Update the Patch Notes** — prepend a user-facing bilingual entry to the `RELEASES` array in `apps/shell/src/pages/PatchNotesPage.tsx`. This is NOT optional: the Patch Notes must ALWAYS be updated together with `CLAUDE.md` / `CLAUDE_PERPLEXITY_WORKFLOW.md`, in the same commit.
+7. Commit and **push** the worktree branch: `git push origin claude/friendly-kowalevski-9d17f8`. This is mandatory after every step — don't ask, just do it.
 
 ## Environment
 

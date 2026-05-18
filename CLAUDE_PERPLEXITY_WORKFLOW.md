@@ -112,6 +112,7 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 3. Prompts in this file are reusable templates, self-contained, runnable today without past-chat context.
 4. Don't fetch GGG Trade from production (Render IPs blacklisted — HTTP 403).
 5. Vendor data, don't fetch at runtime.
+6. **The Patch Notes page is part of every feature.** Whenever a feature/fix ships, the `RELEASES` array in `apps/shell/src/pages/PatchNotesPage.tsx` MUST be updated in the **same commit** as `CLAUDE.md` and this file — with user-facing, bilingual (`it`/`en`) copy. A step that updates the `.md` files but not the Patch Notes is not done.
 
 ---
 
