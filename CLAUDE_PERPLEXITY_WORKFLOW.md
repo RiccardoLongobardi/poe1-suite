@@ -134,8 +134,8 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 ### CANDIDATE FUTURE WORK
 
 - [ ] **Finder result-list polish** — sort indicator, "X% of meta" line, per-skill drill-down.
-- [ ] **Pricing-aware gear classifier** — wire `PricingService.snapshot()` into stage-export router.
-- [ ] **Bundle code-splitting** — Vite warns at 585 KB; lazy-split Planner/Finder routes.
+- [ ] **Trade-aware gear redirect (Planner + Analyze)** — open official PoE Trade with prefilled base type + key stat filters for stage gear and PoB items; no pricing yet.
+- [ ] **Bundle code-splitting** — Vite warns at current bundle size; lazy-split Planner/Finder/Analyze routes.
 
 ### DONE
 
@@ -166,6 +166,7 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 
 Reverse-chronological.
 
+- **2026-05-18** — *Pricing-aware gear classifier postponed.* Pricing-aware gear classifier (wiring `PricingService.snapshot()` into stage export) is postponed; instead, focus is on a trade-aware redirect that opens official PoE Trade with prefilled filters, no live pricing logic.
 - **2026-05-15** — *Light mode "Parchment" palette.* Ember gold used as interactive accent only (not body text — fails WCAG 4.5:1 on cream). Darkened to `#b07820` for WCAG compliance. All body text uses warm ink tones (`#2a1f0e` primary). PoE1 rarity colours adapted for light backgrounds. Frontend-only.
 - **2026-05-15** — *Full frontend redesign: "Void Stone & Ember" theme.* See §9 for archived prompt details.
 - **2026-05-14** — *Server-side Trade search impossible on Render (GGG 403).* Client-side redirect.
@@ -182,7 +183,9 @@ Reverse-chronological.
 
 Reusable templates. Self-contained — runnable today without past-chat context. When a prompt ships, move to §9.
 
-*(no active prompts — all shipped)*
+- **Prompt 014 (Finder result-list polish)** — Claude Code implements on `/finder` a visible sort indicator, a "X% of meta" line per BuildCard using existing population stats, and per-skill drill-down (click main skill to filter), frontend-only and dark/light-theme safe.
+- **Prompt 015 (Trade-aware gear redirect for Planner + Analyze)** — Claude Code adds client-side "Open Trade" actions for Planner stage gear and Analyze equipment items, building official PoE Trade URLs with league, base type and a few key stat filters, no pricing, no server-side GGG calls.
+- **Prompt 016 (Bundle code-splitting for Finder/Planner/Analyze)** — Claude Code switches Finder, Planner and Analyze pages to React.lazy + Suspense route-level code-splitting with small, styled fallbacks that coexist cleanly with the Divine Orb warmup overlay.
 
 ---
 
