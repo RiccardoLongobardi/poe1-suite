@@ -42,6 +42,10 @@ const RELEASES: Release[] = [
         it: "Le ricerche Trade si aprono di default con il filtro \"Instant Buyout\".",
         en: 'Trade searches now open with the "Instant Buyout" filter by default.',
       },
+      {
+        it: "Più mod sono ricercabili: i modificatori con un numero (come quello principale della Mageblood) ora vengono riconosciuti.",
+        en: "More mods are searchable: count modifiers (like Mageblood's signature mod) are now recognised.",
+      },
     ],
   },
   {

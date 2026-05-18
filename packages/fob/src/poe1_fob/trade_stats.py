@@ -17,6 +17,7 @@ toggleable filter row.
 
 from __future__ import annotations
 
+import difflib
 import json
 import re
 from dataclasses import dataclass
@@ -79,6 +80,20 @@ def _stat_map() -> dict[str, str]:
     return raw
 
 
+@lru_cache(maxsize=1)
+def _stat_keys() -> tuple[str, ...]:
+    """All normalised stat-template keys — for the fuzzy fallback."""
+
+    return tuple(_stat_map().keys())
+
+
+# Minimum similarity for the fuzzy fallback. High enough that only
+# near-identical templates match (e.g. a singular GGG template vs the
+# plural form PoB renders for a count mod) — distinct mods like Fire
+# vs Cold resistance score ~0.78 and never collide.
+_FUZZY_CUTOFF = 0.9
+
+
 @dataclass(frozen=True)
 class ResolvedMod:
     """One mod line resolved (or not) against the GGG stat database."""
@@ -92,9 +107,22 @@ class ResolvedMod:
 
 
 def resolve_mod(line: str) -> ResolvedMod:
-    """Resolve a single mod text line to a GGG stat id (best effort)."""
+    """Resolve a single mod text line to a GGG stat id (best effort).
 
-    stat_id = _stat_map().get(normalize_mod_text(line))
+    First an exact lookup on the normalised text; on a miss, a fuzzy
+    fallback catches templates that differ only grammatically — most
+    often a count mod GGG stores singular ("Leftmost # … Flask …
+    applies its … Effect") that PoB renders plural ("Leftmost 4 …
+    Flasks … apply their … Effects").
+    """
+
+    norm = normalize_mod_text(line)
+    stat_map = _stat_map()
+    stat_id = stat_map.get(norm)
+    if stat_id is None:
+        close = difflib.get_close_matches(norm, _stat_keys(), n=1, cutoff=_FUZZY_CUTOFF)
+        if close:
+            stat_id = stat_map[close[0]]
     return ResolvedMod(line=line, stat_id=stat_id, value=first_number(line))
 
 
