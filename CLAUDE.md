@@ -107,6 +107,17 @@ Frontend-only, no backend change.
 > Updating the `.md` files without updating the Patch Notes is an
 > incomplete step.
 
+## Step 33 — Visual polish batch 1 (2026-05-18) ✅
+
+Prompt 020. Four frontend-only "make it feel alive" changes. No backend, no new deps. Every animation respects `prefers-reduced-motion` and works in both colour schemes.
+
+- **Canvas particle background.** New `apps/shell/src/components/ParticleCanvas.tsx` — a `React.memo` vanilla-Canvas2D component mounted once in `App.tsx`. 44 particles drift, link to neighbours within 120 px, and are pushed away from the cursor (≤80 px). Ember-gold on void / faint ink on cream; the colour scheme is re-read live via a `MutationObserver` on `<html>`'s `data-mantine-color-scheme`. Under reduced-motion nothing is drawn. Canvas is `position: fixed; z-index: 0; pointer-events: none` — it sits inside `#root` (which is `z-index: 1`, above the body noise layer); `index.css` makes `.mantine-AppShell-main` `background: transparent` in both schemes so the canvas shows through behind the cards (the body keeps `--vs-bg` as the base colour).
+- **Unique item shimmer.** New `.vs-unique-shimmer` class in `index.css` — a `::after` with a diagonal ember `linear-gradient` scrolling via `background-position` (3.5 s ease-in-out). Applied to unique `GearCell`s in Analyze and unique gear rows in `StageCard`'s Gear tab. Light mode dials the sheen down; reduced-motion → a static faint tint.
+- **Count-up KPIs.** New `apps/shell/src/hooks/useCountUp.ts` — `requestAnimationFrame`, linear, animates on mount and on `target` change (current → new). Applied inside `AnalyzePage`'s `StatTile` so Life / ES / EHP / DPS / damage / Armour / Evasion count up; the compact formatter runs each frame. Reduced-motion → final value immediately.
+- **Ember skeleton loaders.** New `.vs-skeleton` + `-text` / `-heading` / `-card` classes in `index.css` — a shimmer (`@keyframes vs-skeleton-shimmer`) over a `--vs-surface-*` gradient (flips per scheme automatically). FinderPage shows 5 stacked skeleton cards while `recommend` is pending (replaces the Mantine `<Loader>`); AnalyzePage shows a skeleton heading + 3 text rows while `analyze-pob` is pending.
+
+Gate: 706 tests / 123 mypy / 318 ruff-format. Frontend build main 449 KB / 143 KB gzip.
+
 ## Step 32 — Trade dialog: full GGG stat DB + all mods (2026-05-18) ✅
 
 QA on Step 31: the dialog only listed mods recognised by the ~30-entry hand-written `MOD_PATTERNS` table — most of an item's mods (incl. unique-specific ones like Widowhail's quiver mod) never appeared, so the user couldn't toggle them. The dialog must show **every** mod and make as many as possible toggleable filters. Also: the modal must be bigger.

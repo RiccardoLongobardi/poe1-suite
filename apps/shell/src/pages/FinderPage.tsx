@@ -18,7 +18,6 @@ import {
   Button,
   Code,
   Group,
-  Loader,
   NumberInput,
   Pill,
   Select,
@@ -470,9 +469,11 @@ export function FinderPage({ onSendToPlanner }: Props) {
             {/* Results column */}
             <div>
               {recommendMut.isPending ? (
-                <Box ta="center" py="xl">
-                  <Loader />
-                </Box>
+                <Stack gap="xs">
+                  {[0, 1, 2, 3, 4].map((i) => (
+                    <Box key={i} className="vs-skeleton vs-skeleton-card" />
+                  ))}
+                </Stack>
               ) : result ? (
                 <ErrorBoundary label={t({ it: "Errore nel rendering dei risultati", en: "Results rendering error" })}>
                   {(() => {

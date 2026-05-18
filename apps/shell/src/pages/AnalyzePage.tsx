@@ -51,6 +51,7 @@ import type {
 } from "../api/types";
 import { ErrorBoundary } from "../components/ErrorBoundary";
 import { TradeSearchDialog } from "../components/TradeSearchDialog";
+import { useCountUp } from "../hooks/useCountUp";
 import { useT } from "../i18n";
 
 // ---------------------------------------------------------------------------
@@ -214,6 +215,7 @@ function GearCell({
       transitionProps={{ duration: 120 }}
     >
       <Box
+        className={item.rarity === "unique" ? "vs-unique-shimmer" : undefined}
         style={{
           borderLeft: `3px solid ${rarityColor(item.rarity)}`,
           padding: "6px 10px",
@@ -271,7 +273,7 @@ function GearCell({
   );
 }
 
-/** One stat tile in the key-stats grid. */
+/** One stat tile in the key-stats grid — value counts up on render. */
 function StatTile({
   icon,
   label,
@@ -281,6 +283,7 @@ function StatTile({
   label: string;
   value: number;
 }) {
+  const animated = useCountUp(value);
   return (
     <Group gap={8} wrap="nowrap">
       <Box c="ember.4">{icon}</Box>
@@ -289,7 +292,7 @@ function StatTile({
           {label}
         </Text>
         <Text className="mono" size="sm" fw={700}>
-          {value > 0 ? compactNumber(value) : "—"}
+          {value > 0 ? compactNumber(animated) : "—"}
         </Text>
       </Stack>
     </Group>
@@ -806,6 +809,17 @@ export function AnalyzePage() {
         <Alert color="red" title={t({ it: "Errore", en: "Error" })}>
           {mut.error.message}
         </Alert>
+      )}
+
+      {mut.isPending && (
+        <Card withBorder radius="md" p="md">
+          <Stack gap="sm">
+            <Box className="vs-skeleton vs-skeleton-heading" />
+            <Box className="vs-skeleton vs-skeleton-text" />
+            <Box className="vs-skeleton vs-skeleton-text" />
+            <Box className="vs-skeleton vs-skeleton-text" />
+          </Stack>
+        </Card>
       )}
 
       {result && (

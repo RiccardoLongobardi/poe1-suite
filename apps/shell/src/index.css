@@ -153,14 +153,19 @@ body::before {
   z-index: 1;
 }
 
-/* Light mode: the parchment noise reads a touch stronger on cream, and
-   Mantine's AppShell main can override the body background — pin it. */
+/* Light mode: the parchment noise reads a touch stronger on cream. */
 [data-mantine-color-scheme="light"] body::before {
   opacity: 0.04;
 }
-[data-mantine-color-scheme="light"] body,
-[data-mantine-color-scheme="light"] .mantine-AppShell-main {
+[data-mantine-color-scheme="light"] body {
   background-color: var(--vs-bg) !important;
+}
+
+/* The AppShell main area is transparent in both schemes so the fixed
+   <ParticleCanvas> (Step 33) shows through behind the page content.
+   The body keeps --vs-bg as the base colour the canvas draws over. */
+.mantine-AppShell-main {
+  background: transparent !important;
 }
 
 /* Headings: Cinzel only at H1/H2 (forced over Mantine's Title class). */
@@ -415,6 +420,97 @@ h6 {
   color: var(--vs-ember);
   text-decoration: underline;
   text-underline-offset: 2px;
+}
+
+/* ── Unique item foil shimmer (Step 33) ───────────────────────────────
+   A gold sheen scrolls diagonally across elements tagged
+   `.vs-unique-shimmer` (unique gear cells / rows). CSS-only. */
+.vs-unique-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.vs-unique-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    115deg,
+    rgba(200, 147, 42, 0) 30%,
+    rgba(232, 184, 75, 0.18) 50%,
+    rgba(200, 147, 42, 0) 70%
+  );
+  background-size: 200% 100%;
+  background-repeat: no-repeat;
+  animation: vs-unique-shimmer 3.5s ease-in-out infinite;
+}
+@keyframes vs-unique-shimmer {
+  from {
+    background-position: -200% 0;
+  }
+  to {
+    background-position: 200% 0;
+  }
+}
+/* Light mode: dial the sheen down ~40 %. */
+[data-mantine-color-scheme="light"] .vs-unique-shimmer::after {
+  background: linear-gradient(
+    115deg,
+    rgba(176, 120, 32, 0) 30%,
+    rgba(176, 120, 32, 0.1) 50%,
+    rgba(176, 120, 32, 0) 70%
+  );
+  background-size: 200% 100%;
+  background-repeat: no-repeat;
+}
+@media (prefers-reduced-motion: reduce) {
+  .vs-unique-shimmer::after {
+    animation: none;
+    background: rgba(200, 147, 42, 0.07);
+  }
+}
+
+/* ── Ember skeleton loaders (Step 33) ─────────────────────────────────
+   A shimmer sweeps across placeholder blocks while data loads. The
+   gradient uses --vs-surface-* tokens, so it flips with the colour
+   scheme for free. */
+@keyframes vs-skeleton-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+.vs-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--vs-surface-1) 25%,
+    var(--vs-surface-3) 50%,
+    var(--vs-surface-1) 75%
+  );
+  background-size: 200% 100%;
+  animation: vs-skeleton-shimmer 1.6s ease-in-out infinite;
+  border-radius: var(--vs-radius-sm);
+}
+.vs-skeleton-text {
+  height: 12px;
+  width: 100%;
+}
+.vs-skeleton-heading {
+  height: 22px;
+  width: 45%;
+}
+.vs-skeleton-card {
+  height: 96px;
+  width: 100%;
+  border-radius: var(--vs-radius-md);
+}
+@media (prefers-reduced-motion: reduce) {
+  .vs-skeleton {
+    animation: none;
+    background: var(--vs-surface-2);
+  }
 }
 
 /* Staggered result-card reveal. */

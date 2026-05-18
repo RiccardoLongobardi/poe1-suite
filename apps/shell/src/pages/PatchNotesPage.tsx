@@ -29,6 +29,32 @@ interface Release {
 const RELEASES: Release[] = [
   {
     date: { it: "18 mag 2026", en: "18 May 2026" },
+    title: { it: "Interfaccia viva", en: "Living interface" },
+    summary: {
+      it: "Il sito ora respira: particelle, shimmer, numeri animati e caricamenti raffinati.",
+      en: "The site now breathes: particles, shimmer, animated numbers and refined loaders.",
+    },
+    entries: [
+      {
+        it: "Sfondo animato con particelle ember che reagiscono al movimento del mouse.",
+        en: "Animated ember particle background that reacts to mouse movement.",
+      },
+      {
+        it: "Gli oggetti Unique hanno un effetto shimmer dorato che scorre.",
+        en: "Unique items have a scrolling gold shimmer effect.",
+      },
+      {
+        it: "Le statistiche chiave (Vita, DPS, EHP…) si animano contando da zero all'apertura.",
+        en: "Key stats (Life, DPS, EHP…) count up from zero on load.",
+      },
+      {
+        it: "Skeleton loader in stile ember durante il caricamento dei risultati.",
+        en: "Ember-style skeleton loaders while results are loading.",
+      },
+    ],
+  },
+  {
+    date: { it: "18 mag 2026", en: "18 May 2026" },
     title: {
       it: "Pannello Trade: tutte le mod dell'oggetto",
       en: "Trade panel: all of the item's mods",

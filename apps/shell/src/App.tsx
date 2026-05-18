@@ -51,6 +51,7 @@ import {
   useNavigate,
 } from "react-router-dom";
 import { DonationModal } from "./components/DonationModal";
+import { ParticleCanvas } from "./components/ParticleCanvas";
 import { WarmupOverlay } from "./components/WarmupOverlay";
 import { useLang, useT } from "./i18n";
 import { HomePage } from "./pages/HomePage";
@@ -118,6 +119,8 @@ export function App() {
 
   return (
     <>
+      {/* Ambient ember particle field — fixed, behind all content. */}
+      <ParticleCanvas />
       {/* Cold-start overlay — covers the whole viewport above every
           route while the Render free-tier backend warms up. */}
       <WarmupOverlay />

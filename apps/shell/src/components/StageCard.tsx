@@ -808,7 +808,14 @@ function GearPanel({
                 </Text>
               </Table.Td>
               <Table.Td>
-                <Text size="sm" fw={500}>
+                <Text
+                  size="sm"
+                  fw={500}
+                  className={
+                    s.kind === "unique" ? "vs-unique-shimmer" : undefined
+                  }
+                  display="inline-block"
+                >
                   {s.item_name}
                 </Text>
               </Table.Td>
