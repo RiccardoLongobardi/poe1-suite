@@ -50,6 +50,16 @@ interface Props {
   /** Position in the result list — drives the staggered reveal delay. */
   index?: number;
   onSendToPlanner?: (pobCode: string) => void;
+  /**
+   * Population share of this build's main skill in the current ladder
+   * (0-100), if known. Drives the "X% of meta" line.
+   */
+  metaPct?: number;
+  /**
+   * Click the main skill name to filter the result list down to that
+   * skill. Undefined disables the drill-down affordance.
+   */
+  onDrillSkill?: (skill: string) => void;
 }
 
 function fmt(n: number): string {
@@ -173,7 +183,13 @@ function StatChip({
   );
 }
 
-export function BuildCard({ build, index, onSendToPlanner }: Props) {
+export function BuildCard({
+  build,
+  index,
+  onSendToPlanner,
+  metaPct,
+  onDrillSkill,
+}: Props) {
   const t = useT();
   const [opened, { toggle }] = useDisclosure(false);
   const [planLoading, setPlanLoading] = useState(false);
@@ -296,11 +312,35 @@ export function BuildCard({ build, index, onSendToPlanner }: Props) {
                   <Badge color="ember" variant="light" size="sm">
                     {ref["class"]}
                   </Badge>
-                  {ref.main_skill && (
-                    <Text fw={700} size="sm" truncate>
-                      {ref.main_skill}
-                    </Text>
-                  )}
+                  {ref.main_skill &&
+                    (onDrillSkill ? (
+                      <Tooltip
+                        label={t({
+                          it: `Filtra i risultati per ${ref.main_skill}`,
+                          en: `Filter the results by ${ref.main_skill}`,
+                        })}
+                        withArrow
+                        position="top"
+                      >
+                        <Text
+                          component="span"
+                          fw={700}
+                          size="sm"
+                          truncate
+                          className="drill-skill"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onDrillSkill(ref.main_skill!);
+                          }}
+                        >
+                          {ref.main_skill}
+                        </Text>
+                      </Tooltip>
+                    ) : (
+                      <Text fw={700} size="sm" truncate>
+                        {ref.main_skill}
+                      </Text>
+                    ))}
                   <Text
                     className="mono"
                     size="xs"
@@ -309,6 +349,25 @@ export function BuildCard({ build, index, onSendToPlanner }: Props) {
                   >
                     — Lv. {ref.level}
                   </Text>
+                  {typeof metaPct === "number" && metaPct > 0 && (
+                    <Tooltip
+                      label={t({
+                        it: "Quota di questa skill nella ladder corrente",
+                        en: "This skill's share of the current ladder",
+                      })}
+                      withArrow
+                      position="top"
+                    >
+                      <Badge
+                        color="ember"
+                        variant="outline"
+                        size="xs"
+                        style={{ flexShrink: 0 }}
+                      >
+                        {metaPct}% {t({ it: "del meta", en: "of meta" })}
+                      </Badge>
+                    </Tooltip>
+                  )}
                 </Group>
                 <Text
                   size="xs"

@@ -406,6 +406,17 @@ h6 {
   }
 }
 
+/* Clickable main-skill name on a BuildCard — drill-down affordance. */
+.drill-skill {
+  cursor: pointer;
+  transition: color 120ms ease;
+}
+.drill-skill:hover {
+  color: var(--vs-ember);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 /* Staggered result-card reveal. */
 @keyframes vs-card-reveal {
   from {

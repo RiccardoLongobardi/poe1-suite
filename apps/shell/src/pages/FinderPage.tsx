@@ -13,22 +13,24 @@
 import {
   Alert,
   Anchor,
+  Badge,
   Box,
   Button,
   Code,
-  Divider,
   Group,
   Loader,
   NumberInput,
+  Pill,
   Select,
   Stack,
   Text,
   Textarea,
   Title,
 } from "@mantine/core";
-import { IconEye } from "@tabler/icons-react";
-import { useMutation } from "@tanstack/react-query";
-import { useState } from "react";
+import { IconEye, IconSortDescending } from "@tabler/icons-react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMemo, useState } from "react";
+import { getPopulationStats } from "../api/builds";
 import { extractIntent, recommend } from "../api/fob";
 import type { BuildIntent, RecommendResponse, SortKey } from "../api/types";
 import { BuildCard } from "../components/BuildCard";
@@ -209,6 +211,9 @@ export function FinderPage({ onSendToPlanner }: Props) {
   const [intent, setIntent] = useState<BuildIntent | null>(null);
   const [overrides, setOverrides] = useState<FilterOverrides>(emptyOverrides());
   const [result, setResult] = useState<RecommendResponse | null>(null);
+  // Drill-down: when set, the result list is filtered client-side to
+  // builds whose main skill matches. Driven by clicking a skill name.
+  const [skillFilter, setSkillFilter] = useState<string | null>(null);
   // The hero search collapses to a compact row after a successful
   // extract; "modifica" expands it again.
   const [editing, setEditing] = useState(true);
@@ -219,14 +224,49 @@ export function FinderPage({ onSendToPlanner }: Props) {
       setIntent(data);
       setOverrides(overridesFromIntent(data));
       setResult(null);
+      setSkillFilter(null);
       setEditing(false);
     },
   });
 
   const recommendMut = useMutation({
     mutationFn: () => recommend(applyOverrides(intent!, overrides), topN),
-    onSuccess: setResult,
+    onSuccess: (data) => {
+      setResult(data);
+      setSkillFilter(null);
+    },
   });
+
+  // Population stats keyed on the active class filter — shares the
+  // TanStack cache with <PopulationStatsPanel> (same query key), so
+  // this adds no extra HTTP call. Capitalised to match poe.ninja's
+  // ascendancy casing. Only fetched once a result set exists.
+  const ascCapitalised = overrides.class_filter
+    ? overrides.class_filter.charAt(0).toUpperCase() +
+      overrides.class_filter.slice(1).toLowerCase()
+    : null;
+  const popQuery = useQuery({
+    queryKey: ["population-stats", ascCapitalised],
+    queryFn: () => getPopulationStats(ascCapitalised),
+    enabled: !!result,
+    staleTime: 10 * 60 * 1000,
+  });
+  // Map of lower-cased skill name → ladder share %, for the "X% of
+  // meta" line on each BuildCard.
+  const metaPct = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const s of popQuery.data?.top_skills ?? []) {
+      m.set(s.skill.trim().toLowerCase(), s.pct);
+    }
+    return m;
+  }, [popQuery.data]);
+
+  /** Toggle the drill-down skill filter (clicking the active one clears it). */
+  function handleDrillSkill(skill: string) {
+    setSkillFilter((cur) =>
+      cur && cur.toLowerCase() === skill.toLowerCase() ? null : skill,
+    );
+  }
 
   function patchOverrides(p: Partial<FilterOverrides>) {
     setOverrides((cur) => ({ ...cur, ...p }));
@@ -454,24 +494,65 @@ export function FinderPage({ onSendToPlanner }: Props) {
                   {(() => {
                     const ranked = result.ranked ?? [];
                     const total = (result.total_candidates ?? 0).toLocaleString();
+                    const displayed = skillFilter
+                      ? ranked.filter(
+                          (b) =>
+                            (b.ref.main_skill ?? "").toLowerCase() ===
+                            skillFilter.toLowerCase(),
+                        )
+                      : ranked;
+                    const sortLabel =
+                      SORT_KEYS.find((s) => s.value === overrides.sort_by) ??
+                      SORT_KEYS[0];
                     return (
                       <Stack gap="xs">
-                        <Divider
-                          label={
-                            <Text size="sm" fw={500}>
-                              {t({
-                                it: `Top ${ranked.length} build su ${total} candidati`,
-                                en: `Top ${ranked.length} builds of ${total} candidates`,
-                              })}
-                            </Text>
-                          }
-                        />
-                        {ranked.map((b, i) => (
+                        {/* Result header: count + active sort + drill-down chip */}
+                        <Group justify="space-between" wrap="wrap" gap="xs">
+                          <Text size="sm" fw={500}>
+                            {skillFilter
+                              ? t({
+                                  it: `${displayed.length} di ${ranked.length} build (filtro skill)`,
+                                  en: `${displayed.length} of ${ranked.length} builds (skill filter)`,
+                                })
+                              : t({
+                                  it: `Top ${ranked.length} build su ${total} candidati`,
+                                  en: `Top ${ranked.length} builds of ${total} candidates`,
+                                })}
+                          </Text>
+                          <Group gap={6}>
+                            {overrides.sort_by !== "score" && (
+                              <Badge
+                                variant="light"
+                                color="ember"
+                                leftSection={<IconSortDescending size={12} />}
+                              >
+                                {t({
+                                  it: `Ordinato per ${t({ it: sortLabel.it, en: sortLabel.en })}`,
+                                  en: `Sorted by ${t({ it: sortLabel.it, en: sortLabel.en })}`,
+                                })}
+                              </Badge>
+                            )}
+                            {skillFilter && (
+                              <Pill
+                                withRemoveButton
+                                size="md"
+                                onRemove={() => setSkillFilter(null)}
+                              >
+                                {t({ it: "skill", en: "skill" })}: {skillFilter}
+                              </Pill>
+                            )}
+                          </Group>
+                        </Group>
+                        {displayed.map((b, i) => (
                           <BuildCard
                             key={b.ref.source_id}
                             build={b}
                             index={i}
                             onSendToPlanner={onSendToPlanner}
+                            metaPct={metaPct.get(
+                              (b.ref.main_skill ?? "").toLowerCase(),
+                            )}
+                            onDrillSkill={handleDrillSkill}
                           />
                         ))}
                         {ranked.length === 0 && (
@@ -479,6 +560,14 @@ export function FinderPage({ onSendToPlanner }: Props) {
                             {t({
                               it: "Nessun candidato supera i filtri hard-constraint.",
                               en: "No candidate passes the hard-constraint filters.",
+                            })}
+                          </Text>
+                        )}
+                        {ranked.length > 0 && displayed.length === 0 && (
+                          <Text c="dimmed" ta="center" py="xl">
+                            {t({
+                              it: `Nessun build con la skill "${skillFilter}" nei risultati.`,
+                              en: `No build with the "${skillFilter}" skill in the results.`,
                             })}
                           </Text>
                         )}

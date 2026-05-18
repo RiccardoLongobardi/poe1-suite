@@ -98,6 +98,16 @@ New `/patch-notes` route — a static, data-driven changelog covering the full p
 
 Frontend-only, no backend change. To keep it current, add a new entry at the top of the `RELEASES` array when a feature ships.
 
+## Step 24 — Finder result-list polish (2026-05-18) ✅
+
+Prompt 014. Three frontend-only enrichments on `/finder`, no backend / API change.
+
+- **Active sort indicator.** When `sort_by != "score"` the result header shows a `<Badge>` (`IconSortDescending`) — e.g. "Ordinato per DPS ↓" — so the user sees the list isn't fit-ranked. The plain `<Divider>` count label was replaced by a `<Group justify="space-between">` header.
+- **"X% del meta" per BuildCard.** `FinderPage` runs a `useQuery(["population-stats", ascCapitalised])` — **same query key as `PopulationStatsPanel`**, so TanStack dedupes and it adds no extra HTTP call. `enabled: !!result` (only after a search). The `top_skills` are flattened into a `Map<lowercased skill, pct>`; each `BuildCard` gets a `metaPct` prop and renders a small outline ember `<Badge>` "{pct}% del meta" next to the level when its main skill is in the ladder top-skills.
+- **Per-skill drill-down.** The main-skill name on a `BuildCard` is now clickable (`.drill-skill` CSS hover → ember + underline). Clicking calls `onDrillSkill(skill)` → `FinderPage` `skillFilter` state filters the ranked list client-side to that skill. A removable `<Pill>` chip ("skill: X ✕") shows the active filter; clicking the same skill again toggles it off. No re-fetch — pure client-side filter over the existing result set.
+
+`skillFilter` resets on every new extract / recommend. Build 615 KB / 192 KB gzip.
+
 ## Bug — Finder result cards muddy grey in light mode (2026-05-17) ✅ fixed
 
 QA: the Build Finder result cards rendered as an embarrassing muddy

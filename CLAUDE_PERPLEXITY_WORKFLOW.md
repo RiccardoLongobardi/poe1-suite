@@ -133,12 +133,12 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 
 ### CANDIDATE FUTURE WORK
 
-- [ ] **Finder result-list polish** — sort indicator, "X% of meta" line, per-skill drill-down.
 - [ ] **Trade-aware gear redirect (Planner + Analyze)** — open official PoE Trade with prefilled base type + key stat filters for stage gear and PoB items; no pricing yet.
 - [ ] **Bundle code-splitting** — Vite warns at current bundle size; lazy-split Planner/Finder/Analyze routes.
 
 ### DONE
 
+- [x] **Step 24 — Finder result-list polish** (2026-05-18, Prompt 014) — Active sort indicator badge in the result header; "X% del meta" outline badge per BuildCard (population-stats `useQuery` shares the `PopulationStatsPanel` cache key — no extra HTTP); clickable main-skill name → client-side drill-down filter with a removable Pill chip. Frontend-only.
 - [x] **Bugfix — Finder result cards muddy grey in light mode** (2026-05-17) — `.vs-glass` hardcoded a dark void rgba inside its `@supports (backdrop-filter)` block, applying in both colour schemes. Added a `[data-mantine-color-scheme="light"] .vs-glass` override with a translucent warm cream tint. Frontend-only.
 - [x] **English support + uniform input font** (2026-05-15) — Lightweight in-house i18n (no dependency): `i18n.tsx` with `LangProvider` / `useT()`; translations co-located as `t({ it, en })`; language persisted to `localStorage`. Compact `IT | EN` toggle in the header next to the theme switch. Every page + component translated (App nav, Home, Welcome, Finder, Planner, Analyze, Patch Notes — fully bilingual — DonationModal, WarmupOverlay, ErrorBoundary). Also: all input fields unified to the Geist Mono font via one global `.mantine-Input-input` rule. Frontend-only. Build 610 KB / 190 KB gzip.
 - [x] **Patch Notes page** (2026-05-15) — New `/patch-notes` route: a static, data-driven changelog of the whole project history (Steps 1–23, deploy phases, the dynamic pivot, the redesign), newest first. Low-prominence navbar entry at the bottom, below a divider. Frontend-only. To keep it current, prepend a new entry to the `RELEASES` array in `PatchNotesPage.tsx` when a feature ships.
@@ -183,7 +183,6 @@ Reverse-chronological.
 
 Reusable templates. Self-contained — runnable today without past-chat context. When a prompt ships, move to §9.
 
-- **Prompt 014 (Finder result-list polish)** — Claude Code implements on `/finder` a visible sort indicator, a "X% of meta" line per BuildCard using existing population stats, and per-skill drill-down (click main skill to filter), frontend-only and dark/light-theme safe.
 - **Prompt 015 (Trade-aware gear redirect for Planner + Analyze)** — Claude Code adds client-side "Open Trade" actions for Planner stage gear and Analyze equipment items, building official PoE Trade URLs with league, base type and a few key stat filters, no pricing, no server-side GGG calls.
 - **Prompt 016 (Bundle code-splitting for Finder/Planner/Analyze)** — Claude Code switches Finder, Planner and Analyze pages to React.lazy + Suspense route-level code-splitting with small, styled fallbacks that coexist cleanly with the Divine Orb warmup overlay.
 
@@ -206,3 +205,4 @@ Closed prompts kept for context. Don't run these.
 - **Old Prompt 011 (Step 22b — Finder page redesign)** — Shipped 2026-05-15. ✅
 - **Old Prompt 012 (Step 22c — Planner timeline + Analyze polish)** — Shipped 2026-05-15. ✅
 - **Old Prompt 013 (Step 23 — Parchment light mode)** — Shipped 2026-05-15. ✅ `[data-mantine-color-scheme="light"]` CSS variable block, ember darkened to `#b07820` for WCAG, PoE1 rarity colours on cream, hardcoded hex purge from `theme.ts`.
+- **Old Prompt 014 (Step 24 — Finder result-list polish)** — Shipped 2026-05-18. ✅ Active sort indicator badge, "X% del meta" badge per BuildCard (shared population-stats query cache), clickable skill drill-down with removable Pill chip.
