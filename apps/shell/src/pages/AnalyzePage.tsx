@@ -237,8 +237,8 @@ function GearCell({
               color="ember"
               size="xs"
               title={t({
-                it: "Apri una ricerca pre-compilata su pathofexile.com/trade",
-                en: "Open a prefilled pathofexile.com/trade search",
+                it: "Apri pathofexile.com/trade con la ricerca già pronta per questo item",
+                en: "Open pathofexile.com/trade with the search ready for this item",
               })}
               aria-label={t({ it: "Apri su Trade", en: "Open on Trade" })}
               onClick={(e) => {

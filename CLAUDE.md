@@ -107,6 +107,15 @@ Frontend-only, no backend change.
 > Updating the `.md` files without updating the Patch Notes is an
 > incomplete step.
 
+## Step 30 — Trade prefill via backend + Planner collapsed-input fix (2026-05-18) ✅
+
+QA on Steps 28/29 found two regressions. Both fixed here. Frontend-only, no backend / API change, no new deps.
+
+- **Trade prefill — done properly, via the backend.** Steps 28/29 tried to reach a prefilled trade URL purely client-side (`?redirect&source=` browser navigation) — that endpoint **does not exist**; GGG returns `{"error":{"code":6,"message":"Forbidden"}}` for any direct navigation to a `pathofexile.com/api/` path. The real prefill needs a `search_id` minted by a POST to GGG's `/api/trade/search/<league>`. **Re-tested live 2026-05-18: `POST /fob/trade-url` on the Render backend successfully POSTs to GGG and returns a real `/trade/search/<league>/<id>` URL** — the 2026-05-14 "Render IP blacklisted → 403" note is **stale** (GGG unblocked the range or Render's egress IP rotated). So `openTradeSearch()` now: opens a blank tab synchronously (inside the click gesture, popup-blocker-safe, with an "Apertura ricerca…" placeholder), calls the existing `fetchTradeUrl()` client → `POST /fob/trade-url` (rate-limited + ~8 min cached server-side), and navigates the tab to the prefilled URL. Unique → `item_name` (+ base type); rare → `item_type` only. Falls back to the bare league page + clipboard copy on backend error or GGG 429 (`source: "rate_limited"`).
+- **Planner collapsed-input box ballooned.** After "Genera piano" the collapsed `<Code>` chip showed the full (multi-thousand-char) PoB string and **wrapped into a huge block** — `overflow:hidden`+`textOverflow:ellipsis` only truncate single-line text. Fixed: the `<Code>` now has `whiteSpace:"nowrap"` + `minWidth:0` (the flex item must be allowed to shrink below content size), so the code truncates to one ellipsised line.
+
+> **`tradeRedirect.ts` history note**: the module no longer copies a search term as the *primary* action — it opens a genuinely prefilled trade search. Clipboard copy survives only on the fallback path. Steps 25/28/29's "prefilled URL impossible / clipboard-only" conclusions are **superseded** — they were wrong about the Render IP block, which no longer holds.
+
 ## Step 29 — Trade redirect 403 fix + Planner input parity (2026-05-18) ✅
 
 Prompt 019. Two frontend-only QA fixes from Steps 27/28. No backend / API change, no new deps.

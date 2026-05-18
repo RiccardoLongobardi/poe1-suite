@@ -30,17 +30,17 @@ const RELEASES: Release[] = [
   {
     date: { it: "18 mag 2026", en: "18 May 2026" },
     title: {
-      it: "Fix ricerca Trade + input Planner",
-      en: "Trade search fix + Planner input",
+      it: "Ricerca Trade pre-compilata (funzionante)",
+      en: "Prefilled Trade search (working)",
     },
     entries: [
       {
-        it: "L'icona Trade ora apre correttamente la pagina pathofexile.com/trade pre-compilata — risolto un blocco che restituiva un errore.",
-        en: "The Trade icon now correctly opens the prefilled pathofexile.com/trade page — fixed a block that returned an error.",
+        it: "L'icona Trade ora apre davvero pathofexile.com/trade con la ricerca già pronta per l'item — si apre subito una scheda e dopo un istante mostra i risultati filtrati.",
+        en: "The Trade icon now really opens pathofexile.com/trade with the search ready for the item — a tab opens immediately and shows the filtered results a moment later.",
       },
       {
-        it: "Il campo per incollare il PoB nel Planner ora è identico a quello della pagina Analizza.",
-        en: "The PoB input field in the Planner now matches the one on the Analyse page.",
+        it: "Risolto un problema per cui, dopo \"Genera piano\", il riquadro del codice nel Planner diventava enorme: ora resta su una riga compatta.",
+        en: 'Fixed an issue where, after "Generate plan", the code box in the Planner ballooned: it now stays on one compact line.',
       },
     ],
   },

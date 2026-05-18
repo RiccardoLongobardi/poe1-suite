@@ -27,8 +27,8 @@ Don't trust earlier versions of this file — the section below is the authorita
 - **Light mode**: \"Parchment\" theme (Step 23, done 2026-05-15) — warm cream backgrounds (`#f2ece0`), ink-on-parchment text (`#2a1f0e`), ember gold as accent only. Pairs with the Void Stone dark mode. ✅ QA passed.
 - **Dynamic-synthesis pivot complete** (Steps 16/17/18/19, all done).
 - **Step 27 (QA batch + Zustand state persistence) DONE 2026-05-18** — see §6.
-- **Step 28 (Trade redirect v2 — prefilled URLs) DONE 2026-05-18** — initial QA found a GGG `code 6 Forbidden`; **fixed in Step 29** (programmatic `<a>` click instead of `window.open`).
-- **Step 29 (Trade redirect 403 fix + Planner input parity) DONE 2026-05-18** — see §6.
+- **Step 28/29 (client-side prefilled Trade URL) — ABANDONED.** The `?redirect&source=` GET-prefill mechanism does not exist; GGG 403s any direct navigation to a `/api/` path. Superseded by Step 30.
+- **Step 30 (Trade prefill via backend + Planner collapsed-input fix) DONE 2026-05-18** — `openTradeSearch()` opens a blank tab then calls `POST /fob/trade-url` (which **works again** from Render — the old IP block is stale) for a real `/trade/search/<league>/<id>` URL. Planner collapsed `<Code>` no longer balloons (`whiteSpace:nowrap`+`minWidth:0`). See §6/§7.
 
 If anything you read in this file or in `CLAUDE.md` contradicts the above, **the above wins**.
 
@@ -76,7 +76,7 @@ The §1 snapshot is hand-maintained — it might lag a few hours after a feature
 |---|---|---|---|
 | Live economy | `poe.ninja` economy JSON | `diskcache` 15 min TTL | Per-request |
 | Build ladder | `poe.ninja` builds protobuf | `diskcache` 15 min TTL | Per-request |
-| Trade search | GGG `/api/trade/search` | in-memory 8 min TTL | Client-side redirect only (Render IP blacklisted) |
+| Trade search | GGG `/api/trade/search` via `POST /fob/trade-url` | in-memory 8 min TTL | Backend POST works from Render again (re-verified 2026-05-18); frontend opens the returned prefilled URL |
 | Passive tree | GGG vendored JSON | `packages/fob/data/tree/3_28.json` | Manual per league |
 | Item bases | repoe-fork JSON | `packages/fob/data/items/base_items.json` | Manual per league |
 
@@ -139,6 +139,7 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 
 ### DONE
 
+- [x] **Step 30 — Trade prefill via backend + Planner collapsed-input fix** (2026-05-18) — QA fix for Steps 28/29. `openTradeSearch()` opens a blank tab synchronously, calls `POST /fob/trade-url` (re-verified working from Render — GGG returns a real `search_id`), and navigates the tab to the prefilled `/trade/search/<league>/<id>` URL; bare-page + clipboard fallback on error/429. Planner collapsed `<Code>` chip no longer balloons (`whiteSpace:nowrap` + `minWidth:0`). Frontend-only.
 - [x] **Step 29 — Trade redirect 403 fix + Planner input parity** (2026-05-18, Prompt 019) — `openTradeSearch()` navigates via a programmatic `<a>` click instead of `window.open` (GGG/Cloudflare 403'd the `window.open` Referer); the Planner PoB input form now mirrors Analyze (flex `TextInput` + button in one row, Ctrl+Enter hint below, Planner controls underneath). Frontend-only.
 - [x] **Step 28 — Trade redirect v2: prefilled URLs** (2026-05-18, Prompt 018) — `openTradeSearch()` opens a prefilled pathofexile.com/trade search via GGG's `?redirect&source=` browser-navigation endpoint (`window.open`, not `fetch` — no CORS, no backend). Uniques → name + base type; rares → base type. Reuses the existing `/health`-fed cached league (`getResolvedLeague()` — no new hook/endpoint). Graceful fallback to bare page + clipboard + toast when the league hasn't resolved. Frontend-only, no new deps. **QA failed — GGG returns code 6 Forbidden. Fixed in Step 29.**
 - [x] **Step 27 — QA batch fixes + Zustand state persistence** (2026-05-18, Prompt 017) — Five frontend-only fixes: Finder \"Copy PoB\" copies the PoB code; Analyze + Planner accept poe.ninja character URLs (resolved via existing `/builds/detail` — no new endpoint); light-mode colour fixes on Analyze + Planner (`var(--mantine-color-dark-N)` / `bg=\"dark.7\"` → `var(--vs-*)` tokens); Planner input compacted to a `TextInput`; cross-route state persistence via a new Zustand `pageStore` (`sessionStorage`-backed, in-memory fallback). New dep: `zustand` 5. Deviation: Fix 1 copies the raw PoB code, not a `pobb.in/<code>` URL (pobb.in does not resolve raw codes in its path). **QA note: Planner input visual parity with Analyze not achieved — fixed in Step 29.**
@@ -171,6 +172,8 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 ## 7. Decision log
 
 Reverse-chronological.
+
+- **2026-05-18** — *Trade prefill done via the backend; `?redirect&source=` abandoned.* The client-side `?redirect&source=` GET-prefill (Steps 28/29) does not work — GGG 403s any direct browser navigation to a `/api/` path (`code 6 Forbidden`); the mechanism never existed. **`POST /fob/trade-url` on Render was re-tested live and works** — it POSTs to GGG and gets a real `search_id`. The 2026-05-14 "server-side Trade impossible / Render IP blacklisted" decision is **stale** and reversed: the backend POST is the supported path. Frontend opens a blank tab, calls `/fob/trade-url`, navigates the tab to the prefilled URL.
 
 - **2026-05-18** — *Trade redirect `window.open()` blocked by Cloudflare (GGG code 6 Forbidden).* `window.open(url, '_blank')` from a Vercel origin sends either a null `Referer` or `Referer: https://fob-ten.vercel.app`, which Cloudflare/GGG rejects as a non-whitelisted origin. The fix is to simulate a real user click via a programmatic `<a>` element: `const a = document.createElement('a'); a.href = url; a.target = '_blank'; a.rel = 'noopener noreferrer'; document.body.appendChild(a); a.click(); document.body.removeChild(a);`. This causes the browser to treat the navigation as a user-initiated link click, sending the correct `Referer` (or none, depending on the `rel` policy) in a way Cloudflare accepts. poe.ninja uses plain `<a href target="_blank">` links for the same reason.
 - **2026-05-18** — *Trade redirect v2: `?redirect&source=` pattern confirmed viable.* GGG exposes an undocumented but stable browser-navigation trick: a GET request to `https://www.pathofexile.com/api/trade/search/<league>?redirect&source=<JSON>` causes GGG's own servers to POST the query, create the search ID, and redirect the browser to `/trade/search/<league>/<id>`. Because this is a full browser navigation (not a `fetch()`), CORS does not apply. The user lands on a fully prefilled trade search page. Pattern confirmed documented in the PoE dev community since 2018 and still functional. No backend changes needed — pure frontend.

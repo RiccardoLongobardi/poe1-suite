@@ -453,7 +453,15 @@ export function PlannerPage({ initialInput }: Props) {
         </>
       ) : (
         <Group gap={8} wrap="nowrap">
-          <Code style={{ overflow: "hidden", textOverflow: "ellipsis", flex: 1 }}>
+          <Code
+            style={{
+              flex: 1,
+              minWidth: 0,
+              overflow: "hidden",
+              whiteSpace: "nowrap",
+              textOverflow: "ellipsis",
+            }}
+          >
             {input.trim()}
           </Code>
           <Anchor

@@ -128,8 +128,8 @@ function ItemRow({
       <Table.Td style={{ width: 36 }}>
         <Tooltip
           label={t({
-            it: "Apri una ricerca pre-compilata su pathofexile.com/trade",
-            en: "Open a prefilled pathofexile.com/trade search",
+            it: "Apri pathofexile.com/trade con la ricerca già pronta per questo item",
+            en: "Open pathofexile.com/trade with the search ready for this item",
           })}
           withArrow
           multiline
