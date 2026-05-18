@@ -70,24 +70,49 @@ export interface TradeRedirectItem {
 }
 
 /**
- * Open the GGG Trade search page in a new tab and copy ``item.name``
- * to the clipboard so the user can paste-and-search.
+ * Pick the most useful string to drop on the clipboard for a Trade
+ * search.
+ *
+ * For a **unique** the name *is* the search term — paste it into the
+ * Trade "Name" field. For a **rare/magic/normal** item the name is a
+ * randomly-rolled string that returns nothing on Trade; what the user
+ * actually wants to search is the **base type** (e.g. "Stygian Vise",
+ * "Two-Toned Boots"). So we prefer ``base_type`` for non-uniques and
+ * fall back to the name when the base is unknown.
+ */
+export function tradeClipboardText(item: TradeRedirectItem): string {
+  const rarity = (item.rarity ?? "").toLowerCase();
+  const base = item.base_type?.trim();
+  if (rarity !== "unique" && base) return base;
+  return item.name;
+}
+
+/**
+ * Open the GGG Trade search page in a new tab and copy the most useful
+ * search term to the clipboard so the user can paste-and-search.
  *
  * Synchronous so it stays inside the user-gesture window (popup
  * blockers stay quiet). The clipboard write is best-effort: it can
  * fail silently on insecure contexts or denied permission, but the
  * redirect still happens.
  *
- * Pre-filling the search (name / base / mods → search_id) requires
- * calling GGG's API server-side, which is blocked from Render's IP.
- * See the module docstring for the full story.
+ * The clipboard term is the unique name for uniques, the base type for
+ * rares/magics — see :func:`tradeClipboardText`.
+ *
+ * Pre-filling the search itself (name / base / mods → a search_id in
+ * the URL) requires calling GGG's ``/api/trade/search`` endpoint. That
+ * is blocked with HTTP 403 from Render's datacenter IP range, and a
+ * direct browser ``fetch`` to it fails CORS — so a true prefilled
+ * Trade URL is not reachable from the deployed SPA. We open the bare
+ * league search page and pre-copy the term instead. See the module
+ * docstring for the full diagnosis.
  */
 export function openTradeForItem(item: TradeRedirectItem): void {
   try {
-    void navigator.clipboard.writeText(item.name);
+    void navigator.clipboard.writeText(tradeClipboardText(item));
   } catch {
     // Non-secure context or denied — silently skip the clipboard
-    // write. The user can still type the name manually on Trade.
+    // write. The user can still type the term manually on Trade.
   }
   const league = getLeague();
   const url = `https://www.pathofexile.com/trade/search/${encodeURIComponent(league)}`;

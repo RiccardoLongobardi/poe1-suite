@@ -12,6 +12,7 @@
 
 import {
   Accordion,
+  ActionIcon,
   Alert,
   Anchor,
   Badge,
@@ -39,6 +40,7 @@ import {
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { analyzePob } from "../api/fob";
+import { openTradeForItem } from "../api/tradeRedirect";
 import type {
   AnalyzePobResponse,
   ItemRarity,
@@ -223,11 +225,33 @@ function GearCell({
           <Text size="10px" c="dimmed" tt="uppercase" fw={600}>
             {label}
           </Text>
-          {item.corrupted && (
-            <Badge color="red" size="xs" variant="filled" px={5}>
-              C
-            </Badge>
-          )}
+          <Group gap={4} wrap="nowrap" style={{ flexShrink: 0 }}>
+            {item.corrupted && (
+              <Badge color="red" size="xs" variant="filled" px={5}>
+                C
+              </Badge>
+            )}
+            <ActionIcon
+              variant="subtle"
+              color="ember"
+              size="xs"
+              title={t({
+                it: "Apri su pathofexile.com/trade (termine copiato negli appunti)",
+                en: "Open on pathofexile.com/trade (search term copied to clipboard)",
+              })}
+              aria-label={t({ it: "Apri su Trade", en: "Open on Trade" })}
+              onClick={(e) => {
+                e.stopPropagation();
+                openTradeForItem({
+                  name: item.name ?? item.base_type,
+                  rarity: item.rarity,
+                  base_type: item.base_type,
+                });
+              }}
+            >
+              <IconExternalLink size={11} />
+            </ActionIcon>
+          </Group>
         </Group>
         <Text size="xs" fw={600} truncate>
           {item.name ?? item.base_type}

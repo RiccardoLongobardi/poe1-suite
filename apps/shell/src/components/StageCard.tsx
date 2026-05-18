@@ -734,6 +734,10 @@ function GearPanel({
     leveling: "gray",
     skip: "dark",
   };
+  // Kinds whose `item_name` is a real, searchable item name (a named
+  // unique). `rare_craft` is a description ("rare body 6L (life + 2
+  // res)") and `skip` is not an item — neither gets a Trade link.
+  const TRADEABLE_KINDS = new Set(["unique", "leveling"]);
 
   return (
     <Stack gap="sm">
@@ -749,6 +753,7 @@ function GearPanel({
             <Table.Th>Item</Table.Th>
             <Table.Th>{t({ it: "Tipo", en: "Type" })}</Table.Th>
             <Table.Th>{t({ it: "Note", en: "Notes" })}</Table.Th>
+            <Table.Th w={36} />
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
@@ -773,6 +778,31 @@ function GearPanel({
                 <Text size="xs" c="dimmed">
                   {s.notes}
                 </Text>
+              </Table.Td>
+              <Table.Td style={{ width: 36 }}>
+                {TRADEABLE_KINDS.has(s.kind) && (
+                  <Tooltip
+                    label={t({
+                      it: "Apri pathofexile.com/trade — il nome è copiato negli appunti, incollalo nella search",
+                      en: "Open pathofexile.com/trade — the name is copied to the clipboard, paste it into the search",
+                    })}
+                    withArrow
+                    multiline
+                    w={250}
+                  >
+                    <ActionIcon
+                      variant="subtle"
+                      color="ember"
+                      size="sm"
+                      onClick={() =>
+                        openTradeForItem({ name: s.item_name, rarity: "unique" })
+                      }
+                      aria-label={t({ it: "Apri su Trade", en: "Open on Trade" })}
+                    >
+                      <IconExternalLink size={14} />
+                    </ActionIcon>
+                  </Tooltip>
+                )}
               </Table.Td>
             </Table.Tr>
           ))}

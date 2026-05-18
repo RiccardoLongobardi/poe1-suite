@@ -98,6 +98,18 @@ New `/patch-notes` route — a static, data-driven changelog covering the full p
 
 Frontend-only, no backend change. To keep it current, add a new entry at the top of the `RELEASES` array when a feature ships.
 
+## Step 25 — Trade redirect on Planner gear + Analyze equipment (2026-05-18) ✅
+
+Prompt 015. Extends the existing client-side Trade redirect (already on the Planner *Overview* tab item rows) to two more surfaces. Frontend-only, no backend / API change.
+
+- **`tradeRedirect.ts`** — new exported `tradeClipboardText(item)` picks the most useful search term: the **unique name** for uniques, the **base type** for rares/magics (a rolled rare name returns nothing on Trade — the base type is what the user actually searches). `openTradeForItem` now copies that smart term instead of always the name.
+- **Planner Gear tab** (`GearPanel` in `StageCard.tsx`) — each `StageGearSlot` row gets a Trade `ActionIcon` for `kind ∈ {unique, leveling}` (real, searchable item names). `rare_craft` (a description, not a name) and `skip` get no link.
+- **Analyze equipment** (`GearCell` in `AnalyzePage.tsx`) — every populated gear/flask/jewel cell gets a small Trade `ActionIcon` in its header. Uniques copy the name, rares copy the base type.
+
+**Why no true prefilled Trade URL**: GGG's `/api/trade/search` (the call that mints a `search_id` for a prefilled `/trade/search/<league>/<id>` URL) returns HTTP 403 from Render's datacenter IP range, and a direct browser `fetch` to it from the SPA fails CORS. So a genuinely prefilled Trade link is unreachable from the deployed app. The redirect opens the bare league search page and pre-copies the search term to the clipboard — one paste away from the result. This limitation is documented at length in `tradeRedirect.ts`.
+
+Build 616 KB / 192 KB gzip.
+
 ## Step 24 — Finder result-list polish (2026-05-18) ✅
 
 Prompt 014. Three frontend-only enrichments on `/finder`, no backend / API change.
