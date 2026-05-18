@@ -133,10 +133,11 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 
 ### CANDIDATE FUTURE WORK
 
-- [ ] **Bundle code-splitting** — Vite warns at current bundle size; lazy-split Planner/Finder/Analyze routes.
+- *(nothing queued — Prompts 014/015/016 all shipped. Pick the next slice at the next planning session.)*
 
 ### DONE
 
+- [x] **Step 26 — Route-level code-splitting** (2026-05-18, Prompt 016) — `App.tsx` lazy-loads Finder/Analyze/Planner via `React.lazy` + `Suspense`; a small Cinzel `RouteFallback` loader covers the chunk fetch. Initial bundle 616 KB → 438 KB (gzip 192 → 139 KB), Vite chunk-size warning gone. Frontend-only.
 - [x] **Step 25 — Trade redirect on Planner gear + Analyze equipment** (2026-05-18, Prompt 015) — Extended the existing client-side Trade redirect to the Planner Gear tab rows (`kind ∈ {unique, leveling}`) and every Analyze equipment/flask/jewel cell. New `tradeClipboardText()` copies the unique name for uniques and the base type for rares. True prefilled Trade URLs are unreachable (GGG 403 from Render IP + CORS block on a browser fetch) — documented in `tradeRedirect.ts`. Frontend-only.
 - [x] **Step 24 — Finder result-list polish** (2026-05-18, Prompt 014) — Active sort indicator badge in the result header; "X% del meta" outline badge per BuildCard (population-stats `useQuery` shares the `PopulationStatsPanel` cache key — no extra HTTP); clickable main-skill name → client-side drill-down filter with a removable Pill chip. Frontend-only.
 - [x] **Bugfix — Finder result cards muddy grey in light mode** (2026-05-17) — `.vs-glass` hardcoded a dark void rgba inside its `@supports (backdrop-filter)` block, applying in both colour schemes. Added a `[data-mantine-color-scheme="light"] .vs-glass` override with a translucent warm cream tint. Frontend-only.
@@ -183,7 +184,7 @@ Reverse-chronological.
 
 Reusable templates. Self-contained — runnable today without past-chat context. When a prompt ships, move to §9.
 
-- **Prompt 016 (Bundle code-splitting for Finder/Planner/Analyze)** — Claude Code switches Finder, Planner and Analyze pages to React.lazy + Suspense route-level code-splitting with small, styled fallbacks that coexist cleanly with the Divine Orb warmup overlay.
+*(no active prompts — Prompts 014/015/016 all shipped, see §9)*
 
 ---
 
@@ -206,3 +207,4 @@ Closed prompts kept for context. Don't run these.
 - **Old Prompt 013 (Step 23 — Parchment light mode)** — Shipped 2026-05-15. ✅ `[data-mantine-color-scheme="light"]` CSS variable block, ember darkened to `#b07820` for WCAG, PoE1 rarity colours on cream, hardcoded hex purge from `theme.ts`.
 - **Old Prompt 014 (Step 24 — Finder result-list polish)** — Shipped 2026-05-18. ✅ Active sort indicator badge, "X% del meta" badge per BuildCard (shared population-stats query cache), clickable skill drill-down with removable Pill chip.
 - **Old Prompt 015 (Step 25 — Trade redirect on Planner gear + Analyze equipment)** — Shipped 2026-05-18. ✅ `tradeClipboardText()` smart clipboard term; Trade ActionIcon on Planner Gear-tab rows + Analyze equipment cells. True prefilled URL impossible (GGG 403 + CORS).
+- **Old Prompt 016 (Step 26 — Route-level code-splitting)** — Shipped 2026-05-18. ✅ `React.lazy` + `Suspense` for Finder/Analyze/Planner; `RouteFallback` Cinzel loader. Initial bundle 616 KB → 438 KB (gzip 192 → 139 KB).

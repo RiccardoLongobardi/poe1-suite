@@ -98,6 +98,15 @@ New `/patch-notes` route — a static, data-driven changelog covering the full p
 
 Frontend-only, no backend change. To keep it current, add a new entry at the top of the `RELEASES` array when a feature ships.
 
+## Step 26 — Route-level code-splitting (2026-05-18) ✅
+
+Prompt 016. The Vite build had been warning that the single bundle exceeded 500 KB. `App.tsx` now lazy-loads the three heaviest feature pages. Frontend-only, no behaviour change.
+
+- **`App.tsx`** — `FinderPage`, `AnalyzePage`, `PlannerPage` are now `React.lazy(() => import(...).then(m => ({ default: m.XPage })))` (named-export adapter). The `<Routes>` is wrapped in `<Suspense fallback={<RouteFallback/>}>`. `HomePage` / `WelcomePage` / `PatchNotesPage` stay eager (small, and Home is the usual first render).
+- **`RouteFallback`** — a small inline centred loader (Mantine `Loader color="ember"` + Cinzel "Evoco la pagina…" bilingual). Lives inside `AppShell.Main`, so the navbar/header stay put; it never overlaps the full-viewport `WarmupOverlay` (which sits at a higher z-index during the Render cold-start).
+
+Result: initial bundle **616 KB → 438 KB** (gzip 192 → 139 KB), Vite chunk-size warning gone. Split chunks: `FinderPage` 91 KB, `PlannerPage` 35 KB, `AnalyzePage` 17 KB, plus shared `fob` / `ErrorBoundary` chunks.
+
 ## Step 25 — Trade redirect on Planner gear + Analyze equipment (2026-05-18) ✅
 
 Prompt 015. Extends the existing client-side Trade redirect (already on the Planner *Overview* tab item rows) to two more surfaces. Frontend-only, no backend / API change.

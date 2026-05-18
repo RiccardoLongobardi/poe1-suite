@@ -16,11 +16,13 @@
 import {
   ActionIcon,
   AppShell,
+  Box,
   Burger,
   Button,
   Container,
   Divider,
   Group,
+  Loader,
   NavLink,
   SegmentedControl,
   Text,
@@ -39,7 +41,7 @@ import {
   IconSun,
   IconTool,
 } from "@tabler/icons-react";
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { prefetchLeague } from "./api/tradeRedirect";
 import {
   Navigate,
@@ -51,13 +53,53 @@ import {
 import { DonationModal } from "./components/DonationModal";
 import { WarmupOverlay } from "./components/WarmupOverlay";
 import { useLang, useT } from "./i18n";
-import { AnalyzePage } from "./pages/AnalyzePage";
-import { FinderPage } from "./pages/FinderPage";
 import { HomePage } from "./pages/HomePage";
 import { PatchNotesPage } from "./pages/PatchNotesPage";
-import { PlannerPage } from "./pages/PlannerPage";
 import { WelcomePage } from "./pages/WelcomePage";
 import { hasSeenWelcome } from "./state/welcome";
+
+// Route-level code-splitting. The three heaviest feature pages (each
+// pulls in its own chart/planner/analysis machinery) are lazy-loaded
+// so the initial bundle only carries the shell + landing. They are
+// named exports, hence the `.then(m => ({ default: ... }))` adapter.
+// HomePage / WelcomePage / PatchNotesPage stay eager — they are small
+// and HomePage is the first thing most sessions render.
+const FinderPage = lazy(() =>
+  import("./pages/FinderPage").then((m) => ({ default: m.FinderPage })),
+);
+const AnalyzePage = lazy(() =>
+  import("./pages/AnalyzePage").then((m) => ({ default: m.AnalyzePage })),
+);
+const PlannerPage = lazy(() =>
+  import("./pages/PlannerPage").then((m) => ({ default: m.PlannerPage })),
+);
+
+/**
+ * Inline fallback shown while a lazy route chunk loads. Lives inside
+ * `AppShell.Main` so the navbar/header stay put; it never overlaps the
+ * full-viewport WarmupOverlay (which sits above everything at a higher
+ * z-index during the Render cold-start).
+ */
+function RouteFallback() {
+  const t = useT();
+  return (
+    <Box
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        minHeight: "50vh",
+        gap: 12,
+      }}
+    >
+      <Loader color="ember" />
+      <Text size="sm" c="dimmed" style={{ fontFamily: "'Cinzel', serif" }}>
+        {t({ it: "Evoco la pagina…", en: "Summoning the page…" })}
+      </Text>
+    </Box>
+  );
+}
 
 /**
  * Root chrome. The welcome route renders edge-to-edge without the
@@ -254,20 +296,22 @@ function ShellLayout() {
 
       <AppShell.Main>
         <Container size="xl">
-          <Routes>
-            <Route path="/home" element={<HomePage />} />
-            <Route
-              path="/finder"
-              element={<FinderPage onSendToPlanner={onSendToPlanner} />}
-            />
-            <Route path="/analyze" element={<AnalyzePage />} />
-            <Route
-              path="/planner"
-              element={<PlannerPage initialInput={plannerInput} />}
-            />
-            <Route path="/patch-notes" element={<PatchNotesPage />} />
-            <Route path="*" element={<Navigate to="/home" replace />} />
-          </Routes>
+          <Suspense fallback={<RouteFallback />}>
+            <Routes>
+              <Route path="/home" element={<HomePage />} />
+              <Route
+                path="/finder"
+                element={<FinderPage onSendToPlanner={onSendToPlanner} />}
+              />
+              <Route path="/analyze" element={<AnalyzePage />} />
+              <Route
+                path="/planner"
+                element={<PlannerPage initialInput={plannerInput} />}
+              />
+              <Route path="/patch-notes" element={<PatchNotesPage />} />
+              <Route path="*" element={<Navigate to="/home" replace />} />
+            </Routes>
+          </Suspense>
         </Container>
       </AppShell.Main>
 
