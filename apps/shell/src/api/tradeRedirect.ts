@@ -211,5 +211,16 @@ export function openTradeSearch(item: TradeRedirectItem): void {
   const url = `https://www.pathofexile.com/api/trade/search/${encodeURIComponent(
     league,
   )}?redirect&source=${encoded}`;
-  window.open(url, "_blank", "noopener,noreferrer");
+  // Navigate via a programmatic <a> click, NOT window.open. From a
+  // Vercel origin, window.open sends a Referer GGG's Cloudflare front
+  // rejects ({"error":{"code":6,"message":"Forbidden"}}). A synthetic
+  // link click is treated as a user-initiated navigation and passes —
+  // the same pattern poe.ninja uses for its trade links.
+  const a = document.createElement("a");
+  a.href = url;
+  a.target = "_blank";
+  a.rel = "noopener noreferrer";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 }

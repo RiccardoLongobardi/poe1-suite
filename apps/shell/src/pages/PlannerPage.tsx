@@ -395,37 +395,39 @@ export function PlannerPage({ initialInput }: Props) {
             })}
           </Text>
 
-          <TextInput
-            placeholder="https://pobb.in/xxxx  ·  poe.ninja/builds/…  ·  eNqtVct…"
-            value={input}
-            onChange={(e) => setPlanner({ input: e.currentTarget.value })}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) void start();
-            }}
-          />
+          {/* Input row — same layout as the Analyze PoB input:
+              flex TextInput + action button side by side, Ctrl+Enter
+              hint below. */}
+          <Group align="flex-end" gap="sm" wrap="nowrap">
+            <TextInput
+              flex={1}
+              placeholder="https://pobb.in/xxxx  ·  poe.ninja/builds/…  ·  eNqtVct…"
+              value={input}
+              onChange={(e) => setPlanner({ input: e.currentTarget.value })}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) void start();
+              }}
+            />
+            <Button
+              onClick={() => void start()}
+              loading={running}
+              disabled={!input.trim() || running}
+            >
+              {t({ it: "Genera piano", en: "Generate plan" })}
+            </Button>
+          </Group>
+          <Text size="xs" c="dimmed">
+            {t({ it: "Ctrl+Enter per inviare", en: "Ctrl+Enter to submit" })}
+          </Text>
 
-          <Group justify="space-between" wrap="wrap">
+          {/* Planner-specific controls: target goal + reverse mode. */}
+          <Group justify="space-between" wrap="wrap" align="center">
             <SegmentedControl
               data={targetOptions}
               value={target}
               onChange={(v) => setPlanner({ target: v as TargetGoal })}
               size="sm"
             />
-            <Group>
-              <Button
-                onClick={() => void start()}
-                loading={running}
-                disabled={!input.trim() || running}
-              >
-                {t({ it: "Genera piano", en: "Generate plan" })}
-              </Button>
-              <Text size="xs" c="dimmed">
-                Ctrl+Enter
-              </Text>
-            </Group>
-          </Group>
-
-          <Group gap={8}>
             <Tooltip
               multiline
               w={320}

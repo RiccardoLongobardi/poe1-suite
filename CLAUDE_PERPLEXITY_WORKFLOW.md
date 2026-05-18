@@ -27,7 +27,8 @@ Don't trust earlier versions of this file — the section below is the authorita
 - **Light mode**: \"Parchment\" theme (Step 23, done 2026-05-15) — warm cream backgrounds (`#f2ece0`), ink-on-parchment text (`#2a1f0e`), ember gold as accent only. Pairs with the Void Stone dark mode. ✅ QA passed.
 - **Dynamic-synthesis pivot complete** (Steps 16/17/18/19, all done).
 - **Step 27 (QA batch + Zustand state persistence) DONE 2026-05-18** — see §6.
-- **Step 28 (Trade redirect v2 — prefilled URLs) DONE 2026-05-18 — QA FAILED** — Trade redirect returns GGG `{"error":{"code":6,"message":"Forbidden"}}` in production. Root cause identified (see §7). Step 29 will fix it.
+- **Step 28 (Trade redirect v2 — prefilled URLs) DONE 2026-05-18** — initial QA found a GGG `code 6 Forbidden`; **fixed in Step 29** (programmatic `<a>` click instead of `window.open`).
+- **Step 29 (Trade redirect 403 fix + Planner input parity) DONE 2026-05-18** — see §6.
 
 If anything you read in this file or in `CLAUDE.md` contradicts the above, **the above wins**.
 
@@ -124,9 +125,7 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 
 ### IN PROGRESS
 
-- **Step 29 — Trade redirect fix (`<a>` click) + Planner input parity** — Prompt 019 in §8. Two fixes:
-  1. `openTradeSearch()`: replace `window.open()` with a programmatic `<a>` click so the browser sends a proper `Referer` header and GGG Cloudflare doesn't 403.
-  2. Planner PoB input: visually align the input box to match Analyze (same `Textarea` / card style, same placeholder copy).
+- *(nothing)*
 
 ### NEXT
 
@@ -134,13 +133,13 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 
 ### CANDIDATE FUTURE WORK
 
-- Trade redirect (backlog item, tracked)
 - Build generator (backlog item, tracked)
 - Atlas x build generator (backlog item, tracked)
 - Item filter generator (backlog item, tracked)
 
 ### DONE
 
+- [x] **Step 29 — Trade redirect 403 fix + Planner input parity** (2026-05-18, Prompt 019) — `openTradeSearch()` navigates via a programmatic `<a>` click instead of `window.open` (GGG/Cloudflare 403'd the `window.open` Referer); the Planner PoB input form now mirrors Analyze (flex `TextInput` + button in one row, Ctrl+Enter hint below, Planner controls underneath). Frontend-only.
 - [x] **Step 28 — Trade redirect v2: prefilled URLs** (2026-05-18, Prompt 018) — `openTradeSearch()` opens a prefilled pathofexile.com/trade search via GGG's `?redirect&source=` browser-navigation endpoint (`window.open`, not `fetch` — no CORS, no backend). Uniques → name + base type; rares → base type. Reuses the existing `/health`-fed cached league (`getResolvedLeague()` — no new hook/endpoint). Graceful fallback to bare page + clipboard + toast when the league hasn't resolved. Frontend-only, no new deps. **QA failed — GGG returns code 6 Forbidden. Fixed in Step 29.**
 - [x] **Step 27 — QA batch fixes + Zustand state persistence** (2026-05-18, Prompt 017) — Five frontend-only fixes: Finder \"Copy PoB\" copies the PoB code; Analyze + Planner accept poe.ninja character URLs (resolved via existing `/builds/detail` — no new endpoint); light-mode colour fixes on Analyze + Planner (`var(--mantine-color-dark-N)` / `bg=\"dark.7\"` → `var(--vs-*)` tokens); Planner input compacted to a `TextInput`; cross-route state persistence via a new Zustand `pageStore` (`sessionStorage`-backed, in-memory fallback). New dep: `zustand` 5. Deviation: Fix 1 copies the raw PoB code, not a `pobb.in/<code>` URL (pobb.in does not resolve raw codes in its path). **QA note: Planner input visual parity with Analyze not achieved — fixed in Step 29.**
 - [x] **Step 26 — Route-level code-splitting** (2026-05-18, Prompt 016) — `React.tsx` lazy-loads Finder/Analyze/Planner via `React.lazy` + `Suspense`; a small Cinzel `RouteFallback` loader covers the chunk fetch. Initial bundle 616 KB → 438 KB (gzip 192 → 139 KB), Vite chunk-size warning gone. Frontend-only.
@@ -194,86 +193,7 @@ Reverse-chronological.
 
 Reusable templates. Self-contained — runnable today without past-chat context. When a prompt ships, move to §9.
 
----
-
-### Prompt 019 — Step 29: Trade redirect fix + Planner input parity
-
-**Two frontend-only fixes. No backend changes. No new deps.**
-
----
-
-#### Context
-
-Read `CLAUDE.md` and this file before starting.
-
-Two QA failures from Steps 27/28 need fixing:
-
-1. **Trade redirect broken** — `openTradeSearch()` in `tradeRedirect.ts` calls `window.open(url, '_blank')`. In production (Vercel origin), GGG/Cloudflare rejects this with `{"error":{"code":6,"message":"Forbidden"}}` because the browser sends either a null `Referer` or `Referer: https://fob-ten.vercel.app`, which is not a whitelisted origin. The fix is a programmatic `<a>` click which the browser treats as a user-initiated navigation.
-
-2. **Planner input visual mismatch** — Step 27 replaced the Planner's `Textarea` with a `TextInput` (correct), but the surrounding card/input area does not visually match Analyze's PoB input box. They must look identical: same card container style, same placeholder text style, same padding, same font (Geist Mono is already global for inputs — verify it applies here too).
-
----
-
-#### Fix 1 — `openTradeSearch()`: replace `window.open` with `<a>` click
-
-In `apps/shell/src/lib/tradeRedirect.ts` (or wherever `openTradeSearch` lives), replace:
-
-```ts
-window.open(url, '_blank');
-```
-
-with:
-
-```ts
-const a = document.createElement('a');
-a.href = url;
-a.target = '_blank';
-a.rel = 'noopener noreferrer';
-document.body.appendChild(a);
-a.click();
-document.body.removeChild(a);
-```
-
-This is the only change needed in `tradeRedirect.ts`. The URL construction logic (`?redirect&source=` encoding, league resolution, fallback) stays exactly as is.
-
-**Do not** add any new helper function, hook, or utility. One surgical replacement.
-
----
-
-#### Fix 2 — Planner PoB input: visual parity with Analyze
-
-Locate the Planner page's PoB input section. Look at how Analyze renders its PoB input box (the card/paper + `Textarea` or `TextInput` area where the user pastes the code). Make the Planner input section **pixel-identical** in layout and style:
-
-- Same Mantine `Paper` / `Card` wrapper with the same `vs-*` CSS tokens (no hardcoded dark colours).
-- Same `Textarea` component with `autosize minRows={4}` if Analyze uses a Textarea, or a styled `TextInput` if that's what Analyze uses — match it exactly.
-- Same placeholder copy (translated via `useT()` if i18n is in place).
-- Same label / helper text treatment above/below the input.
-- Verify the Geist Mono font applies (it should via the global `.mantine-Input-input` rule — if not, add the specific selector).
-- Works correctly in both dark (Void Stone) and light (Parchment) themes.
-
-Do **not** change any Analyze code. Only bring Planner up to parity.
-
----
-
-#### Gate
-
-Full gate must pass before declaring done:
-- All existing tests green (no regressions).
-- `mypy` clean.
-- `ruff format` clean.
-- Frontend build green, no new Vite warnings.
-
-#### Patch Notes
-
-Update `RELEASES` in `apps/shell/src/pages/PatchNotesPage.tsx` with two bilingual entries:
-- Trade icon ora apre la pagina Trade prefillata correttamente / Trade icon now opens the prefilled Trade page correctly.
-- Input PoB nel Planner ora identico ad Analyze / PoB input in Planner now matches Analyze visually.
-
-#### Commit
-
-Single commit: `fix(shell): Step 29 — trade redirect <a> fix + Planner input parity`
-
-Update `CLAUDE.md` and `CLAUDE_PERPLEXITY_WORKFLOW.md` §1 / §6 in the same commit.
+*(no active prompts — Prompt 019 shipped, see §9)*
 
 ---
 
@@ -299,3 +219,4 @@ Closed prompts kept for context. Don't run these.
 - **Old Prompt 016 (Step 26 — Route-level code-splitting)** — Shipped 2026-05-18. ✅ `React.lazy` + `Suspense` for Finder/Analyze/Planner; `RouteFallback` Cinzel loader. Initial bundle 616 KB → 438 KB (gzip 192 → 139 KB).
 - **Old Prompt 017 (Step 27 — QA batch fixes + Zustand state persistence)** — Shipped 2026-05-18. ✅ Finder \"Copy PoB\"; Analyze/Planner accept poe.ninja URLs (via existing `/builds/detail`, no new endpoint); light-mode colour fixes; compact Planner input; Zustand `pageStore` cross-route persistence (`sessionStorage` + in-memory fallback). New dep `zustand` 5. Fix 1 copies the raw PoB code (pobb.in does not resolve raw codes in its path).
 - **Old Prompt 018 (Step 28 — Trade redirect v2: prefilled URLs)** — Shipped 2026-05-18. ✅ `openTradeSearch()` opens a prefilled trade search via GGG's `?redirect&source=` browser-navigation endpoint (`window.open`, no CORS, no backend). Supersedes Prompt 015's \"prefilled URL impossible\" conclusion. Reuses the `/health`-fed cached league (`getResolvedLeague()`) — no new hook/endpoint. Graceful fallback + toast. **QA failed — GGG code 6 Forbidden. Fixed in Prompt 019 (Step 29).**
+- **Old Prompt 019 (Step 29 — Trade redirect 403 fix + Planner input parity)** — Shipped 2026-05-18. ✅ openTradeSearch() navigates via a programmatic <a> click (GGG/Cloudflare 403d window.open); Planner PoB input brought to visual parity with Analyze.

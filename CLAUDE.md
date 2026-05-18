@@ -107,6 +107,13 @@ Frontend-only, no backend change.
 > Updating the `.md` files without updating the Patch Notes is an
 > incomplete step.
 
+## Step 29 — Trade redirect 403 fix + Planner input parity (2026-05-18) ✅
+
+Prompt 019. Two frontend-only QA fixes from Steps 27/28. No backend / API change, no new deps.
+
+- **Trade redirect 403 fix.** Step 28's `openTradeSearch()` called `window.open(url, "_blank")`. In production (Vercel origin) GGG's Cloudflare front rejected it with `{"error":{"code":6,"message":"Forbidden"}}` — `window.open` to GGG's `/api/trade/search/...?redirect` sends a `Referer` Cloudflare doesn't whitelist. Fix: navigate via a **programmatic `<a>` click** (`createElement("a")` → `appendChild` → `.click()` → `removeChild`), which the browser treats as a user-initiated link navigation that Cloudflare accepts — the same pattern poe.ninja uses. Only the navigation call in `openTradeSearch` changed; the URL/query/league/fallback logic is untouched. The fallback path (`openTradeFallback`, bare `/trade/search/<league>` page) keeps `window.open` — that's a normal page load, not the API endpoint, and was QA-passed in Step 25.
+- **Planner input parity with Analyze.** Step 27 swapped the Planner `Textarea` for a `TextInput` but left it full-width standalone with the action button in a separate row. The Planner editing form now mirrors Analyze exactly: the `TextInput` (`flex={1}`) sits in a `<Group align="flex-end" wrap="nowrap">` beside the "Genera piano" button, with the "Ctrl+Enter" hint as a dimmed `<Text size="xs">` below. The Planner-specific controls (target `SegmentedControl` + reverse-mode `Switch`) moved into a single row underneath.
+
 ## Step 28 — Trade redirect v2: prefilled URLs (2026-05-18) ✅
 
 Prompt 018. The Trade redirect now opens a **prefilled** pathofexile.com/trade search instead of the bare league page + clipboard copy. Frontend-only, no backend / API change, no new deps.

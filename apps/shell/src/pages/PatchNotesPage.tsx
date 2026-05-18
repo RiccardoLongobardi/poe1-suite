@@ -30,6 +30,23 @@ const RELEASES: Release[] = [
   {
     date: { it: "18 mag 2026", en: "18 May 2026" },
     title: {
+      it: "Fix ricerca Trade + input Planner",
+      en: "Trade search fix + Planner input",
+    },
+    entries: [
+      {
+        it: "L'icona Trade ora apre correttamente la pagina pathofexile.com/trade pre-compilata — risolto un blocco che restituiva un errore.",
+        en: "The Trade icon now correctly opens the prefilled pathofexile.com/trade page — fixed a block that returned an error.",
+      },
+      {
+        it: "Il campo per incollare il PoB nel Planner ora è identico a quello della pagina Analizza.",
+        en: "The PoB input field in the Planner now matches the one on the Analyse page.",
+      },
+    ],
+  },
+  {
+    date: { it: "18 mag 2026", en: "18 May 2026" },
+    title: {
       it: "Ricerca Trade pre-compilata",
       en: "Prefilled Trade search",
     },
