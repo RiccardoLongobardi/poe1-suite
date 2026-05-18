@@ -111,7 +111,7 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 1. `CLAUDE.md` is the contract, this file is the playbook. When they conflict, `CLAUDE.md` wins.
 2. No silent re-architecture — changes to stack / data sources / public API go in §7.
 3. Prompts in this file are reusable templates, self-contained, runnable today without past-chat context.
-4. Don't fetch GGG Trade from production (Render IPs blacklisted — HTTP 403).
+4. **GGG Trade access (corrected 2026-05-18):** the Render backend **can** reach GGG — `POST /fob/trade-url` mints prefilled search URLs and `scripts/extract_trade_stats.py` vendors `/api/trade/data/stats`. The old "Render IP blacklisted → 403" note is stale. What does NOT work: a browser-side `fetch` to GGG's Trade API (CORS) and navigating the browser straight to a `pathofexile.com/api/` path (Cloudflare 403, `code 6`). So: GGG Trade calls go through the backend (rate-limited + cached); the frontend only opens the URL the backend returns.
 5. Vendor data, don't fetch at runtime.
 6. **The Patch Notes page is part of every feature.** Whenever a feature/fix ships, the `RELEASES` array in `apps/shell/src/pages/PatchNotesPage.tsx` MUST be updated in the **same commit** as `CLAUDE.md` and this file — with user-facing, bilingual (`it`/`en`) copy. A step that updates the `.md` files but not the Patch Notes is not done.
 
