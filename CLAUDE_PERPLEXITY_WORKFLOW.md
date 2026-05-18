@@ -27,7 +27,7 @@ Don't trust earlier versions of this file — the section below is the authorita
 - **Light mode**: \"Parchment\" theme (Step 23, done 2026-05-15) — warm cream backgrounds (`#f2ece0`), ink-on-parchment text (`#2a1f0e`), ember gold as accent only. Pairs with the Void Stone dark mode. ✅ QA passed.
 - **Dynamic-synthesis pivot complete** (Steps 16/17/18/19, all done).
 - **Step 27 (QA batch + Zustand state persistence) DONE 2026-05-18** — see §6.
-- **Step 28 (Trade redirect v2) NEXT** — blocked on a Perplexity technical brief.
+- **Step 28 (Trade redirect v2) NEXT** — Prompt 018 ready in §8.
 
 If anything you read in this file or in `CLAUDE.md` contradicts the above, **the above wins**.
 
@@ -116,7 +116,7 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 
 ## 5. Open questions for Perplexity
 
-- **Trade redirect v2** — after Step 27 ships, research whether poe.ninja's approach to opening a prefilled Trade URL is replicable in this stack (browser-side fetch to GGG `/api/trade/search` + redirect to `/trade/search/<league>/<id>`). Perplexity to produce a technical brief + Prompt 018 once Step 27 is confirmed done.
+*(none — Prompt 018 is ready in §8)*
 
 ---
 
@@ -128,7 +128,7 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 
 ### NEXT
 
-- **Step 28 — Trade redirect v2** (prefilled URL) — blocked on a Perplexity technical brief on the browser-side fetch pattern (see §5). Then Prompt 018.
+- **Step 28 — Trade redirect v2** (prefilled URL via `?redirect&source=`) — Prompt 018 ready in §8.
 
 ### CANDIDATE FUTURE WORK
 
@@ -167,6 +167,7 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 
 Reverse-chronological.
 
+- **2026-05-18** — *Trade redirect v2: `?redirect&source=` pattern confirmed viable.* GGG exposes an undocumented but stable browser-navigation trick: a GET request to `https://www.pathofexile.com/api/trade/search/<league>?redirect&source=<JSON>` causes GGG's own servers to POST the query, create the search ID, and redirect the browser to `/trade/search/<league>/<id>`. Because this is a full browser navigation (not a `fetch()`), CORS does not apply. The user lands on a fully prefilled trade search page. Pattern confirmed documented in the PoE dev community since 2018 and still functional. No backend changes needed — pure frontend.
 - **2026-05-18** — *Trade redirect v2 deferred to Step 28.* The current clipboard-copy approach is insufficient. Riccardo confirmed he wants a prefilled Trade URL (other webapps already do this). Architecture decision deferred to Claude — Perplexity will supply a technical brief on the browser-side fetch pattern before Prompt 018 is written.
 - **2026-05-18** — *Zustand chosen for cross-route state persistence.* Finder / Analyze / Planner pages must not reset on navigation. Zustand store will hold last query + results per page; Mantine `keepMounted` is NOT sufficient alone since pages are lazy-loaded.
 - **2026-05-18** — *Pricing-aware gear classifier postponed.* Pricing-aware gear classifier (wiring `PricingService.snapshot()` into stage export) is postponed; instead, focus is on a trade-aware redirect that opens official PoE Trade with prefilled filters, no live pricing logic.
@@ -186,7 +187,73 @@ Reverse-chronological.
 
 Reusable templates. Self-contained — runnable today without past-chat context. When a prompt ships, move to §9.
 
-*(no active prompts — Prompt 017 shipped, see §9)*
+---
+
+### Prompt 018 — Step 28: Trade redirect v2 (prefilled URL)
+
+**Context for Claude** (read before starting):
+
+The current `tradeRedirect.ts` only copies a search term to the clipboard and opens `pathofexile.com/trade` without any prefilled filter. This step replaces that with a true prefilled Trade URL.
+
+**The mechanism (confirmed stable, documented in the PoE dev community since 2018):**
+
+GGG exposes a browser-navigation redirect endpoint:
+```
+GET https://www.pathofexile.com/api/trade/search/<league>?redirect&source=<URL-encoded JSON query>
+```
+When this URL is opened as a **browser navigation** (`window.open(url, '_blank')`), GGG's server:
+1. Receives the JSON query in the `source` parameter.
+2. Runs the POST `/api/trade/search/<league>` on its own infrastructure.
+3. Issues a `302` redirect to `https://www.pathofexile.com/trade/search/<league>/<search_id>`.
+4. The user's browser lands on a fully prefilled trade search page.
+
+This is **not** a `fetch()` call — it is a plain browser navigation. CORS does not apply. No backend involvement needed. This is exactly how poe.ninja and other third-party tools open prefilled trade searches.
+
+**The JSON query shape (for item search):**
+```json
+{
+  "query": {
+    "status": { "option": "online" },
+    "name": "<unique item name, if unique>",
+    "type": "<base type>",
+    "stats": [{ "type": "and", "filters": [] }]
+  },
+  "sort": { "price": "asc" }
+}
+```
+- For **unique items**: populate both `name` (e.g. `"Shavronne's Wrappings"`) and `type` (e.g. `"Occultist's Vestment"`). Having both gives the tightest results.
+- For **rares / magic / normal**: omit `name`, use only `type` (the base type — e.g. `"Vaal Regalia"`). A rare's roll-generated name returns nothing on Trade.
+- `stats` must always be present as `[{ "type": "and", "filters": [] }]` (empty filter array is fine — Trade accepts it).
+
+**League**: use the currently active league. The backend already knows the league from poe.ninja. Expose it via an existing endpoint (check `/health` or `/builds/meta` — one of them should return the active league name). If not, add a trivial `/league` endpoint to the backend that returns `{ "league": "<current>" }` from the existing poe.ninja cache.
+
+**Scope of changes:**
+
+1. **`tradeRedirect.ts`** — replace `tradeClipboardText()` (clipboard-only) with a new `openTradeSearch(item, league)` function that:
+   - Builds the JSON query (unique: name + type; rare/magic/normal: type only).
+   - URL-encodes it: `encodeURIComponent(JSON.stringify(query))`.
+   - Constructs the redirect URL: `https://www.pathofexile.com/api/trade/search/${league}?redirect&source=${encoded}`.
+   - Opens it: `window.open(url, '_blank', 'noopener,noreferrer')`.
+   - Keeps the old `tradeClipboardText()` as a fallback if league is not available (degrade gracefully — do not remove clipboard copy entirely; keep it as a secondary action or tooltip).
+
+2. **League retrieval** — add a `useLeague()` hook (or reuse an existing query) that fetches the current league name from the backend once and caches it in React Query. This is a single GET call; cache it with a long TTL (e.g. 60 min).
+
+3. **Call sites** — update every Trade ActionIcon in Planner Gear tab and Analyze equipment/flask/jewel cells to call `openTradeSearch(item, league)` instead of `tradeClipboardText()`. The button behaviour stays the same (same icon, same position) — only what happens on click changes.
+
+4. **Patch Notes** — add a bilingual entry to `PatchNotesPage.tsx`'s `RELEASES` array in the same commit.
+
+**Constraints:**
+- Frontend-only changes (except possibly the `/league` endpoint if needed).
+- No new npm dependencies.
+- Gate must stay green: 704 tests / 121 mypy / 316 ruff-format. If a `/league` endpoint is added, add at least one integration test for it.
+- Do not break the existing `pageStore` Zustand persistence.
+- The `?redirect&source=` URL must be opened via `window.open`, never via `fetch()` — the redirect only works as a browser navigation, not as an XHR/fetch.
+
+**Definition of done:**
+- Clicking the Trade icon on a unique item (e.g. Tabula Rasa) opens a new tab already filtered for that item on pathofexile.com/trade.
+- Clicking the Trade icon on a rare item (e.g. a Vaal Regalia) opens a new tab filtered by base type.
+- If the league is unavailable (cold start), the button falls back to clipboard copy and shows a toast explaining why.
+- `CLAUDE.md`, `CLAUDE_PERPLEXITY_WORKFLOW.md` §6, and `PatchNotesPage.tsx` are all updated in the same commit.
 
 ---
 
