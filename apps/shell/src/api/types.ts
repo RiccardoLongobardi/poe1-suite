@@ -511,11 +511,35 @@ export type PricingProgressKind =
   | "item_failed"
   | "done";
 
+/** One explicit stat filter sent to POST /fob/trade-url. */
+export interface TradeStatFilterInput {
+  stat_id: string;
+  min?: number | null;
+  max?: number | null;
+}
+
 /** POST /fob/trade-url body */
 export interface TradeUrlRequest {
   item_name?: string | null;
   item_type?: string | null;
   mod_lines?: string[];
+  /** Explicit stat filters from the Trade-search dialog. */
+  stats?: TradeStatFilterInput[];
+  /** Minimum linked-socket group size (5 or 6). */
+  min_links?: number | null;
+}
+
+/** One recognised mod row returned by POST /fob/extract-trade-mods. */
+export interface ExtractedTradeMod {
+  line: string;
+  stat_id: string;
+  value: number;
+  label: string;
+}
+
+/** POST /fob/extract-trade-mods response */
+export interface TradeModExtractResponse {
+  mods: ExtractedTradeMod[];
 }
 
 /** POST /fob/trade-url response */

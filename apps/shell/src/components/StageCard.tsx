@@ -57,11 +57,44 @@ import type {
   PlanStage,
   PriceRange,
   StageGearSet,
+  StageGearSlot,
   StageGemLinks,
   StageTree,
 } from "../api/types";
-import { openTradeSearch } from "../api/tradeRedirect";
 import { useT } from "../i18n";
+import { TradeSearchDialog } from "./TradeSearchDialog";
+
+/** Identity passed to the Trade-search dialog. */
+interface TradeItemInfo {
+  title: string;
+  itemName: string | null;
+  itemType: string | null;
+  rawMods: string[];
+}
+
+/** Map a plan CoreItem to the Trade-search dialog's inputs. */
+function coreItemToTradeInfo(item: CoreItem): TradeItemInfo {
+  const isUnique = (item.rarity ?? "").toLowerCase() === "unique";
+  return {
+    title: item.name,
+    itemName: isUnique ? item.name : null,
+    itemType: item.base_type ?? null,
+    rawMods: item.mods ?? [],
+  };
+}
+
+/** Map a stage gear slot to the Trade-search dialog's inputs. */
+function gearSlotToTradeInfo(slot: StageGearSlot): TradeItemInfo {
+  // unique / leveling slots carry a real (unique) item name; rare_craft
+  // slots carry a description, so they search by nothing useful here.
+  const named = slot.kind === "unique" || slot.kind === "leveling";
+  return {
+    title: slot.item_name,
+    itemName: named ? slot.item_name : null,
+    itemType: null,
+    rawMods: [],
+  };
+}
 
 const CONFIDENCE_COLOR: Record<Confidence, string> = {
   low: "gray",
@@ -128,8 +161,8 @@ function ItemRow({
       <Table.Td style={{ width: 36 }}>
         <Tooltip
           label={t({
-            it: "Apri pathofexile.com/trade con la ricerca già pronta per questo item",
-            en: "Open pathofexile.com/trade with the search ready for this item",
+            it: "Cerca questo item su pathofexile.com/trade",
+            en: "Search this item on pathofexile.com/trade",
           })}
           withArrow
           multiline
@@ -178,17 +211,8 @@ export function StageCard({
   const t = useT();
   const accent = index === 0 ? "teal" : index === 1 ? "blue" : "grape";
 
-  function openTradeDialog(item: CoreItem) {
-    // Opens a prefilled pathofexile.com/trade search in a new tab via
-    // GGG's ?redirect&source= browser-navigation endpoint. See
-    // ../api/tradeRedirect.ts for the mechanism.
-    openTradeSearch({
-      name: item.name,
-      rarity: item.rarity,
-      base_type: item.base_type,
-      mods: item.mods,
-    });
-  }
+  // The item whose Trade-search dialog is open (null = closed).
+  const [tradeItem, setTradeItem] = useState<TradeItemInfo | null>(null);
 
   // Lazy state for the tab content. Each tab fetches once on first open
   // and caches the result for the lifetime of the component.
@@ -291,7 +315,19 @@ export function StageCard({
   ]);
 
   return (
-    <Card withBorder radius="md" p="md">
+    <>
+      {tradeItem && (
+        <TradeSearchDialog
+          key={tradeItem.title}
+          opened
+          onClose={() => setTradeItem(null)}
+          title={tradeItem.title}
+          itemName={tradeItem.itemName}
+          itemType={tradeItem.itemType}
+          rawMods={tradeItem.rawMods}
+        />
+      )}
+      <Card withBorder radius="md" p="md">
       <Stack gap="sm">
         <Group justify="space-between" align="flex-start" wrap="nowrap">
           <Group gap={10} wrap="nowrap">
@@ -381,7 +417,9 @@ export function StageCard({
                       <ItemRow
                         key={`${item.slot}-${item.name}`}
                         item={item}
-                        onTradeClick={openTradeDialog}
+                        onTradeClick={(it) =>
+                          setTradeItem(coreItemToTradeInfo(it))
+                        }
                       />
                     ))}
                   </Table.Tbody>
@@ -494,7 +532,11 @@ export function StageCard({
 
           {/* GEAR: per-slot grid */}
           <Tabs.Panel value="gear" pt="sm">
-            <GearPanel stageGear={stageGear} accent={accent} />
+            <GearPanel
+              stageGear={stageGear}
+              accent={accent}
+              onTrade={(slot) => setTradeItem(gearSlotToTradeInfo(slot))}
+            />
           </Tabs.Panel>
 
           {/* GEMS: socket-link groups */}
@@ -614,7 +656,8 @@ export function StageCard({
           </Group>
         )}
       </Stack>
-    </Card>
+      </Card>
+    </>
   );
 }
 
@@ -709,9 +752,11 @@ function TreePanel({
 function GearPanel({
   stageGear,
   accent,
+  onTrade,
 }: {
   stageGear: StageGearSet | null | undefined;
   accent: string;
+  onTrade: (slot: StageGearSlot) => void;
 }) {
   const t = useT();
   if (stageGear === undefined)
@@ -781,8 +826,8 @@ function GearPanel({
                 {TRADEABLE_KINDS.has(s.kind) && (
                   <Tooltip
                     label={t({
-                      it: "Apri una ricerca pre-compilata su pathofexile.com/trade",
-                      en: "Open a prefilled pathofexile.com/trade search",
+                      it: "Cerca questo item su pathofexile.com/trade",
+                      en: "Search this item on pathofexile.com/trade",
                     })}
                     withArrow
                     multiline
@@ -792,10 +837,8 @@ function GearPanel({
                       variant="subtle"
                       color="ember"
                       size="sm"
-                      onClick={() =>
-                        openTradeSearch({ name: s.item_name, rarity: "unique" })
-                      }
-                      aria-label={t({ it: "Apri su Trade", en: "Open on Trade" })}
+                      onClick={() => onTrade(s)}
+                      aria-label={t({ it: "Cerca su Trade", en: "Search on Trade" })}
                     >
                       <IconExternalLink size={14} />
                     </ActionIcon>

@@ -17,6 +17,7 @@ import type {
   StageExportRequest,
   StageExportResponse,
   TargetGoal,
+  TradeModExtractResponse,
   TradeUrlRequest,
   TradeUrlResponse,
   TreeProgression,
@@ -88,6 +89,17 @@ export async function fetchTradeUrl(
   req: TradeUrlRequest,
 ): Promise<TradeUrlResponse> {
   return post<TradeUrlResponse>("/fob/trade-url", req);
+}
+
+/**
+ * POST /fob/extract-trade-mods — recognise Trade stat filters in raw
+ * mod text. Stateless + offline server-side (no GGG call). Lines that
+ * match no pattern are dropped; the rest come back as dialog rows.
+ */
+export async function extractTradeMods(
+  mods: string[],
+): Promise<TradeModExtractResponse> {
+  return post<TradeModExtractResponse>("/fob/extract-trade-mods", { mods });
 }
 
 /** POST /fob/plan */

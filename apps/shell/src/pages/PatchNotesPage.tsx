@@ -30,6 +30,31 @@ const RELEASES: Release[] = [
   {
     date: { it: "18 mag 2026", en: "18 May 2026" },
     title: {
+      it: "Pannello ricerca Trade stile poe.ninja",
+      en: "poe.ninja-style Trade search panel",
+    },
+    summary: {
+      it: "Cliccando l'icona Trade ora si apre un pannello configurabile.",
+      en: "Clicking the Trade icon now opens a configurable panel.",
+    },
+    entries: [
+      {
+        it: "Scegli se cercare per nome (unique) o tipo base, e imposta il filtro link (5L / 6L).",
+        en: "Choose to search by unique name or base type, and set the link filter (5L / 6L).",
+      },
+      {
+        it: "Ogni mod dell'item ha un interruttore e uno slider di tolleranza (50-100%): decidi quali mod includere e quanto stretti.",
+        en: "Each item mod has a toggle and a strictness slider (50-100%): pick which mods to include and how tight.",
+      },
+      {
+        it: "\"Cerca su Trade\" apre pathofexile.com/trade con la ricerca esatta già pronta.",
+        en: '"Search on Trade" opens pathofexile.com/trade with the exact search ready.',
+      },
+    ],
+  },
+  {
+    date: { it: "18 mag 2026", en: "18 May 2026" },
+    title: {
       it: "Ricerca Trade pre-compilata (funzionante)",
       en: "Prefilled Trade search (working)",
     },

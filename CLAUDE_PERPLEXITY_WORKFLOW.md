@@ -28,7 +28,8 @@ Don't trust earlier versions of this file — the section below is the authorita
 - **Dynamic-synthesis pivot complete** (Steps 16/17/18/19, all done).
 - **Step 27 (QA batch + Zustand state persistence) DONE 2026-05-18** — see §6.
 - **Step 28/29 (client-side prefilled Trade URL) — ABANDONED.** The `?redirect&source=` GET-prefill mechanism does not exist; GGG 403s any direct navigation to a `/api/` path. Superseded by Step 30.
-- **Step 30 (Trade prefill via backend + Planner collapsed-input fix) DONE 2026-05-18** — `openTradeSearch()` opens a blank tab then calls `POST /fob/trade-url` (which **works again** from Render — the old IP block is stale) for a real `/trade/search/<league>/<id>` URL. Planner collapsed `<Code>` no longer balloons (`whiteSpace:nowrap`+`minWidth:0`). See §6/§7.
+- **Step 30 (Trade prefill via backend + Planner collapsed-input fix) DONE 2026-05-18** — `POST /fob/trade-url` works again from Render. Planner collapsed `<Code>` no longer balloons.
+- **Step 31 (poe.ninja-style Trade-search dialog) DONE 2026-05-18** — the Trade icon opens a configurable `TradeSearchDialog` (search-by name/base, per-mod toggle + strictness slider, 5L/6L). Backend: re-added `/fob/extract-trade-mods`, extended `/fob/trade-url` with `stats[]` + `min_links`. See §6.
 
 If anything you read in this file or in `CLAUDE.md` contradicts the above, **the above wins**.
 
@@ -139,6 +140,7 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 
 ### DONE
 
+- [x] **Step 31 — poe.ninja-style Trade-search dialog** (2026-05-18) — New `TradeSearchDialog`: search-by name/base `SegmentedControl`, per-mod toggle + 50-100% strictness slider, 5L/6L link filter; opened from every Trade icon (Planner Overview + Gear tab, Analyze equipment/flasks/jewels). Backend: re-added `POST /fob/extract-trade-mods`; `POST /fob/trade-url` extended with explicit `stats[]` + `min_links` (→ GGG `socket_filters`). 706 tests / 121 mypy / 316 format. Property filters (DPS/APS/crit) intentionally not replicated — FOB has no computed weapon stats.
 - [x] **Step 30 — Trade prefill via backend + Planner collapsed-input fix** (2026-05-18) — QA fix for Steps 28/29. `openTradeSearch()` opens a blank tab synchronously, calls `POST /fob/trade-url` (re-verified working from Render — GGG returns a real `search_id`), and navigates the tab to the prefilled `/trade/search/<league>/<id>` URL; bare-page + clipboard fallback on error/429. Planner collapsed `<Code>` chip no longer balloons (`whiteSpace:nowrap` + `minWidth:0`). Frontend-only.
 - [x] **Step 29 — Trade redirect 403 fix + Planner input parity** (2026-05-18, Prompt 019) — `openTradeSearch()` navigates via a programmatic `<a>` click instead of `window.open` (GGG/Cloudflare 403'd the `window.open` Referer); the Planner PoB input form now mirrors Analyze (flex `TextInput` + button in one row, Ctrl+Enter hint below, Planner controls underneath). Frontend-only.
 - [x] **Step 28 — Trade redirect v2: prefilled URLs** (2026-05-18, Prompt 018) — `openTradeSearch()` opens a prefilled pathofexile.com/trade search via GGG's `?redirect&source=` browser-navigation endpoint (`window.open`, not `fetch` — no CORS, no backend). Uniques → name + base type; rares → base type. Reuses the existing `/health`-fed cached league (`getResolvedLeague()` — no new hook/endpoint). Graceful fallback to bare page + clipboard + toast when the league hasn't resolved. Frontend-only, no new deps. **QA failed — GGG returns code 6 Forbidden. Fixed in Step 29.**

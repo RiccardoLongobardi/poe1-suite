@@ -177,14 +177,35 @@ class StageExportResponse(BaseModel):
     )
 
 
+class TradeStatFilterInput(BaseModel):
+    """One explicit stat filter supplied by the Trade-search dialog.
+
+    The dialog has already resolved the GGG ``stat_id`` (via
+    ``/fob/extract-trade-mods``) and applied the user's strictness
+    slider to compute ``min`` — so the server uses these verbatim
+    instead of re-extracting from raw mod text.
+    """
+
+    model_config = ConfigDict(frozen=True)
+
+    stat_id: str = Field(..., min_length=1, description="GGG stat id.")
+    min: float | None = Field(default=None, description="Lower bound (inclusive).")
+    max: float | None = Field(default=None, description="Upper bound (inclusive).")
+
+
 class TradeUrlRequest(BaseModel):
     """Input for ``POST /fob/trade-url``.
 
     Asks the server to build a pre-filled GGG Trade search URL for an
     item. The request must specify at least ``item_name`` (unique
-    lookups) or ``item_type`` (rare-by-base lookups). ``mod_lines``
-    are the raw PoB mod text lines — the server extracts numeric
-    stat filters via the same pattern table the pricer uses.
+    lookups) or ``item_type`` (rare-by-base lookups).
+
+    Two ways to supply stat filters:
+
+    * ``stats`` — explicit ``{stat_id, min, max}`` rows from the
+      Trade-search dialog (strictness already applied). Used verbatim.
+    * ``mod_lines`` — raw PoB mod text; the server extracts stat
+      filters via MOD_PATTERNS. Used only when ``stats`` is empty.
     """
 
     model_config = ConfigDict(frozen=True)
@@ -202,8 +223,21 @@ class TradeUrlRequest(BaseModel):
         description=(
             "Raw mod text lines from the item. The server extracts "
             "stat_id + min via MOD_PATTERNS. Lines that don't match "
-            "any pattern are silently dropped."
+            "any pattern are silently dropped. Ignored when `stats` is set."
         ),
+    )
+    stats: tuple[TradeStatFilterInput, ...] = Field(
+        default=(),
+        description=(
+            "Explicit stat filters from the Trade-search dialog. When "
+            "non-empty these are used verbatim and `mod_lines` is ignored."
+        ),
+    )
+    min_links: int | None = Field(
+        default=None,
+        ge=2,
+        le=6,
+        description="Minimum linked-socket group size (5 or 6 in practice).",
     )
 
 
@@ -229,6 +263,36 @@ class TradeUrlResponse(BaseModel):
             "again in 30-60 s)."
         ),
     )
+
+
+class TradeModExtractRequest(BaseModel):
+    """Input for ``POST /fob/extract-trade-mods``."""
+
+    model_config = ConfigDict(frozen=True)
+
+    mods: tuple[str, ...] = Field(
+        default=(),
+        description="Raw mod text lines to extract Trade stat filters from.",
+    )
+
+
+class ExtractedTradeMod(BaseModel):
+    """One recognised mod row for the Trade-search dialog."""
+
+    model_config = ConfigDict(frozen=True)
+
+    line: str = Field(..., description="Original mod line that matched.")
+    stat_id: str = Field(..., description="GGG stat id keyed by the matching pattern.")
+    value: float = Field(..., description="Numeric value rolled on the item.")
+    label: str = Field(..., description="Human-readable label (e.g. '+# to maximum Life').")
+
+
+class TradeModExtractResponse(BaseModel):
+    """Output for ``POST /fob/extract-trade-mods``."""
+
+    model_config = ConfigDict(frozen=True)
+
+    mods: tuple[ExtractedTradeMod, ...] = Field(default=())
 
 
 # ---------------------------------------------------------------------------
@@ -682,18 +746,35 @@ def make_router(settings: Settings) -> APIRouter:
                 detail="trade-url requires at least item_name or item_type",
             )
 
-        # Extract numeric stat filters from the raw mod text. Lines that
-        # don't match any MOD_PATTERNS entry are silently dropped.
+        # Stat filters. The Trade-search dialog sends explicit `stats`
+        # (stat_id + min already resolved through its strictness
+        # slider) — used verbatim. Otherwise fall back to extracting
+        # them from raw `mod_lines` via MOD_PATTERNS.
         stats: list[StatFilter] = []
-        if payload.mod_lines:
+        seen: set[str] = set()
+        if payload.stats:
+            for sf in payload.stats:
+                if sf.stat_id in seen:
+                    continue
+                seen.add(sf.stat_id)
+                stats.append(StatFilter(stat_id=sf.stat_id, min=sf.min, max=sf.max))
+        elif payload.mod_lines:
             cleaned = _clean_mod_lines(payload.mod_lines)
             extracted = _extract_mod_patterns(cleaned)
-            seen: set[str] = set()
             for em in extracted:
                 if em.stat_id in seen:
                     continue
                 seen.add(em.stat_id)
                 stats.append(StatFilter(stat_id=em.stat_id, min=em.value))
+
+        # Optional linked-socket constraint → GGG `socket_filters`.
+        extra_filters: dict[str, object] | None = None
+        if payload.min_links is not None:
+            extra_filters = {
+                "socket_filters": {
+                    "filters": {"links": {"min": payload.min_links}},
+                },
+            }
 
         # When we have a unique name, search by name (Trade resolves
         # the base automatically). When we have only a rare base, search
@@ -703,6 +784,7 @@ def make_router(settings: Settings) -> APIRouter:
             type=payload.item_type if not payload.item_name else None,
             stats=tuple(stats),
             online_only=True,
+            extra_filters=extra_filters,
         )
 
         cache_key = hashlib.sha256(
@@ -711,7 +793,8 @@ def make_router(settings: Settings) -> APIRouter:
                     settings.poe_league,
                     payload.item_name or "",
                     payload.item_type or "",
-                    ",".join(sorted(f"{s.stat_id}:{s.min}" for s in stats)),
+                    ",".join(sorted(f"{s.stat_id}:{s.min}:{s.max}" for s in stats)),
+                    f"links={payload.min_links}",
                 ]
             ).encode("utf-8")
         ).hexdigest()[:24]
@@ -754,6 +837,44 @@ def make_router(settings: Settings) -> APIRouter:
             total_listings=total,
         )
         return TradeUrlResponse(url=url, source="fresh")
+
+    @router.post(
+        "/extract-trade-mods",
+        response_model=TradeModExtractResponse,
+        summary=(
+            "Run the rare-mod pattern table over a list of mod text "
+            "lines and return dialog-ready Trade stat-filter rows."
+        ),
+    )
+    async def extract_trade_mods_endpoint(
+        payload: Annotated[TradeModExtractRequest, Body()],
+    ) -> TradeModExtractResponse:
+        """Pure-extraction preview for the Trade-search dialog.
+
+        The frontend sends verbatim mod text lines from an item and
+        gets back the rows ready to render: ``stat_id``, label, rolled
+        value. Lines that don't match any pattern in MOD_PATTERNS are
+        silently dropped. Stateless and offline — no HTTP, no rate
+        limit.
+        """
+
+        cleaned = _clean_mod_lines(payload.mods)
+        extracted = _extract_mod_patterns(cleaned)
+        seen: set[str] = set()
+        out: list[ExtractedTradeMod] = []
+        for em in extracted:
+            if em.stat_id in seen:
+                continue
+            seen.add(em.stat_id)
+            out.append(
+                ExtractedTradeMod(
+                    line=em.line,
+                    stat_id=em.stat_id,
+                    value=em.value,
+                    label=em.label,
+                )
+            )
+        return TradeModExtractResponse(mods=tuple(out))
 
     @router.get(
         "/tree-progression/{template_name}",

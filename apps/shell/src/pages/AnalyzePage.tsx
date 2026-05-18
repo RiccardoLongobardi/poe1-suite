@@ -38,9 +38,9 @@ import {
   IconSword,
 } from "@tabler/icons-react";
 import { useMutation } from "@tanstack/react-query";
+import { useState } from "react";
 import { getDetail, parsePoeNinjaCharacterUrl } from "../api/builds";
 import { analyzePob } from "../api/fob";
-import { openTradeSearch } from "../api/tradeRedirect";
 import { usePageStore } from "../store/pageStore";
 import type {
   AnalyzePobResponse,
@@ -50,6 +50,7 @@ import type {
   PobSnapshot,
 } from "../api/types";
 import { ErrorBoundary } from "../components/ErrorBoundary";
+import { TradeSearchDialog } from "../components/TradeSearchDialog";
 import { useT } from "../i18n";
 
 // ---------------------------------------------------------------------------
@@ -175,10 +176,12 @@ function GearCell({
   label,
   item,
   style,
+  onTrade,
 }: {
   label: string;
   item: PobItem | undefined;
   style?: React.CSSProperties;
+  onTrade: (item: PobItem) => void;
 }) {
   const t = useT();
   if (!item) {
@@ -237,17 +240,13 @@ function GearCell({
               color="ember"
               size="xs"
               title={t({
-                it: "Apri pathofexile.com/trade con la ricerca già pronta per questo item",
-                en: "Open pathofexile.com/trade with the search ready for this item",
+                it: "Cerca questo item su pathofexile.com/trade",
+                en: "Search this item on pathofexile.com/trade",
               })}
-              aria-label={t({ it: "Apri su Trade", en: "Open on Trade" })}
+              aria-label={t({ it: "Cerca su Trade", en: "Search on Trade" })}
               onClick={(e) => {
                 e.stopPropagation();
-                openTradeSearch({
-                  name: item.name ?? item.base_type,
-                  rarity: item.rarity,
-                  base_type: item.base_type,
-                });
+                onTrade(item);
               }}
             >
               <IconExternalLink size={11} />
@@ -390,8 +389,22 @@ function BuildDashboard({ data }: { data: AnalyzePobResponse }) {
   const enabledGroups = snap.skills.filter((g) => g.enabled);
   const treeUrl = snap.tree?.url?.trim();
 
+  // The equipment item whose Trade-search dialog is open (null = closed).
+  const [tradeItem, setTradeItem] = useState<PobItem | null>(null);
+
   return (
     <Stack gap="md">
+      {tradeItem && (
+        <TradeSearchDialog
+          key={tradeItem.pob_id}
+          opened
+          onClose={() => setTradeItem(null)}
+          title={tradeItem.name ?? tradeItem.base_type}
+          itemName={tradeItem.rarity === "unique" ? tradeItem.name : null}
+          itemType={tradeItem.base_type}
+          rawMods={[...tradeItem.implicits, ...tradeItem.explicits]}
+        />
+      )}
       {/* Sticky character header — a full-width bar above the dashboard
           so it stays visible while scrolling through gear/skills
           without covering the left card's own stat tiles. */}
@@ -566,46 +579,55 @@ function BuildDashboard({ data }: { data: AnalyzePobResponse }) {
                 label={t({ it: "Elmo", en: "Helmet" })}
                 item={slots.helmet}
                 style={{ gridArea: "helmet" }}
+                onTrade={setTradeItem}
               />
               <GearCell
                 label={t({ it: "Arma princ.", en: "Main weapon" })}
                 item={slots.weapon_main}
                 style={{ gridArea: "wmain" }}
+                onTrade={setTradeItem}
               />
               <GearCell
                 label={t({ it: "Corpo", en: "Body" })}
                 item={slots.body_armour}
                 style={{ gridArea: "body" }}
+                onTrade={setTradeItem}
               />
               <GearCell
                 label={t({ it: "Arma sec.", en: "Off-hand" })}
                 item={slots.weapon_offhand}
                 style={{ gridArea: "woff" }}
+                onTrade={setTradeItem}
               />
               <GearCell
                 label={t({ it: "Guanti", en: "Gloves" })}
                 item={slots.gloves}
                 style={{ gridArea: "gloves" }}
+                onTrade={setTradeItem}
               />
               <GearCell
                 label={t({ it: "Stivali", en: "Boots" })}
                 item={slots.boots}
                 style={{ gridArea: "boots" }}
+                onTrade={setTradeItem}
               />
               <GearCell
                 label={t({ it: "Cintura", en: "Belt" })}
                 item={slots.belt}
                 style={{ gridArea: "belt" }}
+                onTrade={setTradeItem}
               />
               <GearCell
                 label={t({ it: "Amuleto", en: "Amulet" })}
                 item={slots.amulet}
                 style={{ gridArea: "amulet" }}
+                onTrade={setTradeItem}
               />
               <GearCell
                 label={t({ it: "Anello", en: "Ring" })}
                 item={slots.ring}
                 style={{ gridArea: "ring" }}
+                onTrade={setTradeItem}
               />
             </Box>
 
@@ -627,6 +649,7 @@ function BuildDashboard({ data }: { data: AnalyzePobResponse }) {
                       key={`flask-${flask.pob_id}-${i}`}
                       label={`Flask ${i + 1}`}
                       item={flask}
+                      onTrade={setTradeItem}
                     />
                   ))}
                 </Box>
@@ -654,6 +677,7 @@ function BuildDashboard({ data }: { data: AnalyzePobResponse }) {
                       key={`jewel-${jewel.item.pob_id}-${i}`}
                       label={t({ it: "Gioiello", en: "Jewel" })}
                       item={jewel.item}
+                      onTrade={setTradeItem}
                     />
                   ))}
                 </Box>

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import httpx
@@ -577,3 +578,81 @@ def test_trade_url_returns_rate_limited_on_429(
         body = r.json()
         assert body["source"] == "rate_limited"
         assert body["url"] is None
+
+
+def test_extract_trade_mods_returns_recognised_rows(settings: Settings) -> None:
+    """POST /fob/extract-trade-mods maps known mod text → dialog rows."""
+
+    app = create_app(settings)
+    with TestClient(app) as client:
+        r = client.post(
+            "/fob/extract-trade-mods",
+            json={"mods": ["+85 to maximum Life", "+42% to Cold Resistance"]},
+        )
+        assert r.status_code == 200, r.text
+        mods = r.json()["mods"]
+        # Both lines match MOD_PATTERNS — each row carries a stat_id + value.
+        assert len(mods) >= 1
+        for row in mods:
+            assert row["stat_id"]
+            assert isinstance(row["value"], (int, float))
+            assert row["line"]
+
+
+def test_trade_url_with_stats_and_links(
+    monkeypatch: pytest.MonkeyPatch, settings: Settings
+) -> None:
+    """Explicit `stats` + `min_links` reach GGG's search body verbatim."""
+
+    from poe1_fob.router import _trade_url_cache
+
+    _trade_url_cache.clear()
+    captured: dict[str, object] = {}
+
+    def mock_handler(request: httpx.Request) -> httpx.Response:
+        if "/api/trade/search/" in str(request.url):
+            captured["body"] = json.loads(request.content)
+            return httpx.Response(
+                200,
+                json={"id": "linkstats99", "complexity": 1, "total": 7, "result": []},
+            )
+        return httpx.Response(404)
+
+    original_aenter = HttpClient.__aenter__
+
+    async def patched_aenter(self: HttpClient) -> HttpClient:
+        client = await original_aenter(self)
+        await self._client.aclose()  # type: ignore[union-attr]
+        self._client = httpx.AsyncClient(
+            transport=httpx.MockTransport(mock_handler),
+            timeout=self._settings.http_timeout_seconds,
+            headers={"User-Agent": self._settings.user_agent},
+            follow_redirects=True,
+        )
+        return client
+
+    monkeypatch.setattr(HttpClient, "__aenter__", patched_aenter)
+
+    app = create_app(settings)
+    with TestClient(app) as client:
+        r = client.post(
+            "/fob/trade-url",
+            json={
+                "item_type": "Vaal Regalia",
+                "stats": [{"stat_id": "explicit.stat_3299347043", "min": 70}],
+                "min_links": 6,
+            },
+        )
+        assert r.status_code == 200, r.text
+        assert r.json()["source"] == "fresh"
+        assert "linkstats99" in r.json()["url"]
+
+        body = captured["body"]
+        assert isinstance(body, dict)
+        query = body["query"]
+        # The explicit stat filter reached GGG.
+        stat_ids = [f["id"] for grp in query["stats"] for f in grp["filters"]]
+        assert "explicit.stat_3299347043" in stat_ids
+        # The 6-link socket constraint reached GGG.
+        links = query["filters"]["socket_filters"]["filters"]["links"]
+        assert links["min"] == 6

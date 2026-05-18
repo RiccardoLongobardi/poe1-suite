@@ -107,6 +107,25 @@ Frontend-only, no backend change.
 > Updating the `.md` files without updating the Patch Notes is an
 > incomplete step.
 
+## Step 31 — poe.ninja-style Trade-search dialog (2026-05-18) ✅
+
+QA on Step 30: a plain name/base trade redirect is too coarse — for a corrupted/variable unique it returns every copy, not the user's. Replicates poe.ninja's configurable trade dialog. Backend + frontend.
+
+**Backend (`packages/fob/src/poe1_fob/router.py`):**
+- **Re-added `POST /fob/extract-trade-mods`** (removed in `b167cbc` with the old trade-search) — input `{mods: string[]}`, output `{mods: [{line, stat_id, value, label}]}`. Runs `MOD_PATTERNS` over the mod text; offline, no GGG call.
+- **Extended `TradeUrlRequest`** with `stats: TradeStatFilterInput[]` (`{stat_id, min, max}` — explicit filters from the dialog, strictness already applied) and `min_links: int | None`. When `stats` is non-empty it's used verbatim (skips `mod_lines` extraction); `min_links` becomes a GGG `socket_filters` link constraint via `TradeQuery.extra_filters`.
+- 2 new tests (`test_fob_router.py`): extract-trade-mods returns recognised rows; trade-url with `stats` + `min_links` reaches GGG's search body verbatim (asserts the stat id + `socket_filters.links.min`).
+
+**Frontend:**
+- **New `TradeSearchDialog.tsx`** — a Mantine `<Modal>`: a *Search by* `SegmentedControl` (unique name vs base type), a *Links* selector (Any / 5L / 6L), and a *Mods* list — each recognised mod a `<Switch>` + a 50-100 % strictness `<Slider>` (default 80; the min sent = `rolled × strictness`). Mods come from `extractTradeMods()`. "Cerca su Trade" builds a `TradeUrlRequest` and opens the prefilled URL via `openTradeUrl`.
+- **`tradeRedirect.ts`** — replaced `openTradeSearch(item)` with `openTradeUrl(req: TradeUrlRequest)` (blank-tab synchronous open → `fetchTradeUrl` → navigate; bare-page fallback). `TradeRedirectItem` / `tradeClipboardText` removed.
+- **`api/fob.ts`** — new `extractTradeMods()` client; **`types.ts`** — `TradeStatFilterInput`, `ExtractedTradeMod`, `TradeModExtractResponse`, `TradeUrlRequest` extended.
+- **Call sites** — the Trade icon on Planner Overview rows, Planner Gear-tab rows and every Analyze equipment/flask/jewel cell now **opens the dialog** instead of redirecting straight away. `StageCard` + `BuildDashboard` hold the open-item state and render one `<TradeSearchDialog>` (keyed per item).
+
+Scope cut: poe.ninja's *property* filters (DPS/APS/crit) are not replicated — FOB doesn't parse computed weapon stats. Search-by + per-mod strictness + links is the faithful core.
+
+Gate: 706 tests / 121 mypy / 316 ruff-format. Frontend build: `TradeSearchDialog` lazy chunk ~18 KB.
+
 ## Step 30 — Trade prefill via backend + Planner collapsed-input fix (2026-05-18) ✅
 
 QA on Steps 28/29 found two regressions. Both fixed here. Frontend-only, no backend / API change, no new deps.
