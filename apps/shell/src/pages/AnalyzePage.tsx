@@ -50,6 +50,7 @@ import type {
   PobSnapshot,
 } from "../api/types";
 import { ErrorBoundary } from "../components/ErrorBoundary";
+import { PriceBadge } from "../components/PriceBadge";
 import { TradeSearchDialog } from "../components/TradeSearchDialog";
 import { useCountUp } from "../hooks/useCountUp";
 import { useT } from "../i18n";
@@ -267,6 +268,18 @@ function GearCell({
         {item.sockets && (
           <Box mt={3}>
             <SocketDots sockets={item.sockets} />
+          </Box>
+        )}
+        {item.rarity === "unique" && (
+          <Box
+            style={{
+              position: "absolute",
+              bottom: 3,
+              right: 7,
+              pointerEvents: "none",
+            }}
+          >
+            <PriceBadge name={item.name ?? item.base_type} />
           </Box>
         )}
       </Box>

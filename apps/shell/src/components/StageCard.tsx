@@ -62,6 +62,7 @@ import type {
   StageTree,
 } from "../api/types";
 import { useT } from "../i18n";
+import { PriceBadge } from "./PriceBadge";
 import { TradeSearchDialog } from "./TradeSearchDialog";
 
 /** Identity passed to the Trade-search dialog. */
@@ -808,21 +809,24 @@ function GearPanel({
                 </Text>
               </Table.Td>
               <Table.Td>
-                <Text
-                  size="sm"
-                  fw={500}
-                  className="vs-rarity"
-                  data-rarity={
-                    s.kind === "unique" || s.kind === "leveling"
-                      ? "unique"
-                      : s.kind === "rare_craft"
-                        ? "rare"
-                        : "normal"
-                  }
-                  display="inline-block"
-                >
-                  {s.item_name}
-                </Text>
+                <Group gap={8} wrap="nowrap">
+                  <Text
+                    size="sm"
+                    fw={500}
+                    className="vs-rarity"
+                    data-rarity={
+                      s.kind === "unique" || s.kind === "leveling"
+                        ? "unique"
+                        : s.kind === "rare_craft"
+                          ? "rare"
+                          : "normal"
+                    }
+                    display="inline-block"
+                  >
+                    {s.item_name}
+                  </Text>
+                  {s.kind === "unique" && <PriceBadge name={s.item_name} />}
+                </Group>
               </Table.Td>
               <Table.Td>
                 <Badge size="xs" variant="light" color={KIND_COLOR[s.kind] ?? accent}>

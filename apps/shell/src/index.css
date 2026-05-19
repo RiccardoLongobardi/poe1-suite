@@ -528,6 +528,59 @@ h6 {
   }
 }
 
+/* ── Route transitions (Step 34) ──────────────────────────────────────
+   Nav-link clicks go through the View Transitions API; the root
+   cross-fade is defined here so reduced-motion suppression is free. */
+@keyframes vs-route-fade-in {
+  from {
+    opacity: 0;
+    translate: 0 8px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+@keyframes vs-route-fade-out {
+  from {
+    opacity: 1;
+    translate: 0 0;
+  }
+  to {
+    opacity: 0;
+    translate: 0 -8px;
+  }
+}
+::view-transition-old(root) {
+  animation: vs-route-fade-out 180ms ease-in both;
+}
+::view-transition-new(root) {
+  animation: vs-route-fade-in 220ms ease-out both;
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+}
+
+/* ── Toast / notification restyle (Step 34) ───────────────────────────
+   Bring Mantine's @mantine/notifications toasts into the Void Stone &
+   Ember palette. Mantine already paints a colour accent from the
+   `color` prop, so no per-type selectors are needed. */
+.mantine-Notification-root {
+  background: var(--vs-surface-2);
+  border: 1px solid var(--vs-border-stone);
+  box-shadow: var(--vs-shadow-lg);
+}
+.mantine-Notification-title {
+  font-family: "Cinzel", "Marcellus", Georgia, serif;
+  color: var(--vs-text);
+}
+.mantine-Notification-description {
+  color: var(--vs-text-muted);
+}
+
 /* Staggered result-card reveal. */
 @keyframes vs-card-reveal {
   from {

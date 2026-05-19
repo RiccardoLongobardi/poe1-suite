@@ -28,6 +28,32 @@ interface Release {
 // Prepend a new entry with user-facing (not technical) bilingual copy.
 const RELEASES: Release[] = [
   {
+    date: { it: "19 mag 2026", en: "19 May 2026" },
+    title: { it: "Navigazione fluida", en: "Fluid navigation" },
+    summary: {
+      it: "Transizioni animate tra le pagine, prezzi sugli oggetti, scorciatoie da tastiera e notifiche ridisegnate.",
+      en: "Animated page transitions, prices on items, keyboard shortcuts and redesigned notifications.",
+    },
+    entries: [
+      {
+        it: "Le pagine ora si dissolvono dolcemente l'una nell'altra invece di scattare.",
+        en: "Pages now cross-fade smoothly into each other instead of cutting.",
+      },
+      {
+        it: "Badge prezzo poe.ninja direttamente sugli oggetti unici, in Analizza e nel Planner.",
+        en: "poe.ninja price badge directly on unique items, in Analyse and the Planner.",
+      },
+      {
+        it: "Scorciatoie da tastiera: premi ? per vederle (G+F/A/P/N per navigare, T tema, L lingua).",
+        en: "Keyboard shortcuts: press ? to see them (G+F/A/P/N to navigate, T theme, L language).",
+      },
+      {
+        it: "Notifiche ridisegnate nel tema Void Stone & Ember.",
+        en: "Notifications restyled in the Void Stone & Ember theme.",
+      },
+    ],
+  },
+  {
     date: { it: "18 mag 2026", en: "18 May 2026" },
     title: {
       it: "Fix ricerca Trade per gli unique",

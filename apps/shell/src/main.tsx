@@ -28,7 +28,7 @@ createRoot(rootEl).render(
       <QueryClientProvider client={queryClient}>
         <MantineProvider theme={fobTheme} defaultColorScheme="dark">
           <LangProvider>
-            <Notifications />
+            <Notifications position="bottom-right" />
             <App />
           </LangProvider>
         </MantineProvider>

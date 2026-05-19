@@ -34,6 +34,7 @@ import {
   IconHeart,
   IconHistory,
   IconHome,
+  IconKeyboard,
   IconListCheck,
   IconMoon,
   IconSearch,
@@ -41,7 +42,7 @@ import {
   IconSun,
   IconTool,
 } from "@tabler/icons-react";
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { prefetchLeague } from "./api/tradeRedirect";
 import {
   Navigate,
@@ -51,8 +52,10 @@ import {
   useNavigate,
 } from "react-router-dom";
 import { DonationModal } from "./components/DonationModal";
+import { KeyboardShortcutsModal } from "./components/KeyboardShortcutsModal";
 import { ParticleCanvas } from "./components/ParticleCanvas";
 import { WarmupOverlay } from "./components/WarmupOverlay";
+import { useViewTransition } from "./hooks/useViewTransition";
 import { useLang, useT } from "./i18n";
 import { HomePage } from "./pages/HomePage";
 import { PatchNotesPage } from "./pages/PatchNotesPage";
@@ -140,10 +143,12 @@ export function App() {
 
 function ShellLayout() {
   const navigate = useNavigate();
+  const navigateWithTransition = useViewTransition();
   const location = useLocation();
   const [opened, { toggle, close }] = useDisclosure();
   const [plannerInput, setPlannerInput] = useState<string | undefined>(undefined);
   const [donationOpen, donation] = useDisclosure(false);
+  const [helpOpen, help] = useDisclosure(false);
   const { colorScheme, toggleColorScheme } = useMantineColorScheme();
   const { lang, setLang } = useLang();
   const t = useT();
@@ -154,10 +159,59 @@ function ShellLayout() {
     close();
   };
 
+  // Nav-link clicks animate via the View Transitions API.
   const navTo = (path: string) => () => {
-    navigate(path);
+    navigateWithTransition(path);
     close();
   };
+
+  // Global keyboard shortcuts. `G` then F/A/P/N navigates; T/L toggle
+  // theme/language; `?` opens this card. Ignored while typing in an
+  // input/textarea or with a modifier held.
+  const pendingG = useRef(false);
+  const pendingGTimer = useRef<number | undefined>(undefined);
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent): void => {
+      const el = document.activeElement;
+      if (el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA")) return;
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      const k = e.key.toLowerCase();
+      if (pendingG.current) {
+        pendingG.current = false;
+        window.clearTimeout(pendingGTimer.current);
+        const dest: Record<string, string> = {
+          f: "/finder",
+          a: "/analyze",
+          p: "/planner",
+          n: "/patch-notes",
+        };
+        if (dest[k]) {
+          e.preventDefault();
+          navigateWithTransition(dest[k]);
+        }
+        return;
+      }
+      if (k === "g") {
+        pendingG.current = true;
+        pendingGTimer.current = window.setTimeout(() => {
+          pendingG.current = false;
+        }, 1000);
+        return;
+      }
+      if (e.key === "?") {
+        e.preventDefault();
+        help.toggle();
+        return;
+      }
+      if (k === "t") toggleColorScheme();
+      else if (k === "l") setLang(lang === "it" ? "en" : "it");
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      window.clearTimeout(pendingGTimer.current);
+    };
+  }, [navigateWithTransition, toggleColorScheme, setLang, lang, help]);
 
   const isActive = (path: string) =>
     location.pathname === path ||
@@ -182,7 +236,7 @@ function ShellLayout() {
             <Group
               gap={8}
               style={{ cursor: "pointer" }}
-              onClick={() => navigate("/home")}
+              onClick={() => navigateWithTransition("/home")}
             >
               <IconSparkles size={22} color="var(--vs-ember)" />
               <Title
@@ -223,6 +277,18 @@ function ShellLayout() {
               ]}
               aria-label={t({ it: "Lingua", en: "Language" })}
             />
+            <ActionIcon
+              variant="subtle"
+              onClick={help.open}
+              title={t({
+                it: "Scorciatoie da tastiera (?)",
+                en: "Keyboard shortcuts (?)",
+              })}
+              size="lg"
+              visibleFrom="sm"
+            >
+              <IconKeyboard size={18} />
+            </ActionIcon>
             <ActionIcon
               variant="subtle"
               onClick={toggleColorScheme}
@@ -319,6 +385,7 @@ function ShellLayout() {
       </AppShell.Main>
 
       <DonationModal opened={donationOpen} onClose={donation.close} />
+      <KeyboardShortcutsModal opened={helpOpen} onClose={help.close} />
     </AppShell>
   );
 }

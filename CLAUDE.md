@@ -107,6 +107,17 @@ Frontend-only, no backend change.
 > Updating the `.md` files without updating the Patch Notes is an
 > incomplete step.
 
+## Step 34 — Visual polish batch 2 (2026-05-19) ✅
+
+Prompt 021. Four frontend-only changes. No backend, no new deps. Reduced-motion-safe, both colour schemes.
+
+- **Route transitions.** New `apps/shell/src/hooks/useViewTransition.ts` — `navigateWithTransition(to)` wraps `document.startViewTransition(() => navigate(to))` (feature-detected; plain `navigate` fallback). `index.css` defines `@keyframes vs-route-fade-in/out` + `::view-transition-old/new(root)` (root cross-fade, no per-element `view-transition-name`). The navbar `NavLink`s + the brand-click + the `G x` keyboard shortcuts use it; page-logic navigations (Finder "Pianifica" lift) stay plain.
+- **Price overlay badge.** New `api/pricing.ts` (`getQuote` → existing `GET /pricing/quote`), `hooks/usePriceHint.ts` (TanStack-cached, fires only for non-null names), `components/PriceBadge.tsx` (takes `name`, calls the hook internally — safe to render conditionally; renders `≈ 5c` / `≈ 1.2 div`, a shimmer pill while loading, nothing when unpriced). Shown on **unique** gear cells in Analyze (absolute, bottom-right) and **unique** rows in the Planner Gear tab (inline). Rares are NOT priced — poe.ninja can't name-price a rolled rare (`/pricing/quote` returns `quote: null`); the prompt's "unique + rare" is narrowed to uniques for that reason.
+- **Keyboard shortcuts.** New `components/KeyboardShortcutsModal.tsx` (a `?`-triggered Mantine `<Modal>` with a bilingual key/action table). A global `keydown` listener in `ShellLayout` handles `G`-then-`F/A/P/N` navigation (1 s `pendingG` window), `T` (theme), `L` (language), `?` (toggle the modal) — ignored while an input/textarea is focused or a modifier is held. The handler calls `toggleColorScheme` / `setLang` / `navigateWithTransition` directly (no DOM-click dispatch). A `?` `ActionIcon` in the header also opens it.
+- **Toast redesign.** `index.css` styles `.mantine-Notification-root` (Void Stone surface, stone border, `--vs-shadow-lg`), `-title` (Cinzel) and `-description` (muted) — Mantine already paints the per-`color` accent so no per-type selectors. `<Notifications position="bottom-right">` in `main.tsx`.
+
+Gate: 713 tests / 121 mypy / ruff clean (frontend-only). Frontend build main 458 KB / 146 KB gzip.
+
 ## Step 33 — Visual polish batch 1 (2026-05-18) ✅
 
 Prompt 020. Four frontend-only "make it feel alive" changes. No backend, no new deps. Every animation respects `prefers-reduced-motion` and works in both colour schemes.
