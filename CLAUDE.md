@@ -107,6 +107,25 @@ Frontend-only, no backend change.
 > Updating the `.md` files without updating the Patch Notes is an
 > incomplete step.
 
+## Step 38 — Theorycrafter: Build Generator (2026-05-19) ✅
+
+Prompt 024 follow-up. First *implementation* slice of Theorycrafter (Pillar 1). New `/theorycrafter` route. **Rule-based — no LLM.** Riccardo's scope decision (see workflow §7): only the Build Generator now; Loot Filter / Atlas / scarab table postponed; LLM rationale is a future enhancement.
+
+**The concept.** A pure-rule build generator that *invents* class/skill/items would be exactly the hand-curation CLAUDE.md forbids. Instead the generator is **ladder-anchored**: the user describes a build → the backend extracts an intent, ranks the poe.ninja ladder, picks the best-fit *real* build, and reformats it as a clean skeleton. It never invents an item or an illegal gem link; the `source_*` fields link back to the origin character.
+
+**Backend — new `poe1_fob.theory` subpackage:**
+- `theory/models.py` — `TheoryBuildSkeleton` + `SkeletonUnique` (frozen Pydantic; **no camelCase aliases** — like `PobSnapshot`, snake_case keys, the frontend consumes them as-is. Aliases were dropped after the pydantic-mypy plugin rejected by-name construction).
+- `theory/generator.py` — `generate_build(query, *, settings, http)`: `extract_intent` → `SourceAggregator` + `RankingEngine` (top-1) → `BuildsService.get_detail` → parse the hydrated PoB once → assemble the skeleton (main skill group → core skill + 6L; unique items tier-classified via `gear.dynamic.classify_item`; keystones from `FullBuild.key_stones`; rationale composed in Italian from the build's own numbers). `TheoryError` when the ladder has no match.
+- `router.py` — `POST /fob/theory/generate` (request `TheoryGenerateRequest{query}`), under the existing `/fob` router.
+- Tests: `packages/fob/tests/test_theory.py` (8 unit tests — models, `_fmt`, `_ninja_url`, `_compose_rationale`) + `apps/server/tests/test_fob_router.py` (2 e2e — real protobuf ladder fixtures + real character JSON via `MockTransport`; rejects empty query). The e2e passes `anthropic_api_key=None` so intent extraction stays rule-based offline.
+
+**Frontend:**
+- New lazy route `/theorycrafter` in `App.tsx` + navbar `NavLink` ("Theorycrafter", `IconFlask`, untranslated — community term).
+- `pages/TheorycrafterPage.tsx` — **single focused panel** (no `<Tabs>` shell — one tab would be over-engineering until more pillars land). NL input that collapses to a `<Code>` chip after generate (same pattern as Finder/Analyze); result is a `SkeletonCard` showing class/ascendancy badges, the 6L, key uniques grouped by budget tier, tree keystones + passive count, the Italian rationale, and a link to the source poe.ninja character.
+- New `theory` Zustand slice in `pageStore.ts` (cross-route persistence). `api/fob.ts` `generateBuild()` client + `TheoryBuildSkeleton`/`SkeletonUnique` types in `types.ts`. Bilingual strings via `t()`.
+
+Gate: 724 tests (+10) / 128 mypy / ruff clean. Frontend build main ~464 KB / 148 KB gzip.
+
 ## Step 37 — Theorycrafter (2026-05-19) — analysis phase
 
 Prompt 024. **Design & architecture analysis only — no code shipped.** Produced `docs/THEORYCRAFTER_DESIGN.md`.

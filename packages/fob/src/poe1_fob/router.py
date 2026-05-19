@@ -58,6 +58,7 @@ from .pob import (
 from .pob import clean_mod_lines as _clean_mod_lines
 from .pob import extract_mods as _extract_mod_patterns
 from .ranking import RankingEngine, RecommendRequest, RecommendResponse, SourceAggregator
+from .theory import TheoryBuildSkeleton, TheoryError, generate_build
 from .trade_stats import resolve_mods
 from .tree import (
     StageTree,
@@ -88,6 +89,23 @@ class ExtractIntentRequest(BaseModel):
             "Free-text description of the desired build — Italian or English. "
             "Example: 'voglio una cold build comfy per mapping' or "
             "'looking for a cheap CI caster for bossing'."
+        ),
+    )
+
+
+class TheoryGenerateRequest(BaseModel):
+    """Input for ``POST /fob/theory/generate``."""
+
+    model_config = ConfigDict(frozen=True)
+
+    query: str = Field(
+        ...,
+        min_length=1,
+        max_length=2000,
+        description=(
+            "Free-text description of the build to design from scratch — "
+            "Italian or English. Example: 'build tanky con RF per tutti i "
+            "contenuti' or 'cheap cold caster for mapping'."
         ),
     )
 
@@ -507,6 +525,39 @@ def make_router(settings: Settings) -> APIRouter:
             total_candidates=len(refs),
             intent=payload.intent,
         )
+
+    @router.post(
+        "/theory/generate",
+        response_model=TheoryBuildSkeleton,
+        summary="Generate a build skeleton from a natural-language description.",
+    )
+    async def theory_generate(
+        payload: Annotated[TheoryGenerateRequest, Body()],
+    ) -> TheoryBuildSkeleton:
+        """Theorycrafter Build Generator (rule-based).
+
+        Extract an intent, rank the poe.ninja ladder, hydrate the best
+        match, and reformat it as a clean build skeleton. No LLM, no
+        hand-written build data — the skeleton is anchored on a real
+        ladder character.
+        """
+        async with HttpClient(settings) as http:
+            try:
+                skeleton = await generate_build(payload.query, settings=settings, http=http)
+            except TheoryError as exc:
+                raise HTTPException(status_code=404, detail=str(exc)) from exc
+            except IntentLlmError as exc:
+                raise HTTPException(status_code=502, detail=f"LLM fallback failed: {exc}") from exc
+            except (PobParseError, ValueError) as exc:
+                raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+        log.info(
+            "fob_theory_generate_ok",
+            ascendancy=skeleton.ascendancy,
+            main_skill=skeleton.main_skill,
+            template=skeleton.template_name,
+        )
+        return skeleton
 
     @router.post(
         "/plan",

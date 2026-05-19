@@ -28,7 +28,8 @@ Don't trust earlier versions of this file — the section below is the authorita
 - **Step 34 (Visual polish batch 2) DONE 2026-05-19** — lightweight route fade (CSS; see §7 for why View Transitions API was deferred, not abandoned), unique-item poe.ninja price badges, keyboard shortcuts overlay (`?`), toast redesign. ✅
 - **Step 35 (Visual polish batch 3) DONE 2026-05-19** — 2/3 shipped: Analyze item hover+pin popover (`GearCard`) + header logo ember pulse. Finder virtual list dropped (≤50 items, variable-height cards). ✅
 - **Step 36 (View Transitions API) DONE 2026-05-19** — only Layer 3a (Finder skill-filter micro-transition) shipped. Layer 1 (route cross-fade) was implemented then **reverted the same day** — wrapping navigation in `startViewTransition` snapshots the whole DOM per page switch and made navigation feel sluggish. Route changes keep the Step 34 CSS fade. **Do not retry route-level View Transitions.** ✅
-- **Step 37 (Theorycrafter — design phase) DONE 2026-05-19** — analysis-only. `docs/THEORYCRAFTER_DESIGN.md` written: feasibility per pillar, data inventory, architecture (new `poe1_fob.theory` subpackage + `/theorycrafter` route), rollout (Steps 38–41), 6 open questions for Riccardo. **No implementation until the §5 open questions are answered.**
+- **Step 37 (Theorycrafter — design phase) DONE 2026-05-19** — analysis-only. `docs/THEORYCRAFTER_DESIGN.md` written.
+- **Step 38 (Theorycrafter — Build Generator) DONE 2026-05-19** — new `/theorycrafter` route. Rule-based Build Generator: NL query → intent → poe.ninja ladder rank → best-fit real build reformatted as a clean skeleton (class/asc, 6L, key uniques by budget tier, tree keystones, Italian rationale). Ladder-anchored — never invents items. New `poe1_fob.theory` subpackage + `POST /fob/theory/generate`. 724 tests / 128 mypy. ✅
 
 If anything you read in this file or in `CLAUDE.md` contradicts the above, **the above wins**.
 
@@ -125,7 +126,7 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 
 ### IN PROGRESS
 
-- **Step 38 — Theorycrafter: Build Generator (rule-based).** Riccardo answered the §5 open questions (2026-05-19) — see §7. Scope is now narrowed: the **only** immediate Theorycrafter work is the Build Generator (Pillar 1), **rule-based** (no LLM). New `/theorycrafter` route confirmed. Loot Filter, Atlas Strategy and the scarab table are postponed. The Item & Modifier Browser, when built, is the *full* version (affix pools + ranges).
+*(none as of 2026-05-19 — Step 38 shipped)*
 
 ### CANDIDATE FUTURE WORK
 
@@ -140,6 +141,7 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 
 ### DONE
 
+- [x] **Step 38 — Theorycrafter: Build Generator** (2026-05-19) — new `/theorycrafter` route; rule-based ladder-anchored Build Generator (`poe1_fob.theory` subpackage, `POST /fob/theory/generate`). NL query → best-fit real ladder build reformatted as a clean skeleton. No LLM. 724 tests / 128 mypy.
 - [x] **Step 37 — Theorycrafter design & architecture analysis** (2026-05-19, Prompt 024) — analysis-only, no code. `docs/THEORYCRAFTER_DESIGN.md`: 4-pillar feasibility, data inventory, `poe1_fob.theory` subpackage architecture, Steps 38–41 rollout, 6 open questions.
 - [x] **Step 36 — View Transitions API** (2026-05-19, Prompt 023) — only Layer 3a shipped (Finder skill-filter micro-transition via the `useViewTransition` hook). Layer 1 route cross-fade was implemented then **reverted same-day**: `startViewTransition` + `flushSync` snapshots the whole DOM on every page switch (worse with lazy routes) — navigation felt sluggish. Route changes keep the Step 34 keyed CSS fade. Layers 2 / 3b / 3c never implemented (no BuildCard→Analyze route; hover-driven `GearCard` popover; portal `<Modal>`s). Frontend-only, 714 tests / 124 mypy.
 - [x] **Step 35 — Visual polish batch 3** (2026-05-19, Prompt 022) — 2/3 changes. `GearCard` (Analyze): hover pops item details panel, click pins it open (one pinned at a time). Header `IconSparkles` ember pulse (opacity 0.55→1 + scale + bright glow). **Finder virtual list dropped** — ≤50 items, variable-height cards. Frontend-only, 714 tests.

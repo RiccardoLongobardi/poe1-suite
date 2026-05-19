@@ -30,6 +30,27 @@ const RELEASES: Release[] = [
   {
     date: { it: "19 mag 2026", en: "19 May 2026" },
     title: {
+      it: "Theorycrafter — Generatore di build",
+      en: "Theorycrafter — Build Generator",
+    },
+    summary: {
+      it: "Nuova sezione: descrivi la build che vuoi e ricevi uno scheletro completo pronto all'uso.",
+      en: "New section: describe the build you want and get a complete, ready-to-use skeleton.",
+    },
+    entries: [
+      {
+        it: "La nuova pagina Theorycrafter ti fa progettare una build da zero: descrivila in italiano o inglese (es. \"build tanky con RF per tutti i contenuti\") e ricevi classe, ascendancy, skill principale, collegamenti gemma, oggetti unici per fascia di budget e keystone dell'albero.",
+        en: 'The new Theorycrafter page lets you design a build from scratch: describe it in Italian or English (e.g. "tanky RF build for all content") and get the class, ascendancy, main skill, gem links, key uniques by budget tier, and tree keystones.',
+      },
+      {
+        it: "Lo scheletro è sempre derivato da una build reale presente in classifica su poe.ninja — niente oggetti inventati — con un link al personaggio di origine per verificarla.",
+        en: "The skeleton is always derived from a real build on the poe.ninja ladder — no invented items — with a link to the source character so you can verify it.",
+      },
+    ],
+  },
+  {
+    date: { it: "19 mag 2026", en: "19 May 2026" },
+    title: {
       it: "Theorycrafter in arrivo",
       en: "Theorycrafter on the way",
     },

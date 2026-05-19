@@ -31,6 +31,7 @@ import {
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import {
+  IconFlask,
   IconHeart,
   IconHistory,
   IconHome,
@@ -75,6 +76,11 @@ const AnalyzePage = lazy(() =>
 );
 const PlannerPage = lazy(() =>
   import("./pages/PlannerPage").then((m) => ({ default: m.PlannerPage })),
+);
+const TheorycrafterPage = lazy(() =>
+  import("./pages/TheorycrafterPage").then((m) => ({
+    default: m.TheorycrafterPage,
+  })),
 );
 
 /**
@@ -341,6 +347,13 @@ function ShellLayout() {
           onClick={navTo("/planner")}
           variant="light"
         />
+        <NavLink
+          label="Theorycrafter"
+          leftSection={<IconFlask size={16} />}
+          active={isActive("/theorycrafter")}
+          onClick={navTo("/theorycrafter")}
+          variant="light"
+        />
 
         {/* Secondary — pushed to the bottom, low prominence. */}
         <Divider mt="auto" mb={4} color="var(--vs-border-faint)" />
@@ -380,6 +393,10 @@ function ShellLayout() {
                 <Route
                   path="/planner"
                   element={<PlannerPage initialInput={plannerInput} />}
+                />
+                <Route
+                  path="/theorycrafter"
+                  element={<TheorycrafterPage />}
                 />
                 <Route path="/patch-notes" element={<PatchNotesPage />} />
                 <Route path="*" element={<Navigate to="/home" replace />} />
