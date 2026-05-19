@@ -29,7 +29,7 @@ Don't trust earlier versions of this file — the section below is the authorita
 - **Step 35 (Visual polish batch 3) DONE 2026-05-19** — 2/3 shipped: Analyze item hover+pin popover (`GearCard`) + header logo ember pulse. Finder virtual list dropped. ✅
 - **Step 36 (View Transitions API) DONE 2026-05-19** — only Layer 3a (Finder skill-filter micro-transition) shipped. Layer 1 reverted same day. **Do not retry route-level View Transitions.** ✅
 - **Step 37 (Theorycrafter — design phase) DONE 2026-05-19** — analysis-only. `docs/THEORYCRAFTER_DESIGN.md` written. ✅
-- **Step 38 (Theorycrafter — Build Generator) SHIPPED BUT ARCHITECTURALLY WRONG 2026-05-19** ⚠️ — new `/theorycrafter` route + `POST /fob/theory/generate` shipped, BUT the engine is **ladder-anchored**: NL query → intent → poe.ninja ladder rank → reformatted real build skeleton. This is **Finder-like retrieval, not Theorycrafter generation from scratch**. The product intent is wrong. Step 38 must be corrected via Prompt 025 before any further Theorycrafter work. See §7 decision log.
+- **Step 38 (Theorycrafter — Build Generator) → reset by Step 38r 2026-05-19** ✅ — Step 38 shipped a ladder-anchored engine (NL query → poe.ninja ladder rank → reformatted real build); that is Finder retrieval, not from-scratch generation. **Step 38r (Prompt 025) reset it: Option C — deleted the `poe1_fob.theory` subpackage + `POST /fob/theory/generate`; `/theorycrafter` is now a clean "coming soon" stub.** The correct from-scratch generator is a future step. The Finder-vs-Theorycrafter boundary is now documented permanently in `CLAUDE.md` product direction.
 
 If anything you read in this file or in `CLAUDE.md` contradicts the above, **the above wins**.
 
@@ -67,7 +67,7 @@ The §1 snapshot is hand-maintained — it might lag a few hours after a feature
 
 ### Live frontend (Vercel)
 
-- <https://fob-ten.vercel.app> — `/finder`, `/analyze`, `/planner`, `/theorycrafter` (architecturally broken — see §1 warning).
+- <https://fob-ten.vercel.app> — `/finder`, `/analyze`, `/planner`, `/theorycrafter` ("coming soon" stub after the Step 38r reset).
 
 ---
 
@@ -126,7 +126,7 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 
 ### IN PROGRESS
 
-- **Step 38r — Theorycrafter architectural reset** ⚠️ — Prompt 025 drafted (see §8). Must run before any further Theorycrafter work. Step 38 engine is wrong: it does ladder retrieval, not from-scratch generation. See §7.
+*(none as of 2026-05-19 — Step 38r shipped)*
 
 ### CANDIDATE FUTURE WORK
 
@@ -139,7 +139,8 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 
 ### DONE
 
-- [x] **Step 38 — Theorycrafter: Build Generator** (2026-05-19) ⚠️ ARCHITECTURAL DRIFT — shipped but wrong. Engine is ladder-anchored (poe.ninja retrieval), not from-scratch generation. To be corrected by Prompt 025 / Step 38r.
+- [x] **Step 38r — Theorycrafter architectural reset** (2026-05-19, Prompt 025) — Option C: deleted the ladder-anchored `poe1_fob.theory` subpackage + `POST /fob/theory/generate` + tests + frontend wiring. `/theorycrafter` kept as a clean "coming soon" stub. Finder-vs-Theorycrafter boundary documented permanently in `CLAUDE.md`. 714 tests / 124 mypy.
+- [x] **Step 38 — Theorycrafter: Build Generator** (2026-05-19) ⚠️ ARCHITECTURAL DRIFT — shipped but wrong (ladder-anchored retrieval). Reset by Step 38r above.
 - [x] **Step 37 — Theorycrafter design & architecture analysis** (2026-05-19, Prompt 024) — analysis-only. `docs/THEORYCRAFTER_DESIGN.md`. ✅
 - [x] **Step 36 — View Transitions API** (2026-05-19, Prompt 023) — Layer 3a only. Layer 1 reverted. ✅
 - [x] **Step 35 — Visual polish batch 3** (2026-05-19, Prompt 022) — GearCard hover+pin, ember pulse. ✅
@@ -168,6 +169,7 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 
 Reverse-chronological.
 
+- **2026-05-19** — *Step 38r reset executed (Prompt 025) — Option C chosen.* Claude evaluated the three options and chose **C (delete + stub)**: the `poe1_fob.theory` ladder-anchored engine was deleted, `/theorycrafter` left as a clean "coming soon" stub. Reasoning: Option B (rebuild the correct engine now) needs a substantial rule-based synthesis pipeline + a gem-data vendor file that doesn't exist yet — the workflow itself scopes the correct generator as a separate future step; B would have shipped a half-built engine. Option A keeps semi-wrong code for marginal value. C leaves the repo honest. The Finder-vs-Theorycrafter boundary is now a permanent rule in `CLAUDE.md` product direction.
 - **2026-05-19** — *Step 38 architectural drift identified. Theorycrafter ≠ Finder.* Product intent clarified by Riccardo: **Theorycrafter must generate builds from scratch** using official 3.28 data (vendored tree, gems, item bases). It must NOT search or reformat builds from the poe.ninja ladder — that is exactly what Finder already does. Step 38's engine ("NL query → ladder rank → reformatted real build") is wrong by definition. The correct engine is **rule-based deterministic planner + Path of Building as the synthesis/validation motor**. LLM is explicitly excluded from build data generation; it may only be used optionally for NL intent parsing and textual rationale (with per-call cost). Step 38 must be diagnosed and corrected via Prompt 025 before any new Theorycrafter work. The three options Claude must evaluate: (A) Rename Step 38 as a Finder extension and rebuild Theorycrafter from scratch; (B) Heavy refactor keeping only UI shell; (C) Delete and rebuild. Claude must choose one — no "it depends".
 - **2026-05-19** — *Theorycrafter rollout narrowed (Riccardo's answers to the §5 open questions).* Build Generator rule-based; Item Filter Generator postponed; Atlas Strategy postponed; Item & Modifier Browser deferred (full version when built); LLM rationale layer future enhancement; route `/theorycrafter` confirmed.
 - **2026-05-19** — *Theorycrafter scoped as next major feature.* Four backlog items consolidated into Theorycrafter.
@@ -190,176 +192,7 @@ Reusable templates. Self-contained — runnable today without past-chat context.
 
 ---
 
-### Prompt 025 — Step 38r — Theorycrafter architectural reset
-
-**Purpose:** Diagnose and correct the architectural drift in Step 38. The current `/theorycrafter` engine is a poe.ninja ladder retriever disguised as a build generator. This prompt asks Claude to read the actual code, make a hard call (rename / refactor / delete-rebuild), and leave the repo semantically correct with updated docs.
-
-**Run as:** Claude Code (Opus 4.7). Touches backend + frontend + docs. Gate required.
-
----
-
-```
-Read CLAUDE.md and CLAUDE_PERPLEXITY_WORKFLOW.md top-to-bottom before doing anything else.
-Pay special attention to §7 decision log entry dated 2026-05-19 about Step 38 architectural drift.
-
----
-
-## Context
-
-The product has four routes:
-- /finder      → Build Finder: finds real builds from poe.ninja ladder matching a user query.
-- /analyze     → PoB Analyzer: pastes PoB code → full build dashboard + Trade search.
-- /planner     → Progression Planner: pastes PoB code → 6-stage leveling plan.
-- /theorycrafter → currently WRONG (see below).
-
-**The boundary that must never be crossed:**
-- Finder = retrieval of real builds from poe.ninja ladder.
-- Theorycrafter = generation of builds from scratch using official 3.28 data (vendored tree, gems, item bases). Never touches the ladder as its primary engine.
-
-**What Step 38 actually built:**
-Step 38 built a `/theorycrafter` route with `POST /fob/theory/generate` whose engine is:
-NL query → intent extraction → poe.ninja ladder rank → best-fit real ladder build → reformatted skeleton output.
-
-This is wrong. It is a Finder variant. Theorycrafter must generate builds de novo, not retrieve and reformat ladder builds.
-
----
-
-## Your task
-
-### Phase 1 — Read and diagnose (no changes yet)
-
-1. Read the full implementation of `poe1_fob/theory/` (all files).
-2. Read `apps/shell/src/pages/TheorycrAfterPage.tsx` (or equivalent — find the actual file).
-3. Answer these questions internally:
-   - What % of the backend logic depends on poe.ninja ladder data?
-   - Is there any piece of the backend logic that does NOT depend on the ladder?
-   - Is the frontend UI shell (inputs, layout, display) reusable for a correct Theorycrafter?
-   - What would remain after stripping all ladder-retrieval logic?
-
-### Phase 2 — Make the hard call
-
-Choose **exactly one** of these three options. You must choose — no "it depends":
-
-**Option A — Rename + keep as Finder extension:**
-- Rename `/theorycrafter` → something under Finder scope (e.g. `/finder/suggest` or a new tab in Finder).
-- Rebuild `/theorycrafter` from scratch in a later step as a clean PoB-driven generator.
-- No backend logic is salvaged as "Theorycrafter" logic.
-
-**Option B — Heavy refactor:**
-- Keep the frontend UI shell only (inputs, layout, card display structure).
-- Delete or gut the entire `poe1_fob/theory/` backend module.
-- Replace the engine with the correct architecture (see Phase 3 below).
-- The current `POST /fob/theory/generate` either disappears or is fully rewritten.
-
-**Option C — Delete and rebuild:**
-- Delete `poe1_fob/theory/`, the `/theorycrafter` route, and the page component entirely.
-- Document what was deleted and why.
-- Leave a clean stub route `/theorycrafter` with a "coming soon" placeholder page.
-- The correct engine will be built in a future step.
-
-Pick the option that leaves the repo most honest. State your reasoning explicitly.
-
-### Phase 3 — Implement the decision
-
-Whatever option you chose, implement it now.
-
-If Option A or C: the cleanup is the work. Make the rename/delete clean, update all imports, routes, tests.
-
-If Option B: gut the engine and replace it with the **correct Theorycrafter v1 architecture**:
-
-The correct architecture is **rule-based deterministic planner using vendored 3.28 data**:
-
-```
-Input:
-  - user_query: str (natural language)
-  - optional: class_hint, asc_hint, budget_tier (starter/mid/endgame), content_focus (bossing/mapping/allcontent/league), defence_archetype (life/es/ward/hybrid)
-
-Pipeline:
-  1. Intent extraction
-     - Parse user_query into structured intent fields above.
-     - Rule-based keyword matching is acceptable (no LLM required).
-     - LLM is OPTIONAL and only for intent parsing — never for data generation.
-
-  2. Archetype resolution
-     - Map (class, asc, skill_family) to a well-defined archetype.
-     - Use poe.ninja builds data ONLY for popularity signal (e.g. "which skill is most popular for Inquisitor?") — never as the build source.
-     - The build itself is generated, not retrieved.
-
-  3. Core skill + support gem selection
-     - From vendored gem data (RePoE or PoB src/Data/Skills/*.lua parsed into JSON).
-     - Select 6L based on archetype rules (e.g. RF always wants Efficacy, Burning Damage, Concentratred Effect, etc.).
-     - Rules are data-driven, not hand-written per build.
-
-  4. Passive tree milestone generation
-     - From vendored tree data (packages/fob/data/tree/3_28.json already present).
-     - Select: starting area, major keystones for archetype (e.g. Elemental Overload, Acrobatics, etc.), notable clusters, ascendancy nodes.
-     - Output: list of node IDs + human-readable milestone descriptions.
-
-  5. Gear skeleton generation
-     - From vendored item bases (packages/fob/data/items/base_items.json already present).
-     - Select recommended base types per slot for the archetype + budget tier.
-     - List priority stats per slot (e.g. "Helmet: +1 to level of socketed fire gems, life, resists").
-     - No invented item names. Only real base types + stat families.
-
-  6. Output format
-     - A structured BuildSkeleton Pydantic model:
-       class BuildSkeleton(BaseModel):
-         class_name: str
-         ascendancy: str
-         core_skill: str
-         links: list[GemLink]
-         tree_milestones: list[TreeMilestone]
-         gear_slots: list[GearSlot]
-         budget_tier: str
-         content_focus: str
-         rationale_it: str  # Italian explanation
-         rationale_en: str  # English explanation
-         pob_import_hint: str  # e.g. "Open PoB, New build, set class to X, import these nodes..."
-```
-
-Note on pob_import_hint: we are NOT generating a full PoB XML in this step. That is a future enhancement. For now, give the user enough structured data to manually set up PoB in <5 minutes.
-
-### Phase 4 — Update all documentation
-
-Update in the **same commit** as the code changes:
-
-**CLAUDE.md**: Add a note under product direction clarifying permanently:
-- Finder = ladder retrieval
-- Theorycrafter = from-scratch generation using 3.28 vendored data + PoB as reference engine
-- These two must never be confused again
-
-**CLAUDE_PERPLEXITY_WORKFLOW.md**:
-- §1 snapshot: update Step 38 entry to reflect what was done (reset / correction)
-- §6 backlog: move Step 38r to DONE, update CANDIDATE with correct next Theorycrafter step
-- §7 decision log: add entry for today's reset decision
-
-**PatchNotesPage.tsx** RELEASES array — bilingual user-facing entry:
-- Italian: "Theorycrafter ridefinito: il generatore ora costruisce build da zero con i dati ufficiali 3.28, senza attingere dalla classifica dei giocatori."
-- English: "Theorycrafter redefined: the generator now builds from scratch using official 3.28 data, not the player ladder."
-
-### Phase 5 — Gate
-
-Run the full gate:
-```bash
-uv run ruff check .
-uv run ruff format --check .
-uv run mypy .
-uv run pytest
-```
-
-All must pass. Report final test / mypy / ruff counts.
-
----
-
-## Constraints
-
-- No poedb.tw, no GGG OAuth, no PostgreSQL.
-- Vendor data, don't fetch at runtime.
-- LLM is optional and only for NL intent parsing — never for generating item names, node IDs, gem names, or build stats.
-- If you use LLM for intent parsing, it must be a graceful degradation: if the API is down, fallback to keyword matching.
-- Render free tier: 512 MB RAM — no heavy in-memory model loading on startup.
-- The gate must pass before declaring done.
-```
+*(no open prompts as of 2026-05-19 — Prompt 025 shipped, see §9)*
 
 ---
 
@@ -383,3 +216,4 @@ Closed prompts kept for context. Don't run these.
 - **Old Prompt 022 (Step 35 — Visual polish batch 3)** — Shipped 2026-05-19. ✅
 - **Old Prompt 023 (Step 36 — View Transitions API)** — Shipped 2026-05-19, partially reverted. ✅
 - **Old Prompt 024 (Step 37 — Theorycrafter design & architecture analysis)** — Shipped 2026-05-19. ✅
+- **Old Prompt 025 (Step 38r — Theorycrafter architectural reset)** — Shipped 2026-05-19. ✅ Option C: deleted the ladder-anchored `poe1_fob.theory` engine; `/theorycrafter` left as a "coming soon" stub. Finder-vs-Theorycrafter boundary documented permanently in `CLAUDE.md`.

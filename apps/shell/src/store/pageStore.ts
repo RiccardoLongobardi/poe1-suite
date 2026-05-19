@@ -30,7 +30,6 @@ import type {
   RecommendResponse,
   SortKey,
   TargetGoal,
-  TheoryBuildSkeleton,
 } from "../api/types";
 
 // ---------------------------------------------------------------------------
@@ -135,20 +134,6 @@ function emptyPlanner(): PlannerState {
 }
 
 // ---------------------------------------------------------------------------
-// Theorycrafter slice (Step 38)
-// ---------------------------------------------------------------------------
-
-export interface TheoryState {
-  query: string;
-  result: TheoryBuildSkeleton | null;
-  editing: boolean;
-}
-
-function emptyTheory(): TheoryState {
-  return { query: "", result: null, editing: true };
-}
-
-// ---------------------------------------------------------------------------
 // Store
 // ---------------------------------------------------------------------------
 
@@ -162,9 +147,6 @@ interface PageStore {
 
   planner: PlannerState;
   setPlanner: (patch: Partial<PlannerState>) => void;
-
-  theory: TheoryState;
-  setTheory: (patch: Partial<TheoryState>) => void;
 }
 
 /**
@@ -212,9 +194,6 @@ export const usePageStore = create<PageStore>()(
       planner: emptyPlanner(),
       setPlanner: (patch) =>
         set((s) => ({ planner: { ...s.planner, ...patch } })),
-
-      theory: emptyTheory(),
-      setTheory: (patch) => set((s) => ({ theory: { ...s.theory, ...patch } })),
     }),
     {
       name: "fob-page-state",

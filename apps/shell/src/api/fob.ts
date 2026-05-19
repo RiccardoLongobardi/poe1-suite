@@ -17,7 +17,6 @@ import type {
   StageExportRequest,
   StageExportResponse,
   TargetGoal,
-  TheoryBuildSkeleton,
   TradeModExtractResponse,
   TradeUrlRequest,
   TradeUrlResponse,
@@ -70,19 +69,6 @@ export async function recommend(
     intent,
     top_n: topN,
   });
-}
-
-/**
- * POST /fob/theory/generate — Theorycrafter Build Generator.
- *
- * Rule-based: the server extracts an intent, ranks the poe.ninja
- * ladder, hydrates the best-fit real build and reformats it as a
- * `TheoryBuildSkeleton`. No LLM, no invented items.
- */
-export async function generateBuild(
-  query: string,
-): Promise<TheoryBuildSkeleton> {
-  return post<TheoryBuildSkeleton>("/fob/theory/generate", { query });
 }
 
 /** POST /fob/analyze-pob */

@@ -30,21 +30,13 @@ const RELEASES: Release[] = [
   {
     date: { it: "19 mag 2026", en: "19 May 2026" },
     title: {
-      it: "Theorycrafter — Generatore di build",
-      en: "Theorycrafter — Build Generator",
-    },
-    summary: {
-      it: "Nuova sezione: descrivi la build che vuoi e ricevi uno scheletro completo pronto all'uso.",
-      en: "New section: describe the build you want and get a complete, ready-to-use skeleton.",
+      it: "Theorycrafter ridefinito",
+      en: "Theorycrafter redefined",
     },
     entries: [
       {
-        it: "La nuova pagina Theorycrafter ti fa progettare una build da zero: descrivila in italiano o inglese (es. \"build tanky con RF per tutti i contenuti\") e ricevi classe, ascendancy, skill principale, collegamenti gemma, oggetti unici per fascia di budget e keystone dell'albero.",
-        en: 'The new Theorycrafter page lets you design a build from scratch: describe it in Italian or English (e.g. "tanky RF build for all content") and get the class, ascendancy, main skill, gem links, key uniques by budget tier, and tree keystones.',
-      },
-      {
-        it: "Lo scheletro è sempre derivato da una build reale presente in classifica su poe.ninja — niente oggetti inventati — con un link al personaggio di origine per verificarla.",
-        en: "The skeleton is always derived from a real build on the poe.ninja ladder — no invented items — with a link to the source character so you can verify it.",
+        it: "Theorycrafter costruirà build da zero usando i dati ufficiali di PoE 3.28 (albero, gemme, basi oggetto), senza attingere dalla classifica dei giocatori — trovare build reali resta il compito del Build Finder. La prima versione confondeva i due ruoli ed è stata rimossa; il vero generatore arriverà in un prossimo aggiornamento.",
+        en: "Theorycrafter will build from scratch using official PoE 3.28 data (tree, gems, item bases), not the player ladder — finding real builds stays the Build Finder's job. The first version blurred the two roles and was removed; the real generator is coming in a future update.",
       },
     ],
   },

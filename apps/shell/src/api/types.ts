@@ -580,34 +580,3 @@ export interface PricingProgress {
 export interface ApiError {
   detail: string;
 }
-
-// ---------------------------------------------------------------------------
-// Theorycrafter — Build Generator (Step 38)
-// ---------------------------------------------------------------------------
-
-/** One unique item in a generated skeleton, with its budget tier. */
-export interface SkeletonUnique {
-  name: string;
-  slot: string;
-  /** mageblood / high / mid / cheap / leveling / cluster / mirror. */
-  tier: string;
-}
-
-/** A build skeleton generated from a natural-language query. */
-export interface TheoryBuildSkeleton {
-  query: string;
-  character_class: string;
-  ascendancy: string | null;
-  main_skill: string;
-  support_gems: string[];
-  level: number;
-  key_uniques: SkeletonUnique[];
-  keystones: string[];
-  passive_count: number;
-  content_focus: string[];
-  template_name: string;
-  rationale: string;
-  source_account: string;
-  source_character: string;
-  source_url: string;
-}

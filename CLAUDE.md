@@ -26,6 +26,13 @@ The 49 hand-written `BuildTemplate` classes in `poe1_fob.planner.templates` stay
 
 Tree allocation, gear progression, gem level/quality progression — these are **NOT** to be hand-curated per template. They are derived dynamically (Steps 16-18 in the backlog).
 
+### Finder vs Theorycrafter — a boundary that must never be crossed
+
+These two tools sound similar and were confused once already (Step 38 — reset by Step 38r). The distinction is permanent:
+
+- **Build Finder** (`/finder`) = **retrieval**. It searches the *poe.ninja ladder* for real builds matching a user query, ranks them, and presents them. The ladder IS its data source.
+- **Theorycrafter** (`/theorycrafter`) = **generation from scratch**. It synthesises a build from the official vendored PoE 3.28 data (passive tree JSON, gem data, item bases). It must **never** use the poe.ninja ladder as its build source — at most as a *popularity signal* ("which skill is most common for this ascendancy"). A Theorycrafter feature whose output is "a reformatted real ladder build" is wrong by definition: that is Finder.
+
 ## External data sources (use these, don't reinvent)
 
 Research conducted 2026-05-14 mapped every public PoE 1 data source. The conclusion: **two upstream repos give us everything we need**, both MIT-licensed, both league-current. Don't add new sources without re-doing the research; here's what we evaluated:
@@ -107,24 +114,21 @@ Frontend-only, no backend change.
 > Updating the `.md` files without updating the Patch Notes is an
 > incomplete step.
 
-## Step 38 — Theorycrafter: Build Generator (2026-05-19) ✅
+## Step 38r — Theorycrafter architectural reset (2026-05-19) ✅
 
-Prompt 024 follow-up. First *implementation* slice of Theorycrafter (Pillar 1). New `/theorycrafter` route. **Rule-based — no LLM.** Riccardo's scope decision (see workflow §7): only the Build Generator now; Loot Filter / Atlas / scarab table postponed; LLM rationale is a future enhancement.
+Prompt 025. **Step 38 shipped the wrong thing and was reset the same day.**
 
-**The concept.** A pure-rule build generator that *invents* class/skill/items would be exactly the hand-curation CLAUDE.md forbids. Instead the generator is **ladder-anchored**: the user describes a build → the backend extracts an intent, ranks the poe.ninja ladder, picks the best-fit *real* build, and reformats it as a clean skeleton. It never invents an item or an illegal gem link; the `source_*` fields link back to the origin character.
+**What went wrong.** Step 38 built a `/theorycrafter` route + `POST /fob/theory/generate` whose engine was: NL query → intent → **poe.ninja ladder rank → reformat the best real ladder build**. That is *retrieval* — exactly what the Build Finder already does. Theorycrafter is supposed to **generate builds from scratch** from official 3.28 data, never from the ladder. The engine was wrong by definition (see the Finder-vs-Theorycrafter rule in "Product direction" above).
 
-**Backend — new `poe1_fob.theory` subpackage:**
-- `theory/models.py` — `TheoryBuildSkeleton` + `SkeletonUnique` (frozen Pydantic; **no camelCase aliases** — like `PobSnapshot`, snake_case keys, the frontend consumes them as-is. Aliases were dropped after the pydantic-mypy plugin rejected by-name construction).
-- `theory/generator.py` — `generate_build(query, *, settings, http)`: `extract_intent` → `SourceAggregator` + `RankingEngine` (top-1) → `BuildsService.get_detail` → parse the hydrated PoB once → assemble the skeleton (main skill group → core skill + 6L; unique items tier-classified via `gear.dynamic.classify_item`; keystones from `FullBuild.key_stones`; rationale composed in Italian from the build's own numbers). `TheoryError` when the ladder has no match.
-- `router.py` — `POST /fob/theory/generate` (request `TheoryGenerateRequest{query}`), under the existing `/fob` router.
-- Tests: `packages/fob/tests/test_theory.py` (8 unit tests — models, `_fmt`, `_ninja_url`, `_compose_rationale`) + `apps/server/tests/test_fob_router.py` (2 e2e — real protobuf ladder fixtures + real character JSON via `MockTransport`; rejects empty query). The e2e passes `anthropic_api_key=None` so intent extraction stays rule-based offline.
+**The reset — Option C (delete + stub).** Of the three options (A rename to a Finder extension / B heavy refactor with the correct engine now / C delete + stub), **C** was chosen: the correct from-scratch generator is a substantial rule-based synthesis pipeline (archetype resolution + gem/tree/gear selection from vendored data) that also needs a gem-data file not yet vendored — the workflow scopes it as its own future step. B would have crammed a half-built engine in; A would keep semi-wrong code for marginal value. C leaves the repo honest.
 
-**Frontend:**
-- New lazy route `/theorycrafter` in `App.tsx` + navbar `NavLink` ("Theorycrafter", `IconFlask`, untranslated — community term).
-- `pages/TheorycrafterPage.tsx` — **single focused panel** (no `<Tabs>` shell — one tab would be over-engineering until more pillars land). NL input that collapses to a `<Code>` chip after generate (same pattern as Finder/Analyze); result is a `SkeletonCard` showing class/ascendancy badges, the 6L, key uniques grouped by budget tier, tree keystones + passive count, the Italian rationale, and a link to the source poe.ninja character.
-- New `theory` Zustand slice in `pageStore.ts` (cross-route persistence). `api/fob.ts` `generateBuild()` client + `TheoryBuildSkeleton`/`SkeletonUnique` types in `types.ts`. Bilingual strings via `t()`.
+Removed: the entire `poe1_fob.theory` subpackage (`models.py` / `generator.py` / `__init__.py`), `POST /fob/theory/generate` + `TheoryGenerateRequest` from `router.py`, `packages/fob/tests/test_theory.py`, the 2 e2e tests in `test_fob_router.py`, the `generateBuild` client + `TheoryBuildSkeleton`/`SkeletonUnique` types, the `theory` Zustand slice.
 
-Gate: 724 tests (+10) / 128 mypy / ruff clean. Frontend build main ~464 KB / 148 KB gzip.
+Kept: the `/theorycrafter` route + navbar entry. `TheorycrafterPage.tsx` is now a clean bilingual "coming soon" stub.
+
+**Next** (future step, not this one): the correct Theorycrafter v1 — a rule-based deterministic generator that synthesises a `BuildSkeleton` (class/asc, core skill + 6L, tree milestones, gear slots with priority stats, IT/EN rationale, a `pob_import_hint`) from the vendored 3.28 tree + item bases + (to-be-vendored) gem data. poe.ninja is allowed only as a *popularity signal*, never as the build source.
+
+Gate: 714 tests / 124 mypy / ruff clean. Frontend build main ~460 KB / 146 KB gzip.
 
 ## Step 37 — Theorycrafter (2026-05-19) — analysis phase
 
