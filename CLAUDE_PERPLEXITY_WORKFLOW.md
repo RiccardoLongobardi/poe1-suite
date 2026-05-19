@@ -125,11 +125,14 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 
 ### IN PROGRESS
 
-- **Theorycrafter — design phase complete (Step 37, 2026-05-19).** `docs/THEORYCRAFTER_DESIGN.md` is written. **Next: Riccardo answers the 6 open questions in §5 of the doc**, then Step 38 (Pillar 4 — Item Filter Generator) can run. No implementation before the open questions are resolved.
+- **Step 38 — Theorycrafter: Build Generator (rule-based).** Riccardo answered the §5 open questions (2026-05-19) — see §7. Scope is now narrowed: the **only** immediate Theorycrafter work is the Build Generator (Pillar 1), **rule-based** (no LLM). New `/theorycrafter` route confirmed. Loot Filter, Atlas Strategy and the scarab table are postponed. The Item & Modifier Browser, when built, is the *full* version (affix pools + ranges).
 
 ### CANDIDATE FUTURE WORK
 
-- **Theorycrafter Steps 38–41** — rollout per `docs/THEORYCRAFTER_DESIGN.md` §4: Step 38 Item Filter Generator, Step 39 Item & Modifier Browser, Step 40 Build Generator, Step 41 Atlas Strategy. Gated on the §5 open questions.
+- **Theorycrafter — Item & Modifier Browser (full version)** — affix pools + numeric ranges; needs the slimmed RePoE mods vendor file. Deferred — not the current focus.
+- **Theorycrafter — Item Filter Generator** — postponed by Riccardo.
+- **Theorycrafter — Atlas Strategy Generator** + curated scarab table — postponed by Riccardo.
+- **Build Generator — LLM rationale layer** — future enhancement; has a per-call Anthropic cost. Rule-based first.
 - **Chatbot in-app** — conversational assistant embedded in the shell. Intent: answer PoE questions, help with build decisions, guide the user through FOB features. Implementation approach TBD (depends on Theorycrafter outcome — they may share a backend AI layer).
 - Build generator (superseded by Theorycrafter — same scope, renamed)
 - Atlas x build generator (superseded by Theorycrafter)
@@ -165,6 +168,7 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 
 Reverse-chronological.
 
+- **2026-05-19** — *Theorycrafter rollout narrowed (Riccardo's answers to the §5 open questions).* (1) Build Generator is **rule-based** — no LLM now; an LLM rationale layer is a future enhancement (it has a per-call cost). (2) Item Filter Generator: **postponed**. (3) Atlas Strategy + atlas-tree vendoring: **postponed**. (4) Item & Modifier Browser: when built, do the **full** version (affix pools + ranges). (5) Scarab/sextant curated table: **postponed**. (6) Route `/theorycrafter` **confirmed**. → The only active Theorycrafter work is **Step 38 — Build Generator (rule-based)**; the doc's 4-step rollout is superseded by this single-focus order.
 - **2026-05-19** — *Theorycrafter scoped as next major feature.* Four backlog items (build generator, atlas x build generator, item filter generator + trade redirect already done) consolidated into one product feature called **Theorycrafter** — a `/theorycrafter` route covering full theorycrafting: build-from-scratch generator, 3.28 item/modifier browser, atlas strategy per build, item filter generator. Prompt 024 (design & architecture) must run before any implementation.
 - **2026-05-19** — *Chatbot in-app added as candidate backlog.* Conversational PoE assistant embedded in the shell. Approach TBD — may share backend layer with Theorycrafter's AI components.
 - **2026-05-19** — *View Transitions API: route-level use rejected for good (Step 36 revert).* Layer 1 (route cross-fade) was implemented per the approval below, then reverted the same day after QA: `document.startViewTransition` + `flushSync` snapshots the whole DOM on every navigation, which — with React lazy routes — made page switching feel sluggish vs. the plain CSS fade. The View Transitions API pays a full-page-snapshot cost for what is just an opacity fade. **Route changes permanently use the keyed `.vs-route` CSS fade.** The API is kept only for cheap in-page micro-transitions (Layer 3a — Finder skill filter). This is the second rejection (Step 34 deferred, Step 36 reverted) — do not propose route-level View Transitions again.
