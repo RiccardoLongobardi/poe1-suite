@@ -29,15 +29,15 @@ interface Release {
 const RELEASES: Release[] = [
   {
     date: { it: "19 mag 2026", en: "19 May 2026" },
-    title: { it: "Oggetti espandibili + logo animato", en: "Expandable items + animated logo" },
+    title: { it: "Dettagli oggetto al passaggio + logo animato", en: "Hover item details + animated logo" },
     entries: [
       {
-        it: "Nella pagina Analizza, clicca un pezzo di equipaggiamento per espanderne i dettagli (impliciti, espliciti, corruzione) direttamente nella griglia.",
-        en: "On the Analyse page, click a gear piece to expand its details (implicits, explicits, corruption) inline in the grid.",
+        it: "Nella pagina Analizza, passa il mouse su un pezzo di equipaggiamento per vederne i dettagli; cliccalo per fissare il riquadro e tenerlo aperto.",
+        en: "On the Analyse page, hover a gear piece to see its details; click it to pin the panel so it stays open.",
       },
       {
-        it: "Il logo FOB nell'header ora ha un leggero pulsare ember.",
-        en: "The FOB logo in the header now has a subtle ember pulse.",
+        it: "Il logo FOB nell'header ora pulsa con un bagliore ember.",
+        en: "The FOB logo in the header now pulses with an ember glow.",
       },
     ],
   },

@@ -46,7 +46,7 @@ import type {
   PobSkillGroup,
   PobSnapshot,
 } from "../api/types";
-import { ExpandableGearCard } from "../components/analyze/ExpandableGearCard";
+import { GearCard } from "../components/analyze/GearCard";
 import { ErrorBoundary } from "../components/ErrorBoundary";
 import { TradeSearchDialog } from "../components/TradeSearchDialog";
 import { useCountUp } from "../hooks/useCountUp";
@@ -183,17 +183,17 @@ function BuildDashboard({ data }: { data: AnalyzePobResponse }) {
 
   // The equipment item whose Trade-search dialog is open (null = closed).
   const [tradeItem, setTradeItem] = useState<PobItem | null>(null);
-  // The gear card whose inline details panel is expanded (pob_id), or
-  // null. One open at a time across the whole dashboard.
-  const [expandedGear, setExpandedGear] = useState<number | null>(null);
+  // The gear card whose details panel is pinned open (pob_id), or
+  // null. One pinned at a time across the whole dashboard.
+  const [pinnedGear, setPinnedGear] = useState<number | null>(null);
 
-  /** Shared props for an ExpandableGearCard given its (maybe absent) item. */
+  /** Shared props for a GearCard given its (maybe absent) item. */
   const gearProps = (it: PobItem | undefined) => ({
     onTrade: setTradeItem,
-    expanded: it != null && expandedGear === it.pob_id,
-    onToggle: () => {
+    pinned: it != null && pinnedGear === it.pob_id,
+    onTogglePin: () => {
       if (it != null) {
-        setExpandedGear((cur) => (cur === it.pob_id ? null : it.pob_id));
+        setPinnedGear((cur) => (cur === it.pob_id ? null : it.pob_id));
       }
     },
   });
@@ -379,60 +379,58 @@ function BuildDashboard({ data }: { data: AnalyzePobResponse }) {
                   '"belt   belt   belt"',
                   '"amulet ring   ring"',
                 ].join(" "),
-                gridAutoRows: "min-content",
-                alignItems: "start",
                 gap: 8,
               }}
             >
-              <ExpandableGearCard
+              <GearCard
                 label={t({ it: "Elmo", en: "Helmet" })}
                 item={slots.helmet}
                 style={{ gridArea: "helmet" }}
                 {...gearProps(slots.helmet)}
               />
-              <ExpandableGearCard
+              <GearCard
                 label={t({ it: "Arma princ.", en: "Main weapon" })}
                 item={slots.weapon_main}
                 style={{ gridArea: "wmain" }}
                 {...gearProps(slots.weapon_main)}
               />
-              <ExpandableGearCard
+              <GearCard
                 label={t({ it: "Corpo", en: "Body" })}
                 item={slots.body_armour}
                 style={{ gridArea: "body" }}
                 {...gearProps(slots.body_armour)}
               />
-              <ExpandableGearCard
+              <GearCard
                 label={t({ it: "Arma sec.", en: "Off-hand" })}
                 item={slots.weapon_offhand}
                 style={{ gridArea: "woff" }}
                 {...gearProps(slots.weapon_offhand)}
               />
-              <ExpandableGearCard
+              <GearCard
                 label={t({ it: "Guanti", en: "Gloves" })}
                 item={slots.gloves}
                 style={{ gridArea: "gloves" }}
                 {...gearProps(slots.gloves)}
               />
-              <ExpandableGearCard
+              <GearCard
                 label={t({ it: "Stivali", en: "Boots" })}
                 item={slots.boots}
                 style={{ gridArea: "boots" }}
                 {...gearProps(slots.boots)}
               />
-              <ExpandableGearCard
+              <GearCard
                 label={t({ it: "Cintura", en: "Belt" })}
                 item={slots.belt}
                 style={{ gridArea: "belt" }}
                 {...gearProps(slots.belt)}
               />
-              <ExpandableGearCard
+              <GearCard
                 label={t({ it: "Amuleto", en: "Amulet" })}
                 item={slots.amulet}
                 style={{ gridArea: "amulet" }}
                 {...gearProps(slots.amulet)}
               />
-              <ExpandableGearCard
+              <GearCard
                 label={t({ it: "Anello", en: "Ring" })}
                 item={slots.ring}
                 style={{ gridArea: "ring" }}
@@ -454,7 +452,7 @@ function BuildDashboard({ data }: { data: AnalyzePobResponse }) {
                   }}
                 >
                   {snap.flasks.map((flask, i) => (
-                    <ExpandableGearCard
+                    <GearCard
                       key={`flask-${flask.pob_id}-${i}`}
                       label={`Flask ${i + 1}`}
                       item={flask}
@@ -482,7 +480,7 @@ function BuildDashboard({ data }: { data: AnalyzePobResponse }) {
                   }}
                 >
                   {snap.jewels.map((jewel, i) => (
-                    <ExpandableGearCard
+                    <GearCard
                       key={`jewel-${jewel.item.pob_id}-${i}`}
                       label={t({ it: "Gioiello", en: "Jewel" })}
                       item={jewel.item}

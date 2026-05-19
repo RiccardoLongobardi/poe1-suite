@@ -534,16 +534,19 @@ h6 {
 @keyframes vs-ember-pulse {
   0%,
   100% {
-    opacity: 0.9;
-    filter: drop-shadow(0 0 0 transparent);
+    opacity: 0.55;
+    transform: scale(1);
+    filter: drop-shadow(0 0 1px var(--vs-ember));
   }
   50% {
     opacity: 1;
-    filter: drop-shadow(0 0 5px var(--vs-ember-glow));
+    transform: scale(1.12);
+    filter: drop-shadow(0 0 9px var(--vs-ember-bright));
   }
 }
 .vs-logo-pulse {
-  animation: vs-ember-pulse 4.5s ease-in-out infinite;
+  animation: vs-ember-pulse 3s ease-in-out infinite;
+  transform-origin: center;
 }
 @media (prefers-reduced-motion: reduce) {
   .vs-logo-pulse {
