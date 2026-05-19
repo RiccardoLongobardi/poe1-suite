@@ -16,17 +16,18 @@ Don't trust earlier versions of this file — the section below is the authorita
   - Frontend: <https://fob-ten.vercel.app> (Vercel, auto-deploy from `main`).
   - Backend: <https://fob-api-rtgg.onrender.com> (Render, region Frankfurt, auto-deploy from `main`).
   - Cost: **$0/month**.
-- **Baseline gate**: 713 tests green / 121 mypy / ruff clean. Frontend build main 440 KB / 140 KB gzip + lazy route + `pageStore` chunks.
-- **Working features (all QA-verified)**:
+- **Baseline gate**: 714 tests green / 124 mypy / ruff clean. Frontend build main 440 KB / 140 KB gzip + lazy route + `pageStore` chunks.
+- **Working features (all QA-verified or post-QA fixed)**:
   - Build Finder with class/asc/stat-floor/sort filters + natural-language extraction (Step 15) + per-ascendancy population stats panel (Step 19). ✅
   - Planner with 6-stage `BuildPlan`, SSE streaming progress + ETA. ✅
   - "Importa stage in PoB": exports a stage-specific PoB code. ✅
   - PoB Analyze → full build dashboard: character header + key stats, equipment grid with per-item tooltips, flasks, tree jewels, skill-link panel. ✅
   - Cold-start Divine Orb warmup overlay. ✅
-  - Trade dialog: `TradeSearchDialog` with full GGG stat DB (~9.5k stats), name/base search, per-mod toggles + strictness slider, 5L/6L filter, Instant Buyout default. ✅
+  - Trade dialog: `TradeSearchDialog` with full GGG stat DB (~9.5k stats), name/base search, per-mod toggles + strictness slider, 5L/6L filter, Instant Buyout default, integer min-roll filters, domain-aware implicit/explicit stat resolution. ✅
 - **Design system**: "Void Stone & Ember" — void-black warm backgrounds, ember-gold accent, parchment text, Cinzel/Cabinet Grotesk/Geist Mono type. Light mode: "Parchment" (warm cream + ink). Both QA-verified. ✅
 - **Step 33 (Visual polish batch 1) DONE 2026-05-18** — `ParticleCanvas` ember field; `.vs-rarity` hover glow on all gear items (per-rarity PoE colour); `useCountUp` on Analyze KPIs; `.vs-skeleton*` ember loaders. ✅
-- **Step 34 (Visual polish batch 2) DONE 2026-05-19** — route transitions (View Transitions API), poe.ninja price badges on uniques, keyboard shortcuts overlay, toast redesign. See §6.
+- **Step 34 (Visual polish batch 2) DONE 2026-05-19** — lightweight route fade (CSS; see §7 for why View Transitions API was deferred, not abandoned), unique-item poe.ninja price badges, keyboard shortcuts overlay (`?`), toast redesign. ✅
+- **Step 35 (Visual polish batch 3) READY TO IMPLEMENT** — See §8 Prompt 022.
 
 If anything you read in this file or in `CLAUDE.md` contradicts the above, **the above wins**.
 
@@ -123,25 +124,23 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 
 ### IN PROGRESS
 
-- *(nothing)*
-
-### NEXT
-
-- **Step 35 — Visual polish batch 3** (Prompt 022 — to be written after Step 34 QA passes): item card expand/flip on Analyze, virtual list on Finder, header logo animated pulse.
+- **Step 35 — Visual polish batch 3** (Prompt 022 in §8) — Analyze item card inline expansion, Finder virtual list, header logo ember pulse.
 
 ### CANDIDATE FUTURE WORK
 
+- **View Transitions API** — not abandoned. The Step 34 attempt stuttered because `document.startViewTransition` snapshotted the always-animating `ParticleCanvas`. Fix path when revisiting: apply `view-transition-name: none` (or `contain: paint`) to the canvas element so the API excludes it from the snapshot. Browser support is solid (Chrome 111+, Firefox 130+, Safari 18+). Pick this up after Step 35 if the polish work continues.
+- Trade redirect (backlog item, tracked)
 - Build generator (backlog item, tracked)
 - Atlas x build generator (backlog item, tracked)
 - Item filter generator (backlog item, tracked)
 
 ### DONE
 
-- [x] **Bugfix — Trade dialog: decimal stat-filter min** (2026-05-19) — `TradeSearchDialog.rowMin` now `Math.round`s the strictness-applied min to a whole number (PoE rolls are integers; the trade site showed `90.4` etc.).
-- [x] **Bugfix — Trade dialog: implicit mods + jerky route transition** (2026-05-19) — Trade resolver made domain-aware: `stats.json` now `{normalized: {domain: id}}`, `resolve_mod(implicit=)` picks the implicit-domain stat for corrupted/implicit mods (was always explicit → search failed). Route transition's View Transitions API replaced with a light opacity-only CSS fade (it stuttered against the particle canvas). 714 tests.
-- [x] **Step 34 — Visual polish batch 2** (2026-05-19, Prompt 021) — Route transitions via the View Transitions API (`useViewTransition` hook + `::view-transition-*` CSS); poe.ninja price badges (`PriceBadge` + `usePriceHint` + `api/pricing.ts`) on unique gear cells/rows; keyboard-shortcuts overlay (`KeyboardShortcutsModal` + global `keydown` handler — `G F/A/P/N`, `T`, `L`, `?`); Mantine toast restyle. Frontend-only, 713 tests. Rares dropped from the price badge — poe.ninja can't name-price a rolled rare.
+- [x] **Bugfix — Trade dialog: decimal stat-filter min** (2026-05-19) — `Math.round` applied to strictness-computed min before sending to GGG; PoE rolls are integers. Frontend-only.
+- [x] **Bugfix — Trade dialog: implicit mods + route transition stutter** (2026-05-19) — resolver made domain-aware (`{normalized: {domain: stat_id}}`); implicit mods now resolve to implicit-domain stat id instead of always picking explicit. Route transition View Transitions API replaced with lightweight CSS opacity fade (stutter caused by particle canvas snapshot). Gate: 714 tests / 124 mypy.
+- [x] **Step 34 — Visual polish batch 2** (2026-05-19, Prompt 021) — lightweight route fade; `PriceBadge` + `usePriceHint` (unique gear cells/rows, rares excluded); `KeyboardShortcutsModal` with global `keydown` handler (`G F/A/P/N`, `T`, `L`, `?`); Mantine toast restyle in Void Stone & Ember palette. Frontend-only. 713 tests / 121 mypy at initial ship.
 - [x] **Bugfix — Trade dialog: unique name search + Instant Buyout + count mods** (2026-05-18) — name + type sent together; `status_option = "securable"`; `difflib` fuzzy fallback for count mods. 713 tests / 121 mypy.
-- [x] **Step 33 — Visual polish batch 1** (2026-05-18, Prompt 020) — `ParticleCanvas` (72 particles, mouse-reactive, scheme-aware); `.vs-rarity` hover glow on all gear items per PoE rarity colour (replaced unique-only always-on shimmer post-QA); `useCountUp` on Analyze KPIs; `.vs-skeleton*` ember loaders on Finder + Analyze. Frontend-only. 713 tests / 121 mypy.
+- [x] **Step 33 — Visual polish batch 1** (2026-05-18, Prompt 020) — `ParticleCanvas` (72 particles, mouse-reactive, scheme-aware); `.vs-rarity` hover glow on all gear items per PoE rarity colour; `useCountUp` on Analyze KPIs; `.vs-skeleton*` ember loaders. Frontend-only. 713 tests / 121 mypy.
 - [x] **Step 32 — Trade dialog: full GGG stat DB + all mods** (2026-05-18) — `scripts/extract_trade_stats.py` → `stats.json` (~9.5k stats); `poe1_fob.trade_stats` resolver; dialog lists all mods, `size="xl"`. 706 tests / 123 mypy / 318 format.
 - [x] **Step 31 — poe.ninja-style Trade-search dialog** (2026-05-18) — `TradeSearchDialog`: name/base `SegmentedControl`, per-mod toggle + strictness slider, 5L/6L; `/fob/extract-trade-mods` + `/fob/trade-url` extended with `stats[]` + `min_links`. 706 tests / 121 mypy / 316 format.
 - [x] **Step 30 — Trade prefill via backend + Planner collapsed-input fix** (2026-05-18) ✅
@@ -169,7 +168,8 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 
 Reverse-chronological.
 
-- **2026-05-19** — *Step 34 route transitions: View Transitions API with CSS fallback.* The View Transitions API (`document.startViewTransition`) is now supported in all evergreen browsers (Chrome 111+, Firefox 130+, Safari 18.2+). It is used as progressive enhancement: if the API is unavailable, the router falls back to an instant swap. Transition animations are defined purely in CSS (`@keyframes`), so `prefers-reduced-motion` suppression costs zero JS. No new npm dep needed — React Router v6's `useNavigate` wraps `startViewTransition` in a utility hook.
+- **2026-05-19** — *View Transitions API: deferred, not abandoned.* The API is well-supported across evergreen browsers (Chrome 111+, Firefox 130+, Safari 18+) and remains the right long-term approach for route transitions. In Step 34 it was replaced with a plain CSS fade because `document.startViewTransition` snapshots the whole root including the always-animating `ParticleCanvas`, causing visible stutter. The correct fix when revisiting: add `view-transition-name: none` (or `contain: paint`) to the canvas element before calling `startViewTransition`, excluding it from the snapshot. This is a targeted tweak, not a rearchitecture. **Do not treat View Transitions API as rejected** — pick it back up in a future polish pass.
+- **2026-05-19** — *Step 35 virtualization direction: `react-window` preferred if adding a dep is acceptable; otherwise a small in-repo windowed list.* `react-window` is the standard lightweight option for efficient large-list rendering in React. If the repo prefers zero new deps, implement a minimal custom windowing component instead — keep it simple and obvious.
 - **2026-05-18** — *Visual polish roadmap agreed.* Three batches: Step 33 (particles + shimmer + count-up + skeletons), Step 34 (route transitions + price overlay badges + keyboard shortcuts + toast redesign), Step 35 (item card expand, virtual list, logo animation). All frontend-only.
 - **2026-05-18** — *Trade prefill done via the backend; `?redirect&source=` abandoned.*
 - **2026-05-18** — *Zustand chosen for cross-route state persistence.*
@@ -184,7 +184,129 @@ Reverse-chronological.
 
 Reusable templates. Self-contained — runnable today without past-chat context. When a prompt ships, move to §9.
 
-*(no active prompts — Prompt 021 shipped, see §9)*
+---
+
+### Prompt 022 — Step 35: Visual polish batch 3 (Analyze item expansion, Finder virtual list, header logo pulse)
+
+**Scope**: primarily frontend-only. One allowed dependency decision: `react-window` for Finder list virtualization **only if it is not already present and only if you judge the dependency acceptable**; otherwise implement a small in-repo virtual list. No backend changes.
+
+**Context**: FOB uses the "Void Stone & Ember" system — compact web-app typography, warm black / parchment surfaces, ember accent, Cinzel/Cabinet Grotesk/Geist Mono. Step 33 added particle canvas, rarity hover glow, KPI count-up, ember skeletons. Step 34 added lightweight route fade, unique-item price badges, keyboard shortcuts, toast restyle. This batch makes dense UI feel more premium without bloating interaction cost.
+
+All changes must:
+- Work in both dark and light schemes.
+- Respect `prefers-reduced-motion`.
+- Not regress the gate (currently 714 tests / 124 mypy / ruff clean).
+- Update `PatchNotesPage.tsx` `RELEASES` array in the same commit.
+
+---
+
+#### Change 1 — Analyze item card inline expansion
+
+Clicking a gear cell in Analyze opens an inline expanded state within the grid — not a full modal — so the user gets "inspect item" richness without context-switching.
+
+**Requirements**:
+- Reuse the existing `PobItem` data already rendered on Analyze. **Do not add backend fields** unless absolutely required; read current props first.
+- Create `apps/shell/src/components/analyze/ExpandableGearCard.tsx` wrapping the current gear-cell UI.
+- Default state: compact card visually identical to current.
+- Expanded state on click: smooth height/opacity reveal of an inline details panel showing — in order — rarity/name/base, implicits, explicits, influences/corruption/quality if present, and the existing action row (Trade icon etc.).
+- Keep text compact: `--text-sm` for headings, `--text-xs`/`--text-sm` for body, max 2 visual hierarchies.
+- Expanded card stays in page flow — surrounding content reflows naturally.
+- Only one gear item expanded at a time per section. Clicking another closes the previous; clicking the same closes it.
+- Motion: prefer pure CSS transition on `max-height`, `opacity`, `transform`. If Framer Motion is already in the dep tree, you may use it; **do not add it** just for this. On `prefers-reduced-motion`, switch instantly.
+- The existing `.vs-rarity` hover glow must still work in collapsed state and must not look broken in expanded state.
+- Keyboard accessibility: Enter/Space toggles expansion; `aria-expanded` reflects state.
+- Apply to equipment, flasks, and jewels if the structure makes it cheap. If jewels/flasks complicate the component, do equipment first and note the limitation in the commit message.
+- Design note: choose **expand** over a flip-card mechanic. Flip looks toyish in a dense web app and hurts readability. Truth over spectacle.
+
+**Files to create/edit**:
+- `apps/shell/src/components/analyze/ExpandableGearCard.tsx` — new.
+- `apps/shell/src/pages/AnalyzePage.tsx` — integrate it.
+- `apps/shell/src/index.css` (or nearby CSS module) — add styles.
+
+---
+
+#### Change 2 — Finder virtual list
+
+Virtualize the Finder result list so long result sets scroll without DOM bloat.
+
+**Requirements**:
+- Inspect the current Finder result rendering path first. Identify the component that maps over build cards.
+- Preferred implementation: **`react-window`** `FixedSizeList` if adding a dep is acceptable — it is the lightweight standard for this. If you prefer no new dep, implement a small custom windowed list in-repo; keep it minimal and obvious.
+- Virtualize the results list/cards area only — not the whole page, filters, or population panel.
+- Preserve current UX: cards look the same, click/keyboard interactions work, loading/empty states work, scroll position is stable on filter changes unless the result set meaningfully resets.
+- Cards are near-fixed height — use a fixed-size list and document that assumption in a comment.
+- Overscan a few rows so fast scrolling does not flash blanks.
+- Must work on mobile.
+- Add at least one focused frontend test if the repo has a sensible setup for it; otherwise note QA steps in the commit message.
+- Do not build a general-purpose virtualization system for the whole app. Finder only.
+
+**Files to create/edit**:
+- Finder page/component files where results are mapped.
+- Potentially `package.json` if `react-window` is added.
+
+---
+
+#### Change 3 — Animated header logo pulse
+
+Add a subtle ember pulse to the FOB logo/brand mark in the header.
+
+**Requirements**:
+- Identify the current logo element. Animate the mark/emblem or an accent element — **not** the whole wordmark bouncing.
+- Idle animation: very low amplitude, slow loop (3–5 s), no scale-jump. Should feel like a smouldering ember, not a notification badge.
+- Hover/focus can slightly intensify the glow, but idle motion must already be tasteful.
+- On `prefers-reduced-motion`: disable animation, keep static styling.
+- Must look good in light mode — lean on opacity/color rather than blur.
+- Only opacity, filter, box-shadow/text-shadow, or `transform: scale(1.00–1.01)`. No layout-affecting properties.
+
+```css
+/* Direction — adapt to actual DOM structure and tokens */
+@keyframes vs-ember-pulse {
+  0%, 100% { opacity: 0.90; filter: drop-shadow(0 0 0px var(--mantine-color-ember-6)); }
+  50%       { opacity: 1;    filter: drop-shadow(0 0 6px var(--mantine-color-ember-6)); }
+}
+```
+
+**Files to edit**:
+- Header/logo component.
+- `apps/shell/src/index.css`.
+
+---
+
+#### Patch Notes entry (mandatory, same commit)
+
+Add to the top of `RELEASES` in `apps/shell/src/pages/PatchNotesPage.tsx`:
+
+```ts
+{
+  version: "Step 35",
+  date: "2026-05-19",
+  title: { it: "Inspect e performance", en: "Inspect and performance" },
+  summary: {
+    it: "Oggetti espandibili in Analyze, lista Finder virtualizzata e logo animato nell'header.",
+    en: "Expandable items in Analyze, a virtualized Finder list, and an animated header logo."
+  },
+  bullets: [
+    { it: "Espansione inline degli oggetti in Analyze", en: "Inline item expansion in Analyze" },
+    { it: "Virtualizzazione della lista risultati nel Finder", en: "Virtualized result list in Finder" },
+    { it: "Pulse animato sul logo nell'header", en: "Animated pulse on the header logo" },
+  ]
+}
+```
+
+---
+
+#### Gate
+
+Run before declaring done:
+```bash
+uv run ruff check .
+uv run ruff format --check .
+uv run mypy .
+uv run pytest
+cd apps/shell && npm run build
+```
+
+All five must pass with zero errors.
 
 ---
 
@@ -203,5 +325,5 @@ Closed prompts kept for context. Don't run these.
 - **Old Prompt 017 (Step 27 — QA batch fixes + Zustand state persistence)** — Shipped 2026-05-18. ✅
 - **Old Prompt 018 (Step 28 — Trade redirect v2: prefilled URLs)** — Shipped 2026-05-18. ✅ QA failed → fixed in Prompt 019.
 - **Old Prompt 019 (Step 29 — Trade redirect 403 fix + Planner input parity)** — Shipped 2026-05-18. ✅
-- **Old Prompt 020 (Step 33 — Visual polish batch 1)** — Shipped 2026-05-18. ✅ Particle background (72 particles), `.vs-rarity` hover glow per PoE rarity colour, `useCountUp` on Analyze KPIs, `.vs-skeleton*` ember loaders.
-- **Old Prompt 021 (Step 34 — Visual polish batch 2)** — Shipped 2026-05-19. ✅ Route transitions (View Transitions API), poe.ninja price badges on uniques, keyboard-shortcuts overlay, Mantine toast restyle.
+- **Old Prompt 020 (Step 33 — Visual polish batch 1)** — Shipped 2026-05-18. ✅
+- **Old Prompt 021 (Step 34 — Visual polish batch 2)** — Shipped 2026-05-19. ✅ Route fade (CSS, View Transitions API deferred — see §7), price badges on uniques, keyboard shortcuts, toast restyle. Post-QA fixes: implicit mod domain resolution + integer min-roll filters.
