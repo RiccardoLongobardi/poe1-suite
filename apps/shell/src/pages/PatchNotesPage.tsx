@@ -30,6 +30,27 @@ const RELEASES: Release[] = [
   {
     date: { it: "19 mag 2026", en: "19 May 2026" },
     title: {
+      it: "Theorycrafter in arrivo",
+      en: "Theorycrafter on the way",
+    },
+    summary: {
+      it: "Un nuovo strumento per progettare build da zero — analisi e progettazione completate.",
+      en: "A new tool to design builds from scratch — analysis and design complete.",
+    },
+    entries: [
+      {
+        it: "Theorycrafter sarà una nuova sezione per costruire una build da zero: generatore di build, esploratore di oggetti e modificatori, strategia atlas e generatore di loot filter.",
+        en: "Theorycrafter will be a new section to build a character from scratch: build generator, item & modifier browser, atlas strategy, and a loot-filter generator.",
+      },
+      {
+        it: "Questa release completa la fase di analisi e progettazione; lo sviluppo arriverà nei prossimi aggiornamenti.",
+        en: "This release completes the analysis and design phase; development lands in upcoming updates.",
+      },
+    ],
+  },
+  {
+    date: { it: "19 mag 2026", en: "19 May 2026" },
+    title: {
       it: "Filtro skill del Finder più fluido",
       en: "Smoother Finder skill filter",
     },

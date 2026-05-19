@@ -28,6 +28,7 @@ Don't trust earlier versions of this file — the section below is the authorita
 - **Step 34 (Visual polish batch 2) DONE 2026-05-19** — lightweight route fade (CSS; see §7 for why View Transitions API was deferred, not abandoned), unique-item poe.ninja price badges, keyboard shortcuts overlay (`?`), toast redesign. ✅
 - **Step 35 (Visual polish batch 3) DONE 2026-05-19** — 2/3 shipped: Analyze item hover+pin popover (`GearCard`) + header logo ember pulse. Finder virtual list dropped (≤50 items, variable-height cards). ✅
 - **Step 36 (View Transitions API) DONE 2026-05-19** — only Layer 3a (Finder skill-filter micro-transition) shipped. Layer 1 (route cross-fade) was implemented then **reverted the same day** — wrapping navigation in `startViewTransition` snapshots the whole DOM per page switch and made navigation feel sluggish. Route changes keep the Step 34 CSS fade. **Do not retry route-level View Transitions.** ✅
+- **Step 37 (Theorycrafter — design phase) DONE 2026-05-19** — analysis-only. `docs/THEORYCRAFTER_DESIGN.md` written: feasibility per pillar, data inventory, architecture (new `poe1_fob.theory` subpackage + `/theorycrafter` route), rollout (Steps 38–41), 6 open questions for Riccardo. **No implementation until the §5 open questions are answered.**
 
 If anything you read in this file or in `CLAUDE.md` contradicts the above, **the above wins**.
 
@@ -124,11 +125,11 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 
 ### IN PROGRESS
 
-*(none as of 2026-05-19 — Step 36 shipped, Theorycrafter in design phase)*
+- **Theorycrafter — design phase complete (Step 37, 2026-05-19).** `docs/THEORYCRAFTER_DESIGN.md` is written. **Next: Riccardo answers the 6 open questions in §5 of the doc**, then Step 38 (Pillar 4 — Item Filter Generator) can run. No implementation before the open questions are resolved.
 
 ### CANDIDATE FUTURE WORK
 
-- **Theorycrafter** — new `/theorycrafter` route. Full theorycrafting tool for PoE 3.28: build generator from scratch, item + modifier browser (all 3.28 data vendored), atlas strategy generator per build, item filter generator. See Prompt 024 in §8 for the design & architecture analysis phase. **DO NOT implement before Prompt 024 is run and the design output is reviewed.**
+- **Theorycrafter Steps 38–41** — rollout per `docs/THEORYCRAFTER_DESIGN.md` §4: Step 38 Item Filter Generator, Step 39 Item & Modifier Browser, Step 40 Build Generator, Step 41 Atlas Strategy. Gated on the §5 open questions.
 - **Chatbot in-app** — conversational assistant embedded in the shell. Intent: answer PoE questions, help with build decisions, guide the user through FOB features. Implementation approach TBD (depends on Theorycrafter outcome — they may share a backend AI layer).
 - Build generator (superseded by Theorycrafter — same scope, renamed)
 - Atlas x build generator (superseded by Theorycrafter)
@@ -136,6 +137,7 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 
 ### DONE
 
+- [x] **Step 37 — Theorycrafter design & architecture analysis** (2026-05-19, Prompt 024) — analysis-only, no code. `docs/THEORYCRAFTER_DESIGN.md`: 4-pillar feasibility, data inventory, `poe1_fob.theory` subpackage architecture, Steps 38–41 rollout, 6 open questions.
 - [x] **Step 36 — View Transitions API** (2026-05-19, Prompt 023) — only Layer 3a shipped (Finder skill-filter micro-transition via the `useViewTransition` hook). Layer 1 route cross-fade was implemented then **reverted same-day**: `startViewTransition` + `flushSync` snapshots the whole DOM on every page switch (worse with lazy routes) — navigation felt sluggish. Route changes keep the Step 34 keyed CSS fade. Layers 2 / 3b / 3c never implemented (no BuildCard→Analyze route; hover-driven `GearCard` popover; portal `<Modal>`s). Frontend-only, 714 tests / 124 mypy.
 - [x] **Step 35 — Visual polish batch 3** (2026-05-19, Prompt 022) — 2/3 changes. `GearCard` (Analyze): hover pops item details panel, click pins it open (one pinned at a time). Header `IconSparkles` ember pulse (opacity 0.55→1 + scale + bright glow). **Finder virtual list dropped** — ≤50 items, variable-height cards. Frontend-only, 714 tests.
 - [x] **Bugfix — Trade dialog: decimal stat-filter min** (2026-05-19) — `Math.round` on strictness-computed min. Frontend-only.
@@ -185,129 +187,7 @@ Reusable templates. Self-contained — runnable today without past-chat context.
 
 ---
 
-### Prompt 024 — Step 37 — Theorycrafter: design & architecture analysis
-
-**Purpose:** Have Claude read the codebase and produce a written design document (no code changes) covering architecture, data sources, route structure, component decomposition, and open questions for Theorycrafter — a new `/theorycrafter` route that is the next major feature of FOB.
-
-**Run as:** Claude Code (Opus 4.7), analysis-only session. Commit ONLY the design doc output (`docs/THEORYCRAFTER_DESIGN.md`). No `.py`, `.ts`, `.json` changes. No gate run required (no code changed).
-
----
-
-```
-Read CLAUDE.md and CLAUDE_PERPLEXITY_WORKFLOW.md top to bottom before doing anything else.
-
-Your task is ANALYSIS ONLY — no code changes, no new files except the design document described at the end. Do not touch any .py, .ts, .json, or test files.
-
----
-
-## Context
-
-FOB (fob-ten.vercel.app) is a live PoE 1 tool with four working routes:
-- /finder    → Build Finder (NL query → ranked builds from poe.ninja ladder)
-- /analyze   → PoB Analyzer (paste PoB code → full build dashboard + Trade search)
-- /planner   → Progression Planner (paste PoB code → 6-stage leveling plan + PoB export)
-- /patch-notes → changelog
-
-The next feature is called **Theorycrafter** and will live at `/theorycrafter`.
-
----
-
-## What Theorycrafter must do (product spec)
-
-Theorycrafter is a build-from-scratch theorycrafting tool for PoE 3.28. Unlike the Planner (which starts from an existing PoB) and the Finder (which searches the ladder), Theorycrafter lets the user **design a build from zero** with full 3.28 data at their fingertips.
-
-The four pillars:
-
-### Pillar 1 — Build Generator
-The user describes what they want in natural language (e.g. "voglio un build tanky con RF che possa fare tutti i contenuti") and the tool generates a complete build skeleton:
-- Suggested class + ascendancy
-- Core skill + support links (6L)
-- Key unique items per budget tier (starter / mid / endgame)
-- Passive tree milestones (not a full tree, but major keystones + notable clusters)
-- Atlas strategy hint (see Pillar 3)
-
-This is NOT the same as the Planner (which requires an existing PoB). Theorycrafter generates de novo.
-
-### Pillar 2 — Item & Modifier Browser
-A searchable browser of all 3.28 items and modifiers:
-- Filter by item class, base type, influence, ilvl, implicit
-- Search modifiers by name / stat text (e.g. "increased fire damage")
-- Show which items can roll a given modifier
-- Show the numeric ranges for affixes on a given base
-
-Data sources: `packages/fob/data/items/base_items.json` (already vendored) + `packages/fob/data/trade/stats.json` (already vendored, ~9.5k GGG stat IDs). May need to vendor additional modifier range data — analyze what's missing.
-
-### Pillar 3 — Atlas Strategy Generator
-Given a build's content focus (bossing / mapping / league mechanic / all-content), suggest an atlas passive tree strategy:
-- Which atlas regions to prioritize
-- Which atlas keystones to take or avoid
-- Suggested scarab / sextant focus
-
-Data source: atlas passive tree data from GGG (similar to the passive skill tree — a vendored JSON). Analyze whether this data is available in the existing vendored files or needs a new script.
-
-### Pillar 4 — Item Filter Generator
-Given a build's core stat priorities (e.g. "life + fire res + strength"), generate a NeverSink-style item filter text file that the user can download and import directly into PoE:
-- Show / highlight items that match the build's stat priorities
-- Hide low-value trash
-- Tiered coloring for normal / magic / rare / unique
-
-Data source: `packages/fob/data/items/base_items.json` (already vendored). The filter is a text file output — no external API needed.
-
----
-
-## What you must produce
-
-A written design document at `docs/THEORYCRAFTER_DESIGN.md`. No code. The document must cover:
-
-### 1. Feasibility assessment per pillar
-For each of the four pillars:
-- What data do we already have (vendored JSON, existing endpoints, existing services)?
-- What is missing and how do we get it (new vendor script? new API call? LLM inference?)?
-- Complexity estimate: S / M / L / XL (S = 1 day, XL = 1+ week)
-- Risk factors
-
-### 2. Data inventory
-List every data file currently in `packages/fob/data/` with its size, content summary, and which pillar(s) it serves. Identify gaps.
-
-### 3. Architecture proposal
-How does Theorycrafter fit into the existing mono-repo?
-- New package vs. extending `poe1-fob`?
-- New FastAPI endpoints (list them with method + path + input/output shape)
-- Frontend route + page component structure (what sub-views / tabs?)
-- State management (Zustand slice? local state? TanStack Query?)
-- Does the Build Generator need an LLM call? If yes, which model and how (tool-use? streaming?)?
-
-### 4. Implementation order
-Propose which pillar to build first and why. Suggest a 4-step rollout (one pillar per step, each independently useful and shippable).
-
-### 5. Open questions
-List anything that requires a decision from Riccardo before implementation starts (e.g. "Do you want the Build Generator to use an LLM or be rule-based?", "Should the Item Filter support custom tier thresholds?").
-
-### 6. What NOT to build
-Explicit list of things that are out of scope for Theorycrafter v1 — to prevent scope creep.
-
----
-
-## Constraints (same as always)
-
-- No PostgreSQL, no ETL, no poedb.tw scraping, no GGG OAuth.
-- Vendor data, don't fetch at runtime.
-- The Render free tier has 512 MB RAM and ~30s cold start — any LLM call must be optional / lazy, never on the critical path.
-- The gate (714 tests / 124 mypy / ruff clean) must stay green — but since this is analysis-only, you won't run it.
-
----
-
-## Output
-
-Write `docs/THEORYCRAFTER_DESIGN.md` and commit it with message:
-`docs: Step 37 — Theorycrafter design & architecture analysis`
-
-Also update `CLAUDE.md` bottom section "What's built" to note Step 37 is in analysis phase.
-Also update `CLAUDE_PERPLEXITY_WORKFLOW.md` §1 snapshot and §6 backlog (mark Theorycrafter as "IN PROGRESS — design phase").
-Also update `PatchNotesPage.tsx` RELEASES array with a user-facing bilingual entry: "Theorycrafter in progetto — analisi architetturale completata".
-
-Do NOT run the gate (analysis-only, no code changed).
-```
+*(no open prompts as of 2026-05-19 — Prompt 024 shipped, see §9)*
 
 ---
 
@@ -330,3 +210,4 @@ Closed prompts kept for context. Don't run these.
 - **Old Prompt 021 (Step 34 — Visual polish batch 2)** — Shipped 2026-05-19. ✅ Route fade (CSS, View Transitions API deferred — see §7), price badges on uniques, keyboard shortcuts, toast restyle. Post-QA fixes: implicit mod domain resolution + integer min-roll filters.
 - **Old Prompt 022 (Step 35 — Visual polish batch 3)** — Shipped 2026-05-19. ✅ 2/3: GearCard hover+pin popover, header logo ember pulse. Finder virtual list dropped.
 - **Old Prompt 023 (Step 36 — View Transitions API)** — Shipped 2026-05-19, partially reverted same day. ✅ Only Layer 3a (Finder skill-filter micro-transition) stuck. Layer 1 (route cross-fade) was implemented then reverted — `startViewTransition` snapshots the whole DOM per navigation and made page switching sluggish. **Route-level View Transitions are now twice-rejected (Step 34 + 36) — do not retry.** Route changes use the keyed `.vs-route` CSS fade.
+- **Old Prompt 024 (Step 37 — Theorycrafter design & architecture analysis)** — Shipped 2026-05-19. ✅ Analysis-only, no code. Output: `docs/THEORYCRAFTER_DESIGN.md` — 4-pillar feasibility (Build Generator / Item & Modifier Browser / Atlas Strategy / Item Filter Generator), data inventory, `poe1_fob.theory` subpackage + `/theorycrafter` route architecture, Steps 38–41 rollout, 6 open questions for Riccardo.

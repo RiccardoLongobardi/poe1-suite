@@ -107,6 +107,19 @@ Frontend-only, no backend change.
 > Updating the `.md` files without updating the Patch Notes is an
 > incomplete step.
 
+## Step 37 — Theorycrafter (2026-05-19) — analysis phase
+
+Prompt 024. **Design & architecture analysis only — no code shipped.** Produced `docs/THEORYCRAFTER_DESIGN.md`.
+
+Theorycrafter is the next major feature: a new `/theorycrafter` route, a build-from-scratch theorycrafting tool for PoE 3.28 (vs. Finder = ladder search, Planner/Analyze = from an existing PoB). Four pillars: Build Generator, Item & Modifier Browser, Atlas Strategy Generator, Item Filter Generator.
+
+Design conclusions (see the doc for full detail):
+- Fits in `poe1-fob` as a new `poe1_fob.theory` subpackage (reuses `intent` / `ranking` / `planner.templates` / `tree` / `gems` / `gear`). No new top-level package, no new stack element.
+- New endpoints under the existing `/fob` router; new lazy frontend route `/theorycrafter` with a `<Tabs>` shell, one panel per pillar, a new `theory` Zustand slice.
+- Two new vendored data files needed — atlas passive tree (Pillar 3) and a slimmed RePoE mods file (Pillar 2 *full* version). Pillars 4 + 2-lite ship on data already in the repo.
+- Recommended rollout: Step 38 = Pillar 4 (Item Filter Generator, smallest/offline) → Step 39 = Pillar 2 (browser) → Step 40 = Pillar 1 (Build Generator, optional Haiku rationale) → Step 41 = Pillar 3 (Atlas).
+- §5 of the doc lists 6 open questions for Riccardo — implementation must not start before they are answered.
+
 ## Step 36 — View Transitions API (2026-05-19) ✅ — Layer 1 reverted same day
 
 Prompt 023. Frontend-only, no backend / API change, no new deps.
