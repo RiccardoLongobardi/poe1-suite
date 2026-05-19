@@ -235,7 +235,11 @@ function ShellLayout() {
               style={{ cursor: "pointer" }}
               onClick={() => navigate("/home")}
             >
-              <IconSparkles size={22} color="var(--vs-ember)" />
+              <IconSparkles
+                size={22}
+                color="var(--vs-ember)"
+                className="vs-logo-pulse"
+              />
               <Title
                 order={4}
                 style={{

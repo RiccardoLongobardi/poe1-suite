@@ -107,6 +107,16 @@ Frontend-only, no backend change.
 > Updating the `.md` files without updating the Patch Notes is an
 > incomplete step.
 
+## Step 35 — Visual polish batch 3 (2026-05-19) ✅
+
+Prompt 022. Frontend-only. **2 of 3 changes shipped** — the Finder virtual list was dropped (see below).
+
+- **Analyze item card inline expansion.** New `apps/shell/src/components/analyze/ExpandableGearCard.tsx` — replaces the old `GearCell`. Collapsed: the same compact cell (label, name, base, sockets, Trade icon, unique price badge). Click (or Enter/Space) toggles an inline `<Collapse>` details panel — rarity-coloured name, base, item level + level req, implicits (grape), explicits, corruption, unique price. One card open at a time per dashboard (`BuildDashboard` owns `expandedGear: pob_id | null`). `aria-expanded` + a chevron reflect state; the hover `<Tooltip>` is gone (replaced by click-expand). `Collapse` duration is 0 under `prefers-reduced-motion`. The equipment grid got `align-items: start` so an expanded cell grows its row without stretching its row-mates. `rarityColor` / `SocketDots` / the detail body moved into the new component; `GearCell` / `ItemTooltipBody` deleted from `AnalyzePage`.
+- **Header logo ember pulse.** `index.css` `@keyframes vs-ember-pulse` (opacity + `drop-shadow` glow, 4.5 s, no scale/layout shift) on `.vs-logo-pulse`, applied to the header `IconSparkles`. Reduced-motion → static.
+- **Finder virtual list — dropped.** The result list is capped at 50 (`topN` max) and the `BuildCard`s expand (variable height), which fights `react-window`'s `FixedSizeList`. Virtualising ≤50 variable-height cards is over-engineering for ~zero gain + a new dependency — Riccardo confirmed skipping it.
+
+Gate: 714 tests / 124 mypy / ruff clean (frontend-only). Frontend build main 460 KB / 146 KB gzip.
+
 ## Bug — Trade dialog: decimal stat-filter min (2026-05-19) ✅ fixed
 
 QA: the strictness slider's computed `min` (`rolled value × strictness`) was rounded to 1 decimal in `TradeSearchDialog.rowMin` — so the trade site showed `90.4`, `33.6`, etc. PoE mod rolls are whole numbers, so a decimal min reads wrong. `rowMin` now `Math.round`s to an integer.

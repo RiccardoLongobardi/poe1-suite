@@ -528,6 +528,29 @@ h6 {
   }
 }
 
+/* ── Header logo ember pulse (Step 35) ────────────────────────────────
+   A slow, low-amplitude smoulder on the FOB emblem — opacity + a
+   drop-shadow glow only, no scale/layout shift. */
+@keyframes vs-ember-pulse {
+  0%,
+  100% {
+    opacity: 0.9;
+    filter: drop-shadow(0 0 0 transparent);
+  }
+  50% {
+    opacity: 1;
+    filter: drop-shadow(0 0 5px var(--vs-ember-glow));
+  }
+}
+.vs-logo-pulse {
+  animation: vs-ember-pulse 4.5s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .vs-logo-pulse {
+    animation: none;
+  }
+}
+
 /* ── Route transition (Step 34, revised) ──────────────────────────────
    A lightweight opacity-only fade-in on the route content, replayed
    each navigation via a `key`-ed wrapper. Pure compositor work — no

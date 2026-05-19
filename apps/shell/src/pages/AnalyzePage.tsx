@@ -12,7 +12,6 @@
 
 import {
   Accordion,
-  ActionIcon,
   Alert,
   Anchor,
   Badge,
@@ -26,7 +25,6 @@ import {
   Text,
   TextInput,
   Title,
-  Tooltip,
 } from "@mantine/core";
 import {
   IconBolt,
@@ -44,13 +42,12 @@ import { analyzePob } from "../api/fob";
 import { usePageStore } from "../store/pageStore";
 import type {
   AnalyzePobResponse,
-  ItemRarity,
   PobItem,
   PobSkillGroup,
   PobSnapshot,
 } from "../api/types";
+import { ExpandableGearCard } from "../components/analyze/ExpandableGearCard";
 import { ErrorBoundary } from "../components/ErrorBoundary";
-import { PriceBadge } from "../components/PriceBadge";
 import { TradeSearchDialog } from "../components/TradeSearchDialog";
 import { useCountUp } from "../hooks/useCountUp";
 import { useT } from "../i18n";
@@ -63,228 +60,6 @@ function compactNumber(n: number): string {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(2)}M`;
   if (n >= 1_000) return `${(n / 1_000).toFixed(1)}k`;
   return String(Math.round(n));
-}
-
-/** Left-border colour per rarity — PoE1 rarity palette (Step 22a tokens). */
-function rarityColor(rarity: ItemRarity): string {
-  switch (rarity) {
-    case "unique":
-      return "var(--vs-unique)";
-    case "rare":
-      return "var(--vs-rare)";
-    case "magic":
-      return "var(--vs-magic)";
-    default:
-      return "var(--vs-normal)";
-  }
-}
-
-const SOCKET_COLOR: Record<string, string> = {
-  R: "#d32f2f",
-  G: "#388e3c",
-  B: "#1976d2",
-  W: "#e0e0e0",
-  A: "#3a2a4d",
-};
-
-// ---------------------------------------------------------------------------
-// Small presentational pieces
-// ---------------------------------------------------------------------------
-
-/** Render a PoB socket string ("R-G-B B") as coloured dots + link bars. */
-function SocketDots({ sockets }: { sockets: string }) {
-  const chars = [...sockets];
-  return (
-    <Group gap={2} wrap="nowrap" align="center">
-      {chars.map((ch, i) => {
-        const key = `${ch}-${i}`;
-        if (ch === "-") {
-          return (
-            <Box
-              key={key}
-              style={{ width: 6, height: 2, background: "var(--vs-border)" }}
-            />
-          );
-        }
-        if (ch === " ") return <Box key={key} style={{ width: 4 }} />;
-        const color = SOCKET_COLOR[ch.toUpperCase()];
-        if (!color) return null;
-        return (
-          <Box
-            key={key}
-            style={{
-              width: 9,
-              height: 9,
-              borderRadius: "50%",
-              background: color,
-              border: "1px solid rgba(0,0,0,0.45)",
-            }}
-          />
-        );
-      })}
-    </Group>
-  );
-}
-
-/** Tooltip body: base type, item level, implicits / explicits. */
-function ItemTooltipBody({ item }: { item: PobItem }) {
-  const t = useT();
-  return (
-    <Stack gap={4} style={{ maxWidth: 320 }}>
-      <Text size="xs" fw={600}>
-        {item.name ?? item.base_type}
-      </Text>
-      {item.name && (
-        <Text size="xs" c="dimmed">
-          {item.base_type}
-        </Text>
-      )}
-      {item.item_level != null && (
-        <Text size="xs" c="dimmed">
-          Item level {item.item_level}
-        </Text>
-      )}
-      {item.implicits.length > 0 && (
-        <>
-          <Divider my={2} />
-          {item.implicits.map((line, i) => (
-            <Text key={`impl-${i}`} size="xs" c="grape.4">
-              {line}
-            </Text>
-          ))}
-        </>
-      )}
-      {item.explicits.length > 0 && (
-        <>
-          <Divider my={2} />
-          {item.explicits.map((line, i) => (
-            <Text key={`expl-${i}`} size="xs">
-              {line}
-            </Text>
-          ))}
-        </>
-      )}
-      {item.corrupted && (
-        <Text size="xs" c="red.5" fw={600}>
-          {t({ it: "Corrotto", en: "Corrupted" })}
-        </Text>
-      )}
-    </Stack>
-  );
-}
-
-/** One cell of the equipment grid. */
-function GearCell({
-  label,
-  item,
-  style,
-  onTrade,
-}: {
-  label: string;
-  item: PobItem | undefined;
-  style?: React.CSSProperties;
-  onTrade: (item: PobItem) => void;
-}) {
-  const t = useT();
-  if (!item) {
-    return (
-      <Box
-        style={{
-          borderLeft: "3px solid var(--vs-border-faint)",
-          padding: "6px 10px",
-          background: "var(--vs-surface-1)",
-          borderRadius: 4,
-          minWidth: 0,
-          overflow: "hidden",
-          ...style,
-        }}
-      >
-        <Text size="10px" c="dimmed" tt="uppercase" fw={600}>
-          {label}
-        </Text>
-        <Text size="xs" c="dimmed" fs="italic">
-          {t({ it: "slot vuoto", en: "empty slot" })}
-        </Text>
-      </Box>
-    );
-  }
-  return (
-    <Tooltip
-      multiline
-      withArrow
-      label={<ItemTooltipBody item={item} />}
-      transitionProps={{ duration: 120 }}
-    >
-      <Box
-        className="vs-rarity"
-        data-rarity={item.rarity}
-        style={{
-          borderLeft: `3px solid ${rarityColor(item.rarity)}`,
-          padding: "6px 10px",
-          background: "var(--vs-surface-2)",
-          borderRadius: 4,
-          cursor: "help",
-          minWidth: 0,
-          overflow: "hidden",
-          ...style,
-        }}
-      >
-        <Group justify="space-between" gap={4} wrap="nowrap">
-          <Text size="10px" c="dimmed" tt="uppercase" fw={600}>
-            {label}
-          </Text>
-          <Group gap={4} wrap="nowrap" style={{ flexShrink: 0 }}>
-            {item.corrupted && (
-              <Badge color="red" size="xs" variant="filled" px={5}>
-                C
-              </Badge>
-            )}
-            <ActionIcon
-              variant="subtle"
-              color="ember"
-              size="xs"
-              title={t({
-                it: "Cerca questo item su pathofexile.com/trade",
-                en: "Search this item on pathofexile.com/trade",
-              })}
-              aria-label={t({ it: "Cerca su Trade", en: "Search on Trade" })}
-              onClick={(e) => {
-                e.stopPropagation();
-                onTrade(item);
-              }}
-            >
-              <IconExternalLink size={11} />
-            </ActionIcon>
-          </Group>
-        </Group>
-        <Text size="xs" fw={600} truncate>
-          {item.name ?? item.base_type}
-        </Text>
-        {item.name && (
-          <Text size="10px" c="dimmed" truncate>
-            {item.base_type}
-          </Text>
-        )}
-        {item.sockets && (
-          <Box mt={3}>
-            <SocketDots sockets={item.sockets} />
-          </Box>
-        )}
-        {item.rarity === "unique" && (
-          <Box
-            style={{
-              position: "absolute",
-              bottom: 3,
-              right: 7,
-              pointerEvents: "none",
-            }}
-          >
-            <PriceBadge name={item.name ?? item.base_type} />
-          </Box>
-        )}
-      </Box>
-    </Tooltip>
-  );
 }
 
 /** One stat tile in the key-stats grid — value counts up on render. */
@@ -408,6 +183,20 @@ function BuildDashboard({ data }: { data: AnalyzePobResponse }) {
 
   // The equipment item whose Trade-search dialog is open (null = closed).
   const [tradeItem, setTradeItem] = useState<PobItem | null>(null);
+  // The gear card whose inline details panel is expanded (pob_id), or
+  // null. One open at a time across the whole dashboard.
+  const [expandedGear, setExpandedGear] = useState<number | null>(null);
+
+  /** Shared props for an ExpandableGearCard given its (maybe absent) item. */
+  const gearProps = (it: PobItem | undefined) => ({
+    onTrade: setTradeItem,
+    expanded: it != null && expandedGear === it.pob_id,
+    onToggle: () => {
+      if (it != null) {
+        setExpandedGear((cur) => (cur === it.pob_id ? null : it.pob_id));
+      }
+    },
+  });
 
   return (
     <Stack gap="md">
@@ -590,62 +379,64 @@ function BuildDashboard({ data }: { data: AnalyzePobResponse }) {
                   '"belt   belt   belt"',
                   '"amulet ring   ring"',
                 ].join(" "),
+                gridAutoRows: "min-content",
+                alignItems: "start",
                 gap: 8,
               }}
             >
-              <GearCell
+              <ExpandableGearCard
                 label={t({ it: "Elmo", en: "Helmet" })}
                 item={slots.helmet}
                 style={{ gridArea: "helmet" }}
-                onTrade={setTradeItem}
+                {...gearProps(slots.helmet)}
               />
-              <GearCell
+              <ExpandableGearCard
                 label={t({ it: "Arma princ.", en: "Main weapon" })}
                 item={slots.weapon_main}
                 style={{ gridArea: "wmain" }}
-                onTrade={setTradeItem}
+                {...gearProps(slots.weapon_main)}
               />
-              <GearCell
+              <ExpandableGearCard
                 label={t({ it: "Corpo", en: "Body" })}
                 item={slots.body_armour}
                 style={{ gridArea: "body" }}
-                onTrade={setTradeItem}
+                {...gearProps(slots.body_armour)}
               />
-              <GearCell
+              <ExpandableGearCard
                 label={t({ it: "Arma sec.", en: "Off-hand" })}
                 item={slots.weapon_offhand}
                 style={{ gridArea: "woff" }}
-                onTrade={setTradeItem}
+                {...gearProps(slots.weapon_offhand)}
               />
-              <GearCell
+              <ExpandableGearCard
                 label={t({ it: "Guanti", en: "Gloves" })}
                 item={slots.gloves}
                 style={{ gridArea: "gloves" }}
-                onTrade={setTradeItem}
+                {...gearProps(slots.gloves)}
               />
-              <GearCell
+              <ExpandableGearCard
                 label={t({ it: "Stivali", en: "Boots" })}
                 item={slots.boots}
                 style={{ gridArea: "boots" }}
-                onTrade={setTradeItem}
+                {...gearProps(slots.boots)}
               />
-              <GearCell
+              <ExpandableGearCard
                 label={t({ it: "Cintura", en: "Belt" })}
                 item={slots.belt}
                 style={{ gridArea: "belt" }}
-                onTrade={setTradeItem}
+                {...gearProps(slots.belt)}
               />
-              <GearCell
+              <ExpandableGearCard
                 label={t({ it: "Amuleto", en: "Amulet" })}
                 item={slots.amulet}
                 style={{ gridArea: "amulet" }}
-                onTrade={setTradeItem}
+                {...gearProps(slots.amulet)}
               />
-              <GearCell
+              <ExpandableGearCard
                 label={t({ it: "Anello", en: "Ring" })}
                 item={slots.ring}
                 style={{ gridArea: "ring" }}
-                onTrade={setTradeItem}
+                {...gearProps(slots.ring)}
               />
             </Box>
 
@@ -663,11 +454,11 @@ function BuildDashboard({ data }: { data: AnalyzePobResponse }) {
                   }}
                 >
                   {snap.flasks.map((flask, i) => (
-                    <GearCell
+                    <ExpandableGearCard
                       key={`flask-${flask.pob_id}-${i}`}
                       label={`Flask ${i + 1}`}
                       item={flask}
-                      onTrade={setTradeItem}
+                      {...gearProps(flask)}
                     />
                   ))}
                 </Box>
@@ -691,11 +482,11 @@ function BuildDashboard({ data }: { data: AnalyzePobResponse }) {
                   }}
                 >
                   {snap.jewels.map((jewel, i) => (
-                    <GearCell
+                    <ExpandableGearCard
                       key={`jewel-${jewel.item.pob_id}-${i}`}
                       label={t({ it: "Gioiello", en: "Jewel" })}
                       item={jewel.item}
-                      onTrade={setTradeItem}
+                      {...gearProps(jewel.item)}
                     />
                   ))}
                 </Box>
