@@ -1,5 +1,4 @@
 # CLAUDE_PERPLEXITY_WORKFLOW
-
 Coordination playbook between **Perplexity** (research / design / data-source surveys) and **Claude Code** (in-repo implementation) for the `poe1-suite` mono-repo.
 
 This file's only job is to keep the two tools in sync — what each is responsible for, what's currently open, what's been decided. The source of truth for the codebase itself remains [`CLAUDE.md`](./CLAUDE.md) (architecture, conventions, gate, lessons learned).
@@ -125,14 +124,15 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 
 ### IN PROGRESS
 
-*(none as of 2026-05-19 — Step 36 shipped)*
+*(none as of 2026-05-19 — Step 36 shipped, Theorycrafter in design phase)*
 
 ### CANDIDATE FUTURE WORK
 
-- Trade redirect (backlog item, tracked)
-- Build generator (backlog item, tracked)
-- Atlas x build generator (backlog item, tracked)
-- Item filter generator (backlog item, tracked)
+- **Theorycrafter** — new `/theorycrafter` route. Full theorycrafting tool for PoE 3.28: build generator from scratch, item + modifier browser (all 3.28 data vendored), atlas strategy generator per build, item filter generator. See Prompt 024 in §8 for the design & architecture analysis phase. **DO NOT implement before Prompt 024 is run and the design output is reviewed.**
+- **Chatbot in-app** — conversational assistant embedded in the shell. Intent: answer PoE questions, help with build decisions, guide the user through FOB features. Implementation approach TBD (depends on Theorycrafter outcome — they may share a backend AI layer).
+- Build generator (superseded by Theorycrafter — same scope, renamed)
+- Atlas x build generator (superseded by Theorycrafter)
+- Item filter generator (superseded by Theorycrafter)
 
 ### DONE
 
@@ -145,7 +145,7 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 - [x] **Step 33 — Visual polish batch 1** (2026-05-18, Prompt 020) — particles, rarity glow, KPI count-up, ember skeletons. 713/121.
 - [x] **Step 32 — Trade dialog: full GGG stat DB + all mods** (2026-05-18). 706/123.
 - [x] **Step 31 — poe.ninja-style Trade-search dialog** (2026-05-18). 706/121.
-- [x] **Steps 25–30** — Trade redirect pipeline. ✅
+- [x] **Steps 25–30** — Trade redirect pipeline (prefilled GGG Trade URLs via backend POST). ✅
 - [x] **Step 24 — Finder result-list polish** (2026-05-18, Prompt 014). ✅
 - [x] **Steps 1–23** — See `CLAUDE.md`. ✅
 
@@ -163,6 +163,8 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 
 Reverse-chronological.
 
+- **2026-05-19** — *Theorycrafter scoped as next major feature.* Four backlog items (build generator, atlas x build generator, item filter generator + trade redirect already done) consolidated into one product feature called **Theorycrafter** — a `/theorycrafter` route covering full theorycrafting: build-from-scratch generator, 3.28 item/modifier browser, atlas strategy per build, item filter generator. Prompt 024 (design & architecture) must run before any implementation.
+- **2026-05-19** — *Chatbot in-app added as candidate backlog.* Conversational PoE assistant embedded in the shell. Approach TBD — may share backend layer with Theorycrafter's AI components.
 - **2026-05-19** — *View Transitions API: route-level use rejected for good (Step 36 revert).* Layer 1 (route cross-fade) was implemented per the approval below, then reverted the same day after QA: `document.startViewTransition` + `flushSync` snapshots the whole DOM on every navigation, which — with React lazy routes — made page switching feel sluggish vs. the plain CSS fade. The View Transitions API pays a full-page-snapshot cost for what is just an opacity fade. **Route changes permanently use the keyed `.vs-route` CSS fade.** The API is kept only for cheap in-page micro-transitions (Layer 3a — Finder skill filter). This is the second rejection (Step 34 deferred, Step 36 reverted) — do not propose route-level View Transitions again.
 - **2026-05-19** — *View Transitions API: full implementation approved (Step 36).* (Superseded by the revert above — kept for context.) Three levels: (1) route cross-fade with ParticleCanvas excluded via `view-transition-name: none`; (2) shared-element transitions on named elements (gear cards, build cards, KPI numbers); (3) micro-interaction transitions on state changes (pin/unpin, expand/collapse, filter apply). React 19 `<ViewTransition>` component NOT used — verify React version first; if < 19, use the imperative `document.startViewTransition` wrapper pattern. All transitions must be progressive-enhancement: if API unavailable, fall back to the existing CSS fade. `prefers-reduced-motion` disables all transitions at the CSS level.
 - **2026-05-19** — *View Transitions API: deferred, not abandoned.* (Original deferral note — superseded by the decision above.) The Step 34 attempt stuttered because `document.startViewTransition` snapshots the whole root including the always-animating `ParticleCanvas`. Correct fix: `view-transition-name: none` on the canvas element before `startViewTransition`.
@@ -183,7 +185,129 @@ Reusable templates. Self-contained — runnable today without past-chat context.
 
 ---
 
-*(no open prompts as of 2026-05-19 — Prompt 023 shipped, see §9)*
+### Prompt 024 — Step 37 — Theorycrafter: design & architecture analysis
+
+**Purpose:** Have Claude read the codebase and produce a written design document (no code changes) covering architecture, data sources, route structure, component decomposition, and open questions for Theorycrafter — a new `/theorycrafter` route that is the next major feature of FOB.
+
+**Run as:** Claude Code (Opus 4.7), analysis-only session. Commit ONLY the design doc output (`docs/THEORYCRAFTER_DESIGN.md`). No `.py`, `.ts`, `.json` changes. No gate run required (no code changed).
+
+---
+
+```
+Read CLAUDE.md and CLAUDE_PERPLEXITY_WORKFLOW.md top to bottom before doing anything else.
+
+Your task is ANALYSIS ONLY — no code changes, no new files except the design document described at the end. Do not touch any .py, .ts, .json, or test files.
+
+---
+
+## Context
+
+FOB (fob-ten.vercel.app) is a live PoE 1 tool with four working routes:
+- /finder    → Build Finder (NL query → ranked builds from poe.ninja ladder)
+- /analyze   → PoB Analyzer (paste PoB code → full build dashboard + Trade search)
+- /planner   → Progression Planner (paste PoB code → 6-stage leveling plan + PoB export)
+- /patch-notes → changelog
+
+The next feature is called **Theorycrafter** and will live at `/theorycrafter`.
+
+---
+
+## What Theorycrafter must do (product spec)
+
+Theorycrafter is a build-from-scratch theorycrafting tool for PoE 3.28. Unlike the Planner (which starts from an existing PoB) and the Finder (which searches the ladder), Theorycrafter lets the user **design a build from zero** with full 3.28 data at their fingertips.
+
+The four pillars:
+
+### Pillar 1 — Build Generator
+The user describes what they want in natural language (e.g. "voglio un build tanky con RF che possa fare tutti i contenuti") and the tool generates a complete build skeleton:
+- Suggested class + ascendancy
+- Core skill + support links (6L)
+- Key unique items per budget tier (starter / mid / endgame)
+- Passive tree milestones (not a full tree, but major keystones + notable clusters)
+- Atlas strategy hint (see Pillar 3)
+
+This is NOT the same as the Planner (which requires an existing PoB). Theorycrafter generates de novo.
+
+### Pillar 2 — Item & Modifier Browser
+A searchable browser of all 3.28 items and modifiers:
+- Filter by item class, base type, influence, ilvl, implicit
+- Search modifiers by name / stat text (e.g. "increased fire damage")
+- Show which items can roll a given modifier
+- Show the numeric ranges for affixes on a given base
+
+Data sources: `packages/fob/data/items/base_items.json` (already vendored) + `packages/fob/data/trade/stats.json` (already vendored, ~9.5k GGG stat IDs). May need to vendor additional modifier range data — analyze what's missing.
+
+### Pillar 3 — Atlas Strategy Generator
+Given a build's content focus (bossing / mapping / league mechanic / all-content), suggest an atlas passive tree strategy:
+- Which atlas regions to prioritize
+- Which atlas keystones to take or avoid
+- Suggested scarab / sextant focus
+
+Data source: atlas passive tree data from GGG (similar to the passive skill tree — a vendored JSON). Analyze whether this data is available in the existing vendored files or needs a new script.
+
+### Pillar 4 — Item Filter Generator
+Given a build's core stat priorities (e.g. "life + fire res + strength"), generate a NeverSink-style item filter text file that the user can download and import directly into PoE:
+- Show / highlight items that match the build's stat priorities
+- Hide low-value trash
+- Tiered coloring for normal / magic / rare / unique
+
+Data source: `packages/fob/data/items/base_items.json` (already vendored). The filter is a text file output — no external API needed.
+
+---
+
+## What you must produce
+
+A written design document at `docs/THEORYCRAFTER_DESIGN.md`. No code. The document must cover:
+
+### 1. Feasibility assessment per pillar
+For each of the four pillars:
+- What data do we already have (vendored JSON, existing endpoints, existing services)?
+- What is missing and how do we get it (new vendor script? new API call? LLM inference?)?
+- Complexity estimate: S / M / L / XL (S = 1 day, XL = 1+ week)
+- Risk factors
+
+### 2. Data inventory
+List every data file currently in `packages/fob/data/` with its size, content summary, and which pillar(s) it serves. Identify gaps.
+
+### 3. Architecture proposal
+How does Theorycrafter fit into the existing mono-repo?
+- New package vs. extending `poe1-fob`?
+- New FastAPI endpoints (list them with method + path + input/output shape)
+- Frontend route + page component structure (what sub-views / tabs?)
+- State management (Zustand slice? local state? TanStack Query?)
+- Does the Build Generator need an LLM call? If yes, which model and how (tool-use? streaming?)?
+
+### 4. Implementation order
+Propose which pillar to build first and why. Suggest a 4-step rollout (one pillar per step, each independently useful and shippable).
+
+### 5. Open questions
+List anything that requires a decision from Riccardo before implementation starts (e.g. "Do you want the Build Generator to use an LLM or be rule-based?", "Should the Item Filter support custom tier thresholds?").
+
+### 6. What NOT to build
+Explicit list of things that are out of scope for Theorycrafter v1 — to prevent scope creep.
+
+---
+
+## Constraints (same as always)
+
+- No PostgreSQL, no ETL, no poedb.tw scraping, no GGG OAuth.
+- Vendor data, don't fetch at runtime.
+- The Render free tier has 512 MB RAM and ~30s cold start — any LLM call must be optional / lazy, never on the critical path.
+- The gate (714 tests / 124 mypy / ruff clean) must stay green — but since this is analysis-only, you won't run it.
+
+---
+
+## Output
+
+Write `docs/THEORYCRAFTER_DESIGN.md` and commit it with message:
+`docs: Step 37 — Theorycrafter design & architecture analysis`
+
+Also update `CLAUDE.md` bottom section "What's built" to note Step 37 is in analysis phase.
+Also update `CLAUDE_PERPLEXITY_WORKFLOW.md` §1 snapshot and §6 backlog (mark Theorycrafter as "IN PROGRESS — design phase").
+Also update `PatchNotesPage.tsx` RELEASES array with a user-facing bilingual entry: "Theorycrafter in progetto — analisi architetturale completata".
+
+Do NOT run the gate (analysis-only, no code changed).
+```
 
 ---
 
