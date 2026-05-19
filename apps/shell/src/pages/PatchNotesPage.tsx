@@ -30,25 +30,17 @@ const RELEASES: Release[] = [
   {
     date: { it: "19 mag 2026", en: "19 May 2026" },
     title: {
-      it: "Transizioni native del browser",
-      en: "Native browser transitions",
-    },
-    summary: {
-      it: "Navigazione e interazioni animate con le transizioni native del browser.",
-      en: "Navigation and interactions animated with the browser's native transitions.",
+      it: "Filtro skill del Finder più fluido",
+      en: "Smoother Finder skill filter",
     },
     entries: [
       {
-        it: "Cambiando pagina, quella vecchia si dissolve in quella nuova con una transizione fluida e nativa — senza più scatti.",
-        en: "Switching pages now cross-fades the old page into the new one with a smooth, native transition — no more jumps.",
+        it: "Nel Build Finder, filtrando i risultati per skill la lista ora si aggiorna con una breve dissolvenza invece di scattare.",
+        en: "In the Build Finder, filtering results by skill now updates the list with a short cross-fade instead of jumping.",
       },
       {
-        it: "Nel Build Finder, filtrando i risultati per skill la lista si aggiorna con una breve dissolvenza.",
-        en: "In the Build Finder, filtering results by skill updates the list with a short cross-fade.",
-      },
-      {
-        it: "Tutte le animazioni rispettano l'impostazione \"riduci movimento\" del sistema e funzionano anche sui browser che non le supportano.",
-        en: "All animations respect the system's \"reduce motion\" setting and degrade gracefully on browsers without support.",
+        it: "L'animazione rispetta l'impostazione \"riduci movimento\" del sistema.",
+        en: "The animation respects the system's \"reduce motion\" setting.",
       },
     ],
   },

@@ -577,46 +577,17 @@ h6 {
 }
 
 /* ── View Transitions API (Step 36) ───────────────────────────────────
-   When the browser supports the View Transitions API, route changes
-   and select in-page updates are animated natively via
-   `document.startViewTransition` (see `useViewTransition.ts`). In that
-   case the keyed `.vs-route` CSS fade is redundant — disable it so the
-   page is not double-animated. Browsers without the API keep the
-   `.vs-route` fade as the fallback. */
-@supports (view-transition-name: none) {
-  .vs-route {
-    animation: none;
-  }
-}
+   Scope is deliberately narrow. Route changes keep the lightweight
+   keyed `.vs-route` CSS fade above — wrapping navigation in
+   `document.startViewTransition` snapshots the whole DOM on every page
+   switch, which made navigation feel sluggish (and is why Step 34 had
+   already deferred it). The View Transitions API is used ONLY for the
+   cheap in-page Finder skill-filter micro-transition.
 
-/* Root cross-fade — the outgoing page fades out, the incoming fades in. */
-@keyframes vt-fade-out {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
-}
-@keyframes vt-fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-::view-transition-old(root) {
-  animation: vt-fade-out 180ms cubic-bezier(0.4, 0, 1, 1) forwards;
-}
-::view-transition-new(root) {
-  animation: vt-fade-in 220ms cubic-bezier(0, 0, 0.2, 1) forwards;
-}
-
-/* The ParticleCanvas has its own `view-transition-name: particle-canvas`
-   (set in the component) so it is lifted out of the root snapshot. Its
-   group animation is suppressed here — the field just keeps drifting
-   underneath instead of freezing a frame during the transition. */
+   The ParticleCanvas carries its own `view-transition-name`
+   (particle-canvas) so it is lifted out of any snapshot; its group
+   animation is suppressed here so the field keeps drifting instead of
+   freezing a frame. */
 ::view-transition-group(particle-canvas),
 ::view-transition-old(particle-canvas),
 ::view-transition-new(particle-canvas) {
@@ -630,12 +601,10 @@ h6 {
   animation-duration: 120ms;
 }
 
-/* Reduced motion → suppress every view transition animation. The
+/* Reduced motion → suppress the view transition animation. The
    `withViewTransition` helper also skips `startViewTransition` entirely
    under reduced motion, so this is a belt-and-braces guard. */
 @media (prefers-reduced-motion: reduce) {
-  ::view-transition-old(root),
-  ::view-transition-new(root),
   ::view-transition-old(finder-results),
   ::view-transition-new(finder-results) {
     animation: none;

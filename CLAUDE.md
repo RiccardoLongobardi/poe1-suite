@@ -107,25 +107,25 @@ Frontend-only, no backend change.
 > Updating the `.md` files without updating the Patch Notes is an
 > incomplete step.
 
-## Step 36 — View Transitions API (2026-05-19) ✅
+## Step 36 — View Transitions API (2026-05-19) ✅ — Layer 1 reverted same day
 
-Prompt 023. Frontend-only, no backend / API change, no new deps. Native browser View Transitions for route changes. Reduced-motion-safe, progressive-enhancement, both colour schemes.
+Prompt 023. Frontend-only, no backend / API change, no new deps.
 
-**Scope delivered — Layer 1 (route cross-fade) + Layer 3a (Finder filter micro-transition).** Layers 2 and 3b/3c were deliberately skipped — see "Skipped" below; the prompt's own fallback contract permits this.
+**What shipped and stuck — Layer 3a only (Finder filter micro-transition).** The headline Layer 1 (route cross-fade) was **implemented and then reverted the same day** after QA found it made page switching feel sluggish — see "Why Layer 1 was reverted" below. This is the second time the View Transitions API has been rejected for route transitions (Step 34 deferred it for the canvas stutter); **do not attempt route-level `startViewTransition` again** — the keyed `.vs-route` CSS fade (Step 34) is the permanent solution for route changes.
 
-- **`apps/shell/src/hooks/useViewTransition.ts`** (new) — exports `withViewTransition(cb)`: runs `cb` inside `document.startViewTransition` with `flushSync` so the React update is captured by the snapshot. No-op wrapper (runs `cb` directly) when the API is unavailable (Firefox < 130, Safari < 18) or `prefers-reduced-motion: reduce` is set. Also exports `supportsViewTransitions()`. **No raw `document.startViewTransition` calls anywhere else** — everything goes through this helper.
-- **Layer 1 — route cross-fade.** Every navigation in `App.tsx` (navbar `navTo`, the `G F/A/P/N` shortcuts, the header logo click, `onSendToPlanner`) is wrapped in `withViewTransition`. `index.css` defines `::view-transition-old/new(root)` (180 ms fade-out / 220 ms fade-in). The keyed `.vs-route` CSS fade (Step 34) is the fallback — `@supports (view-transition-name: none)` disables it when the API is present so the page is never double-animated.
-- **The ParticleCanvas fix (why Step 34 deferred this).** `document.startViewTransition` snapshots the whole root including the always-animating `ParticleCanvas`, freezing a frame → stutter. **Fix done correctly**: the canvas gets a *permanent* `view-transition-name: particle-canvas` (in the component style) so it is lifted out of the root snapshot into its own group; `index.css` then suppresses animation on `::view-transition-group/old/new(particle-canvas)`. *(Deviation from the prompt: the prompt suggested toggling the name to `'none'` before/after the transition — but `none` is the CSS default and a no-op, it would not exclude anything. A permanent own-name group is the technically-correct exclusion.)* The canvas also carries a `data-particle-canvas` attribute for stable selection.
-- **Layer 3a — Finder filter micro-transition.** The Finder skill drill-down toggle (`handleDrillSkill` + the skill `Pill` remove) is wrapped in `withViewTransition`; the results `<Stack>` has `view-transition-name: finder-results` so the list cross-fades (120 ms) between the full set and the skill-filtered subset instead of jumping.
-- **Reduced motion** — `@media (prefers-reduced-motion: reduce)` zeroes every `::view-transition-*` animation, and `withViewTransition` skips `startViewTransition` entirely (belt-and-braces).
+- **`apps/shell/src/hooks/useViewTransition.ts`** (kept) — exports `withViewTransition(cb)`: runs `cb` inside `document.startViewTransition` with `flushSync`, or directly when the API is unavailable (Firefox < 130, Safari < 18) or `prefers-reduced-motion: reduce` is set. Used **only** by Layer 3a.
+- **Layer 3a — Finder filter micro-transition.** The Finder skill drill-down toggle (`handleDrillSkill` + the skill `Pill` remove) is wrapped in `withViewTransition`; the results `<Stack>` has `view-transition-name: finder-results` so the list cross-fades (120 ms) when the client-side skill filter toggles. This is an in-page state change, not a route change — cheap, no full-DOM-snapshot cost on the navigation hot path.
+- **ParticleCanvas** — keeps its permanent `view-transition-name: particle-canvas` + `data-particle-canvas` attr; `index.css` suppresses its group animation so it is never frozen during the Layer 3a transition.
 
-**Skipped (documented):**
-- *Layer 2a — BuildCard → Analyze shared element.* No such navigation path exists (Finder lifts to Planner, not Analyze). The prompt says skip when the route doesn't exist.
-- *Layer 2b — GearCard cell → popover shared element.* Moot by design: the `GearCard` popover opens on **hover**, so it is already visible *before* the pin click — there is no compact→expanded transition to animate.
-- *Layer 2c — KPI shared element.* Marginal; the existing `useCountUp` already animates KPI value changes.
-- *Layer 3b/3c — Trade dialog / shortcuts overlay shared element.* Both are Mantine `<Modal>`s rendered in a portal; shared-element view transitions across a portal boundary are unreliable. They keep Mantine's built-in fade. The prompt explicitly permits this fallback.
+**Why Layer 1 was reverted.** Wrapping every route navigation in `document.startViewTransition` + `flushSync` snapshots the entire DOM on each page switch. Combined with React's lazy-loaded routes (the `flushSync` forces a synchronous render that suspends), navigation felt noticeably less responsive than the plain CSS fade. The View Transitions API is genuinely the wrong tool for route changes in this app — it pays a full-page snapshot cost for a simple opacity fade the CSS `.vs-route` keyframe already does for free. Layer 1's `App.tsx` navigations were reverted to plain `navigate(...)`; the `::view-transition-*(root)` CSS + the `@supports` rule that disabled `.vs-route` were removed, restoring the snappy keyed CSS fade.
 
-Gate: 714 tests / 124 mypy / ruff clean (frontend-only). Frontend build main 461 KB / 147 KB gzip.
+**Skipped (never implemented, documented):**
+- *Layer 2a — BuildCard → Analyze shared element.* No such navigation path exists (Finder lifts to Planner, not Analyze).
+- *Layer 2b — GearCard cell → popover shared element.* Moot by design: the `GearCard` popover opens on **hover**, so it is already visible *before* the pin click — no compact→expanded transition to animate.
+- *Layer 2c — KPI shared element.* `useCountUp` already animates KPI value changes.
+- *Layer 3b/3c — Trade dialog / shortcuts overlay shared element.* Both are Mantine `<Modal>`s in a portal; shared-element transitions across a portal boundary are unreliable. They keep Mantine's built-in fade.
+
+Gate: 714 tests / 124 mypy / ruff clean (frontend-only). Frontend build main ~460 KB / 146 KB gzip.
 
 ## Step 35 — Visual polish batch 3 (2026-05-19) ✅
 

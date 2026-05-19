@@ -51,7 +51,6 @@ import {
   useLocation,
   useNavigate,
 } from "react-router-dom";
-import { withViewTransition } from "./hooks/useViewTransition";
 import { DonationModal } from "./components/DonationModal";
 import { KeyboardShortcutsModal } from "./components/KeyboardShortcutsModal";
 import { ParticleCanvas } from "./components/ParticleCanvas";
@@ -154,12 +153,12 @@ function ShellLayout() {
 
   const onSendToPlanner = (pobCode: string) => {
     setPlannerInput(pobCode);
-    withViewTransition(() => navigate("/planner"));
+    navigate("/planner");
     close();
   };
 
   const navTo = (path: string) => () => {
-    withViewTransition(() => navigate(path));
+    navigate(path);
     close();
   };
 
@@ -185,7 +184,7 @@ function ShellLayout() {
         };
         if (dest[k]) {
           e.preventDefault();
-          withViewTransition(() => navigate(dest[k]));
+          navigate(dest[k]);
         }
         return;
       }
@@ -234,7 +233,7 @@ function ShellLayout() {
             <Group
               gap={8}
               style={{ cursor: "pointer" }}
-              onClick={() => withViewTransition(() => navigate("/home"))}
+              onClick={() => navigate("/home")}
             >
               <IconSparkles
                 size={22}
