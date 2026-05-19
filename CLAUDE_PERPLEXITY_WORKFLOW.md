@@ -137,6 +137,7 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 
 ### DONE
 
+- [x] **Bugfix — Trade dialog: decimal stat-filter min** (2026-05-19) — `TradeSearchDialog.rowMin` now `Math.round`s the strictness-applied min to a whole number (PoE rolls are integers; the trade site showed `90.4` etc.).
 - [x] **Bugfix — Trade dialog: implicit mods + jerky route transition** (2026-05-19) — Trade resolver made domain-aware: `stats.json` now `{normalized: {domain: id}}`, `resolve_mod(implicit=)` picks the implicit-domain stat for corrupted/implicit mods (was always explicit → search failed). Route transition's View Transitions API replaced with a light opacity-only CSS fade (it stuttered against the particle canvas). 714 tests.
 - [x] **Step 34 — Visual polish batch 2** (2026-05-19, Prompt 021) — Route transitions via the View Transitions API (`useViewTransition` hook + `::view-transition-*` CSS); poe.ninja price badges (`PriceBadge` + `usePriceHint` + `api/pricing.ts`) on unique gear cells/rows; keyboard-shortcuts overlay (`KeyboardShortcutsModal` + global `keydown` handler — `G F/A/P/N`, `T`, `L`, `?`); Mantine toast restyle. Frontend-only, 713 tests. Rares dropped from the price badge — poe.ninja can't name-price a rolled rare.
 - [x] **Bugfix — Trade dialog: unique name search + Instant Buyout + count mods** (2026-05-18) — name + type sent together; `status_option = "securable"`; `difflib` fuzzy fallback for count mods. 713 tests / 121 mypy.

@@ -65,13 +65,14 @@ function isSearchable(row: ModRow): boolean {
   return row.mod.stat_id != null;
 }
 
-/** Min value sent to Trade for a row, or null when the mod has no number. */
+/**
+ * Min value sent to Trade for a row, or null when the mod has no
+ * number. Rounded to a whole number — PoE mod rolls are integers, so a
+ * decimal min just reads wrong on the trade site.
+ */
 function rowMin(row: ModRow): number | null {
   if (row.mod.value == null) return null;
-  return Math.max(
-    1,
-    Math.round(((row.mod.value * row.strictness) / 100) * 10) / 10,
-  );
+  return Math.max(1, Math.round((row.mod.value * row.strictness) / 100));
 }
 
 export function TradeSearchDialog({

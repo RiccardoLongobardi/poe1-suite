@@ -107,6 +107,10 @@ Frontend-only, no backend change.
 > Updating the `.md` files without updating the Patch Notes is an
 > incomplete step.
 
+## Bug — Trade dialog: decimal stat-filter min (2026-05-19) ✅ fixed
+
+QA: the strictness slider's computed `min` (`rolled value × strictness`) was rounded to 1 decimal in `TradeSearchDialog.rowMin` — so the trade site showed `90.4`, `33.6`, etc. PoE mod rolls are whole numbers, so a decimal min reads wrong. `rowMin` now `Math.round`s to an integer.
+
 ## Bug — Trade dialog: implicit mods searched as explicit (2026-05-19) ✅ fixed
 
 QA: corrupted/implicit mods in the Trade dialog resolved to the

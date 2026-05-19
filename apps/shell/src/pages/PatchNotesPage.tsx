@@ -42,6 +42,10 @@ const RELEASES: Release[] = [
         it: "Le transizioni tra le pagine sono ora più fluide (dissolvenza leggera).",
         en: "Page transitions are now smoother (a light fade).",
       },
+      {
+        it: "I valori minimi dei filtri Trade sono ora arrotondati a numeri interi.",
+        en: "Trade filter minimum values are now rounded to whole numbers.",
+      },
     ],
   },
   {
