@@ -28,7 +28,7 @@ Don't trust earlier versions of this file — the section below is the authorita
 - **Step 33 (Visual polish batch 1) DONE 2026-05-18** — `ParticleCanvas` ember field; `.vs-rarity` hover glow on all gear items (per-rarity PoE colour); `useCountUp` on Analyze KPIs; `.vs-skeleton*` ember loaders. ✅
 - **Step 34 (Visual polish batch 2) DONE 2026-05-19** — lightweight route fade (CSS; see §7 for why View Transitions API was deferred, not abandoned), unique-item poe.ninja price badges, keyboard shortcuts overlay (`?`), toast redesign. ✅
 - **Step 35 (Visual polish batch 3) DONE 2026-05-19** — 2/3 shipped: Analyze item hover+pin popover (`GearCard`) + header logo ember pulse. Finder virtual list dropped (≤50 items, variable-height cards). ✅
-- **Step 36 (View Transitions API — full implementation) READY TO IMPLEMENT** — See §8 Prompt 023.
+- **Step 36 (View Transitions API) DONE 2026-05-19** — Layer 1 route cross-fade (`useViewTransition` hook, ParticleCanvas excluded from the root snapshot via its own `view-transition-name`) + Layer 3a Finder filter micro-transition. Layers 2 / 3b / 3c skipped (no route / hover-driven popover / portal modals). ✅
 
 If anything you read in this file or in `CLAUDE.md` contradicts the above, **the above wins**.
 
@@ -125,7 +125,7 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 
 ### IN PROGRESS
 
-- **Step 36 — View Transitions API (full implementation)** (Prompt 023 in §8)
+*(none as of 2026-05-19 — Step 36 shipped)*
 
 ### CANDIDATE FUTURE WORK
 
@@ -136,6 +136,7 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 
 ### DONE
 
+- [x] **Step 36 — View Transitions API** (2026-05-19, Prompt 023) — Layer 1 route cross-fade via `useViewTransition` hook (`ParticleCanvas` excluded from the root snapshot with its own `view-transition-name`, animation suppressed on that group) + Layer 3a Finder skill-filter micro-transition. Layers 2 / 3b / 3c skipped (no BuildCard→Analyze route; hover-driven `GearCard` popover makes 2b moot; Trade dialog + shortcuts modal are portal `<Modal>`s — keep Mantine fade). Frontend-only, 714 tests / 124 mypy.
 - [x] **Step 35 — Visual polish batch 3** (2026-05-19, Prompt 022) — 2/3 changes. `GearCard` (Analyze): hover pops item details panel, click pins it open (one pinned at a time). Header `IconSparkles` ember pulse (opacity 0.55→1 + scale + bright glow). **Finder virtual list dropped** — ≤50 items, variable-height cards. Frontend-only, 714 tests.
 - [x] **Bugfix — Trade dialog: decimal stat-filter min** (2026-05-19) — `Math.round` on strictness-computed min. Frontend-only.
 - [x] **Bugfix — Trade dialog: implicit mods + route transition stutter** (2026-05-19) — domain-aware resolver; CSS fade replaces View Transitions API. Gate: 714/124.
@@ -181,200 +182,7 @@ Reusable templates. Self-contained — runnable today without past-chat context.
 
 ---
 
-### Prompt 023 — Step 36: View Transitions API — full implementation (route + shared element + micro-interactions)
-
-**Goal**: make FOB feel like a native app. The View Transitions API is the single biggest quality-of-life upgrade available in the browser today. This prompt implements it in three layers, from most impactful to least, in a single frontend-only pass.
-
-**Context**: FOB uses "Void Stone & Ember" design system. The app has three main routes (`/finder`, `/analyze`, `/planner`), a `ParticleCanvas` that animates continuously in the background, and several interactive components: `GearCard` (hover+pin popover), `BuildCard` (Finder result), KPI counters (`useCountUp`), ember skeletons, and the Trade dialog.
-
-**Why the previous attempt failed**: `document.startViewTransition` snapshots the entire root DOM including the always-animating `ParticleCanvas`, producing a stuttering frozen frame during the transition. The fix is surgical: assign `view-transition-name: none` to the canvas element *before* calling `startViewTransition`. This tells the browser to exclude it from the snapshot entirely.
-
-**React version check — MANDATORY first step**: before writing any code, check `apps/shell/package.json` to determine the React version.
-- If React **≥ 19**: you may use the native `<ViewTransition>` component from `react` for shared-element transitions — it integrates with `startTransition` and is the cleanest API.
-- If React **< 19**: use the imperative pattern (`document.startViewTransition` wrapped in a `useViewTransition` hook). Do not add React 19 as a dependency just for this.
-
-All changes must:
-- Be **frontend-only** — no backend changes.
-- Work in both dark and light colour schemes.
-- Respect `prefers-reduced-motion` — when the media query is active, all `::view-transition-*` animations are suppressed via CSS and `startViewTransition` falls back to an instant update.
-- Be **progressive enhancement**: wrap every `startViewTransition` call with `if ('startViewTransition' in document)` — if the API is unavailable (Firefox < 130, Safari < 18), fall back gracefully to the existing CSS fade.
-- Not regress the gate (currently **714 tests / 124 mypy / ruff clean**).
-- Update `PatchNotesPage.tsx` `RELEASES` array in the same commit.
-
----
-
-#### Layer 1 — Route cross-fade (fix the previous attempt)
-
-**What**: when the user navigates between `/finder`, `/analyze`, `/planner` and `/patch-notes`, the outgoing page fades out and the incoming page fades in using the View Transitions API — not a CSS keyed-wrapper hack.
-
-**The ParticleCanvas fix**:
-```ts
-// In the navigation handler / useViewTransition hook,
-// BEFORE calling document.startViewTransition:
-const canvas = document.querySelector('canvas[data-particle-canvas]');
-if (canvas) canvas.style.viewTransitionName = 'none';
-
-document.startViewTransition(async () => {
-  // perform the React Router navigation here
-  // (flushSync + navigate, or useNavigate inside startViewTransition)
-  await navigationCallback();
-}).ready.finally(() => {
-  // restore after transition snapshot is taken
-  if (canvas) canvas.style.viewTransitionName = '';
-});
-```
-
-Make sure the `<canvas>` element in `ParticleCanvas` has `data-particle-canvas` attribute so it is selectable without fragile class queries.
-
-**CSS** — define `::view-transition-old(root)` and `::view-transition-new(root)` in `index.css`:
-```css
-@keyframes vt-fade-out { from { opacity: 1; } to { opacity: 0; } }
-@keyframes vt-fade-in  { from { opacity: 0; } to { opacity: 1; } }
-
-::view-transition-old(root) {
-  animation: vt-fade-out 180ms cubic-bezier(0.4, 0, 1, 1) forwards;
-}
-::view-transition-new(root) {
-  animation: vt-fade-in 220ms cubic-bezier(0, 0, 0.2, 1) forwards;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  ::view-transition-old(root),
-  ::view-transition-new(root) { animation: none; }
-}
-```
-
-**Integration**: create or recreate `apps/shell/src/hooks/useViewTransition.ts` — a hook that wraps `document.startViewTransition` with the canvas fix and the `prefers-reduced-motion` check. Integrate into the navbar links and the `G F/A/P/N` keyboard shortcuts.
-
----
-
-#### Layer 2 — Shared element transitions
-
-This is the premium interaction. Assign the same `view-transition-name` to a "source" element and a "target" element in two different render states; the browser morphs position, size and shape between them automatically.
-
-**Apply to these specific cases:**
-
-**2a. Finder BuildCard → route (if Analyze accepts a build URL)**
-If clicking a Finder result already navigates or could navigate to `/analyze` with that build pre-loaded, give both the result card and the Analyze header the same `view-transition-name: build-hero`. If this navigation path does not exist yet, **skip this sub-case and note it in the commit message** — do not build new routing for it here.
-
-**2b. GearCard popover expansion (Analyze)**
-The gear cell in the equipment grid and its pinned popover panel are the same logical item — one is compact, one is expanded. When the popover opens (pins), use a shared element transition so the card visually "expands" to the popover position rather than popping:
-```tsx
-// On the compact gear cell:
-style={{ viewTransitionName: `gear-${slotKey}` }}
-
-// On the popover panel:
-style={{ viewTransitionName: `gear-${slotKey}` }}
-```
-Wrap the pin/unpin state update inside `startViewTransition`. The `slotKey` must be unique per gear slot (e.g. `helmet`, `chest`, `weapon`). Use `contain: layout` on both elements to prevent the transition from affecting sibling layout.
-
-**2c. KPI counter values (Analyze)**
-When the user re-analyzes a different build (if that flow exists), the KPI numbers animate from old to new position using shared element transitions instead of just count-up. If build re-analysis does not exist as a user flow yet, **skip this sub-case**.
-
-**CSS pattern for shared elements**:
-```css
-/* Shared elements: use default cross-fade morphing */
-/* The browser handles position/size interpolation automatically */
-/* Only override if the default looks wrong */
-
-@media (prefers-reduced-motion: reduce) {
-  /* Disable all named transitions */
-  * { view-transition-name: none !important; }
-}
-```
-
-**Important**: `view-transition-name` values must be **unique per visible element** at snapshot time. If two elements share the same name simultaneously, the browser will skip the transition for both. For list items (e.g. gear slots), always suffix with a unique identifier.
-
----
-
-#### Layer 3 — Micro-interaction transitions
-
-Apply `startViewTransition` to in-page state changes — not just route changes.
-
-**3a. Finder filter apply**
-When the user changes a filter (class, ascendancy, stat floor, sort) and the result list re-renders, wrap the results list update inside `startViewTransition`. Give the results container `view-transition-name: finder-results`. The list will cross-fade between old and new results instead of jumping. Keep the transition short (120ms).
-
-**3b. Trade dialog open/close**
-The Trade icon button in gear cards and the dialog itself: give the button `view-transition-name: trade-trigger-{slotKey}` and the dialog panel `view-transition-name: trade-trigger-{slotKey}` so it "flies out" from the button. Only if `TradeSearchDialog` is already a Mantine `<Modal>` — if the portal makes shared transitions unreliable, fall back to a simple fade for the dialog and note it.
-
-**3c. Keyboard shortcuts overlay**
-The `?` button and the `KeyboardShortcutsModal` — same shared-element pattern as the Trade dialog. Give both `view-transition-name: kbd-overlay-trigger`.
-
----
-
-#### Architecture summary
-
-```
-apps/shell/src/
-  hooks/
-    useViewTransition.ts          ← new (or recreated from Step 34)
-  components/
-    ParticleCanvas.tsx            ← add data-particle-canvas attr
-    analyze/GearCard.tsx          ← view-transition-name on cell + popover
-    finder/FinderResults.tsx      ← view-transition-name on results container
-    trade/TradeSearchDialog.tsx   ← view-transition-name on trigger + panel
-    shell/KeyboardShortcutsModal.tsx ← view-transition-name on trigger + panel
-  pages/
-    ShellLayout.tsx               ← integrate useViewTransition into nav
-  index.css                       ← all ::view-transition-* CSS
-```
-
----
-
-#### Fallback contract
-
-Every `startViewTransition` call must be guarded:
-```ts
-function withViewTransition(cb: () => void | Promise<void>) {
-  if (
-    !('startViewTransition' in document) ||
-    window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  ) {
-    return Promise.resolve(cb());
-  }
-  return document.startViewTransition(cb).finished;
-}
-```
-
-Export this utility from `useViewTransition.ts` and use it everywhere — no raw `document.startViewTransition` calls scattered across components.
-
----
-
-#### Patch Notes entry (mandatory, same commit)
-
-Add to the top of `RELEASES` in `apps/shell/src/pages/PatchNotesPage.tsx`:
-
-```ts
-{
-  version: "Step 36",
-  date: "2026-05-19",
-  title: { it: "Transizioni native del browser", en: "Native browser transitions" },
-  summary: {
-    it: "Navigazione e interazioni animate con la View Transitions API: route, elementi condivisi e micro-interazioni.",
-    en: "Navigation and interactions animated with the View Transitions API: routes, shared elements, and micro-interactions."
-  },
-  bullets: [
-    { it: "Transizioni di route con cross-fade nativo", en: "Route transitions with native cross-fade" },
-    { it: "Shared element: GearCard si espande al popover", en: "Shared element: GearCard expands to popover" },
-    { it: "Micro-interazioni: filtri Finder, Trade dialog, overlay scorciatoie", en: "Micro-interactions: Finder filters, Trade dialog, shortcuts overlay" },
-  ]
-}
-```
-
----
-
-#### Gate
-
-Run before declaring done:
-```bash
-uv run ruff check .
-uv run ruff format --check .
-uv run mypy .
-uv run pytest
-cd apps/shell && npm run build
-```
-
-All five must pass with zero errors.
+*(no open prompts as of 2026-05-19 — Prompt 023 shipped, see §9)*
 
 ---
 
@@ -396,3 +204,4 @@ Closed prompts kept for context. Don't run these.
 - **Old Prompt 020 (Step 33 — Visual polish batch 1)** — Shipped 2026-05-18. ✅
 - **Old Prompt 021 (Step 34 — Visual polish batch 2)** — Shipped 2026-05-19. ✅ Route fade (CSS, View Transitions API deferred — see §7), price badges on uniques, keyboard shortcuts, toast restyle. Post-QA fixes: implicit mod domain resolution + integer min-roll filters.
 - **Old Prompt 022 (Step 35 — Visual polish batch 3)** — Shipped 2026-05-19. ✅ 2/3: GearCard hover+pin popover, header logo ember pulse. Finder virtual list dropped.
+- **Old Prompt 023 (Step 36 — View Transitions API)** — Shipped 2026-05-19. ✅ Layer 1 route cross-fade (`useViewTransition` hook; ParticleCanvas lifted out of the root snapshot via its own `view-transition-name`, group animation suppressed — the correct fix for the Step 34 stutter) + Layer 3a Finder skill-filter micro-transition. Layers 2 / 3b / 3c skipped: no BuildCard→Analyze route; the `GearCard` popover is hover-driven so there is no compact→expanded transition; the Trade dialog + shortcuts modal are portal `<Modal>`s where shared-element transitions are unreliable. All progressive-enhancement + reduced-motion-safe.

@@ -576,6 +576,72 @@ h6 {
   }
 }
 
+/* ── View Transitions API (Step 36) ───────────────────────────────────
+   When the browser supports the View Transitions API, route changes
+   and select in-page updates are animated natively via
+   `document.startViewTransition` (see `useViewTransition.ts`). In that
+   case the keyed `.vs-route` CSS fade is redundant — disable it so the
+   page is not double-animated. Browsers without the API keep the
+   `.vs-route` fade as the fallback. */
+@supports (view-transition-name: none) {
+  .vs-route {
+    animation: none;
+  }
+}
+
+/* Root cross-fade — the outgoing page fades out, the incoming fades in. */
+@keyframes vt-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+@keyframes vt-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+::view-transition-old(root) {
+  animation: vt-fade-out 180ms cubic-bezier(0.4, 0, 1, 1) forwards;
+}
+::view-transition-new(root) {
+  animation: vt-fade-in 220ms cubic-bezier(0, 0, 0.2, 1) forwards;
+}
+
+/* The ParticleCanvas has its own `view-transition-name: particle-canvas`
+   (set in the component) so it is lifted out of the root snapshot. Its
+   group animation is suppressed here — the field just keeps drifting
+   underneath instead of freezing a frame during the transition. */
+::view-transition-group(particle-canvas),
+::view-transition-old(particle-canvas),
+::view-transition-new(particle-canvas) {
+  animation: none;
+}
+
+/* Finder results — micro-transition: the list cross-fades when the
+   client-side skill drill-down filter toggles. */
+::view-transition-old(finder-results),
+::view-transition-new(finder-results) {
+  animation-duration: 120ms;
+}
+
+/* Reduced motion → suppress every view transition animation. The
+   `withViewTransition` helper also skips `startViewTransition` entirely
+   under reduced motion, so this is a belt-and-braces guard. */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root),
+  ::view-transition-old(finder-results),
+  ::view-transition-new(finder-results) {
+    animation: none;
+  }
+}
+
 /* ── Toast / notification restyle (Step 34) ───────────────────────────
    Bring Mantine's @mantine/notifications toasts into the Void Stone &
    Ember palette. Mantine already paints a colour accent from the

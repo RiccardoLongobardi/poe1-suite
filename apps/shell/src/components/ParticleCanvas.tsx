@@ -170,11 +170,16 @@ export const ParticleCanvas = memo(function ParticleCanvas() {
     <canvas
       ref={ref}
       aria-hidden="true"
+      data-particle-canvas=""
       style={{
         position: "fixed",
         inset: 0,
         zIndex: 0,
         pointerEvents: "none",
+        // Own view-transition group → excluded from the root snapshot
+        // so route cross-fades never freeze a frame of the canvas.
+        // `index.css` suppresses animation on this group.
+        viewTransitionName: "particle-canvas",
       }}
     />
   );

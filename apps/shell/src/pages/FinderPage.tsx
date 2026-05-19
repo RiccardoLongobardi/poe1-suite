@@ -36,6 +36,7 @@ import { BuildCard } from "../components/BuildCard";
 import { ErrorBoundary } from "../components/ErrorBoundary";
 import { IntentCard } from "../components/IntentCard";
 import { PopulationStatsPanel } from "../components/PopulationStatsPanel";
+import { withViewTransition } from "../hooks/useViewTransition";
 import { useT } from "../i18n";
 import {
   emptyFinderFilters,
@@ -241,11 +242,15 @@ export function FinderPage({ onSendToPlanner }: Props) {
 
   /** Toggle the drill-down skill filter (clicking the active one clears it). */
   function handleDrillSkill(skill: string) {
-    setFinder({
-      skillFilter:
-        skillFilter && skillFilter.toLowerCase() === skill.toLowerCase()
-          ? null
-          : skill,
+    // Micro-transition: the result list cross-fades between the full
+    // set and the skill-filtered subset instead of jumping.
+    withViewTransition(() => {
+      setFinder({
+        skillFilter:
+          skillFilter && skillFilter.toLowerCase() === skill.toLowerCase()
+            ? null
+            : skill,
+      });
     });
   }
 
@@ -490,7 +495,10 @@ export function FinderPage({ onSendToPlanner }: Props) {
                       SORT_KEYS.find((s) => s.value === overrides.sort_by) ??
                       SORT_KEYS[0];
                     return (
-                      <Stack gap="xs">
+                      <Stack
+                        gap="xs"
+                        style={{ viewTransitionName: "finder-results" }}
+                      >
                         {/* Result header: count + active sort + drill-down chip */}
                         <Group justify="space-between" wrap="wrap" gap="xs">
                           <Text size="sm" fw={500}>
@@ -521,7 +529,11 @@ export function FinderPage({ onSendToPlanner }: Props) {
                               <Pill
                                 withRemoveButton
                                 size="md"
-                                onRemove={() => setFinder({ skillFilter: null })}
+                                onRemove={() =>
+                                  withViewTransition(() =>
+                                    setFinder({ skillFilter: null }),
+                                  )
+                                }
                               >
                                 {t({ it: "skill", en: "skill" })}: {skillFilter}
                               </Pill>
