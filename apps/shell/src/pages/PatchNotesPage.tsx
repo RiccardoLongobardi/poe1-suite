@@ -29,6 +29,23 @@ interface Release {
 const RELEASES: Release[] = [
   {
     date: { it: "19 mag 2026", en: "19 May 2026" },
+    title: {
+      it: "Fix Trade: mod impliciti corrotti",
+      en: "Trade fix: corrupted implicit mods",
+    },
+    entries: [
+      {
+        it: "I modificatori impliciti (inclusi quelli da corruzione) ora vengono cercati correttamente su Trade — prima venivano trattati come modificatori normali e la ricerca falliva.",
+        en: "Implicit mods (including corrupted ones) are now searched correctly on Trade — they were treated as normal mods before and the search failed.",
+      },
+      {
+        it: "Le transizioni tra le pagine sono ora più fluide (dissolvenza leggera).",
+        en: "Page transitions are now smoother (a light fade).",
+      },
+    ],
+  },
+  {
+    date: { it: "19 mag 2026", en: "19 May 2026" },
     title: { it: "Navigazione fluida", en: "Fluid navigation" },
     summary: {
       it: "Transizioni animate tra le pagine, prezzi sugli oggetti, scorciatoie da tastiera e notifiche ridisegnate.",

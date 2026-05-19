@@ -55,7 +55,6 @@ import { DonationModal } from "./components/DonationModal";
 import { KeyboardShortcutsModal } from "./components/KeyboardShortcutsModal";
 import { ParticleCanvas } from "./components/ParticleCanvas";
 import { WarmupOverlay } from "./components/WarmupOverlay";
-import { useViewTransition } from "./hooks/useViewTransition";
 import { useLang, useT } from "./i18n";
 import { HomePage } from "./pages/HomePage";
 import { PatchNotesPage } from "./pages/PatchNotesPage";
@@ -143,7 +142,6 @@ export function App() {
 
 function ShellLayout() {
   const navigate = useNavigate();
-  const navigateWithTransition = useViewTransition();
   const location = useLocation();
   const [opened, { toggle, close }] = useDisclosure();
   const [plannerInput, setPlannerInput] = useState<string | undefined>(undefined);
@@ -159,9 +157,8 @@ function ShellLayout() {
     close();
   };
 
-  // Nav-link clicks animate via the View Transitions API.
   const navTo = (path: string) => () => {
-    navigateWithTransition(path);
+    navigate(path);
     close();
   };
 
@@ -187,7 +184,7 @@ function ShellLayout() {
         };
         if (dest[k]) {
           e.preventDefault();
-          navigateWithTransition(dest[k]);
+          navigate(dest[k]);
         }
         return;
       }
@@ -211,7 +208,7 @@ function ShellLayout() {
       window.removeEventListener("keydown", onKey);
       window.clearTimeout(pendingGTimer.current);
     };
-  }, [navigateWithTransition, toggleColorScheme, setLang, lang, help]);
+  }, [navigate, toggleColorScheme, setLang, lang, help]);
 
   const isActive = (path: string) =>
     location.pathname === path ||
@@ -236,7 +233,7 @@ function ShellLayout() {
             <Group
               gap={8}
               style={{ cursor: "pointer" }}
-              onClick={() => navigateWithTransition("/home")}
+              onClick={() => navigate("/home")}
             >
               <IconSparkles size={22} color="var(--vs-ember)" />
               <Title
@@ -365,22 +362,26 @@ function ShellLayout() {
 
       <AppShell.Main>
         <Container size="xl">
-          <Suspense fallback={<RouteFallback />}>
-            <Routes>
-              <Route path="/home" element={<HomePage />} />
-              <Route
-                path="/finder"
-                element={<FinderPage onSendToPlanner={onSendToPlanner} />}
-              />
-              <Route path="/analyze" element={<AnalyzePage />} />
-              <Route
-                path="/planner"
-                element={<PlannerPage initialInput={plannerInput} />}
-              />
-              <Route path="/patch-notes" element={<PatchNotesPage />} />
-              <Route path="*" element={<Navigate to="/home" replace />} />
-            </Routes>
-          </Suspense>
+          {/* Keyed on the path so each route change replays the
+              lightweight CSS fade-in (`.vs-route`). */}
+          <div className="vs-route" key={location.pathname}>
+            <Suspense fallback={<RouteFallback />}>
+              <Routes>
+                <Route path="/home" element={<HomePage />} />
+                <Route
+                  path="/finder"
+                  element={<FinderPage onSendToPlanner={onSendToPlanner} />}
+                />
+                <Route path="/analyze" element={<AnalyzePage />} />
+                <Route
+                  path="/planner"
+                  element={<PlannerPage initialInput={plannerInput} />}
+                />
+                <Route path="/patch-notes" element={<PatchNotesPage />} />
+                <Route path="*" element={<Navigate to="/home" replace />} />
+              </Routes>
+            </Suspense>
+          </div>
         </Container>
       </AppShell.Main>
 

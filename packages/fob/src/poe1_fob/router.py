@@ -267,13 +267,23 @@ class TradeUrlResponse(BaseModel):
 
 
 class TradeModExtractRequest(BaseModel):
-    """Input for ``POST /fob/extract-trade-mods``."""
+    """Input for ``POST /fob/extract-trade-mods``.
+
+    ``mods`` are explicit mod lines, ``implicit_mods`` are implicit ones
+    (incl. corrupted implicits). The split matters: an implicit must
+    resolve to the GGG ``implicit``-domain stat id, not the same-text
+    ``explicit`` one, or the Trade search returns nothing.
+    """
 
     model_config = ConfigDict(frozen=True)
 
     mods: tuple[str, ...] = Field(
         default=(),
-        description="Raw mod text lines to extract Trade stat filters from.",
+        description="Explicit mod text lines.",
+    )
+    implicit_mods: tuple[str, ...] = Field(
+        default=(),
+        description="Implicit mod text lines (resolved against implicit stats).",
     )
 
 
@@ -872,7 +882,10 @@ def make_router(settings: Settings) -> APIRouter:
         Stateless and offline — no HTTP, no rate limit.
         """
 
-        cleaned = list(_clean_mod_lines(payload.mods))
+        resolved = [
+            *resolve_mods(list(_clean_mod_lines(payload.mods)), implicit=False),
+            *resolve_mods(list(_clean_mod_lines(payload.implicit_mods)), implicit=True),
+        ]
         out = [
             ExtractedTradeMod(
                 line=r.line,
@@ -880,7 +893,7 @@ def make_router(settings: Settings) -> APIRouter:
                 value=r.value,
                 label=r.line,
             )
-            for r in resolve_mods(cleaned)
+            for r in resolved
         ]
         return TradeModExtractResponse(mods=tuple(out))
 

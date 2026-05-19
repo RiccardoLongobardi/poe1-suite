@@ -47,8 +47,10 @@ interface Props {
   itemName?: string | null;
   /** Base type. */
   itemType?: string | null;
-  /** Raw mod text lines (implicits + explicits) to offer as filters. */
+  /** Explicit mod text lines to offer as filters. */
   rawMods?: string[];
+  /** Implicit mod text lines (resolved against implicit-domain stats). */
+  rawImplicits?: string[];
 }
 
 interface ModRow {
@@ -79,6 +81,7 @@ export function TradeSearchDialog({
   itemName,
   itemType,
   rawMods,
+  rawImplicits,
 }: Props) {
   const t = useT();
   const [searchBy, setSearchBy] = useState<"name" | "type">(
@@ -88,7 +91,7 @@ export function TradeSearchDialog({
   const [rows, setRows] = useState<ModRow[]>([]);
   const [extracting, setExtracting] = useState(false);
 
-  const rawModsKey = (rawMods ?? []).join("");
+  const rawModsKey = `${(rawMods ?? []).join("")}|${(rawImplicits ?? []).join("")}`;
 
   // Reset the search-by choice + link filter whenever a new item opens.
   useEffect(() => {
@@ -100,13 +103,15 @@ export function TradeSearchDialog({
   // Extract every mod line into a row on open. Searchable mods come
   // first (default ON), unsearchable ones last (forced OFF).
   useEffect(() => {
-    if (!opened || !rawMods || rawMods.length === 0) {
+    const explicits = rawMods ?? [];
+    const implicits = rawImplicits ?? [];
+    if (!opened || (explicits.length === 0 && implicits.length === 0)) {
       setRows([]);
       return;
     }
     let cancelled = false;
     setExtracting(true);
-    extractTradeMods(rawMods)
+    extractTradeMods(explicits, implicits)
       .then((resp) => {
         if (cancelled) return;
         const mapped: ModRow[] = resp.mods.map((m) => ({

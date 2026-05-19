@@ -92,14 +92,19 @@ export async function fetchTradeUrl(
 }
 
 /**
- * POST /fob/extract-trade-mods — recognise Trade stat filters in raw
- * mod text. Stateless + offline server-side (no GGG call). Lines that
- * match no pattern are dropped; the rest come back as dialog rows.
+ * POST /fob/extract-trade-mods — resolve an item's mod text to GGG
+ * Trade stat ids. Explicit and implicit lines are sent separately so
+ * an implicit (incl. corrupted implicit) resolves to the implicit-
+ * domain stat, not the same-text explicit one. Stateless + offline.
  */
 export async function extractTradeMods(
-  mods: string[],
+  explicits: string[],
+  implicits: string[] = [],
 ): Promise<TradeModExtractResponse> {
-  return post<TradeModExtractResponse>("/fob/extract-trade-mods", { mods });
+  return post<TradeModExtractResponse>("/fob/extract-trade-mods", {
+    mods: explicits,
+    implicit_mods: implicits,
+  });
 }
 
 /** POST /fob/plan */

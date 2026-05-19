@@ -419,7 +419,8 @@ function BuildDashboard({ data }: { data: AnalyzePobResponse }) {
           title={tradeItem.name ?? tradeItem.base_type}
           itemName={tradeItem.rarity === "unique" ? tradeItem.name : null}
           itemType={tradeItem.base_type}
-          rawMods={[...tradeItem.implicits, ...tradeItem.explicits]}
+          rawMods={tradeItem.explicits}
+          rawImplicits={tradeItem.implicits}
         />
       )}
       {/* Sticky character header — a full-width bar above the dashboard

@@ -28,6 +28,22 @@ def test_resolve_exact_match() -> None:
     assert r.value == 42.0
 
 
+def test_resolve_implicit_picks_implicit_domain() -> None:
+    """An implicit mod resolves to the implicit-domain stat id.
+
+    The same text exists as both an explicit and an implicit GGG stat;
+    `implicit=True` must pick the implicit one or the Trade search of a
+    corrupted implicit returns nothing.
+    """
+
+    expl = resolve_mod("+15% to Cold Resistance", implicit=False)
+    impl = resolve_mod("+15% to Cold Resistance", implicit=True)
+    assert expl.stat_id is not None
+    assert expl.stat_id.startswith("explicit.")
+    assert impl.stat_id is not None
+    assert impl.stat_id.startswith("implicit.")
+
+
 def test_resolve_fuzzy_plural_count_mod() -> None:
     """A count mod GGG stores singular resolves via the fuzzy fallback.
 

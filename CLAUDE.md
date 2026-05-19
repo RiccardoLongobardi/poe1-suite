@@ -107,11 +107,24 @@ Frontend-only, no backend change.
 > Updating the `.md` files without updating the Patch Notes is an
 > incomplete step.
 
+## Bug — Trade dialog: implicit mods searched as explicit (2026-05-19) ✅ fixed
+
+QA: corrupted/implicit mods in the Trade dialog resolved to the
+`explicit`-domain stat id, so the GGG search returned nothing. The
+same mod text exists as both an `explicit` and an `implicit` GGG stat
+(635 such pairs); the resolver always picked `explicit`.
+
+Fix — the resolver is now **domain-aware**:
+- `scripts/extract_trade_stats.py` writes `{normalized: {domain: stat_id}}` instead of a flat `{normalized: stat_id}` map (keeps one id per GGG domain; `stats.json` 779 KB → 1028 KB).
+- `poe1_fob.trade_stats.resolve_mod(line, *, implicit=False)` + `_pick_id()` — an `implicit=True` line picks the `implicit`-domain id; otherwise the priority order (explicit first) applies. Falls back gracefully when a mod has no implicit variant.
+- `POST /fob/extract-trade-mods` request gains `implicit_mods` alongside `mods`; the two lists resolve with `implicit=True`/`False`.
+- Frontend: `extractTradeMods(explicits, implicits)`; `TradeSearchDialog` gains a `rawImplicits` prop; `AnalyzePage` passes `PobItem.explicits` / `.implicits` separately (was a flat concat). `CoreItem` has no split → all-explicit (best effort).
+
 ## Step 34 — Visual polish batch 2 (2026-05-19) ✅
 
 Prompt 021. Four frontend-only changes. No backend, no new deps. Reduced-motion-safe, both colour schemes.
 
-- **Route transitions.** New `apps/shell/src/hooks/useViewTransition.ts` — `navigateWithTransition(to)` wraps `document.startViewTransition(() => navigate(to))` (feature-detected; plain `navigate` fallback). `index.css` defines `@keyframes vs-route-fade-in/out` + `::view-transition-old/new(root)` (root cross-fade, no per-element `view-transition-name`). The navbar `NavLink`s + the brand-click + the `G x` keyboard shortcuts use it; page-logic navigations (Finder "Pianifica" lift) stay plain.
+- **Route transitions.** *(QA revision)* — the first cut used the View Transitions API (`document.startViewTransition`), but it stuttered against the always-animating `ParticleCanvas` (the API snapshots the whole root). Replaced with a **lightweight opacity-only CSS fade-in**: the route content sits in a `<div className="vs-route" key={location.pathname}>` so each navigation replays `@keyframes vs-route-fade-in` (200 ms, compositor-only — no layout, no snapshot). `useViewTransition.ts` deleted; nav uses plain `navigate`.
 - **Price overlay badge.** New `api/pricing.ts` (`getQuote` → existing `GET /pricing/quote`), `hooks/usePriceHint.ts` (TanStack-cached, fires only for non-null names), `components/PriceBadge.tsx` (takes `name`, calls the hook internally — safe to render conditionally; renders `≈ 5c` / `≈ 1.2 div`, a shimmer pill while loading, nothing when unpriced). Shown on **unique** gear cells in Analyze (absolute, bottom-right) and **unique** rows in the Planner Gear tab (inline). Rares are NOT priced — poe.ninja can't name-price a rolled rare (`/pricing/quote` returns `quote: null`); the prompt's "unique + rare" is narrowed to uniques for that reason.
 - **Keyboard shortcuts.** New `components/KeyboardShortcutsModal.tsx` (a `?`-triggered Mantine `<Modal>` with a bilingual key/action table). A global `keydown` listener in `ShellLayout` handles `G`-then-`F/A/P/N` navigation (1 s `pendingG` window), `T` (theme), `L` (language), `?` (toggle the modal) — ignored while an input/textarea is focused or a modifier is held. The handler calls `toggleColorScheme` / `setLang` / `navigateWithTransition` directly (no DOM-click dispatch). A `?` `ActionIcon` in the header also opens it.
 - **Toast redesign.** `index.css` styles `.mantine-Notification-root` (Void Stone surface, stone border, `--vs-shadow-lg`), `-title` (Cinzel) and `-description` (muted) — Mantine already paints the per-`color` accent so no per-type selectors. `<Notifications position="bottom-right">` in `main.tsx`.

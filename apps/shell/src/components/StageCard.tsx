@@ -71,6 +71,7 @@ interface TradeItemInfo {
   itemName: string | null;
   itemType: string | null;
   rawMods: string[];
+  rawImplicits: string[];
 }
 
 /** Map a plan CoreItem to the Trade-search dialog's inputs. */
@@ -80,7 +81,9 @@ function coreItemToTradeInfo(item: CoreItem): TradeItemInfo {
     title: item.name,
     itemName: isUnique ? item.name : null,
     itemType: item.base_type ?? null,
+    // CoreItem doesn't split implicit vs explicit — treat all as explicit.
     rawMods: item.mods ?? [],
+    rawImplicits: [],
   };
 }
 
@@ -94,6 +97,7 @@ function gearSlotToTradeInfo(slot: StageGearSlot): TradeItemInfo {
     itemName: named ? slot.item_name : null,
     itemType: null,
     rawMods: [],
+    rawImplicits: [],
   };
 }
 
@@ -326,6 +330,7 @@ export function StageCard({
           itemName={tradeItem.itemName}
           itemType={tradeItem.itemType}
           rawMods={tradeItem.rawMods}
+          rawImplicits={tradeItem.rawImplicits}
         />
       )}
       <Card withBorder radius="md" p="md">

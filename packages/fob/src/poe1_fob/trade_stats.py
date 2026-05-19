@@ -1,8 +1,10 @@
 """Resolve PoB mod text lines to GGG Trade stat ids.
 
-The vendored ``packages/fob/data/trade/stats.json`` is a flat
-``{normalized_text: stat_id}`` map built from GGG's
-``/api/trade/data/stats`` endpoint by ``scripts/extract_trade_stats.py``.
+The vendored ``packages/fob/data/trade/stats.json`` is a
+``{normalized_text: {domain: stat_id}}`` map built from GGG's
+``/api/trade/data/stats`` endpoint by ``scripts/extract_trade_stats.py``
+— one stat id per domain (``explicit`` / ``implicit`` / …) so an
+implicit mod resolves to the implicit stat, not the explicit one.
 
 A PoB mod line ("+85 to maximum Life") and a GGG stat template
 ("# to maximum Life") collapse to the same key under
@@ -66,8 +68,8 @@ def first_number(text: str) -> float | None:
 
 
 @lru_cache(maxsize=1)
-def _stat_map() -> dict[str, str]:
-    """Load the vendored ``{normalized_text: stat_id}`` map (cached)."""
+def _stat_map() -> dict[str, dict[str, str]]:
+    """Load the vendored ``{normalized_text: {domain: stat_id}}`` map."""
 
     if not _DATA_PATH.exists():
         raise FileNotFoundError(
@@ -76,8 +78,36 @@ def _stat_map() -> dict[str, str]:
         )
     raw = json.loads(_DATA_PATH.read_text(encoding="utf-8"))
     if not isinstance(raw, dict):
-        raise ValueError("Trade stats JSON must be a {normalized: stat_id} object.")
+        raise ValueError("Trade stats JSON must be a {normalized: {domain: id}} object.")
     return raw
+
+
+# Domain pick order when no specific domain is requested.
+_DOMAIN_ORDER = (
+    "explicit",
+    "implicit",
+    "fractured",
+    "enchant",
+    "rune",
+    "crafted",
+    "veiled",
+)
+
+
+def _pick_id(domains: dict[str, str], *, implicit: bool) -> str | None:
+    """Choose the stat id for a mod from its ``{domain: id}`` entry.
+
+    An implicit mod prefers the ``implicit`` domain id — searching it
+    against the same-text ``explicit`` stat would return nothing on
+    Trade. Otherwise the priority order (explicit first) applies.
+    """
+
+    if implicit and "implicit" in domains:
+        return domains["implicit"]
+    for domain in _DOMAIN_ORDER:
+        if domain in domains:
+            return domains[domain]
+    return next(iter(domains.values()), None)
 
 
 @lru_cache(maxsize=1)
@@ -106,8 +136,12 @@ class ResolvedMod:
     """First numeric value on the line — the strictness-slider base."""
 
 
-def resolve_mod(line: str) -> ResolvedMod:
+def resolve_mod(line: str, *, implicit: bool = False) -> ResolvedMod:
     """Resolve a single mod text line to a GGG stat id (best effort).
+
+    ``implicit`` tags the line as an implicit mod (incl. corrupted
+    implicits) so it resolves to the ``implicit``-domain stat id rather
+    than the same-text ``explicit`` one.
 
     First an exact lookup on the normalised text; on a miss, a fuzzy
     fallback catches templates that differ only grammatically — most
@@ -118,15 +152,16 @@ def resolve_mod(line: str) -> ResolvedMod:
 
     norm = normalize_mod_text(line)
     stat_map = _stat_map()
-    stat_id = stat_map.get(norm)
-    if stat_id is None:
+    domains = stat_map.get(norm)
+    if domains is None:
         close = difflib.get_close_matches(norm, _stat_keys(), n=1, cutoff=_FUZZY_CUTOFF)
         if close:
-            stat_id = stat_map[close[0]]
+            domains = stat_map[close[0]]
+    stat_id = _pick_id(domains, implicit=implicit) if domains else None
     return ResolvedMod(line=line, stat_id=stat_id, value=first_number(line))
 
 
-def resolve_mods(lines: list[str]) -> list[ResolvedMod]:
+def resolve_mods(lines: list[str], *, implicit: bool = False) -> list[ResolvedMod]:
     """Resolve a list of mod lines, dropping blanks and de-duping by line."""
 
     seen: set[str] = set()
@@ -136,7 +171,7 @@ def resolve_mods(lines: list[str]) -> list[ResolvedMod]:
         if not line or line in seen:
             continue
         seen.add(line)
-        out.append(resolve_mod(line))
+        out.append(resolve_mod(line, implicit=implicit))
     return out
 
 

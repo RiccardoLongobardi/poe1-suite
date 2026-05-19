@@ -528,38 +528,24 @@ h6 {
   }
 }
 
-/* ── Route transitions (Step 34) ──────────────────────────────────────
-   Nav-link clicks go through the View Transitions API; the root
-   cross-fade is defined here so reduced-motion suppression is free. */
+/* ── Route transition (Step 34, revised) ──────────────────────────────
+   A lightweight opacity-only fade-in on the route content, replayed
+   each navigation via a `key`-ed wrapper. Pure compositor work — no
+   layout, no full-page snapshot (the View Transitions API stuttered
+   against the animating particle canvas). */
 @keyframes vs-route-fade-in {
   from {
     opacity: 0;
-    translate: 0 8px;
   }
   to {
     opacity: 1;
-    translate: 0 0;
   }
 }
-@keyframes vs-route-fade-out {
-  from {
-    opacity: 1;
-    translate: 0 0;
-  }
-  to {
-    opacity: 0;
-    translate: 0 -8px;
-  }
-}
-::view-transition-old(root) {
-  animation: vs-route-fade-out 180ms ease-in both;
-}
-::view-transition-new(root) {
-  animation: vs-route-fade-in 220ms ease-out both;
+.vs-route {
+  animation: vs-route-fade-in 200ms ease-out both;
 }
 @media (prefers-reduced-motion: reduce) {
-  ::view-transition-old(root),
-  ::view-transition-new(root) {
+  .vs-route {
     animation: none;
   }
 }
