@@ -21,6 +21,7 @@ import {
   Card,
   CopyButton,
   Divider,
+  Grid,
   Group,
   SegmentedControl,
   Select,
@@ -32,14 +33,16 @@ import {
 import { notifications } from "@mantine/notifications";
 import {
   IconCheck,
+  IconChevronDown,
+  IconChevronUp,
   IconCopy,
   IconExternalLink,
   IconFlask,
 } from "@tabler/icons-react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { generateBuild, getTheorySkills } from "../api/fob";
-import { openTradeUrl } from "../api/tradeRedirect";
+import { TradeSearchDialog } from "../components/TradeSearchDialog";
 import type {
   BuildSkeleton,
   DamageType,
@@ -110,14 +113,30 @@ const FOCI: { value: TheoryContentFocus; it: string; en: string }[] = [
 // Sub-components
 // ---------------------------------------------------------------------------
 
-/** One gear-slot card — same visual language as Analyze's `GearCard` but
- *  rendering a *recommendation* (base + stat priorities), not a real item. */
-function GearSlotCard({ slot }: { slot: TheoryGearSlot }) {
-  const t = useT();
+/** Map a stat-priority phrase to the PoE-tooltip sigil it would carry. */
+function _affixSigil(priority: string): string {
+  if (priority.startsWith("to ")) return "+#";
+  if (priority.toLowerCase().includes("speed") || priority.toLowerCase().includes("increased"))
+    return "#%";
+  if (priority.toLowerCase().includes("resistance")) return "+#%";
+  if (priority.toLowerCase().includes("critical")) return "#%";
+  return "+#";
+}
 
-  const onTrade = (): void => {
-    openTradeUrl({ item_type: slot.base_name, stats: [] });
-  };
+interface GearSlotCardProps {
+  slot: TheoryGearSlot;
+  onTrade: (slot: TheoryGearSlot) => void;
+}
+
+/** One gear-slot card — same visual language as Analyze's `GearCard` but
+ *  rendering a *recommendation* (base + stat priorities), not a real item.
+ *  Click to expand the simulated affix list; Trade icon opens the
+ *  `TradeSearchDialog` against the slot's base type + priority hints. */
+function GearSlotCard({ slot, onTrade }: GearSlotCardProps) {
+  const t = useT();
+  const [expanded, setExpanded] = useState(false);
+  const isFlaskOrJewel =
+    slot.slot.startsWith("Flask") || slot.slot.startsWith("Jewel");
 
   return (
     <Box
@@ -131,26 +150,87 @@ function GearSlotCard({ slot }: { slot: TheoryGearSlot }) {
         minWidth: 0,
       }}
     >
-      <Group justify="space-between" gap={4} wrap="nowrap">
-        <Text size="10px" c="dimmed" tt="uppercase" fw={600}>
-          {slot.slot}
-        </Text>
+      <Group justify="space-between" gap={4} wrap="nowrap" align="flex-start">
+        <Box
+          component="button"
+          type="button"
+          aria-label={t({
+            it: expanded ? "Nascondi affissi" : "Mostra affissi",
+            en: expanded ? "Hide affixes" : "Show affixes",
+          })}
+          onClick={() => setExpanded((v) => !v)}
+          style={{
+            background: "transparent",
+            border: "none",
+            padding: 0,
+            cursor: "pointer",
+            textAlign: "left",
+            flex: 1,
+            minWidth: 0,
+            color: "inherit",
+          }}
+        >
+          <Group gap={4} wrap="nowrap">
+            <Text size="10px" c="dimmed" tt="uppercase" fw={600}>
+              {slot.slot}
+            </Text>
+            {!isFlaskOrJewel &&
+              (expanded ? (
+                <IconChevronUp size={10} color="var(--vs-text-dim)" />
+              ) : (
+                <IconChevronDown size={10} color="var(--vs-text-dim)" />
+              ))}
+          </Group>
+          <Text size="sm" fw={600} mt={2} truncate>
+            {slot.base_name}
+          </Text>
+        </Box>
         <Tooltip label={t({ it: "Cerca su Trade", en: "Search on Trade" })}>
-          <ActionIcon size="xs" variant="subtle" color="ember" onClick={onTrade}>
+          <ActionIcon
+            size="xs"
+            variant="subtle"
+            color="ember"
+            onClick={(e) => {
+              e.stopPropagation();
+              onTrade(slot);
+            }}
+            aria-label={t({ it: "Cerca su Trade", en: "Search on Trade" })}
+          >
             <IconExternalLink size={12} />
           </ActionIcon>
         </Tooltip>
       </Group>
-      <Text size="sm" fw={600} mt={2}>
-        {slot.base_name}
-      </Text>
-      <Group gap={3} mt={4}>
-        {slot.stat_priorities.map((s) => (
-          <Badge key={s} size="xs" variant="light" color="ember">
-            {s}
-          </Badge>
-        ))}
-      </Group>
+
+      {isFlaskOrJewel ? (
+        <Text size="10px" c="dimmed" fs="italic" mt={4}>
+          {t({ it: "~ stimato", en: "~ estimated" })}
+        </Text>
+      ) : expanded ? (
+        <Stack gap={2} mt={6}>
+          <Text size="10px" c="dimmed" fs="italic">
+            {t({ it: "~ stimato", en: "~ estimated" })}
+          </Text>
+          {slot.stat_priorities.map((s, i) => (
+            <Text key={`${s}-${i}`} size="xs" c="dimmed">
+              <span style={{ color: "var(--vs-rare)" }}>{_affixSigil(s)}</span>{" "}
+              {s}
+            </Text>
+          ))}
+        </Stack>
+      ) : (
+        <Group gap={3} mt={4}>
+          {slot.stat_priorities.slice(0, 2).map((s) => (
+            <Badge key={s} size="xs" variant="light" color="ember">
+              {s}
+            </Badge>
+          ))}
+          {slot.stat_priorities.length > 2 && (
+            <Badge size="xs" variant="default" c="dimmed">
+              +{slot.stat_priorities.length - 2}
+            </Badge>
+          )}
+        </Group>
+      )}
     </Box>
   );
 }
@@ -160,6 +240,8 @@ function SkeletonResult({ skeleton }: { skeleton: BuildSkeleton }) {
   const { lang } = useLang();
   const rationale =
     lang === "en" ? skeleton.rationale_en : skeleton.rationale_it;
+  // Trade dialog: one open at a time, shape mirrors Analyze/Planner.
+  const [tradeItem, setTradeItem] = useState<TheoryGearSlot | null>(null);
 
   return (
     <Stack gap="md" className="vs-card-reveal">
@@ -239,84 +321,97 @@ function SkeletonResult({ skeleton }: { skeleton: BuildSkeleton }) {
         )}
       </Card>
 
-      {/* Gem links */}
-      <Card withBorder padding="md">
-        <Text size="xs" tt="uppercase" fw={700} c="dimmed" mb={6}>
-          {t({ it: "Collegamenti gemma", en: "Gem links" })}
-        </Text>
-        <Stack gap="sm">
-          {skeleton.links.map((link) => (
-            <Group key={link.skill} gap={6} wrap="wrap">
-              <Badge color="ember" variant="filled">
-                {link.skill}
-              </Badge>
-              {link.supports.map((s, i) => (
-                <Badge
-                  key={`${s}-${i}`}
-                  variant={s === "(open)" ? "outline" : "outline"}
-                  color={s === "(open)" ? "gray" : "ember"}
-                  c={s === "(open)" ? "dimmed" : undefined}
-                >
-                  {s}
-                </Badge>
+      {/* Two-column on md+: gems + tree on the left, gear grid on the right. */}
+      <Grid gutter="md">
+        <Grid.Col span={{ base: 12, md: 5 }}>
+          <Stack gap="md">
+            {/* Gem links */}
+            <Card withBorder padding="md">
+              <Text size="xs" tt="uppercase" fw={700} c="dimmed" mb={6}>
+                {t({ it: "Collegamenti gemma", en: "Gem links" })}
+              </Text>
+              <Stack gap="sm">
+                {skeleton.links.map((link) => (
+                  <Group key={link.skill} gap={6} wrap="wrap">
+                    <Badge color="ember" variant="filled">
+                      {link.skill}
+                    </Badge>
+                    {link.supports.map((s, i) => (
+                      <Badge
+                        key={`${s}-${i}`}
+                        variant="outline"
+                        color={s === "(open)" ? "gray" : "ember"}
+                        c={s === "(open)" ? "dimmed" : undefined}
+                      >
+                        {s}
+                      </Badge>
+                    ))}
+                  </Group>
+                ))}
+              </Stack>
+            </Card>
+
+            {/* Tree nodes */}
+            <Card withBorder padding="md">
+              <Text size="xs" tt="uppercase" fw={700} c="dimmed" mb={6}>
+                {t({ it: "Tappe dell'albero", en: "Tree milestones" })}
+              </Text>
+              <Stack gap={4}>
+                {skeleton.tree_nodes.map((n) => (
+                  <Group
+                    key={`${n.type}-${n.node_id}-${n.name}`}
+                    gap={6}
+                    wrap="nowrap"
+                  >
+                    <Badge
+                      size="xs"
+                      color={
+                        n.type === "keystone"
+                          ? "red"
+                          : n.type === "ascendancy"
+                            ? "grape"
+                            : n.type === "start"
+                              ? "gray"
+                              : "ember"
+                      }
+                      variant="light"
+                      w={88}
+                    >
+                      {n.type}
+                    </Badge>
+                    <Text size="sm">{n.name}</Text>
+                    {n.node_id > 0 && (
+                      <Text size="10px" c="dimmed" className="mono">
+                        #{n.node_id}
+                      </Text>
+                    )}
+                  </Group>
+                ))}
+              </Stack>
+            </Card>
+          </Stack>
+        </Grid.Col>
+        <Grid.Col span={{ base: 12, md: 7 }}>
+          {/* Gear slots — narrower cards (1/2/3 cols) once affixes can expand. */}
+          <Card withBorder padding="md">
+            <Text size="xs" tt="uppercase" fw={700} c="dimmed" mb={6}>
+              {t({ it: "Slot equipaggiamento", en: "Gear slots" })}
+            </Text>
+            <Box
+              style={{
+                display: "grid",
+                gap: 8,
+                gridTemplateColumns:
+                  "repeat(auto-fill, minmax(min(100%, 200px), 1fr))",
+              }}
+            >
+              {skeleton.gear_slots.map((g) => (
+                <GearSlotCard key={g.slot} slot={g} onTrade={setTradeItem} />
               ))}
-            </Group>
-          ))}
-        </Stack>
-      </Card>
-
-      {/* Tree nodes */}
-      <Card withBorder padding="md">
-        <Text size="xs" tt="uppercase" fw={700} c="dimmed" mb={6}>
-          {t({ it: "Tappe dell'albero", en: "Tree milestones" })}
-        </Text>
-        <Stack gap={4}>
-          {skeleton.tree_nodes.map((n) => (
-            <Group key={`${n.type}-${n.node_id}-${n.name}`} gap={6} wrap="nowrap">
-              <Badge
-                size="xs"
-                color={
-                  n.type === "keystone"
-                    ? "red"
-                    : n.type === "ascendancy"
-                      ? "grape"
-                      : n.type === "start"
-                        ? "gray"
-                        : "ember"
-                }
-                variant="light"
-                w={88}
-              >
-                {n.type}
-              </Badge>
-              <Text size="sm">{n.name}</Text>
-              {n.node_id > 0 && (
-                <Text size="10px" c="dimmed" className="mono">
-                  #{n.node_id}
-                </Text>
-              )}
-            </Group>
-          ))}
-        </Stack>
-      </Card>
-
-      {/* Gear slots */}
-      <Card withBorder padding="md">
-        <Text size="xs" tt="uppercase" fw={700} c="dimmed" mb={6}>
-          {t({ it: "Slot equipaggiamento", en: "Gear slots" })}
-        </Text>
-        <Box
-          style={{
-            display: "grid",
-            gap: 8,
-            gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
-          }}
-        >
-          {skeleton.gear_slots.map((g) => (
-            <GearSlotCard key={g.slot} slot={g} />
-          ))}
-        </Box>
-      </Card>
+            </Box>
+          </Card>
+        </Grid.Col>
+      </Grid>
 
       {/* Rationale */}
       <Accordion variant="separated">
@@ -366,6 +461,17 @@ function SkeletonResult({ skeleton }: { skeleton: BuildSkeleton }) {
           {skeleton.pob_code.slice(0, 240)}…
         </Text>
       </Card>
+
+      {/* Trade dialog — same pattern as Analyze/Planner. */}
+      <TradeSearchDialog
+        opened={tradeItem !== null}
+        onClose={() => setTradeItem(null)}
+        title={tradeItem ? `${tradeItem.slot} — ${tradeItem.base_name}` : ""}
+        itemName={null}
+        itemType={tradeItem?.base_name ?? null}
+        rawMods={tradeItem?.stat_priorities ?? []}
+        rawImplicits={[]}
+      />
     </Stack>
   );
 }

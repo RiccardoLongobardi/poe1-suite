@@ -30,6 +30,31 @@ const RELEASES: Release[] = [
   {
     date: { it: "20 mag 2026", en: "20 May 2026" },
     title: {
+      it: "Theorycrafter — carte oggetto espandibili",
+      en: "Theorycrafter — expandable gear cards",
+    },
+    summary: {
+      it: "Le carte oggetto mostrano gli affissi stimati al click e aprono direttamente la ricerca su Trade.",
+      en: "Gear cards now reveal their estimated affixes on click and open a Trade search directly.",
+    },
+    entries: [
+      {
+        it: "Clicca una carta di equipaggiamento per espandere l'elenco degli affissi stimati — con il simbolo ~ a indicare i valori teorici.",
+        en: "Click a gear card to expand its estimated affix list — the ~ symbol marks the theoretical values.",
+      },
+      {
+        it: "Ogni carta ha un'icona Trade che apre il dialogo di ricerca pre-compilato col base type giusto e i mod come hint.",
+        en: "Every card carries a Trade icon that opens the pre-filled search dialog with the right base type and stat priorities as hints.",
+      },
+      {
+        it: "Layout a due colonne sul desktop: gemme + albero a sinistra, equipaggiamento a destra.",
+        en: "Two-column layout on desktop: gems + tree on the left, gear on the right.",
+      },
+    ],
+  },
+  {
+    date: { it: "20 mag 2026", en: "20 May 2026" },
+    title: {
       it: "Theorycrafter — PoB completo e funzionante",
       en: "Theorycrafter — complete, working PoB export",
     },

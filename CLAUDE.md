@@ -114,6 +114,19 @@ Frontend-only, no backend change.
 > Updating the `.md` files without updating the Patch Notes is an
 > incomplete step.
 
+## Step 42 — Theorycrafter gear card UX + Trade dialog (2026-05-20) ✅
+
+Prompt 029. Frontend-only. Gear cards on the Theorycrafter result panel are now expandable + each opens the existing `TradeSearchDialog` (the same component Analyze and Planner use, untouched). Layout split to two columns on `md+`.
+
+- `GearSlotCard` rewritten: click anywhere on the body toggles a per-card `useState<boolean>` that reveals the simulated affix list (`stat_priorities`, prefixed with a `+#` / `#%` sigil and the `~ stimato` muted label). Collapsed state shows the first two priorities as compact badges + a `+N` overflow counter. Flask/Jewel slots are non-expandable (the priorities don't carry per-affix meaning there).
+- Trade icon: now calls `onTrade(slot)` (passed from `SkeletonResult`) instead of the previous `openTradeUrl(...)` direct call. The parent owns a single `tradeItem: TheoryGearSlot | null` state and renders one `<TradeSearchDialog>` at the bottom — same pattern as `AnalyzePage`/`StageCard`. The dialog receives `itemType=slot.base_name`, `rawMods=slot.stat_priorities` (English mod stems from Step 41 — already PoE-flavoured), `itemName=null` (theory items are rares, no unique name).
+- Layout: `<Grid gutter="md">` wraps the result body; on `md+` the left column (`span 5`) holds gem-links + tree-nodes cards, the right column (`span 7`) holds the gear grid. On mobile both stack. Mirrors the established Analyze split. Gear grid columns relaxed to `minmax(min(100%, 200px), 1fr)` so cards stay readable when their affix list expands.
+- Bilingual: 3 new `t({it, en})` strings — `~ stimato` / `~ estimated`, `Mostra affissi` / `Show affixes`, `Nascondi affissi` / `Hide affixes`.
+
+No backend touched, no new endpoint, no API contract change. `TradeSearchDialog` itself is unmodified.
+
+Gate: 732 tests / 129 mypy / ruff clean (Python unchanged). Frontend build main ~467 KB / 149 KB gzip (Theorycrafter chunk 16 KB).
+
 ## Step 41 — Build Generator v2: PoB export completeness (2026-05-20) ✅
 
 Prompt 028. Five structural bugs in the Step 40 generator's PoB output, all fixed in this step. No encoder contract change.

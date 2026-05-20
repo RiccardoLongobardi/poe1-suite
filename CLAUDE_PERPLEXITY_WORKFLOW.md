@@ -125,7 +125,7 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 
 ### IN PROGRESS
 
-- **Step 42 — Theorycrafter gear card UX + trade dialog** (Prompt 029) — expandable gear cards showing the simulated affix lines from Step 41, `TradeSearchDialog` openable from each card slot, layout polish on the result panel.
+*(none as of 2026-05-20 — Step 42 shipped)*
 
 ### CANDIDATE FUTURE WORK
 
@@ -137,6 +137,7 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 
 ### DONE
 
+- [x] **Step 42 — Theorycrafter gear card UX + Trade dialog** (2026-05-20, Prompt 029) — frontend-only. Expandable gear cards with per-card `useState`, simulated affix list with sigils + `~ stimato` label, `TradeSearchDialog` opened per slot from parent state (mirrors Analyze/Planner), two-column Grid on `md+`. No backend touched. 732 tests / 129 mypy.
 - [x] **Step 41 — Build Generator v2: PoB export completeness** (2026-05-20, Prompt 028) — five structural bugs fixed: tree scoring uses real `node.stats`; 5 gem groups (Body 6L + Helmet/Gloves/Boots/Weapon 4L); items ship simulated budget-scaled affix lines; 5 flask slots + 2 jewel slots; class start uses the right class index. 732 tests / 129 mypy.
 - [x] **Step 40 — Theorycrafter Build Generator v2** (2026-05-20, Prompt 027) — form-driven UI, graph engine over vendored 3.28 data, complete importable PoB code, Trade icon per gear slot, anti-hallucination runtime asserts. 727 tests / 128 mypy.
 - [x] **Step 39 — Theorycrafter Build Generator v1** (2026-05-19, Prompt 026) — superseded by Step 40.
@@ -187,113 +188,7 @@ Reusable templates. Self-contained — runnable today without past-chat context.
 
 ---
 
-### Prompt 029 — Step 42: Theorycrafter gear card UX + trade dialog
-
-**Scope:** Frontend-only. No backend change, no new endpoint, no new vendored data. Gate must hold at 732 tests / 129 mypy / ruff clean.
-
-**Context you need before starting:**
-
-Read `CLAUDE.md` (full) and `CLAUDE_PERPLEXITY_WORKFLOW.md` (§1, §2, §4, §7). Pay special attention to:
-
-- The **Finder vs Theorycrafter boundary** (§ "Product direction" in CLAUDE.md) — `/theorycrafter` synthesises from scratch; do not touch any ladder-facing code.
-- The **`GearCard` deviation note** at the top of `apps/shell/src/pages/TheorycrafterPage.tsx` — explains why the Theorycrafter uses an inline card instead of reusing `GearCard` from Analyze.
-- Step 41 decision in §7 of the workflow: items now carry simulated affix lines from `_theory_item_body`. The `GearSlot` model (in `poe1_fob/theory/models.py`) already has `stat_priorities: list[str]` and `recommended_base: str`. The generated PoB code contains those affixes; the frontend just needs to surface them.
-- The existing `TradeSearchDialog` (in `apps/shell/src/components/analyze/TradeSearchDialog.tsx`) and its call site in Analyze/Planner — the same component must be reused here without modification.
-
-**What to build:**
-
-#### 1. Expandable gear slot cards on `TheorycrafterPage`
-
-The current result panel renders gear slots as a compact grid of cards with just a slot name + base name (and a Trade `ActionIcon` added in Step 40). Expand each card to show its affix list:
-
-- **Default (collapsed) state**: slot name, `data-rarity="rare"` left-border ember glow (`.vs-rarity` class already in `index.css`), base name in bold, budget badge (`low` / `mid` / `high` — from `TheoryIntent.budget`), Trade icon.
-- **Expanded state** (toggle on card click): reveals a `<Stack spacing="xs">` of affix lines drawn from `GearSlot.stat_priorities`. Each line is a small `<Text size="xs" c="dimmed">` prefixed with a `+` or `%` sigil to mirror PoE's in-game item tooltip style. Label the block with a muted `~` prefix: `~ stimato` (IT) / `~ estimated` (EN) to make clear these are theory values, not real rolls.
-- Collapsed/expanded state is **per-card local** (not in the Zustand store — no cross-route persistence needed for a transient expand state). Use a plain `useState<boolean>` inside the card component.
-- Apply the same **nested border-radius rule** (`inner = outer − gap`) from the design system.
-- Flasks and jewels follow the same card shape but show only the base name + the `~ stimato` note (they have no meaningful per-affix breakdown).
-
-#### 2. `TradeSearchDialog` openable from each gear card
-
-Each card's Trade `ActionIcon` (already present from Step 40) should open `TradeSearchDialog` instead of calling `openTradeUrl` directly. This mirrors exactly how Analyze and Planner already work.
-
-**Call-site pattern to follow** (already implemented in `AnalyzePage.tsx` and `StageCard.tsx`):
-
-```tsx
-// state in TheorycrafterPage (or in the parent component that renders the gear grid)
-const [tradeItem, setTradeItem] = useState<{ base: string; mods: string[] } | null>(null);
-
-// on Trade icon click:
-setTradeItem({ base: slot.recommended_base, mods: slot.stat_priorities });
-
-// render (after the gear grid):
-{tradeItem && (
-  <TradeSearchDialog
-    itemName={null}          // no unique name — theory items are rares
-    itemType={tradeItem.base}
-    rawMods={tradeItem.mods}
-    rawImplicits={[]}
-    onClose={() => setTradeItem(null)}
-  />
-)}
-```
-
-> **Do not change `TradeSearchDialog` itself.** If its props don't map cleanly, adapt the call site only.
-
-#### 3. Result panel layout polish
-
-With expandable cards the gear grid will grow taller. Make two layout adjustments:
-
-- Change the gear grid from `SimpleGrid cols={{ base: 2, sm: 3, md: 4 }}` to `cols={{ base: 1, sm: 2, md: 3 }}` — narrower cards read better once affixes are shown.
-- The gem-link card, tree-node list, gear grid, and rationale accordion are currently stacked in a single `<Stack>`. Wrap them in a two-column `<Grid>` at `md`+: left column (`span 5`) = gem links + tree nodes; right column (`span 7`) = gear grid. On mobile they stack as before. This mirrors the established split in the Analyze dashboard.
-
-#### 4. Bilingual strings
-
-All new user-facing strings must use `t({ it: "...", en: "..." })` via `useT()`. New strings needed:
-
-- `"~ stimato"` / `"~ estimated"` — affix block label
-- `"Mostra affissi"` / `"Show affixes"` — expand toggle aria-label
-- `"Nascondi affissi"` / `"Hide affixes"` — collapse toggle aria-label
-
-**What NOT to do:**
-
-- Do not touch `TradeSearchDialog`, `GearCard` (Analyze), `StageCard`, or any backend file.
-- Do not add a new endpoint or change any existing API contract.
-- Do not add `GearSlot.stat_priorities` to the Zustand store — it's already in the API response and is re-fetched on each generation.
-- Do not attempt to resolve stat priority strings to real GGG stat IDs for Trade (the dialog already handles unresolved mods gracefully with the "Non ricercabili" divider).
-
-**Gate:**
-
-```bash
-uv run ruff check .
-uv run ruff format --check .
-uv run mypy .
-uv run pytest
-```
-
-All four must pass. Baseline: **732 tests / 129 mypy / ruff clean**. No new tests required for frontend-only work, but do not break existing ones.
-
-**Patch Notes (mandatory — same commit):**
-
-Prepend a new entry to `RELEASES` in `apps/shell/src/pages/PatchNotesPage.tsx`. Bilingual, user-facing, no internal step numbers or filenames. Suggested copy:
-
-```ts
-{
-  version: "Step 42",
-  date: "2026-05-20",
-  title: { it: "Teorizzatore — carte oggetti espandibili", en: "Theorycrafter — expandable gear cards" },
-  summary: {
-    it: "Le carte oggetto nel Teorizzatore mostrano ora gli affissi stimati e permettono di aprire direttamente la ricerca su Trade.",
-    en: "Gear cards in the Theorycrafter now show estimated affixes and let you open a Trade search directly from the card.",
-  },
-  items: [
-    { it: "Clicca su una carta per espandere la lista degli affissi stimati (~)", en: "Click a card to expand the estimated affix list (~)" },
-    { it: "Ogni carta ha l'icona Trade che apre il dialogo di ricerca pre-compilato", en: "Every card has a Trade icon that opens the pre-filled search dialog" },
-    { it: "Layout a due colonne sul pannello risultati (desktop)", en: "Two-column layout on the result panel (desktop)" },
-  ],
-},
-```
-
-**Update `CLAUDE.md` and `CLAUDE_PERPLEXITY_WORKFLOW.md`** in the same commit: add a `## Step 42` section to `CLAUDE.md` and move Step 42 from IN PROGRESS to DONE in §6 of the workflow (with gate numbers).
+*(no open prompts as of 2026-05-20 — Prompt 029 shipped, see §9)*
 
 ---
 
@@ -321,3 +216,4 @@ Closed prompts kept for context. Don't run these.
 - **Old Prompt 026 (Step 39 — Theorycrafter Build Generator v1)** — Shipped 2026-05-19. ✅ Superseded by Prompt 027.
 - **Old Prompt 027 (Step 40 — Theorycrafter Build Generator v2)** — Shipped 2026-05-20. ✅ Form-driven UI, graph engine, anti-hallucination asserts. 727 tests / 128 mypy.
 - **Old Prompt 028 (Step 41 — Build Generator v2: PoB export completeness)** — Shipped 2026-05-20. ✅ Fixed five structural bugs: tree scoring uses `node.stats`; 5 gem groups (Body/Helmet/Gloves/Boots/Weapon); items ship simulated budget-scaled affix lines; 5 flask + 2 jewel slots labelled correctly in `<ItemSet>`; class start node uses the right class index. Encoder contract unchanged. 732 tests / 129 mypy.
+- **Old Prompt 029 (Step 42 — Theorycrafter gear card UX + Trade dialog)** — Shipped 2026-05-20. ✅ Expandable gear cards (per-card `useState`), simulated affix list with sigils + `~ stimato` label, `TradeSearchDialog` opened per slot from parent state, two-column Grid layout on `md+`. Frontend-only. 732 tests / 129 mypy.
