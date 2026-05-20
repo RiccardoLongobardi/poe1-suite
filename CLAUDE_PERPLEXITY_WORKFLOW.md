@@ -15,7 +15,7 @@ Don't trust earlier versions of this file — the section below is the authorita
   - Frontend: <https://fob-ten.vercel.app> (Vercel, auto-deploy from `main`).
   - Backend: <https://fob-api-rtgg.onrender.com> (Render, region Frankfurt, auto-deploy from `main`).
   - Cost: **$0/month**.
-- **Baseline gate**: 722 tests green / 129 mypy / ruff clean.
+- **Baseline gate**: 727 tests green / 128 mypy / ruff clean.
 - **Working features (all QA-verified or post-QA fixed)**:
   - Build Finder with class/asc/stat-floor/sort filters + natural-language extraction (Step 15) + per-ascendancy population stats panel (Step 19). ✅
   - Planner with 6-stage `BuildPlan`, SSE streaming progress + ETA. ✅
@@ -23,11 +23,10 @@ Don't trust earlier versions of this file — the section below is the authorita
   - PoB Analyze → full build dashboard: character header + key stats, equipment grid with per-item tooltips, flasks, tree jewels, skill-link panel. ✅
   - Cold-start Divine Orb warmup overlay. ✅
   - Trade dialog: `TradeSearchDialog` with full GGG stat DB (~9.5k stats), name/base search, per-mod toggles + strictness slider, 5L/6L filter, Instant Buyout default, integer min-roll filters, domain-aware implicit/explicit stat resolution. ✅
-  - Theorycrafter Build Generator v1 (Step 39) — rule-based from-scratch, `archetypes_3_28.json`, no ladder, no LLM. **To be superseded by v2 (Step 40).** ✅
+  - Theorycrafter Build Generator v2 (Step 40) — form-driven UI, graph engine over vendored 3.28 data, anti-hallucination asserts. ✅ **PoB export completeness fix IN PROGRESS (Step 41).**
 - **Design system**: "Void Stone & Ember" — void-black warm backgrounds, ember-gold accent, parchment text, Cinzel/Cabinet Grotesk/Geist Mono type. Light mode: "Parchment" (warm cream + ink). Both QA-verified. ✅
-- **Step 40 (Theorycrafter Build Generator v2) DONE 2026-05-20** ✅ — form-driven UI (cascading selects, no free text), graph engine over vendored 3.28 data, complete importable PoB code, Trade icon per gear slot, anti-hallucination runtime asserts. v1 archetype JSON deleted. 727 tests / 128 mypy.
 
-**Baseline gate (current): 722 tests green / 129 mypy / ruff clean.**
+**Baseline gate (current): 727 tests green / 128 mypy / ruff clean.**
 
 If anything you read in this file or in `CLAUDE.md` contradicts the above, **the above wins**.
 
@@ -126,10 +125,11 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 
 ### IN PROGRESS
 
-*(none as of 2026-05-20 — Step 40 shipped)*
+- **Step 41 — Build Generator v2: PoB export completeness** (Prompt 028) — five structural bugs identified in QA: (1) tree nodes not allocated in PoB (floating node IDs with no path), (2) only Primary 6L in Skills (all other gem slots missing), (3) items exported as white/Normal with no affixes, (4) flask slots empty, (5) tree scoring on node name only (misses most relevant notables). See Prompt 028 in §8 for the full spec.
 
 ### CANDIDATE FUTURE WORK
 
+- **Step 42 — Build Generator v2: gear card UX + trade dialog** — gear cards expandable with affix list visible, trade dialog openable from card, layout improvements. Blocked on Step 41 (affix data must exist before the card can show it).
 - **Theorycrafter — Item & Modifier Browser (full version)** — affix pools + numeric ranges; needs the slimmed RePoE mods vendor file. Deferred.
 - **Theorycrafter — Item Filter Generator** — standalone tool, separate from Build Generator. Deferred.
 - **Theorycrafter — Atlas Strategy Generator** + curated scarab table — standalone tool. Deferred.
@@ -138,14 +138,10 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 
 ### DONE
 
-- [x] **Step 40 — Theorycrafter Build Generator v2** (2026-05-20, Prompt 027) — form-driven UI (cascading selects, no free text), graph engine over vendored 3.28 data (`gems_3_28.json` + `tree/3_28.json` + `base_items.json`), complete importable PoB code, Trade icon per gear slot, anti-hallucination runtime asserts. Step 39's archetype JSON deleted. 727 tests / 128 mypy.
-- [x] **Step 39 — Theorycrafter Build Generator v1** (2026-05-19, Prompt 026) — rule-based from-scratch generator. Superseded by Step 40.
-- [x] **Step 38r — Theorycrafter architectural reset** (2026-05-19, Prompt 025). ✅
-- [x] **Step 37 — Theorycrafter design & architecture analysis** (2026-05-19, Prompt 024). ✅
-- [x] **Step 36 — View Transitions API** (2026-05-19, Prompt 023) — Layer 3a only. ✅
-- [x] **Steps 33–35 — Visual polish batches 1–3** (2026-05-18/19). ✅
-- [x] **Steps 31–32 — Trade dialog** (2026-05-18). ✅
-- [x] **Steps 25–30 — Trade redirect pipeline** (2026-05-18). ✅
+- [x] **Step 40 — Theorycrafter Build Generator v2** (2026-05-20, Prompt 027) — form-driven UI, graph engine over vendored 3.28 data, complete importable PoB code, Trade icon per gear slot, anti-hallucination runtime asserts. 727 tests / 128 mypy.
+- [x] **Step 39 — Theorycrafter Build Generator v1** (2026-05-19, Prompt 026) — superseded by Step 40.
+- [x] **Steps 33–38r** — Visual polish, architectural reset, View Transitions. ✅
+- [x] **Steps 25–32 — Trade redirect + Trade dialog** (2026-05-18). ✅
 - [x] **Steps 1–24** — See `CLAUDE.md`. ✅
 
 ### REJECTED / OBSOLETE
@@ -165,12 +161,15 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 
 Reverse-chronological.
 
-- **2026-05-20** — *Step 40 shipped — gem data sourced from PoB Community upstream.* `scripts/extract_gems.py` lists `src/Data/Skills/*.lua` via the GitHub Contents API, fetches each file's raw text, and parses every top-level `skills["X"] = { ... }` block with a brace-balanced scanner. From each block it extracts: `name`, the `support` flag (with file location as secondary signal), `skillTypes`/`requireSkillTypes`/`excludeSkillTypes` (mapped through a `SkillType.X → tag` normalisation table — wiring-only flags like `Trappable`/`Totemable`/`CanRapidFire` are dropped), and excludes entries with `hidden = true`, `manualSkill = true`, `fromItem = true`, or no `levels = {` block. First successful run: **555 actives + 278 supports**. The hardcoded ~30-entry fallback I had written under the original Prompt 027 v1 was deleted before the run — no hand-authored data ships. Support priority is heuristic: `100 - 4 * len(require)` (tighter requirements → higher rank), `+5` for `Awakened`. Re-run the script per league.
-- **2026-05-20** — *No fallbacks to hand-authored data (permanent rule, §4 rule 7).* If `scripts/extract_gems.py` fails to parse the PoB Community `.lua` files, Claude must stop and report — not substitute invented or manually-curated gem data. Same principle applies to all future vendor scripts. Official data only.
-- **2026-05-20** — *Build Generator v2 architecture decided.* (1) **No free-text input**: UI is form-driven with cascading selects (Class → Ascendancy → Primary Skill → Damage Type → Defence Archetype → Budget → Focus). User cannot enter invalid combinations — downstream options are filtered by upstream selections. (2) **Graph engine over vendored data**: given a structured `BuildIntent`, the engine traverses `tree/3_28.json` (pathfinding from class start node to relevant keystones/notables), `gems_3_28.json` (tag-based support compatibility), `base_items.json` (slot-filtered base selection). Zero hardcoded archetype JSON. (3) **Gem data source**: `scripts/extract_gems.py` parses PoB Community fork `src/Data/Skills/*.lua` — official data, no fallback. (4) **PoB XML export — complete**: class, ascendancy, passive tree nodes (real node IDs from `tree/3_28.json`), 6L gem links in Body Armour slot, secondary 4L setup, 5 flask slots with real base types from `base_items.json`, all gear slots with best base per budget tier, stat estimates derived from tree nodes + gear stat weights — flagged as estimates in the UI. (5) **Trade links per gear slot**: same `POST /fob/trade-url` pattern as Planner/Analyze. (6) **No tab shell on /theorycrafter**: Atlas Strategy and Item Filter Generator are separate future tools, not tabs. (7) **Item cards**: reuse `GearCard` from Analyze — unified visual language.
-- **2026-05-19** — *Step 39 shipped — Theorycrafter Build Generator v1.* ~18 curated archetypes in `archetypes_3_28.json`. Superseded by v2.
+- **2026-05-20** — *Step 41 QA identified five structural bugs in Build Generator v2 PoB export.* Root causes (from reading `generator.py` + `encode.py`): (1) `_select_tree_nodes` picks node IDs by name-only scoring (misses stat-text-rich notables) and emits them as a flat list with no BFS path — PoB accepts floating node IDs only when they are directly adjacent to the class start or an already-allocated node, so most are silently dropped. (2) `_to_pob_gems` constructs a single `PobGemLink` in `ItemSlot.BODY_ARMOUR` — `links = (primary_link,)` is a one-element tuple, so Helmet/Gloves/Boots/Weapon 4L blocks are never emitted in `<Skills>`. (3) `_placeholder_item_body` emits `Rarity: RARE` with `Implicits: 0` and no explicit mod lines — valid XML, but PoB treats it as a white item with zero stats. (4) Flask and jewel slots are absent from `_SLOTS` entirely. (5) `_score_node` calls `stats_text = " ".join((node.name or "", "")).lower()` — stat strings live on the raw tree JSON (the `stats` array per node), not on the lightweight `TreeNode` projection that `get_tree_data()` returns.
+- **2026-05-20** — *Step 41 design decision: no BFS pathfinding required for PoB.* PoB's `<Spec nodes="...">` format accepts any integer node IDs and draws lines between them — it does NOT require a contiguous BFS path from the class start. The "floating nodes" symptom users saw was caused by mastery nodes being listed in `nodes=` without a matching `masteryEffects=` entry (the `encode.py` comment at the `spec_mastery` block documents this explicitly). Fix: (a) improve scoring by loading `stats` arrays from raw tree JSON, (b) expand mastery node handling, (c) include the class start node properly. Full BFS pathfinding is future work / nice-to-have; it is NOT required for nodes to appear in PoB.
+- **2026-05-20** — *Step 41 design decision: simulated affixes for items (no RePoE mods yet).* The correct long-term solution for gear affixes is to vendor the RePoE `mods.json`. That is deferred to the Item & Modifier Browser step. For Step 41, `_placeholder_item_body` must emit plausible stat lines derived from `GearSlot.stat_priorities` — e.g. for a Helmet with stat priorities `["to maximum Life", "to Fire Resistance", "increased damage"]`, write lines like `+80 to maximum Life\n+35% to Fire Resistance` at budget-scaled values. These are clearly labelled as "estimated" in the Notes block; they give PoB enough data to show non-zero stats and make the import feel real rather than a blank slate.
+- **2026-05-20** — *Gem slot layout for Build Generator v2 PoB export.* Standard full-build layout: Body Armour (Primary 6L), Helmet (4L: single-target or AOE variant of main skill + 3 supports), Gloves (4L: curse or utility aura), Boots (4L: movement skill + 3 supports), Weapon (4L: warcry or secondary attack + 3 supports). Flask slots: 1× Divine Life Flask, 1× Quicksilver Flask, 3× utility flasks by damage type (Sulphur/Basalt/Jade/Stibnite/Granite/Diamond/Bismuth — pick by defence archetype). All sourced from `base_items.json`.
+- **2026-05-20** — *Step 40 shipped — gem data sourced from PoB Community upstream.* `scripts/extract_gems.py` — 555 actives + 278 supports. First successful run.
+- **2026-05-20** — *No fallbacks to hand-authored data (permanent rule, §4 rule 7).*
+- **2026-05-20** — *Build Generator v2 architecture decided.* Form-driven, graph engine, no free text, PoB XML complete, Trade per slot.
+- **2026-05-19** — *Step 39 shipped — Theorycrafter Build Generator v1.* Superseded by v2.
 - **2026-05-19** — *Step 38r reset executed (Prompt 025) — Option C chosen.*
-- **2026-05-19** — *Step 38 architectural drift identified. Finder-vs-Theorycrafter boundary permanent.*
 - **2026-05-19** — *View Transitions API: route-level use rejected for good. Do not retry.*
 - **2026-05-18** — *Trade prefill via backend; `?redirect&source=` abandoned.*
 - **2026-05-18** — *Zustand for cross-route state persistence.*
@@ -186,7 +185,169 @@ Reusable templates. Self-contained — runnable today without past-chat context.
 
 ---
 
-*(no open prompts as of 2026-05-20 — Prompt 027 shipped, see §9)*
+### Prompt 028 — Step 41: Build Generator v2 — PoB export completeness
+
+**Goal:** Fix five structural bugs in `packages/fob/src/poe1_fob/theory/generator.py` so that the PoB code produced by `generate_build()` imports into Path of Building with: all tree nodes visible and allocated, a full 5-socket-group gem layout (Body Armour 6L + Helmet/Gloves/Boots/Weapon 4L), items that show non-zero stats, 5 flask slots populated, and jewel slots.
+
+**Do NOT touch:** `encode_pob_code`, `StageTree`, `StageGearSet`, `StageGemLinks`, `GemSpec`, `PobGemLink` — the encoder contract is correct and must not change. All fixes are in `generator.py` and its helpers.
+
+---
+
+#### Bug 1 — Tree scoring uses node name only (misses most relevant notables)
+
+**Root cause:** `_score_node` builds `stats_text` from `node.name` only. The lightweight `TreeNode` projection returned by `get_tree_data()` does not include the `stats` array (the actual per-node stat strings like `"12% increased maximum Life"`).
+
+**Fix:**
+
+1. Open `packages/fob/data/tree/3_28.json`. Confirm that each node entry has a `"stats"` array (list of stat strings). If it does not, check for `"sd"` (stat descriptions) — that is the key PoB uses.
+2. In `tree/tree_data.py` (or wherever `TreeNode` and `get_tree_data` live), extend the `TreeNode` dataclass/model with a `stats: tuple[str, ...]` field (default empty tuple). Populate it from the JSON `stats` (or `sd`) array during load.
+3. Update `_score_node` in `generator.py` to score on both `node.name` and the joined `stats` text:
+   ```python
+   stats_text = " ".join([node.name or "", *node.stats]).lower()
+   ```
+4. Add a unit test in `tests/theory/` that confirms a node whose name does not contain a keyword but whose stats do (e.g. "Acrobatics" for evasion, "Iron Reflexes" for armour) gets a score > 0 when the matching keyword is in `_DEFENCE_KEYWORDS`.
+
+---
+
+#### Bug 2 — Only Primary 6L emitted in `<Skills>` (all other gem slots missing)
+
+**Root cause:** `generate_build()` sets `links = (primary_link,)` — a one-element tuple. `_to_pob_gems` converts only that single link into a `PobGemLink`. The encoder's `<Skills>` block ends up with one `<Skill>` group.
+
+**Fix — standard 5-slot gem layout:**
+
+Implement `_build_gem_layout(intent: TheoryIntent, primary: GemLink) -> tuple[GemLink, ...]` that returns **five** `GemLink` objects:
+
+| Slot | Label | Skill | Notes |
+|---|---|---|---|
+| `BODY_ARMOUR` | `"Primary 6L"` | `primary_skill` + 5 supports (already computed) | Unchanged |
+| `HELMET` | `"Secondary 4L"` | Same `primary_skill` + 3 supports (pick supports ranked 6–8 if available, else reuse top supports with lower priority) | Single-target or AOE variant |
+| `GLOVES` | `"Utility 4L"` | `"Hatred"` for cold/phys, `"Anger"` for fire, `"Wrath"` for lightning, `"Vulnerability"` for chaos, else `"Hatred"` — + 3 utility supports: `"Arcane Surge Support"`, `"Increased Duration Support"`, `"Generosity Support"` | Curse/aura slot |
+| `BOOTS` | `"Movement 4L"` | `"Flame Dash"` for non-melee, `"Leap Slam"` for melee — + `"Faster Casting Support"` / `"Fortify Support"` + 2 open | Movement skill |
+| `WEAPON_MAIN` | `"Warcry / Misc 4L"` | `"Enduring Cry"` + `"Second Wind Support"` + 2 open | Utility / warcry |
+
+Constraints:
+- Every gem name (active and support) **must exist in `gems_3_28.json`**. Before hardcoding any name, verify it is present. If a gem is absent from the vendored data, pick the closest available alternative — never invent a name. Use the existing `_gem_catalogue()` to do the lookup at build time.
+- `_assert_valid` already checks all support names against `known_supports`. Extend it to also check all active gem names against `known_actives` (add a `known_actives` set derived from `_Active.name`).
+- `_to_pob_gems` must be updated to accept `tuple[GemLink, ...]` (already iterable) and map each `GemLink.slot` string to the correct `ItemSlot` enum using `slot_enum_map`.
+- Pass all five links to `encode_pob_code(gems=...)`.
+
+---
+
+#### Bug 3 — Items exported as white (no affix lines)
+
+**Root cause:** `_placeholder_item_body` (in `encode.py`, called from `_to_pob_gear`) emits `Rarity: RARE` with `Implicits: 0` and no `Explicits` block. PoB reads this as a zero-stat rare.
+
+**Fix — simulated affix lines in `_to_pob_gear`:**
+
+`StageGearSlot` already carries `notes` (the comma-joined `stat_priorities` string). Use it to emit plausible stat lines.
+
+1. In `_to_pob_gear` (in `generator.py`), after building `StageGearSlot`, do NOT rely on `_placeholder_item_body` for the theory export. Instead, build the item text directly, using a new helper `_theory_item_body(slot_name, base_name, stat_priorities, budget)` that produces:
+
+```
+Rarity: RARE
+<Generated Name>
+<base_name>
+Implicits: 0
+<stat line 1>
+<stat line 2>
+<stat line 3>
+```
+
+Stat line values are **fixed budget-scaled estimates**, clearly not real rolls:
+
+| Stat keyword (from `stat_priorities`) | starter | mid | endgame |
+|---|---|---|---|
+| `maximum Life` | `+60` | `+90` | `+120` |
+| `maximum Energy Shield` | `+50` | `+80` | `+110` |
+| `Fire Resistance` / `Cold Resistance` / `Lightning Resistance` | `+30%` | `+40%` | `+45%` |
+| `increased damage` / `increased Spell Damage` / `increased Physical Damage` / `increased Chaos Damage` | `15%` | `25%` | `40%` |
+| `Movement Speed` | `20%` | `25%` | `30%` |
+| `critical strike` | `25%` | `35%` | `50%` |
+| `Attack Speed` | `10%` | `14%` | `18%` |
+| `to Strength` / `to Dexterity` / `to Intelligence` | `+20` | `+30` | `+40` |
+| *(anything else)* | emit nothing for that priority | | |
+
+2. The generated name should be deterministic and slot-derived: `"Crafted {slot_name}"` (e.g. `"Crafted Helmet"`).
+3. Pass `slot_spec.notes` and `slot_spec.budget_div_max` (or derive budget from `slot_spec.kind`) into the helper.
+4. The `StageGearSlot` going into the encoder must use `kind="rare_craft"` (unchanged) but the `item_name` field should be set to the full item text string — **or** alternatively, override the encoder's `_placeholder_item_body` call by having `_to_pob_gear` pass a pre-built item text. Whichever approach touches fewer files is preferred. Confirm which approach `encode.py` supports before choosing.
+
+> **Note on long-term fix:** The correct solution is to vendor `RePoE mods.json` and pick real affix tiers. That is Step 42+. These simulated lines are explicitly labelled "estimated" in the PoB Notes block (already implemented in `_build_notes`) — they are intentionally approximate.
+
+---
+
+#### Bug 4 — Flask and jewel slots missing
+
+**Root cause:** `_SLOTS` does not include `ItemSlot.FLASK` or `ItemSlot.JEWEL`. No flask or jewel items are generated.
+
+**Fix:**
+
+1. Implement `_select_flasks(intent: TheoryIntent) -> tuple[GearSlot, ...]` that returns exactly **5** `GearSlot` objects with `slot = "Flask 1"` through `"Flask 5"`:
+
+   | Position | Base name | Condition |
+   |---|---|---|
+   | Flask 1 | `"Divine Life Flask"` | Always (unless defence is `es` → `"Eternal Mana Flask"`) |
+   | Flask 2 | `"Quicksilver Flask"` | Always |
+   | Flask 3 | `"Sulphur Flask"` | fire/spell/attack builds |
+   | Flask 3 | `"Jade Flask"` | evasion/bow builds |
+   | Flask 3 | `"Granite Flask"` | armour/melee builds |
+   | Flask 3 | `"Basalt Flask"` | physical/melee builds (alternative to Granite) |
+   | Flask 4 | `"Diamond Flask"` | crit builds |
+   | Flask 4 | `"Silver Flask"` | non-crit attack builds |
+   | Flask 4 | `"Amethyst Flask"` | chaos builds |
+   | Flask 5 | `"Bismuth Flask"` | Always (resistance flask) |
+
+   Every flask base name must be verified against `base_items.json` using `get_base_catalogue()` before returning. If a name is absent, substitute the closest available flask base in the same category — never invent names.
+
+2. Implement `_select_jewels(intent: TheoryIntent) -> tuple[GearSlot, ...]` that returns **2** `GearSlot` objects:
+   - Slot `"Jewel 1"` and `"Jewel 2"`.
+   - Base name: `"Crimson Jewel"` for life builds, `"Cobalt Jewel"` for ES/spell builds, `"Viridian Jewel"` for dex/evasion builds. Verify all three against `base_items.json`.
+
+3. In `_to_pob_gear`, extend `slot_enum_map` with:
+   ```python
+   "Flask 1": ItemSlot.FLASK,
+   "Flask 2": ItemSlot.FLASK,
+   "Flask 3": ItemSlot.FLASK,
+   "Flask 4": ItemSlot.FLASK,
+   "Flask 5": ItemSlot.FLASK,
+   "Jewel 1": ItemSlot.JEWEL,
+   "Jewel 2": ItemSlot.JEWEL,
+   ```
+   PoB's `<Slot name="...">` for flasks uses `"Flask 1"` through `"Flask 5"` literally — confirm this matches `_slot_to_pob_label` in `encode.py` (it returns `"Flask 1"` for `ItemSlot.FLASK`). If all five flasks map to `ItemSlot.FLASK` → `"Flask 1"`, the encoder will overwrite the same slot five times. Fix: either (a) add `FLASK_1` through `FLASK_5` to the `ItemSlot` enum and update the encoder's `_slot_to_pob_label` and `<Slot name=>` mapping, or (b) handle flasks as a special case in `_to_pob_gear` by writing the `<Item>` + `<Slot>` XML directly for flasks, bypassing `StageGearSlot`. **Option (b) is preferred** to avoid touching the enum used across the whole codebase.
+
+4. Call both helpers from `_select_gear` and append results to `out`.
+
+5. Update `_assert_valid` to also validate flask and jewel base names against `known_bases`.
+
+---
+
+#### Bug 5 — Class start node not found correctly
+
+**Root cause:** `_select_tree_nodes` calls `td.class_starts.get(0, 0)` — always picks class index 0 (Scion), regardless of `intent.character_class`. The class-start node ID for the actual class is never used.
+
+**Fix:**
+
+Look up the correct class start node ID using `_CLASS_ID[intent.character_class]`:
+```python
+class_idx = _CLASS_ID.get(intent.character_class, 0)
+start_id = td.class_starts.get(class_idx, 0)
+out.append(TreeNodeRef(node_id=start_id, name=f"{intent.character_class} start", type="start", stats=()))
+```
+
+Confirm `_CLASS_ID` is importable in `generator.py` (it lives in `pob/encode.py` — either import it or duplicate the mapping locally as `_CLASS_IDX`).
+
+---
+
+#### Tests
+
+Add / update tests in `packages/fob/tests/theory/`:
+
+1. `test_pob_export_has_all_gem_slots` — call `generate_build()` for at least 3 different intents (fire/bow/Ranger, cold/spell/Witch, physical/melee/Marauder). Decode the returned `pob_code` with `_decode_passthrough` + `ET.fromstring`. Assert the `<Skills>/<SkillSet>` element has exactly 5 `<Skill>` children.
+2. `test_pob_export_items_have_stats` — same 3 intents. Assert that at least one `<Item>` element's text contains a `+` or `%` character (i.e. has stat lines).
+3. `test_pob_export_has_flasks` — assert the `<Items>/<ItemSet>` contains at least 5 `<Slot>` children whose `name` attribute starts with `"Flask"`.
+4. `test_pob_export_has_jewels` — assert at least 2 `<Slot>` children whose `name` starts with `"Jewel"`.
+5. `test_tree_scoring_uses_stats` — unit-test `_score_node` directly. Mock a `TreeNode` with `name="Acrobatics"` and `stats=("30% chance to Dodge Spell Hits",)`. Assert score > 0 when defence_archetype is `"life"` (evasion keyword present in stats). Requires that `TreeNode.stats` field exists after Bug 1 fix.
+
+All existing tests must remain green. Gate: full `pytest` + `mypy` + `ruff` pass before declaring done. Update `CLAUDE.md` §3 gate counter and this file's §1 baseline. Update `PatchNotesPage.tsx` in the same commit.
 
 ---
 
@@ -212,4 +373,4 @@ Closed prompts kept for context. Don't run these.
 - **Old Prompt 024 (Step 37 — Theorycrafter design & architecture analysis)** — Shipped 2026-05-19. ✅
 - **Old Prompt 025 (Step 38r — Theorycrafter architectural reset)** — Shipped 2026-05-19. ✅ Option C chosen.
 - **Old Prompt 026 (Step 39 — Theorycrafter Build Generator v1)** — Shipped 2026-05-19. ✅ Superseded by Prompt 027.
-- **Old Prompt 027 (Step 40 — Theorycrafter Build Generator v2)** — Shipped 2026-05-20. ✅ Form-driven UI, graph engine over vendored 3.28 data, complete PoB code, Trade per slot, anti-hallucination asserts. Gem data extracted from official PoB Community source via `scripts/extract_gems.py` (555 actives + 278 supports — no hand-authored fallback). 727 tests / 129 mypy.
+- **Old Prompt 027 (Step 40 — Theorycrafter Build Generator v2)** — Shipped 2026-05-20. ✅ Form-driven UI, graph engine over vendored 3.28 data, complete PoB code, Trade per slot, anti-hallucination asserts. 727 tests / 128 mypy.
