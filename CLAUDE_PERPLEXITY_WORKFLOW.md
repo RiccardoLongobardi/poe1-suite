@@ -24,6 +24,7 @@ Don't trust earlier versions of this file — the section below is the authorita
   - Cold-start Divine Orb warmup overlay. ✅
   - Trade dialog: `TradeSearchDialog` with full GGG stat DB (~9.5k stats), name/base search, per-mod toggles + strictness slider, 5L/6L filter, Instant Buyout default, integer min-roll filters, domain-aware implicit/explicit stat resolution. ✅
   - Theorycrafter Build Generator v2 (Step 40 + Step 41 fixes) — form-driven UI, graph engine, anti-hallucination asserts, complete PoB export (5 gem groups, real affix lines, flasks, jewels, correct class start). ✅
+  - Theorycrafter gear cards expandable + Trade dialog per slot (Step 42). ✅
 - **Design system**: "Void Stone & Ember" — void-black warm backgrounds, ember-gold accent, parchment text, Cinzel/Cabinet Grotesk/Geist Mono type. Light mode: "Parchment" (warm cream + ink). Both QA-verified. ✅
 
 **Baseline gate (current): 732 tests green / 129 mypy / ruff clean.**
@@ -125,10 +126,12 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 
 ### IN PROGRESS
 
-*(none as of 2026-05-20 — Step 42 shipped)*
+*(none as of 2026-05-20 — Step 42 shipped, Steps 43+44 queued)*
 
 ### CANDIDATE FUTURE WORK
 
+- **Step 43 — Build Generator: viability validation pass** — `ViabilityReport` + constraint checks (res cap, life/ES floor, defence layer count, gem attribute requirements). **Prompt 030 ready in §8.**
+- **Step 44 — Build Generator: BFS tree pathing** — Dijkstra on the `adjacency` graph from `tree_data.py`; produces a contiguous path from class start through scored notables. **Prompt 031 ready in §8.**
 - **Theorycrafter — Item & Modifier Browser (full version)** — affix pools + numeric ranges; needs the slimmed RePoE mods vendor file. Deferred.
 - **Theorycrafter — Item Filter Generator** — standalone tool, separate from Build Generator. Deferred.
 - **Theorycrafter — Atlas Strategy Generator** + curated scarab table — standalone tool. Deferred.
@@ -162,12 +165,18 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 
 Reverse-chronological.
 
+- **2026-05-20** — *Steps 43+44 architecture decided (research by Perplexity 2026-05-20).* The Build Generator currently produces builds that are technically non-crashing but not viable — nodes are scored by keyword but float unconnected, defence constraints are unchecked, and gem attribute requirements are ignored. Two-step fix:
+  - **Step 43** adds a `ViabilityReport` + validation pass **after** generation, surfaced to the user as warnings/errors in the UI. This catches and communicates known deficiencies without breaking the current generation pipeline. No tree rewrite.
+  - **Step 44** adds BFS/Dijkstra tree pathing **inside** `_select_tree_nodes` using the `adjacency` graph already loaded by `get_tree_data()`. Produces a contiguous, allocatable path from the class start node through the top-scored notables. Replaces the current flat node list with a real path. Step 44 depends on Step 43 (uses `ViabilityReport` for post-path validation).
+  - BFS is sufficient (uniform edge cost); Dijkstra with cost=1 produces the same result. The `TreeData.adjacency` field is already a `dict[int, frozenset[int]]` symmetric graph — no new data loading needed.
+  - Resistance check: 75% cap requires ~135% total in sheet (Elemental Weakness map mod). The tree alone contributes 0% to resistances — this is always a gear constraint. The viability report must flag this clearly rather than pretending the tree fixes it.
+  - Life/ES floor (softcore endgame mapping): 4 000 HP minimum, 6 000 ES minimum. These are realistic for the `mid`/`endgame` budget tier; the `starter` tier gets softer thresholds (3 000 HP / 4 000 ES).
+  - Defence layer check: at least 2 distinct layers required. Layers derived from keystone presence in the selected nodes (Acrobatics → evasion+dodge, Iron Reflexes → armour, Mind Over Matter → MoM, Chaos Inoculation → CI/ES) + defence_archetype.
+  - Gem attribute requirements: each active/support gem has Str/Dex/Int requirements. Cross-check against the class's base attributes + tree attribute nodes. Flag gems whose requirements exceed available attributes by >20.
+
 - **2026-05-20** — *Step 42 design decided.* Frontend-only. Gear cards on the Theorycrafter result panel become expandable: clicking/hovering reveals the simulated affix lines already present in `GearSlot.stat_priorities` + the budget-scaled values emitted by Step 41's `_theory_item_body`. Each card gets a Trade icon that opens `TradeSearchDialog` using the slot's `base_name` + `stat_priorities` as the item type + mod hints — same pipeline already used by Analyze and Planner. No new backend endpoint needed; `POST /fob/trade-url` accepts the existing `TradeUrlRequest` shape.
 - **2026-05-20** — *Step 41 shipped — Build Generator v2 PoB export completeness.* All five bugs fixed in `theory/generator.py` + minimal surgical changes to `pob/encode.py` helpers (`_placeholder_item_body` accepts a pre-built multi-line body; items loop counts FLASK/JEWEL occurrences and labels them `Flask N` / `Jewel N`). `encode_pob_code` public contract unchanged. `TreeNode` extended with a real `stats: tuple[str, ...]` field loaded from the raw tree JSON (the missing piece that made all the previous bugs cascade). Anti-hallucination assertions now also validate active gem names, not just supports. Unknown gem names degrade to `(open)` placeholders rather than tripping the guard — same pattern as missing supports.
-- **2026-05-20** — *Step 41 QA identified five structural bugs in Build Generator v2 PoB export.* Root causes (from reading `generator.py` + `encode.py`): (1) `_select_tree_nodes` picks node IDs by name-only scoring (misses stat-text-rich notables) and emits them as a flat list with no BFS path — PoB accepts floating node IDs only when they are directly adjacent to the class start or an already-allocated node, so most are silently dropped. (2) `_to_pob_gems` constructs a single `PobGemLink` in `ItemSlot.BODY_ARMOUR` — `links = (primary_link,)` is a one-element tuple, so Helmet/Gloves/Boots/Weapon 4L blocks are never emitted in `<Skills>`. (3) `_placeholder_item_body` emits `Rarity: RARE` with `Implicits: 0` and no explicit mod lines — valid XML, but PoB treats it as a white item with zero stats. (4) Flask and jewel slots are absent from `_SLOTS` entirely. (5) `_score_node` calls `stats_text = " ".join((node.name or "", "")).lower()` — stat strings live on the raw tree JSON (the `stats` array per node), not on the lightweight `TreeNode` projection that `get_tree_data()` returns.
-- **2026-05-20** — *Step 41 design decision: no BFS pathfinding required for PoB.* PoB's `<Spec nodes="...">` format accepts any integer node IDs and draws lines between them — it does NOT require a contiguous BFS path from the class start. The "floating nodes" symptom users saw was caused by mastery nodes being listed in `nodes=` without a matching `masteryEffects=` entry (the `encode.py` comment at the `spec_mastery` block documents this explicitly). Fix: (a) improve scoring by loading `stats` arrays from raw tree JSON, (b) expand mastery node handling, (c) include the class start node properly. Full BFS pathfinding is future work / nice-to-have; it is NOT required for nodes to appear in PoB.
-- **2026-05-20** — *Step 41 design decision: simulated affixes for items (no RePoE mods yet).* The correct long-term solution for gear affixes is to vendor the RePoE `mods.json`. That is deferred to the Item & Modifier Browser step. For Step 41, `_placeholder_item_body` must emit plausible stat lines derived from `GearSlot.stat_priorities` — e.g. for a Helmet with stat priorities `["to maximum Life", "to Fire Resistance", "increased damage"]`, write lines like `+80 to maximum Life\n+35% to Fire Resistance` at budget-scaled values. These are clearly labelled as "estimated" in the Notes block; they give PoB enough data to show non-zero stats and make the import feel real rather than a blank slate.
-- **2026-05-20** — *Gem slot layout for Build Generator v2 PoB export.* Standard full-build layout: Body Armour (Primary 6L), Helmet (4L: single-target or AOE variant of main skill + 3 supports), Gloves (4L: curse or utility aura), Boots (4L: movement skill + 3 supports), Weapon (4L: warcry or secondary attack + 3 supports). Flask slots: 1× Divine Life Flask, 1× Quicksilver Flask, 3× utility flasks by damage type (Sulphur/Basalt/Jade/Stibnite/Granite/Diamond/Bismuth — pick by defence archetype). All sourced from `base_items.json`.
+- **2026-05-20** — *Step 41 QA identified five structural bugs in Build Generator v2 PoB export.*
 - **2026-05-20** — *Step 40 shipped — gem data sourced from PoB Community upstream.* `scripts/extract_gems.py` — 555 actives + 278 supports. First successful run.
 - **2026-05-20** — *No fallbacks to hand-authored data (permanent rule, §4 rule 7).*
 - **2026-05-20** — *Build Generator v2 architecture decided.* Form-driven, graph engine, no free text, PoB XML complete, Trade per slot.
@@ -188,7 +197,219 @@ Reusable templates. Self-contained — runnable today without past-chat context.
 
 ---
 
-*(no open prompts as of 2026-05-20 — Prompt 029 shipped, see §9)*
+### Prompt 030 — Step 43: Build Generator viability validation pass
+
+**Context for Claude Code.**
+Read `CLAUDE.md` + `CLAUDE_PERPLEXITY_WORKFLOW.md` §7 decision log entry for 2026-05-20 (Steps 43+44 architecture) before starting.
+
+**Goal.**
+Add a `ViabilityReport` that validates a generated `BuildSkeleton` against real PoE viability constraints and surfaces warnings/errors to the user. The generator pipeline must not change yet — Step 43 only *checks* what Step 40-41 already produce and reports findings.
+
+**What to build.**
+
+**Backend — `packages/fob/src/poe1_fob/theory/viability.py` (new file).**
+
+```python
+# Public surface
+class ViabilityIssue(BaseModel):
+    severity: Literal["error", "warning"]
+    code: str          # machine-readable, e.g. "life_below_floor"
+    message_it: str
+    message_en: str
+
+class ViabilityReport(BaseModel):
+    passed: bool       # True iff no "error"-severity issues
+    issues: tuple[ViabilityIssue, ...]
+
+def validate_build(skeleton: BuildSkeleton) -> ViabilityReport: ...
+```
+
+**Checks to implement inside `validate_build` — implement ALL of these:**
+
+1. **`res_always_gear`** (warning, always emitted).
+   Message: "Le resistenze si cappano con l'equipaggiamento, non con l'albero. Punta a ~135% totale sugli oggetti per coprire la penalità di Elemental Weakness." / "Resistances are capped through gear, not the tree. Aim for ~135% total on items to cover the Elemental Weakness map penalty."
+
+2. **`life_below_floor`** (error).
+   Threshold: `starter` budget → 3 000; `mid` → 4 000; `endgame` → 5 500.
+   Check `skeleton.stats.life_estimate < threshold` when `skeleton.intent.defence_archetype != "es"`.
+   Message: "Vita stimata ({val}) sotto la soglia minima per SC mapping ({floor}). Aggiungi nodi life sull'albero o aumenta il budget." / "Estimated life ({val}) is below the SC mapping floor ({floor}). Add life nodes on the tree or raise budget."
+
+3. **`es_below_floor`** (error).
+   Threshold: `starter` → 4 000; `mid` → 6 000; `endgame` → 9 000.
+   Check `skeleton.stats.es_estimate < threshold` when `skeleton.intent.defence_archetype == "es"`.
+   Same message pattern substituting ES.
+
+4. **`single_defence_layer`** (warning).
+   A build has ≥2 defence layers if at least 2 of the following are true:
+   - `defence_archetype in ("life", "hybrid_life_es")` → counts as "life regen/leech layer"
+   - `defence_archetype == "es"` → counts as "ES layer"
+   - any selected keystone node name is in `{"Acrobatics", "Phase Acrobatics"}` → evasion/dodge layer
+   - any selected keystone node name is `"Iron Reflexes"` → armour layer
+   - any selected keystone node name is `"Mind Over Matter"` → MoM layer
+   - any selected keystone node name is `"Chaos Inoculation"` → CI/ES layer (only valid if defence_archetype == "es")
+   If only 1 layer detected: emit warning.
+   Message: "La build ha un solo layer difensivo. In PoE endgame servono almeno 2 layer (es. life + evasion, ES + block, MoM + armour)." / "The build has only one defence layer. PoE endgame requires at least 2 layers (e.g. life + evasion, ES + block, MoM + armour)."
+
+5. **`no_movement_skill`** (warning).
+   Check that at least one `GemLink` in `skeleton.links` has `skill` in `{"Flame Dash", "Dash", "Leap Slam", "Whirling Blades", "Blink Arrow", "Lightning Warp", "Phase Run"}`.
+   If none found: warn.
+   Message: "Nessuna skill di movimento rilevata. Aggiungi Flame Dash, Leap Slam o simile." / "No movement skill detected. Add Flame Dash, Leap Slam, or similar."
+
+6. **`missing_mana_sustain`** (warning).
+   Check that at least one flask in `skeleton.gear_slots` (slot starts with "Flask") has `base_name` containing "Mana" **OR** at least one `GemLink.supports` contains "Lifetap".
+   If neither: warn.
+   Message: "Nessun flask di mana né Lifetap rilevato. La build potrebbe avere problemi di mana in mapping." / "No mana flask or Lifetap detected. The build may have mana issues in mapping."
+
+**Backend wiring — `packages/fob/src/poe1_fob/theory/generator.py`.**
+Import `validate_build` and call it at the end of `generate_build`, after `_assert_valid`. Add `viability: ViabilityReport` field to `BuildSkeleton` (default `ViabilityReport(passed=True, issues=())`).
+
+**Backend wiring — `packages/fob/src/poe1_fob/theory/models.py`.**
+Add `from .viability import ViabilityReport` and add `viability: ViabilityReport` field to `BuildSkeleton`.
+
+**Frontend — `apps/shell/src/pages/TheorycrafterPage.tsx`.**
+After the result panel header (class/asc badges), add a `ViabilityPanel` section:
+- If `viability.passed == false`: show a Mantine `<Alert color="red" icon={<IconAlertTriangle/>}>` at the top with a summary count of errors.
+- For each issue: render a compact row with a colored badge (`red` for error, `yellow` for warning) + the message (language-aware via `useLang()`).
+- If `viability.passed == true` and no issues: show a green `<Alert color="green">` "Build strutturalmente valida. Verifica sempre la cappatura delle resistenze sull'equipaggiamento." / "Build structurally valid. Always verify resistance cap on gear."
+- If passed but has warnings only: show an amber `<Alert color="yellow">` summary.
+
+**Frontend types — `apps/shell/src/api/types.ts`.**
+Add:
+```typescript
+export interface ViabilityIssue {
+  severity: "error" | "warning";
+  code: string;
+  message_it: string;
+  message_en: string;
+}
+export interface ViabilityReport {
+  passed: boolean;
+  issues: ViabilityIssue[];
+}
+```
+Add `viability: ViabilityReport` to `BuildSkeleton`.
+
+**Tests — `packages/fob/tests/test_theory_viability.py` (new file).**
+Write at minimum 8 tests:
+1. `test_res_warning_always_present` — any `BuildSkeleton` always has the `res_always_gear` warning.
+2. `test_life_below_floor_starter` — life 2 500, budget `starter`, defence `life` → error `life_below_floor`.
+3. `test_life_ok_starter` — life 3 100, budget `starter`, defence `life` → no error.
+4. `test_es_below_floor_mid` — es 4 000, budget `mid`, defence `es` → error `es_below_floor`.
+5. `test_single_layer_warning` — no keystones, defence `life` → warning `single_defence_layer`.
+6. `test_two_layers_no_warning` — defence `life` + Acrobatics keystone in nodes → no `single_defence_layer`.
+7. `test_no_movement_skill_warning` — links contain only non-movement skills → warning `no_movement_skill`.
+8. `test_missing_mana_sustain_warning` — no mana flask and no Lifetap support → warning `missing_mana_sustain`.
+
+Use `BuildSkeleton` with minimal constructed fixtures (don't call `generate_build` — too slow for unit tests; build the model directly with `model_construct` or explicit fields).
+
+**Gate: full gate must pass. No change to the existing 732 tests — only additions.**
+
+**Patch Notes (mandatory, same commit).**
+Prepend a new entry to `RELEASES` in `apps/shell/src/pages/PatchNotesPage.tsx`:
+- IT: "Theorycrafter: rapporto di viabilità — ogni build generata ora mostra avvisi e errori strutturali (resistenze, vita/ES, layer difensivi, skill di movimento, mana)."
+- EN: "Theorycrafter: viability report — every generated build now shows structural warnings and errors (resistances, life/ES, defence layers, movement skill, mana sustain)."
+
+**Commit message convention**: `feat(theory): Step 43 — Build Generator viability validation pass`
+
+---
+
+### Prompt 031 — Step 44: Build Generator BFS tree pathing
+
+**Context for Claude Code.**
+Read `CLAUDE.md` + `CLAUDE_PERPLEXITY_WORKFLOW.md` §7 decision log entry for 2026-05-20 (Steps 43+44 architecture) before starting.
+**Step 43 must be shipped and gate-passing before starting Step 44.**
+
+**Goal.**
+Replace the current flat "top-scored nodes" list in `_select_tree_nodes` with a real BFS path from the class start node through the highest-scored notables. The path must be contiguous — every node must be adjacent (in `TreeData.adjacency`) to the previous one.
+
+**Algorithm design (from Perplexity research 2026-05-20).**
+
+Use **BFS with greedy waypoint expansion**:
+
+```
+1. Identify MANDATORY waypoints (in order):
+   a. Class start node: `td.class_starts[_CLASS_ID[intent.character_class]]`
+   b. Ascendancy entry node: `td.ascendancy_starts.get(intent.ascendancy)` (if present)
+
+2. Score ALL keystones + notables (non-ascendancy) using the existing `_score_node`.
+   Pick top-2 keystones and top-8 notables as TARGET nodes.
+
+3. BFS shortest-path function: `bfs_path(graph, src, dst) -> list[int] | None`
+   Standard BFS on `td.adjacency`. Returns the list of node IDs from src to dst
+   (inclusive). Returns None if unreachable (shouldn't happen on a connected tree).
+
+4. Build the final path:
+   path = [class_start]
+   current = class_start
+   remaining_targets = sorted TARGET nodes by score DESC
+   
+   for each target in remaining_targets:
+       segment = bfs_path(td.adjacency, current, target.id)
+       if segment is None: continue  # skip unreachable
+       path.extend(segment[1:])      # skip current (already in path)
+       current = target.id
+   
+   # Also connect to ascendancy entry if not already in path
+   if ascendancy_entry not in path:
+       segment = bfs_path(td.adjacency, current, ascendancy_entry)
+       if segment: path.extend(segment[1:])
+
+5. Deduplicate path (preserve order, keep first occurrence).
+
+6. Return path as tuple[TreeNodeRef, ...] — same shape as before,
+   but now EVERY node in the list is actually connected.
+   Travel nodes (not keystone/notable) get type="travel".
+   The existing TreeNodeRef model gains type="travel" to Literal.
+```
+
+**Key constraints:**
+- Maximum path length: 120 nodes (PoE characters have ~120 passive points at endgame). Truncate greedily if needed.
+- Mastery nodes: EXCLUDED from the BFS targets (they require specific items) — same as before.
+- Ascendancy nodes: EXCLUDED from BFS (they are allocated via the lab, not the tree graph) — same as before.
+- Cluster jewel nodes (id >= 65536): EXCLUDED.
+
+**What to change — `packages/fob/src/poe1_fob/theory/generator.py`.**
+
+1. Add `bfs_path(adjacency: dict[int, frozenset[int]], src: int, dst: int) -> list[int] | None` as a module-level function (not a method). Standard BFS using `collections.deque`. Must be O(V+E). Add `from collections import deque` import.
+
+2. Rewrite `_select_tree_nodes(intent)`:
+   - Score all keystones + notables (existing `_score_node` unchanged).
+   - Collect top-2 keystones + top-8 notables as `targets`.
+   - Run the greedy waypoint expansion algorithm described above.
+   - Deduplicate + truncate to 120 nodes.
+   - Build `TreeNodeRef` list: travel nodes use the new `type="travel"` literal, keystones/notables keep their existing types.
+   - Return `tuple[TreeNodeRef, ...]`.
+
+3. The `_to_pob_tree` function already extracts `node_ids` from `TreeNodeRef` — no change needed there.
+
+**What to change — `packages/fob/src/poe1_fob/theory/models.py`.**
+Add `"travel"` to the `type` Literal in `TreeNodeRef`:
+```python
+type: Literal["keystone", "notable", "ascendancy", "start", "travel"]
+```
+
+**Frontend — `apps/shell/src/pages/TheorycrafterPage.tsx`.**
+The tree-node list in the result panel currently shows all nodes. Update the display:
+- Travel nodes (`type == "travel"`) should NOT be shown in the visible list (they are path connectors, not interesting to the user). Filter them out of the displayed list.
+- Add a compact footnote: "Albero generato con {total} nodi (inclusi {travel_count} nodi di percorso)." / "Tree generated with {total} nodes ({travel_count} path nodes)."
+
+**Tests — `packages/fob/tests/test_theory_tree_pathing.py` (new file).**
+Write at minimum 6 tests:
+1. `test_bfs_path_direct_neighbors` — two adjacent nodes → path length 2.
+2. `test_bfs_path_three_steps` — manually constructed adjacency dict → verify path.
+3. `test_bfs_path_unreachable` — disconnected graph → returns `None`.
+4. `test_select_tree_nodes_connected` — call `_select_tree_nodes` for a Marauder/Juggernaut intent; assert every consecutive pair of node IDs in the result is connected via `TreeData.adjacency` (i.e. `n2 in td.adjacency[n1]`). This is the critical integration test.
+5. `test_select_tree_nodes_max_length` — result has at most 120 node IDs.
+6. `test_travel_nodes_have_type_travel` — nodes that are not keystones/notables in the path have `type == "travel"`.
+
+**Gate: full gate must pass. No regression on Step 43 tests.**
+
+**Patch Notes (mandatory, same commit).**
+Prepend a new entry to `RELEASES` in `apps/shell/src/pages/PatchNotesPage.tsx`:
+- IT: "Theorycrafter: albero passivo realistico — il generatore ora costruisce un percorso connesso sull'albero usando BFS, invece di flottare nodi disconnessi. Le build importate in PoB mostrano il corretto percorso di allocazione."
+- EN: "Theorycrafter: realistic passive tree — the generator now builds a connected BFS path on the tree instead of floating disconnected nodes. Builds imported into PoB show the correct allocation path."
+
+**Commit message convention**: `feat(theory): Step 44 — Build Generator BFS tree pathing`
 
 ---
 
