@@ -27,6 +27,8 @@ import type {
   Build,
   BuildIntent,
   BuildPlan,
+  BuildSkeleton,
+  SkeletonBudget,
   RecommendResponse,
   SortKey,
   TargetGoal,
@@ -134,6 +136,21 @@ function emptyPlanner(): PlannerState {
 }
 
 // ---------------------------------------------------------------------------
+// Theorycrafter slice (Step 39)
+// ---------------------------------------------------------------------------
+
+export interface TheoryState {
+  query: string;
+  budgetTier: SkeletonBudget;
+  contentFocus: string;
+  result: BuildSkeleton | null;
+}
+
+function emptyTheory(): TheoryState {
+  return { query: "", budgetTier: "mid", contentFocus: "mapping", result: null };
+}
+
+// ---------------------------------------------------------------------------
 // Store
 // ---------------------------------------------------------------------------
 
@@ -147,6 +164,9 @@ interface PageStore {
 
   planner: PlannerState;
   setPlanner: (patch: Partial<PlannerState>) => void;
+
+  theory: TheoryState;
+  setTheory: (patch: Partial<TheoryState>) => void;
 }
 
 /**
@@ -194,6 +214,9 @@ export const usePageStore = create<PageStore>()(
       planner: emptyPlanner(),
       setPlanner: (patch) =>
         set((s) => ({ planner: { ...s.planner, ...patch } })),
+
+      theory: emptyTheory(),
+      setTheory: (patch) => set((s) => ({ theory: { ...s.theory, ...patch } })),
     }),
     {
       name: "fob-page-state",

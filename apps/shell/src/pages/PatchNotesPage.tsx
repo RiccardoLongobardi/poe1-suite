@@ -30,6 +30,23 @@ const RELEASES: Release[] = [
   {
     date: { it: "19 mag 2026", en: "19 May 2026" },
     title: {
+      it: "Theorycrafter — Genera build",
+      en: "Theorycrafter — Build Generator",
+    },
+    entries: [
+      {
+        it: "Descrivi in italiano la build che vuoi giocare e ricevi uno scheletro completo con skill setup, pietre passive e slot oggetti.",
+        en: "Describe your build idea in natural language and get a complete skeleton with skill setup, passive milestones, and gear slots.",
+      },
+      {
+        it: "Lo scheletro e generato da zero con i dati ufficiali di PoE 3.28 (albero, gemme, basi oggetto) — non e copiato dalla classifica dei giocatori.",
+        en: "The skeleton is generated from scratch with official PoE 3.28 data (tree, gems, item bases) — not copied from the player ladder.",
+      },
+    ],
+  },
+  {
+    date: { it: "19 mag 2026", en: "19 May 2026" },
+    title: {
       it: "Theorycrafter ridefinito",
       en: "Theorycrafter redefined",
     },

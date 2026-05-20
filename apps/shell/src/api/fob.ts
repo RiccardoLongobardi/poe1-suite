@@ -9,6 +9,8 @@ import type {
   AnalyzePobResponse,
   ApiError,
   BuildIntent,
+  BuildSkeleton,
+  SkeletonBudget,
   GearProgression,
   GemProgression,
   PlanResponse,
@@ -68,6 +70,25 @@ export async function recommend(
   return post<RecommendResponse>("/fob/recommend", {
     intent,
     top_n: topN,
+  });
+}
+
+/**
+ * POST /fob/theory/generate — Theorycrafter Build Generator.
+ *
+ * Rule-based, from-scratch: the server resolves the query to a curated
+ * archetype and synthesises a `BuildSkeleton` from vendored 3.28 data.
+ * No ladder retrieval, no LLM.
+ */
+export async function generateBuild(
+  query: string,
+  budgetTier: SkeletonBudget = "mid",
+  contentFocus: string | null = null,
+): Promise<BuildSkeleton> {
+  return post<BuildSkeleton>("/fob/theory/generate", {
+    query,
+    budget_tier: budgetTier,
+    content_focus: contentFocus,
   });
 }
 

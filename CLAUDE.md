@@ -77,7 +77,7 @@ uv run mypy .
 uv run pytest
 ```
 
-All four must pass with zero errors. Current baseline: **704 tests green (2 skipped — integration/LLM), 121 files type-checked clean, 117 files formatted clean**. Frontend build 610 KB / 190 KB gzip.
+All four must pass with zero errors. Current baseline: **722 tests green (2 skipped — integration/LLM), 129 files type-checked clean**. Frontend build main ~464 KB / 148 KB gzip.
 
 ## English support + uniform input font (2026-05-15) ✅
 
@@ -113,6 +113,25 @@ Frontend-only, no backend change.
 > copy, NOT technical jargon (no file names, no internal step numbers).
 > Updating the `.md` files without updating the Patch Notes is an
 > incomplete step.
+
+## Step 39 — Theorycrafter Build Generator v1 (2026-05-19) ✅
+
+Prompt 026. The **correct** Theorycrafter: a rule-based, deterministic, **from-scratch** build generator. New full `/theorycrafter` page (replaces the Step 38r stub). It never touches the poe.ninja ladder — see the permanent Finder-vs-Theorycrafter rule in "Product direction" above.
+
+**New vendored data file.** No gem data was vendored and the 49 `BuildTemplate` classes are matcher-keyed prose generators (not a structured catalogue). So Step 39 ships **one small, curated, reviewable file**: `packages/fob/data/gems/archetypes_3_28.json` — ~18 real PoE 3.28 archetypes (one per iconic skill, all 7 classes covered). Each entry = skill/tags/6L supports/class/ascendancy/keystones/defence/damage/content/`popularity`/IT+EN rationale. This is the *only* place class/ascendancy/skill knowledge enters Theorycrafter.
+
+**Backend — new `poe1_fob.theory` subpackage** (rebuilt from scratch after the Step 38r delete):
+- `models.py` — `GemLink` / `TreeMilestone` / `GearSlot` / `BuildSkeleton`, frozen, **snake_case, no aliases** (camelCase aliases trip the pydantic-mypy plugin on by-name construction — same call as `PobSnapshot`).
+- `archetypes.py` — loads `archetypes_3_28.json`; `resolve_archetype(intent)` scores every archetype against the parsed `BuildIntent` (skill hint / class / damage / content) and picks the best, breaking ties on the static `popularity` rank — **no live ladder call**, so generation stays synchronous + offline + deterministic.
+- `generator.py` — `generate_build(query, *, settings, budget_tier, content_focus)`: `extract_intent` → `resolve_archetype` → gem links from the archetype → tree milestones (keystones + ascendancy notables resolved to real node ids via `tree.get_tree_data()`) → gear slots (recommended bases from `base_items.bases_for_slot`, filtered by defence/budget tier; priority stats from a stable per-slot convention table) → IT/EN rationale + `pob_import_hint`. No LLM, no HTTP.
+- `router.py` — `POST /fob/theory/generate` (`TheoryGenerateRequest{query, budget_tier, content_focus}`), 503 on missing vendored data.
+- Tests: `packages/fob/tests/test_theory_generator.py` (6 — **`async def`**, the suite runs pytest-asyncio `auto` mode; a bare `asyncio.run` inside a sync test leaks the event-loop self-pipe socket and trips the `unraisableexception` plugin) + 2 e2e in `test_fob_router.py`.
+
+**Frontend** — full `/theorycrafter` page:
+- `TheorycrafterPage.tsx` — a `<Tabs>` shell ("Genera build" active + 3 disabled "in arrivo" pillars). `BuildGeneratorPanel`: NL textarea + Budget/Focus `<Select>`s + Generate button → `SkeletonResult` (class/asc header, gem-link cards, ordered tree-milestone list with node-id chips, gear-slot grid, rationale accordion IT/EN, copyable `pob_import_hint`).
+- New `theory` Zustand slice. `api/fob.ts` `generateBuild()`. `types.ts`: `GemLink`/`TreeMilestone`/`GearSlot`/`BuildSkeleton` + `SkeletonBudget` (named *not* `BudgetTier` — that identifier already exists in `types.ts` for the intent budget system). Bilingual via `t()`.
+
+Gate: 722 tests (+8) / 129 mypy / ruff clean. Frontend build main ~464 KB / 148 KB gzip.
 
 ## Step 38r — Theorycrafter architectural reset (2026-05-19) ✅
 

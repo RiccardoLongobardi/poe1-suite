@@ -58,6 +58,7 @@ from .pob import (
 from .pob import clean_mod_lines as _clean_mod_lines
 from .pob import extract_mods as _extract_mod_patterns
 from .ranking import RankingEngine, RecommendRequest, RecommendResponse, SourceAggregator
+from .theory import BudgetTier, BuildSkeleton, generate_build
 from .trade_stats import resolve_mods
 from .tree import (
     StageTree,
@@ -89,6 +90,31 @@ class ExtractIntentRequest(BaseModel):
             "Example: 'voglio una cold build comfy per mapping' or "
             "'looking for a cheap CI caster for bossing'."
         ),
+    )
+
+
+class TheoryGenerateRequest(BaseModel):
+    """Input for ``POST /fob/theory/generate``."""
+
+    model_config = ConfigDict(frozen=True)
+
+    query: str = Field(
+        ...,
+        min_length=1,
+        max_length=2000,
+        description=(
+            "Free-text description of the build to generate from scratch — "
+            "Italian or English. Example: 'Elementalist con Fireball per "
+            "mapping' or 'cheap RF tank for all content'."
+        ),
+    )
+    budget_tier: BudgetTier = Field(
+        default="mid",
+        description="Budget band the gear recommendations target.",
+    )
+    content_focus: str | None = Field(
+        default=None,
+        description="Optional content focus override (mapping / bossing / ...).",
     )
 
 
@@ -507,6 +533,43 @@ def make_router(settings: Settings) -> APIRouter:
             total_candidates=len(refs),
             intent=payload.intent,
         )
+
+    @router.post(
+        "/theory/generate",
+        response_model=BuildSkeleton,
+        summary="Generate a from-scratch build skeleton (Theorycrafter).",
+    )
+    async def theory_generate(
+        payload: Annotated[TheoryGenerateRequest, Body()],
+    ) -> BuildSkeleton:
+        """Theorycrafter Build Generator — rule-based, from vendored 3.28 data.
+
+        Parses the query into an intent, resolves the best-fit archetype
+        from the curated catalogue, and synthesises a build skeleton
+        (gem links, tree milestones, gear slots). No ladder retrieval,
+        no LLM — synchronous and deterministic.
+        """
+        try:
+            skeleton = await generate_build(
+                payload.query,
+                settings=settings,
+                budget_tier=payload.budget_tier,
+                content_focus=payload.content_focus,
+            )
+        except FileNotFoundError as exc:
+            raise HTTPException(
+                status_code=503, detail=f"vendored data unavailable: {exc}"
+            ) from exc
+        except IntentLlmError as exc:
+            raise HTTPException(status_code=502, detail=f"LLM fallback failed: {exc}") from exc
+
+        log.info(
+            "fob_theory_generate_ok",
+            class_name=skeleton.class_name,
+            ascendancy=skeleton.ascendancy,
+            core_skill=skeleton.core_skill,
+        )
+        return skeleton
 
     @router.post(
         "/plan",
