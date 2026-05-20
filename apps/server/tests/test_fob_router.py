@@ -672,42 +672,60 @@ def test_trade_url_with_stats_and_links(
 
 
 # ---------------------------------------------------------------------------
-# Theorycrafter — Build Generator (Step 39)
+# Theorycrafter — Build Generator v2 (Step 40)
 # ---------------------------------------------------------------------------
 
 
-def test_post_theory_generate_200(tmp_path: Path) -> None:
-    """Valid query → 200 with a from-scratch BuildSkeleton.
+def _theory_intent_body() -> dict[str, object]:
+    return {
+        "intent": {
+            "character_class": "Witch",
+            "ascendancy": "Elementalist",
+            "primary_skill": "Fireball",
+            "damage_type": "fire",
+            "defence_archetype": "life",
+            "budget": "mid",
+            "focus": "mapping",
+        }
+    }
 
-    anthropic_api_key=None keeps intent extraction rule-based offline.
-    """
 
-    settings = Settings(
-        cache_dir=tmp_path / "cache",
-        http_cache_ttl_seconds=0,
-        anthropic_api_key=None,
-    )
+def test_post_theory_generate_v2_200(settings: Settings) -> None:
+    """Valid structured intent → 200 with a complete BuildSkeleton (v2)."""
+
+    app = create_app(settings)
+    with TestClient(app) as client:
+        r = client.post("/fob/theory/generate", json=_theory_intent_body())
+        assert r.status_code == 200, r.text
+        sk = r.json()
+        assert sk["intent"]["character_class"] == "Witch"
+        assert sk["intent"]["primary_skill"] == "Fireball"
+        assert sk["links"]
+        assert sk["tree_nodes"]
+        assert sk["gear_slots"]
+        assert sk["pob_code"]
+        assert sk["stats"]["estimated"] is True
+
+
+def test_post_theory_generate_v2_422_missing_field(settings: Settings) -> None:
+    """A malformed intent (missing required field) fails validation."""
+
     app = create_app(settings)
     with TestClient(app) as client:
         r = client.post(
             "/fob/theory/generate",
-            json={"query": "Elementalist Fireball mapping", "budget_tier": "mid"},
+            json={"intent": {"character_class": "Witch"}},
         )
-        assert r.status_code == 200, r.text
-        sk = r.json()
-        assert sk["class_name"] == "Witch"
-        assert sk["ascendancy"] == "Elementalist"
-        assert sk["core_skill"]
-        assert sk["links"]
-        assert sk["tree_milestones"]
-        assert sk["gear_slots"]
-        assert sk["pob_import_hint"]
+        assert r.status_code == 422
 
 
-def test_post_theory_generate_422_empty_query(settings: Settings) -> None:
-    """An empty query fails request validation (422)."""
+def test_get_theory_skills(settings: Settings) -> None:
+    """GET /fob/theory/skills returns the active-skill catalogue."""
 
     app = create_app(settings)
     with TestClient(app) as client:
-        r = client.post("/fob/theory/generate", json={"query": ""})
-        assert r.status_code == 422
+        r = client.get("/fob/theory/skills")
+        assert r.status_code == 200, r.text
+        names = {s["name"] for s in r.json()["skills"]}
+        assert "Fireball" in names
+        assert "Cyclone" in names

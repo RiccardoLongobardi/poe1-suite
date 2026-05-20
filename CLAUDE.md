@@ -114,7 +114,38 @@ Frontend-only, no backend change.
 > Updating the `.md` files without updating the Patch Notes is an
 > incomplete step.
 
-## Step 39 — Theorycrafter Build Generator v1 (2026-05-19) ✅
+## Step 40 — Theorycrafter Build Generator v2 (2026-05-20) ✅
+
+Prompt 027. Supersedes Step 39's archetype-JSON generator. v2 is form-driven (no free text), runs a graph engine over the vendored 3.28 data, and emits a complete importable PoB code. Hard runtime assertions block any hallucinated base / node / support.
+
+**New vendored file** — `packages/fob/data/gems/gems_3_28.json`. **Extracted from the official PoB Community source** (`PathOfBuildingCommunity/PathOfBuilding@master`, `src/Data/Skills/*.lua`) by the new `scripts/extract_gems.py`: **555 active skills + 278 supports** — the complete PoE 3.28 catalogue. Each active carries `tags` (PoB `SkillType.X` normalised: spell/attack/projectile/aoe/fire/cold/lightning/chaos/physical/melee/bow/channelling/duration/dot/minion/vaal/curse/aura/...) + the derived `damage_types` subset. Each support carries `valid_gem_tags` (PoB `requireSkillTypes`) + `exclude_tags` (`excludeSkillTypes`) + a heuristic `priority = 100 - 4*len(require)` (tighter requirements → higher priority, +5 for Awakened). The Step 39 `archetypes_3_28.json` is deleted. **No hand-authored fallback** (§7 data-integrity rule): `extract_gems.py` aborts with non-zero status if it cannot parse ≥100 actives + ≥40 supports.
+
+**Backend rewrite** — `poe1_fob.theory.generator`:
+- `_select_supports` — picks 5 supports whose `valid_gem_tags` are a subset of the skill's tags and whose `exclude_tags` don't intersect (e.g. `Spell Echo` is excluded from a channelling skill). Ranked by static `priority`. Pads to 5 with `"(open)"`.
+- `_select_tree_nodes` — scores every keystone/notable in `tree/3_28.json` against `_DAMAGE_KEYWORDS` + `_DEFENCE_KEYWORDS`, picks top 8 notables + top 2 keystones + up to 4 ascendancy notables (filtered by `ascendancy_name`). Real node IDs only.
+- `_select_gear` — for 7 main slots + weapon + shield: filters `bases_for_slot` by defence-tag + budget drop-level cap, picks the highest-drop_level base. Weapon class derived from skill tags (bow / wand / 2H melee).
+- `_assert_valid` — the anti-hallucination gate: raises `TheoryHallucinationError` (→ HTTP 500) if any generated base / node id / support isn't in the vendored data.
+- `encode_pob_code` reused from Step 14 to produce the importable PoB code. Synthesised `StageTree` carries the real node ids; `StageGearSet` carries the recommended bases; `StageGemLinks` carries the 6L (filtered of `(open)` placeholders).
+
+**Endpoint changes**:
+- `POST /fob/theory/generate` body changed to `{intent: TheoryIntent}` (structured form fields) — the free-text query is gone.
+- New `GET /fob/theory/skills` returns `{skills: SkillEntry[]}` from the vendored catalogue, for the form's cascading skill picker.
+- 503 on missing vendored data; 500 on the hallucination guard.
+
+**Model deviation noted**: the prompt suggests reusing `poe1_core.models.BuildIntent`. That model is the *Finder* intent (free text → ladder query) — semantically incompatible. A Theorycrafter-local `TheoryIntent` was introduced instead. Documented at the top of `theory/models.py`.
+
+**Frontend rewrite** — `TheorycrafterPage.tsx`:
+- Tab shell removed. `/theorycrafter` is now a single tool.
+- Cascading form (`<Select>`s for Class → Ascendancy → Skill → Damage Type, `<SegmentedControl>` for Defence / Budget / Focus). Submit disabled until the four data fields are set.
+- Result panel: header badges, **Estimates** card (life / ES / DPS index, all labelled `~ stimato`), gem-link card, tree-node list with type badges + real node id chips, gear-slot grid where each card has a Trade icon (calls `openTradeUrl({item_type, stats:[]})` — same pipeline as Analyze/Planner), rationale accordion (IT default, EN via the app language toggle), and a prominent "Copia codice PoB" button.
+- New `theory.form` Zustand slice with all 7 form fields. `TheoryContentFocus` type added — distinct from the Finder `ContentFocus` (different value set).
+- **Reuse-GearCard deviation**: `GearCard` (used by Analyze) renders a real `PobItem` with mods, sockets, corruption — semantically wrong for a *recommendation* (base + stat priorities). An inline card in `TheorycrafterPage` follows the same visual language (`.vs-rarity`, `data-rarity="rare"`, left-border) without forcing a `PobItem`-shaped payload. Noted at the top of the file.
+
+Tests: 10 in `test_theory_generator.py` (anti-hallucination gates, PoB code base64+zlib round-trip, full-pipeline checks for Witch/Elementalist/Fireball and Duelist/Gladiator/Cyclone, monkeypatch-driven hallucination guard verification) + 3 e2e router tests.
+
+Gate: 727 tests / 129 mypy / ruff clean. Frontend build main ~465 KB / 149 KB gzip.
+
+## Step 39 — Theorycrafter Build Generator v1 (2026-05-19) ✅ — superseded by Step 40
 
 Prompt 026. The **correct** Theorycrafter: a rule-based, deterministic, **from-scratch** build generator. New full `/theorycrafter` page (replaces the Step 38r stub). It never touches the poe.ninja ladder — see the permanent Finder-vs-Theorycrafter rule in "Product direction" above.
 

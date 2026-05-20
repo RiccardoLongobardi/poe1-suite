@@ -28,7 +28,10 @@ import type {
   BuildIntent,
   BuildPlan,
   BuildSkeleton,
+  DamageType,
+  DefenceArchetype,
   SkeletonBudget,
+  TheoryContentFocus,
   RecommendResponse,
   SortKey,
   TargetGoal,
@@ -136,18 +139,37 @@ function emptyPlanner(): PlannerState {
 }
 
 // ---------------------------------------------------------------------------
-// Theorycrafter slice (Step 39)
+// Theorycrafter slice (Step 40 — form-driven)
 // ---------------------------------------------------------------------------
 
+export interface TheoryFormState {
+  character_class: string;
+  ascendancy: string;
+  primary_skill: string;
+  damage_type: DamageType | "";
+  defence_archetype: DefenceArchetype;
+  budget: SkeletonBudget;
+  focus: TheoryContentFocus;
+}
+
 export interface TheoryState {
-  query: string;
-  budgetTier: SkeletonBudget;
-  contentFocus: string;
+  form: TheoryFormState;
   result: BuildSkeleton | null;
 }
 
 function emptyTheory(): TheoryState {
-  return { query: "", budgetTier: "mid", contentFocus: "mapping", result: null };
+  return {
+    form: {
+      character_class: "",
+      ascendancy: "",
+      primary_skill: "",
+      damage_type: "",
+      defence_archetype: "life",
+      budget: "mid",
+      focus: "mapping",
+    },
+    result: null,
+  };
 }
 
 // ---------------------------------------------------------------------------

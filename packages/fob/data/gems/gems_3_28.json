@@ -1,0 +1,9307 @@
+{
+  "version": "3.28",
+  "source": "PathOfBuildingCommunity/PathOfBuilding@master",
+  "actives": [
+    {
+      "skill_id": "Absolution",
+      "name": "Absolution",
+      "tags": [
+        "duration",
+        "elemental",
+        "lightning",
+        "minion",
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning",
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "AbsolutionAltX",
+      "name": "Absolution of Inspiring",
+      "tags": [
+        "duration",
+        "elemental",
+        "lightning",
+        "minion",
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning",
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "AlchemistsMark",
+      "name": "Alchemist's Mark",
+      "tags": [
+        "chaos",
+        "curse",
+        "duration",
+        "elemental",
+        "fire",
+        "spell"
+      ],
+      "damage_types": [
+        "chaos",
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "Ambush",
+      "name": "Ambush",
+      "tags": [
+        "duration",
+        "movement",
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "AncestralCry",
+      "name": "Ancestral Cry",
+      "tags": [
+        "duration",
+        "warcry"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "Anger",
+      "name": "Anger",
+      "tags": [
+        "aura",
+        "elemental",
+        "fire",
+        "spell"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "AnimateGuardian",
+      "name": "Animate Guardian",
+      "tags": [
+        "minion",
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "AnimateGuardianAltX",
+      "name": "Animate Guardian of Smiting",
+      "tags": [
+        "elemental",
+        "lightning",
+        "minion",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "AnimateWeapon",
+      "name": "Animate Weapon",
+      "tags": [
+        "duration",
+        "minion",
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "AnimateWeaponAltY",
+      "name": "Animate Weapon of Ranged Arms",
+      "tags": [
+        "duration",
+        "minion",
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "AnimateWeaponAltX",
+      "name": "Animate Weapon of Self Reflection",
+      "tags": [
+        "duration",
+        "minion",
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "Arc",
+      "name": "Arc",
+      "tags": [
+        "chaining",
+        "elemental",
+        "lightning",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "ArcAltY",
+      "name": "Arc of Oscillating",
+      "tags": [
+        "chaining",
+        "elemental",
+        "lightning",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "ArcAltX",
+      "name": "Arc of Surging",
+      "tags": [
+        "elemental",
+        "lightning",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "ArcaneCloak",
+      "name": "Arcane Cloak",
+      "tags": [
+        "duration",
+        "elemental",
+        "guard",
+        "lightning",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "BrandSupport",
+      "name": "Arcanist Brand",
+      "tags": [
+        "brand",
+        "duration",
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "ArcticArmour",
+      "name": "Arctic Armour",
+      "tags": [
+        "cold",
+        "duration",
+        "elemental",
+        "spell"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "ArmageddonBrand",
+      "name": "Armageddon Brand",
+      "tags": [
+        "brand",
+        "duration",
+        "elemental",
+        "fire",
+        "spell"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "ArmageddonBrandAltY",
+      "name": "Armageddon Brand of Recall",
+      "tags": [
+        "brand",
+        "duration",
+        "elemental",
+        "fire",
+        "spell"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "ArmageddonBrandAltX",
+      "name": "Armageddon Brand of Volatility",
+      "tags": [
+        "brand",
+        "duration",
+        "elemental",
+        "fire",
+        "spell"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "ArtilleryBallista",
+      "name": "Artillery Ballista",
+      "tags": [
+        "attack",
+        "elemental",
+        "fire"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "ArtilleryBallistaAltX",
+      "name": "Artillery Ballista of Cross Strafe",
+      "tags": [
+        "attack",
+        "elemental",
+        "fire"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "ArtilleryBallistaAltY",
+      "name": "Artillery Ballista of Focus Fire",
+      "tags": [
+        "attack",
+        "elemental",
+        "fire"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "AssassinsMark",
+      "name": "Assassin's Mark",
+      "tags": [
+        "curse",
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "Autoexertion",
+      "name": "Autoexertion",
+      "tags": [
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "Automation",
+      "name": "Automation",
+      "tags": [
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "BallLightning",
+      "name": "Ball Lightning",
+      "tags": [
+        "elemental",
+        "lightning",
+        "projectile",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "BallLightningAltX",
+      "name": "Ball Lightning of Orbiting",
+      "tags": [
+        "elemental",
+        "lightning",
+        "projectile",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "BallLightningAltY",
+      "name": "Ball Lightning of Static",
+      "tags": [
+        "elemental",
+        "lightning",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "Bane",
+      "name": "Bane",
+      "tags": [
+        "chaos",
+        "curse",
+        "dot",
+        "duration",
+        "spell"
+      ],
+      "damage_types": [
+        "chaos"
+      ]
+    },
+    {
+      "skill_id": "BaneAltX",
+      "name": "Bane of Condemnation",
+      "tags": [
+        "chaos",
+        "curse",
+        "dot",
+        "duration",
+        "spell"
+      ],
+      "damage_types": [
+        "chaos"
+      ]
+    },
+    {
+      "skill_id": "Barrage",
+      "name": "Barrage",
+      "tags": [
+        "attack",
+        "projectile"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "BarrageAltX",
+      "name": "Barrage of Volley Fire",
+      "tags": [
+        "attack",
+        "projectile"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "BattlemagesCry",
+      "name": "Battlemage's Cry",
+      "tags": [
+        "duration",
+        "warcry"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "BearTrap",
+      "name": "Bear Trap",
+      "tags": [
+        "duration",
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "BearTrapAltX",
+      "name": "Bear Trap of Skewers",
+      "tags": [
+        "duration",
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "Berserk",
+      "name": "Berserk",
+      "tags": [
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "BladeBlast",
+      "name": "Blade Blast",
+      "tags": [
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "BladeBlastAltY",
+      "name": "Blade Blast of Dagger Detonation",
+      "tags": [
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "BladeBlastAltX",
+      "name": "Blade Blast of Unloading",
+      "tags": [
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "BladeFlurry",
+      "name": "Blade Flurry",
+      "tags": [
+        "attack",
+        "channelling",
+        "melee"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "BladeFlurryAltX",
+      "name": "Blade Flurry of Incision",
+      "tags": [
+        "attack",
+        "channelling",
+        "melee"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "BladeTrap",
+      "name": "Blade Trap",
+      "tags": [
+        "attack"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "BladeTrapAltX",
+      "name": "Blade Trap of Greatswords",
+      "tags": [
+        "attack",
+        "duration"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "BladeTrapAltY",
+      "name": "Blade Trap of Laceration",
+      "tags": [
+        "attack",
+        "physical"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "BladeVortex",
+      "name": "Blade Vortex",
+      "tags": [
+        "duration",
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "BladeVortexAltX",
+      "name": "Blade Vortex of the Scythe",
+      "tags": [
+        "duration",
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "Bladefall",
+      "name": "Bladefall",
+      "tags": [
+        "duration",
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "BladefallAltY",
+      "name": "Bladefall of Impaling",
+      "tags": [
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "BladefallAltZ",
+      "name": "Bladefall of Trarthus",
+      "tags": [
+        "duration",
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "BladefallAltX",
+      "name": "Bladefall of Volleys",
+      "tags": [
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "Bladestorm",
+      "name": "Bladestorm",
+      "tags": [
+        "attack",
+        "duration",
+        "melee"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "BladestormAltX",
+      "name": "Bladestorm of Uncertainty",
+      "tags": [
+        "attack",
+        "duration",
+        "melee"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "BlastRain",
+      "name": "Blast Rain",
+      "tags": [
+        "attack",
+        "elemental",
+        "fire"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "BlastRainAltX",
+      "name": "Blast Rain of Trarthus",
+      "tags": [
+        "attack",
+        "dot",
+        "duration",
+        "elemental",
+        "fire"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "BlazingSalvo",
+      "name": "Blazing Salvo",
+      "tags": [
+        "elemental",
+        "fire",
+        "projectile",
+        "spell"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "Blight",
+      "name": "Blight",
+      "tags": [
+        "channelling",
+        "chaos",
+        "dot",
+        "duration",
+        "spell"
+      ],
+      "damage_types": [
+        "chaos"
+      ]
+    },
+    {
+      "skill_id": "BlightAltY",
+      "name": "Blight of Atrophy",
+      "tags": [
+        "channelling",
+        "chaos",
+        "dot",
+        "duration",
+        "spell"
+      ],
+      "damage_types": [
+        "chaos"
+      ]
+    },
+    {
+      "skill_id": "BlightAltX",
+      "name": "Blight of Contagion",
+      "tags": [
+        "channelling",
+        "chaos",
+        "dot",
+        "duration",
+        "spell"
+      ],
+      "damage_types": [
+        "chaos"
+      ]
+    },
+    {
+      "skill_id": "BlinkArrow",
+      "name": "Blink Arrow",
+      "tags": [
+        "attack",
+        "duration",
+        "minion",
+        "movement"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "BlinkArrowAltX",
+      "name": "Blink Arrow of Bombarding Clones",
+      "tags": [
+        "attack",
+        "duration",
+        "minion",
+        "movement"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "BlinkArrowAltY",
+      "name": "Blink Arrow of Prismatic Clones",
+      "tags": [
+        "attack",
+        "duration",
+        "minion",
+        "movement"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "BloodRage",
+      "name": "Blood Rage",
+      "tags": [
+        "duration",
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "BloodAndSand",
+      "name": "Blood and Sand",
+      "tags": [
+        "spell",
+        "stance"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "Bodyswap",
+      "name": "Bodyswap",
+      "tags": [
+        "elemental",
+        "fire",
+        "movement",
+        "spell"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "BodyswapAltX",
+      "name": "Bodyswap of Sacrifice",
+      "tags": [
+        "elemental",
+        "fire",
+        "minion",
+        "movement",
+        "spell"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "BoneOffering",
+      "name": "Bone Offering",
+      "tags": [
+        "duration",
+        "minion",
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "Boneshatter",
+      "name": "Boneshatter",
+      "tags": [
+        "attack",
+        "duration",
+        "melee",
+        "physical"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "BoneshatterAltY",
+      "name": "Boneshatter of Carnage",
+      "tags": [
+        "attack",
+        "melee"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "BoneshatterAltX",
+      "name": "Boneshatter of Complex Trauma",
+      "tags": [
+        "attack",
+        "duration",
+        "melee",
+        "physical"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "BrandRecall",
+      "name": "Brand Recall",
+      "tags": [
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "BurningArrow",
+      "name": "Burning Arrow",
+      "tags": [
+        "attack",
+        "elemental",
+        "fire",
+        "projectile"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "BurningArrowAltX",
+      "name": "Burning Arrow of Vigour",
+      "tags": [
+        "attack",
+        "elemental",
+        "fire",
+        "projectile"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "CausticArrow",
+      "name": "Caustic Arrow",
+      "tags": [
+        "attack",
+        "chaos",
+        "dot",
+        "duration",
+        "projectile"
+      ],
+      "damage_types": [
+        "chaos"
+      ]
+    },
+    {
+      "skill_id": "CausticArrowAltX",
+      "name": "Caustic Arrow of Poison",
+      "tags": [
+        "attack",
+        "chaos",
+        "projectile"
+      ],
+      "damage_types": [
+        "chaos"
+      ]
+    },
+    {
+      "skill_id": "ChainHook",
+      "name": "Chain Hook",
+      "tags": [
+        "attack",
+        "melee",
+        "movement"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "ChainHookAltY",
+      "name": "Chain Hook of Trarthus",
+      "tags": [
+        "attack",
+        "melee"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "ChargedDash",
+      "name": "Charged Dash",
+      "tags": [
+        "attack",
+        "channelling",
+        "elemental",
+        "lightning",
+        "melee",
+        "movement"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "ChargedDashAltX",
+      "name": "Charged Dash of Projection",
+      "tags": [
+        "attack",
+        "channelling",
+        "elemental",
+        "lightning",
+        "melee"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "Clarity",
+      "name": "Clarity",
+      "tags": [
+        "aura",
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "Cleave",
+      "name": "Cleave",
+      "tags": [
+        "attack",
+        "melee"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "CleaveAltX",
+      "name": "Cleave of Rage",
+      "tags": [
+        "attack",
+        "melee"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "CobraLash",
+      "name": "Cobra Lash",
+      "tags": [
+        "attack",
+        "chaos",
+        "projectile"
+      ],
+      "damage_types": [
+        "chaos"
+      ]
+    },
+    {
+      "skill_id": "ColdSnap",
+      "name": "Cold Snap",
+      "tags": [
+        "cold",
+        "duration",
+        "elemental",
+        "spell"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "ColdSnapAltX",
+      "name": "Cold Snap of Power",
+      "tags": [
+        "cold",
+        "elemental",
+        "spell"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "Combust",
+      "name": "Combust",
+      "tags": [
+        "attack",
+        "melee",
+        "triggered"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "Conductivity",
+      "name": "Conductivity",
+      "tags": [
+        "curse",
+        "duration",
+        "elemental",
+        "lightning",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "Conflagration",
+      "name": "Conflagration",
+      "tags": [
+        "attack",
+        "duration",
+        "elemental",
+        "fire"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "ConsecratedPath",
+      "name": "Consecrated Path",
+      "tags": [
+        "attack",
+        "duration",
+        "elemental",
+        "fire",
+        "melee",
+        "movement",
+        "slam"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "ConsecratedPathAltX",
+      "name": "Consecrated Path of Endurance",
+      "tags": [
+        "attack",
+        "duration",
+        "elemental",
+        "fire",
+        "melee",
+        "movement",
+        "slam"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "Contagion",
+      "name": "Contagion",
+      "tags": [
+        "chaos",
+        "dot",
+        "duration",
+        "spell"
+      ],
+      "damage_types": [
+        "chaos"
+      ]
+    },
+    {
+      "skill_id": "ContagionAltX",
+      "name": "Contagion of Subsiding",
+      "tags": [
+        "chaos",
+        "dot",
+        "duration",
+        "spell"
+      ],
+      "damage_types": [
+        "chaos"
+      ]
+    },
+    {
+      "skill_id": "ContagionAltY",
+      "name": "Contagion of Transference",
+      "tags": [
+        "chaos",
+        "dot",
+        "duration",
+        "spell"
+      ],
+      "damage_types": [
+        "chaos"
+      ]
+    },
+    {
+      "skill_id": "ConversionTrap",
+      "name": "Conversion Trap",
+      "tags": [
+        "duration",
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "Convocation",
+      "name": "Convocation",
+      "tags": [
+        "duration",
+        "minion",
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "CorruptingFever",
+      "name": "Corrupting Fever",
+      "tags": [
+        "dot",
+        "duration",
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "CracklingLance",
+      "name": "Crackling Lance",
+      "tags": [
+        "elemental",
+        "lightning",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "CracklingLanceAltX",
+      "name": "Crackling Lance of Branching",
+      "tags": [
+        "elemental",
+        "lightning",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "CracklingLanceAltY",
+      "name": "Crackling Lance of Disintegration",
+      "tags": [
+        "elemental",
+        "lightning",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "CreepingFrost",
+      "name": "Creeping Frost",
+      "tags": [
+        "cold",
+        "duration",
+        "elemental",
+        "projectile",
+        "spell"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "CreepingFrostAltX",
+      "name": "Creeping Frost of Floes",
+      "tags": [
+        "cold",
+        "duration",
+        "elemental",
+        "projectile",
+        "spell"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "Cremation",
+      "name": "Cremation",
+      "tags": [
+        "duration",
+        "elemental",
+        "fire",
+        "projectile",
+        "spell"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "CremationAltX",
+      "name": "Cremation of Exhuming",
+      "tags": [
+        "duration",
+        "elemental",
+        "fire",
+        "projectile",
+        "spell"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "CremationAltY",
+      "name": "Cremation of the Volcano",
+      "tags": [
+        "duration",
+        "elemental",
+        "fire",
+        "projectile",
+        "spell"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "CrushingFist",
+      "name": "Crushing Fist",
+      "tags": [
+        "attack",
+        "melee",
+        "slam"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "Cyclone",
+      "name": "Cyclone",
+      "tags": [
+        "attack",
+        "channelling",
+        "melee",
+        "movement"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "CycloneAltX",
+      "name": "Cyclone of Tumult",
+      "tags": [
+        "attack",
+        "channelling",
+        "melee",
+        "movement"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "DarkPact",
+      "name": "Dark Pact",
+      "tags": [
+        "chaining",
+        "chaos",
+        "minion",
+        "spell"
+      ],
+      "damage_types": [
+        "chaos"
+      ]
+    },
+    {
+      "skill_id": "DarkPactAltX",
+      "name": "Dark Pact of Trarthus",
+      "tags": [
+        "chaos",
+        "spell"
+      ],
+      "damage_types": [
+        "chaos"
+      ]
+    },
+    {
+      "skill_id": "Dash",
+      "name": "Dash",
+      "tags": [
+        "movement",
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "DecoyTotem",
+      "name": "Decoy Totem",
+      "tags": [
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "DefianceBanner",
+      "name": "Defiance Banner",
+      "tags": [
+        "aura",
+        "banner",
+        "duration",
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "Desecrate",
+      "name": "Desecrate",
+      "tags": [
+        "chaos",
+        "dot",
+        "duration",
+        "spell"
+      ],
+      "damage_types": [
+        "chaos"
+      ]
+    },
+    {
+      "skill_id": "Despair",
+      "name": "Despair",
+      "tags": [
+        "chaos",
+        "curse",
+        "duration",
+        "spell"
+      ],
+      "damage_types": [
+        "chaos"
+      ]
+    },
+    {
+      "skill_id": "DestructiveLink",
+      "name": "Destructive Link",
+      "tags": [
+        "duration",
+        "link",
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "Determination",
+      "name": "Determination",
+      "tags": [
+        "aura",
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "DetonateDead",
+      "name": "Detonate Dead",
+      "tags": [
+        "elemental",
+        "fire",
+        "spell"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "DetonateDeadAltY",
+      "name": "Detonate Dead of Chain Reaction",
+      "tags": [
+        "elemental",
+        "fire",
+        "spell"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "DetonateDeadAltX",
+      "name": "Detonate Dead of Scavenging",
+      "tags": [
+        "elemental",
+        "fire",
+        "spell"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "GemDetonateMines",
+      "name": "Detonate Mines",
+      "tags": [
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "DevouringTotem",
+      "name": "Devouring Totem",
+      "tags": [
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "Discharge",
+      "name": "Discharge",
+      "tags": [
+        "cold",
+        "elemental",
+        "fire",
+        "lightning",
+        "spell"
+      ],
+      "damage_types": [
+        "cold",
+        "fire",
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "DischargeAltX",
+      "name": "Discharge of Misery",
+      "tags": [
+        "cold",
+        "elemental",
+        "fire",
+        "lightning",
+        "spell"
+      ],
+      "damage_types": [
+        "cold",
+        "fire",
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "Discipline",
+      "name": "Discipline",
+      "tags": [
+        "aura",
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "DivineBlast",
+      "name": "Divine Blast",
+      "tags": [
+        "attack",
+        "duration",
+        "elemental",
+        "fire",
+        "physical"
+      ],
+      "damage_types": [
+        "fire",
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "DivineIre",
+      "name": "Divine Ire",
+      "tags": [
+        "channelling",
+        "elemental",
+        "lightning",
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning",
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "DivineIreAltY",
+      "name": "Divine Ire of Disintegration",
+      "tags": [
+        "channelling",
+        "elemental",
+        "lightning",
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning",
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "DivineIreAltX",
+      "name": "Divine Ire of Holy Lightning",
+      "tags": [
+        "channelling",
+        "elemental",
+        "lightning",
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning",
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "DivineRetribution",
+      "name": "Divine Retribution",
+      "tags": [
+        "elemental",
+        "lightning",
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning",
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "DominatingBlow",
+      "name": "Dominating Blow",
+      "tags": [
+        "attack",
+        "duration",
+        "melee",
+        "minion"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "DominatingBlowAltX",
+      "name": "Dominating Blow of Inspiring",
+      "tags": [
+        "attack",
+        "duration",
+        "melee",
+        "minion"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "DoubleStrike",
+      "name": "Double Strike",
+      "tags": [
+        "attack",
+        "melee",
+        "physical"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "DoubleStrikeAltX",
+      "name": "Double Strike of Impaling",
+      "tags": [
+        "attack",
+        "melee",
+        "physical"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "DoubleStrikeAltY",
+      "name": "Double Strike of Momentum",
+      "tags": [
+        "attack",
+        "melee"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "DreadBanner",
+      "name": "Dread Banner",
+      "tags": [
+        "aura",
+        "banner",
+        "duration",
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "DualStrike",
+      "name": "Dual Strike",
+      "tags": [
+        "attack",
+        "melee"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "DualStrikeAltX",
+      "name": "Dual Strike of Ambidexterity",
+      "tags": [
+        "attack",
+        "melee"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "Earthquake",
+      "name": "Earthquake",
+      "tags": [
+        "attack",
+        "duration",
+        "melee",
+        "slam"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "EarthquakeAltX",
+      "name": "Earthquake of Amplification",
+      "tags": [
+        "attack",
+        "duration",
+        "melee",
+        "slam"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "Earthshatter",
+      "name": "Earthshatter",
+      "tags": [
+        "attack",
+        "duration",
+        "melee",
+        "slam"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "EarthshatterAltX",
+      "name": "Earthshatter of Fragility",
+      "tags": [
+        "attack",
+        "duration",
+        "melee",
+        "slam"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "EarthshatterAltY",
+      "name": "Earthshatter of Prominence",
+      "tags": [
+        "attack",
+        "duration",
+        "melee",
+        "slam"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "ElementalHit",
+      "name": "Elemental Hit",
+      "tags": [
+        "attack",
+        "cold",
+        "elemental",
+        "fire",
+        "lightning",
+        "melee"
+      ],
+      "damage_types": [
+        "cold",
+        "fire",
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "ElementalHitAltX",
+      "name": "Elemental Hit of the Spectrum",
+      "tags": [
+        "attack",
+        "cold",
+        "elemental",
+        "fire",
+        "lightning",
+        "projectile"
+      ],
+      "damage_types": [
+        "cold",
+        "fire",
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "ElementalWeakness",
+      "name": "Elemental Weakness",
+      "tags": [
+        "curse",
+        "duration",
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "EnduringCry",
+      "name": "Enduring Cry",
+      "tags": [
+        "duration",
+        "warcry"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "EnergyBlade",
+      "name": "Energy Blade",
+      "tags": [
+        "elemental",
+        "lightning",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "Enfeeble",
+      "name": "Enfeeble",
+      "tags": [
+        "curse",
+        "duration",
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "EnsnaringArrow",
+      "name": "Ensnaring Arrow",
+      "tags": [
+        "attack",
+        "projectile"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "EssenceDrain",
+      "name": "Essence Drain",
+      "tags": [
+        "chaos",
+        "dot",
+        "duration",
+        "projectile",
+        "spell"
+      ],
+      "damage_types": [
+        "chaos"
+      ]
+    },
+    {
+      "skill_id": "EssenceDrainAltX",
+      "name": "Essence Drain of Desperation",
+      "tags": [
+        "chaos",
+        "dot",
+        "duration",
+        "projectile",
+        "spell"
+      ],
+      "damage_types": [
+        "chaos"
+      ]
+    },
+    {
+      "skill_id": "EssenceDrainAltY",
+      "name": "Essence Drain of Wickedness",
+      "tags": [
+        "chaos",
+        "dot",
+        "duration",
+        "projectile",
+        "spell"
+      ],
+      "damage_types": [
+        "chaos"
+      ]
+    },
+    {
+      "skill_id": "EtherealKnives",
+      "name": "Ethereal Knives",
+      "tags": [
+        "physical",
+        "projectile",
+        "spell"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "EtherealKnivesAltX",
+      "name": "Ethereal Knives of Lingering Blades",
+      "tags": [
+        "duration",
+        "physical",
+        "projectile",
+        "spell"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "EtherealKnivesAltY",
+      "name": "Ethereal Knives of the Massacre",
+      "tags": [
+        "physical",
+        "projectile",
+        "spell"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "Eviscerate",
+      "name": "Eviscerate",
+      "tags": [
+        "attack",
+        "melee",
+        "physical"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "ExplosiveArrow",
+      "name": "Explosive Arrow",
+      "tags": [
+        "attack",
+        "duration",
+        "elemental",
+        "fire",
+        "projectile"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "ExplosiveConcoction",
+      "name": "Explosive Concoction",
+      "tags": [
+        "attack",
+        "cold",
+        "elemental",
+        "fire",
+        "lightning",
+        "projectile"
+      ],
+      "damage_types": [
+        "cold",
+        "fire",
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "ExplosiveConcoctionAltX",
+      "name": "Explosive Concoction of Destruction",
+      "tags": [
+        "attack",
+        "cold",
+        "elemental",
+        "fire",
+        "lightning",
+        "projectile"
+      ],
+      "damage_types": [
+        "cold",
+        "fire",
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "ExplosiveTrap",
+      "name": "Explosive Trap",
+      "tags": [
+        "elemental",
+        "fire",
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "fire",
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "ExplosiveTrapAltY",
+      "name": "Explosive Trap of Magnitude",
+      "tags": [
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "ExplosiveTrapAltX",
+      "name": "Explosive Trap of Shrapnel",
+      "tags": [
+        "elemental",
+        "fire",
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "fire",
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "Exsanguinate",
+      "name": "Exsanguinate",
+      "tags": [
+        "chaining",
+        "dot",
+        "duration",
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "ExsanguinateAltX",
+      "name": "Exsanguinate of Transmission",
+      "tags": [
+        "chaining",
+        "dot",
+        "duration",
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "EyeOfWinter",
+      "name": "Eye of Winter",
+      "tags": [
+        "cold",
+        "elemental",
+        "projectile",
+        "spell"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "EyeOfWinterAltX",
+      "name": "Eye of Winter of Finality",
+      "tags": [
+        "cold",
+        "elemental",
+        "projectile",
+        "spell"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "EyeOfWinterAltY",
+      "name": "Eye of Winter of Transience",
+      "tags": [
+        "cold",
+        "elemental",
+        "projectile",
+        "spell"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "FireTrap",
+      "name": "Fire Trap",
+      "tags": [
+        "dot",
+        "duration",
+        "elemental",
+        "fire",
+        "spell"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "FireTrapAltX",
+      "name": "Fire Trap of Blasting",
+      "tags": [
+        "dot",
+        "duration",
+        "elemental",
+        "fire",
+        "spell"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "Fireball",
+      "name": "Fireball",
+      "tags": [
+        "elemental",
+        "fire",
+        "projectile",
+        "spell"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "Firestorm",
+      "name": "Firestorm",
+      "tags": [
+        "duration",
+        "elemental",
+        "fire",
+        "spell"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "FirestormAltX",
+      "name": "Firestorm of Meteors",
+      "tags": [
+        "elemental",
+        "fire",
+        "spell"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "FirestormAltY",
+      "name": "Firestorm of Pelting",
+      "tags": [
+        "duration",
+        "elemental",
+        "fire",
+        "spell"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "FlameDash",
+      "name": "Flame Dash",
+      "tags": [
+        "dot",
+        "duration",
+        "elemental",
+        "fire",
+        "movement",
+        "spell"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "FlameDashAltY",
+      "name": "Flame Dash of Return",
+      "tags": [
+        "dot",
+        "duration",
+        "elemental",
+        "fire",
+        "movement",
+        "spell"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "FlameLink",
+      "name": "Flame Link",
+      "tags": [
+        "duration",
+        "elemental",
+        "fire",
+        "link",
+        "spell"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "FlameSurge",
+      "name": "Flame Surge",
+      "tags": [
+        "duration",
+        "elemental",
+        "fire",
+        "spell"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "FlameSurgeAltX",
+      "name": "Flame Surge of Combusting",
+      "tags": [
+        "duration",
+        "elemental",
+        "fire",
+        "spell"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "FlameWall",
+      "name": "Flame Wall",
+      "tags": [
+        "dot",
+        "duration",
+        "elemental",
+        "fire",
+        "spell"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "Flameblast",
+      "name": "Flameblast",
+      "tags": [
+        "channelling",
+        "elemental",
+        "fire",
+        "spell"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "FlameblastAltX",
+      "name": "Flameblast of Celerity",
+      "tags": [
+        "channelling",
+        "elemental",
+        "fire",
+        "spell"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "FlameblastAltY",
+      "name": "Flameblast of Contraction",
+      "tags": [
+        "channelling",
+        "elemental",
+        "fire",
+        "spell"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "FlamethrowerTrap",
+      "name": "Flamethrower Trap",
+      "tags": [
+        "duration",
+        "elemental",
+        "fire",
+        "spell"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "FlamethrowerTrapAltX",
+      "name": "Flamethrower Trap of Stability",
+      "tags": [
+        "duration",
+        "elemental",
+        "fire",
+        "spell"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "Flammability",
+      "name": "Flammability",
+      "tags": [
+        "curse",
+        "duration",
+        "elemental",
+        "fire",
+        "spell"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "FleshOffering",
+      "name": "Flesh Offering",
+      "tags": [
+        "duration",
+        "minion",
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "FleshAndStone",
+      "name": "Flesh and Stone",
+      "tags": [
+        "aura",
+        "physical",
+        "spell",
+        "stance"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "FlickerStrike",
+      "name": "Flicker Strike",
+      "tags": [
+        "attack",
+        "duration",
+        "melee",
+        "movement"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "FlickerStrikeAltX",
+      "name": "Flicker Strike of Power",
+      "tags": [
+        "attack",
+        "duration",
+        "melee",
+        "movement"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "ForbiddenRite",
+      "name": "Forbidden Rite",
+      "tags": [
+        "chaos",
+        "projectile",
+        "spell"
+      ],
+      "damage_types": [
+        "chaos"
+      ]
+    },
+    {
+      "skill_id": "ForbiddenRiteAltX",
+      "name": "Forbidden Rite of Soul Sacrifice",
+      "tags": [
+        "chaos",
+        "projectile",
+        "spell"
+      ],
+      "damage_types": [
+        "chaos"
+      ]
+    },
+    {
+      "skill_id": "FreezingPulse",
+      "name": "Freezing Pulse",
+      "tags": [
+        "cold",
+        "elemental",
+        "projectile",
+        "spell"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "Frenzy",
+      "name": "Frenzy",
+      "tags": [
+        "attack",
+        "projectile"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "FrenzyAltX",
+      "name": "Frenzy of Onslaught",
+      "tags": [
+        "attack",
+        "melee"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "FrostBlades",
+      "name": "Frost Blades",
+      "tags": [
+        "attack",
+        "cold",
+        "elemental",
+        "melee",
+        "projectile"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "FrostBladesAltX",
+      "name": "Frost Blades of Katabasis",
+      "tags": [
+        "attack",
+        "cold",
+        "dot",
+        "duration",
+        "elemental",
+        "melee"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "FrostBomb",
+      "name": "Frost Bomb",
+      "tags": [
+        "cold",
+        "duration",
+        "elemental",
+        "spell"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "FrostBombAltY",
+      "name": "Frost Bomb of Forthcoming",
+      "tags": [
+        "cold",
+        "duration",
+        "elemental",
+        "spell"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "FrostBombAltX",
+      "name": "Frost Bomb of Instability",
+      "tags": [
+        "cold",
+        "duration",
+        "elemental",
+        "spell"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "FrostShield",
+      "name": "Frost Shield",
+      "tags": [
+        "cold",
+        "duration",
+        "elemental",
+        "spell"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "FrostWall",
+      "name": "Frost Wall",
+      "tags": [
+        "cold",
+        "duration",
+        "elemental",
+        "spell"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "Frostbite",
+      "name": "Frostbite",
+      "tags": [
+        "cold",
+        "curse",
+        "duration",
+        "elemental",
+        "spell"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "Frostblink",
+      "name": "Frostblink",
+      "tags": [
+        "cold",
+        "duration",
+        "elemental",
+        "movement",
+        "spell"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "FrostblinkAltX",
+      "name": "Frostblink of Wintry Blast",
+      "tags": [
+        "cold",
+        "elemental",
+        "movement",
+        "spell"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "FrostBolt",
+      "name": "Frostbolt",
+      "tags": [
+        "cold",
+        "elemental",
+        "projectile",
+        "spell"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "FrozenLegion",
+      "name": "Frozen Legion",
+      "tags": [
+        "cold",
+        "elemental",
+        "spell"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "FrozenLegionAltX",
+      "name": "Frozen Legion of Rallying",
+      "tags": [
+        "cold",
+        "elemental",
+        "spell"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "FrozenSweep",
+      "name": "Frozen Sweep",
+      "tags": [
+        "attack",
+        "cold",
+        "elemental",
+        "melee"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "GalvanicArrow",
+      "name": "Galvanic Arrow",
+      "tags": [
+        "attack",
+        "elemental",
+        "lightning",
+        "projectile"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "GalvanicArrowAltX",
+      "name": "Galvanic Arrow of Energy",
+      "tags": [
+        "attack",
+        "elemental",
+        "lightning"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "GalvanicArrowAltY",
+      "name": "Galvanic Arrow of Surging",
+      "tags": [
+        "attack",
+        "elemental",
+        "lightning",
+        "projectile"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "GalvanicField",
+      "name": "Galvanic Field",
+      "tags": [
+        "chaining",
+        "duration",
+        "elemental",
+        "lightning",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "GalvanicFieldAltX",
+      "name": "Galvanic Field of Intensity",
+      "tags": [
+        "chaining",
+        "duration",
+        "elemental",
+        "lightning",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "GeneralsCry",
+      "name": "General's Cry",
+      "tags": [
+        "duration",
+        "warcry"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "GlacialCascade",
+      "name": "Glacial Cascade",
+      "tags": [
+        "cold",
+        "elemental",
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "cold",
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "GlacialCascadeAltX",
+      "name": "Glacial Cascade of the Fissure",
+      "tags": [
+        "cold",
+        "elemental",
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "cold",
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "GlacialHammer",
+      "name": "Glacial Hammer",
+      "tags": [
+        "attack",
+        "cold",
+        "elemental",
+        "melee"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "GlacialHammerAltX",
+      "name": "Glacial Hammer of Shattering",
+      "tags": [
+        "attack",
+        "cold",
+        "elemental",
+        "melee"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "GlacialShieldSwipe",
+      "name": "Glacial Shield Swipe",
+      "tags": [
+        "attack",
+        "cold",
+        "elemental",
+        "melee",
+        "physical"
+      ],
+      "damage_types": [
+        "cold",
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "Grace",
+      "name": "Grace",
+      "tags": [
+        "aura",
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "GroundSlam",
+      "name": "Ground Slam",
+      "tags": [
+        "attack",
+        "melee",
+        "slam"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "GroundSlamAltX",
+      "name": "Ground Slam of Earthshaking",
+      "tags": [
+        "attack",
+        "melee",
+        "slam"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "Haste",
+      "name": "Haste",
+      "tags": [
+        "aura",
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "Hatred",
+      "name": "Hatred",
+      "tags": [
+        "aura",
+        "cold",
+        "elemental",
+        "spell"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "HeavyStrike",
+      "name": "Heavy Strike",
+      "tags": [
+        "attack",
+        "melee"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "HeavyStrikeAltY",
+      "name": "Heavy Strike of Trarthus",
+      "tags": [
+        "attack",
+        "melee"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "HeraldOfAgony",
+      "name": "Herald of Agony",
+      "tags": [
+        "chaos",
+        "herald",
+        "minion",
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "chaos",
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "HeraldOfAsh",
+      "name": "Herald of Ash",
+      "tags": [
+        "dot",
+        "duration",
+        "elemental",
+        "fire",
+        "herald",
+        "spell"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "HeraldOfIce",
+      "name": "Herald of Ice",
+      "tags": [
+        "cold",
+        "elemental",
+        "herald",
+        "spell"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "HeraldOfPurity",
+      "name": "Herald of Purity",
+      "tags": [
+        "duration",
+        "herald",
+        "minion",
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "HeraldOfThunder",
+      "name": "Herald of Thunder",
+      "tags": [
+        "duration",
+        "elemental",
+        "herald",
+        "lightning",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "Hexblast",
+      "name": "Hexblast",
+      "tags": [
+        "chaos",
+        "curse",
+        "spell"
+      ],
+      "damage_types": [
+        "chaos"
+      ]
+    },
+    {
+      "skill_id": "HexblastAltX",
+      "name": "Hexblast of Contradiction",
+      "tags": [
+        "chaos",
+        "curse",
+        "spell"
+      ],
+      "damage_types": [
+        "chaos"
+      ]
+    },
+    {
+      "skill_id": "HexblastAltY",
+      "name": "Hexblast of Havoc",
+      "tags": [
+        "chaos",
+        "curse",
+        "spell"
+      ],
+      "damage_types": [
+        "chaos"
+      ]
+    },
+    {
+      "skill_id": "HolyFlameTotem",
+      "name": "Holy Flame Totem",
+      "tags": [
+        "channelling",
+        "elemental",
+        "fire",
+        "physical",
+        "projectile",
+        "spell"
+      ],
+      "damage_types": [
+        "fire",
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "HolyFlameTotemAltX",
+      "name": "Holy Flame Totem of Ire",
+      "tags": [
+        "channelling",
+        "elemental",
+        "fire",
+        "physical",
+        "projectile",
+        "spell"
+      ],
+      "damage_types": [
+        "fire",
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "HolyHammers",
+      "name": "Holy Hammers",
+      "tags": [
+        "attack",
+        "elemental",
+        "lightning",
+        "melee",
+        "slam"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "HolyStrike",
+      "name": "Holy Strike",
+      "tags": [
+        "attack",
+        "duration",
+        "elemental",
+        "lightning",
+        "melee",
+        "minion"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "Sweep",
+      "name": "Holy Sweep",
+      "tags": [
+        "attack",
+        "elemental",
+        "lightning",
+        "melee"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "Hydrosphere",
+      "name": "Hydrosphere",
+      "tags": [
+        "cold",
+        "duration",
+        "elemental",
+        "lightning",
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "cold",
+        "lightning",
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "IceCrash",
+      "name": "Ice Crash",
+      "tags": [
+        "attack",
+        "cold",
+        "elemental",
+        "melee",
+        "slam"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "IceCrashAltX",
+      "name": "Ice Crash of Cadence",
+      "tags": [
+        "attack",
+        "cold",
+        "elemental",
+        "melee",
+        "slam"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "IceNova",
+      "name": "Ice Nova",
+      "tags": [
+        "cold",
+        "elemental",
+        "spell"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "IceNovaAltY",
+      "name": "Ice Nova of Deep Freeze",
+      "tags": [
+        "cold",
+        "elemental",
+        "spell"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "IceNovaAltX",
+      "name": "Ice Nova of Frostbolts",
+      "tags": [
+        "cold",
+        "elemental",
+        "spell"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "IceShot",
+      "name": "Ice Shot",
+      "tags": [
+        "attack",
+        "cold",
+        "elemental",
+        "projectile"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "IceShotAltX",
+      "name": "Ice Shot of Penetration",
+      "tags": [
+        "attack",
+        "cold",
+        "elemental",
+        "projectile"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "IceSpear",
+      "name": "Ice Spear",
+      "tags": [
+        "cold",
+        "elemental",
+        "projectile",
+        "spell"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "IceSpearAltX",
+      "name": "Ice Spear of Splitting",
+      "tags": [
+        "cold",
+        "elemental",
+        "projectile",
+        "spell"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "IceTrap",
+      "name": "Ice Trap",
+      "tags": [
+        "cold",
+        "elemental",
+        "spell"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "IceTrapAltX",
+      "name": "Ice Trap of Hollowness",
+      "tags": [
+        "cold",
+        "elemental",
+        "spell"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "IcicleMine",
+      "name": "Icicle Mine",
+      "tags": [
+        "aura",
+        "cold",
+        "elemental",
+        "projectile",
+        "spell"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "IcicleMineAltX",
+      "name": "Icicle Mine of Fanning",
+      "tags": [
+        "aura",
+        "cold",
+        "elemental",
+        "projectile",
+        "spell"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "IcicleMineAltY",
+      "name": "Icicle Mine of Sabotage",
+      "tags": [
+        "aura",
+        "cold",
+        "elemental",
+        "projectile",
+        "spell"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "ImmortalCall",
+      "name": "Immortal Call",
+      "tags": [
+        "duration",
+        "guard",
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "Incinerate",
+      "name": "Incinerate",
+      "tags": [
+        "channelling",
+        "elemental",
+        "fire",
+        "spell"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "IncinerateAltX",
+      "name": "Incinerate of Expanse",
+      "tags": [
+        "channelling",
+        "elemental",
+        "fire",
+        "spell"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "IncinerateAltY",
+      "name": "Incinerate of Venting",
+      "tags": [
+        "channelling",
+        "elemental",
+        "fire",
+        "spell"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "InfernalBlow",
+      "name": "Infernal Blow",
+      "tags": [
+        "attack",
+        "duration",
+        "elemental",
+        "fire",
+        "melee"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "InfernalBlowAltX",
+      "name": "Infernal Blow of Immolation",
+      "tags": [
+        "attack",
+        "duration",
+        "elemental",
+        "fire",
+        "melee"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "InfernalCry",
+      "name": "Infernal Cry",
+      "tags": [
+        "duration",
+        "elemental",
+        "fire",
+        "warcry"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "IntimidatingCry",
+      "name": "Intimidating Cry",
+      "tags": [
+        "duration",
+        "physical",
+        "warcry"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "IntuitiveLink",
+      "name": "Intuitive Link",
+      "tags": [
+        "duration",
+        "link",
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "KineticRainKineticInstability",
+      "name": "Kinetic Anomaly",
+      "tags": [
+        "attack",
+        "duration",
+        "triggered"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "KineticBlast",
+      "name": "Kinetic Blast",
+      "tags": [
+        "attack",
+        "projectile"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "KineticBlastAltX",
+      "name": "Kinetic Blast of Clustering",
+      "tags": [
+        "attack",
+        "physical",
+        "projectile"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "KineticBolt",
+      "name": "Kinetic Bolt",
+      "tags": [
+        "attack",
+        "projectile"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "KineticBoltAltX",
+      "name": "Kinetic Bolt of Fragmentation",
+      "tags": [
+        "attack",
+        "projectile"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "KineticFusillade",
+      "name": "Kinetic Fusillade",
+      "tags": [
+        "attack",
+        "duration",
+        "projectile"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "KineticFusilladeAltX",
+      "name": "Kinetic Fusillade of Detonation",
+      "tags": [
+        "attack",
+        "duration",
+        "projectile"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "KineticRain",
+      "name": "Kinetic Rain",
+      "tags": [
+        "attack",
+        "projectile"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "KineticRainAltX",
+      "name": "Kinetic Rain of Impact",
+      "tags": [
+        "attack",
+        "projectile"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "Lacerate",
+      "name": "Lacerate",
+      "tags": [
+        "attack",
+        "melee",
+        "physical"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "LacerateAltX",
+      "name": "Lacerate of Butchering",
+      "tags": [
+        "attack",
+        "melee"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "LacerateAltY",
+      "name": "Lacerate of Haemorrhage",
+      "tags": [
+        "attack",
+        "melee",
+        "physical"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "LancingSteel",
+      "name": "Lancing Steel",
+      "tags": [
+        "attack",
+        "physical",
+        "projectile"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "LancingSteelAltX",
+      "name": "Lancing Steel of Spraying",
+      "tags": [
+        "attack",
+        "projectile"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "LeapSlam",
+      "name": "Leap Slam",
+      "tags": [
+        "attack",
+        "melee",
+        "movement",
+        "slam"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "LeapSlamAltX",
+      "name": "Leap Slam of Groundbreaking",
+      "tags": [
+        "attack",
+        "melee",
+        "movement",
+        "slam"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "LightningArrow",
+      "name": "Lightning Arrow",
+      "tags": [
+        "attack",
+        "elemental",
+        "lightning",
+        "projectile"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "LightningArrowAltX",
+      "name": "Lightning Arrow of Electrocution",
+      "tags": [
+        "attack",
+        "elemental",
+        "lightning",
+        "projectile"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "LightningConduit",
+      "name": "Lightning Conduit",
+      "tags": [
+        "elemental",
+        "lightning",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "LightningConduitAltX",
+      "name": "Lightning Conduit of the Heavens",
+      "tags": [
+        "elemental",
+        "lightning",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "LightningSpireTrap",
+      "name": "Lightning Spire Trap",
+      "tags": [
+        "duration",
+        "elemental",
+        "lightning",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "LightningSpireTrapAltY",
+      "name": "Lightning Spire Trap of Overloading",
+      "tags": [
+        "duration",
+        "elemental",
+        "lightning",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "LightningSpireTrapAltX",
+      "name": "Lightning Spire Trap of Zapping",
+      "tags": [
+        "duration",
+        "elemental",
+        "lightning",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "LightningStrike",
+      "name": "Lightning Strike",
+      "tags": [
+        "attack",
+        "elemental",
+        "lightning",
+        "melee",
+        "projectile"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "LightningStrikeAltX",
+      "name": "Lightning Strike of Arcing",
+      "tags": [
+        "attack",
+        "chaining",
+        "elemental",
+        "lightning",
+        "melee",
+        "projectile"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "LightningTendrils",
+      "name": "Lightning Tendrils",
+      "tags": [
+        "channelling",
+        "elemental",
+        "lightning",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "LightningTendrilsAltX",
+      "name": "Lightning Tendrils of Eccentricity",
+      "tags": [
+        "channelling",
+        "elemental",
+        "lightning",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "LightningTendrilsAltY",
+      "name": "Lightning Tendrils of Escalation",
+      "tags": [
+        "channelling",
+        "elemental",
+        "lightning",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "LightningTrap",
+      "name": "Lightning Trap",
+      "tags": [
+        "elemental",
+        "lightning",
+        "projectile",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "LightningTrapAltX",
+      "name": "Lightning Trap of Sparking",
+      "tags": [
+        "elemental",
+        "lightning",
+        "projectile",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "LightningWarp",
+      "name": "Lightning Warp",
+      "tags": [
+        "duration",
+        "elemental",
+        "lightning",
+        "movement",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "Malevolence",
+      "name": "Malevolence",
+      "tags": [
+        "aura",
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "Manabond",
+      "name": "Manabond",
+      "tags": [
+        "elemental",
+        "lightning",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "MirrorArrow",
+      "name": "Mirror Arrow",
+      "tags": [
+        "attack",
+        "duration",
+        "minion",
+        "movement"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "MirrorArrowAltX",
+      "name": "Mirror Arrow of Bombarding Clones",
+      "tags": [
+        "attack",
+        "duration",
+        "minion",
+        "movement"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "MirrorArrowAltY",
+      "name": "Mirror Arrow of Prismatic Clones",
+      "tags": [
+        "attack",
+        "duration",
+        "minion",
+        "movement"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "MoltenShell",
+      "name": "Molten Shell",
+      "tags": [
+        "duration",
+        "elemental",
+        "fire",
+        "guard",
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "fire",
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "MoltenStrike",
+      "name": "Molten Strike",
+      "tags": [
+        "attack",
+        "elemental",
+        "fire",
+        "melee",
+        "projectile"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "MoltenStrikeAltX",
+      "name": "Molten Strike of the Zenith",
+      "tags": [
+        "attack",
+        "elemental",
+        "fire",
+        "melee",
+        "projectile"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "OrbOfStorms",
+      "name": "Orb of Storms",
+      "tags": [
+        "chaining",
+        "elemental",
+        "lightning",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "OrbOfStormsAltX",
+      "name": "Orb of Storms of Squalls",
+      "tags": [
+        "chaining",
+        "elemental",
+        "lightning",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "PenanceBrand",
+      "name": "Penance Brand",
+      "tags": [
+        "brand",
+        "duration",
+        "elemental",
+        "lightning",
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning",
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "PenanceBrandAltY",
+      "name": "Penance Brand of Conduction",
+      "tags": [
+        "brand",
+        "duration",
+        "elemental",
+        "lightning",
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning",
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "PenanceBrandAltX",
+      "name": "Penance Brand of Dissipation",
+      "tags": [
+        "brand",
+        "duration",
+        "elemental",
+        "lightning",
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning",
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "Perforate",
+      "name": "Perforate",
+      "tags": [
+        "attack",
+        "melee",
+        "slam"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "PerforateAltY",
+      "name": "Perforate of Bloodshed",
+      "tags": [
+        "attack",
+        "melee",
+        "slam"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "PerforateAltX",
+      "name": "Perforate of Duality",
+      "tags": [
+        "attack",
+        "melee",
+        "slam"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "PestilentStrike",
+      "name": "Pestilent Strike",
+      "tags": [
+        "attack",
+        "chaos",
+        "duration",
+        "melee"
+      ],
+      "damage_types": [
+        "chaos"
+      ]
+    },
+    {
+      "skill_id": "PetrifiedBlood",
+      "name": "Petrified Blood",
+      "tags": [
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "PhaseRun",
+      "name": "Phase Run",
+      "tags": [
+        "duration",
+        "movement",
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "PlagueBearer",
+      "name": "Plague Bearer",
+      "tags": [
+        "chaos",
+        "spell"
+      ],
+      "damage_types": [
+        "chaos"
+      ]
+    },
+    {
+      "skill_id": "PoachersMark",
+      "name": "Poacher's Mark",
+      "tags": [
+        "curse",
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "PoisonousConcoction",
+      "name": "Poisonous Concoction",
+      "tags": [
+        "attack",
+        "chaos",
+        "projectile"
+      ],
+      "damage_types": [
+        "chaos"
+      ]
+    },
+    {
+      "skill_id": "PoisonousConcoctionAltX",
+      "name": "Poisonous Concoction of Bouncing",
+      "tags": [
+        "attack",
+        "chaining",
+        "chaos",
+        "projectile"
+      ],
+      "damage_types": [
+        "chaos"
+      ]
+    },
+    {
+      "skill_id": "Portal",
+      "name": "Portal",
+      "tags": [
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "PowerSiphon",
+      "name": "Power Siphon",
+      "tags": [
+        "attack",
+        "projectile"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "PowerSiphonAltX",
+      "name": "Power Siphon of the Archmage",
+      "tags": [
+        "attack",
+        "elemental",
+        "lightning",
+        "projectile"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "Precision",
+      "name": "Precision",
+      "tags": [
+        "aura",
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "Pride",
+      "name": "Pride",
+      "tags": [
+        "aura",
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "ProtectiveLink",
+      "name": "Protective Link",
+      "tags": [
+        "duration",
+        "link",
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "Puncture",
+      "name": "Puncture",
+      "tags": [
+        "attack",
+        "dot",
+        "duration",
+        "physical",
+        "projectile"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "PunctureAltX",
+      "name": "Puncture of Shanking",
+      "tags": [
+        "attack",
+        "dot",
+        "duration",
+        "melee",
+        "physical"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "Punishment",
+      "name": "Punishment",
+      "tags": [
+        "curse",
+        "duration",
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "PurifyingFlame",
+      "name": "Purifying Flame",
+      "tags": [
+        "duration",
+        "elemental",
+        "fire",
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "fire",
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "PurifyingFlameAltX",
+      "name": "Purifying Flame of Revelations",
+      "tags": [
+        "duration",
+        "elemental",
+        "fire",
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "fire",
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "PurityOfElements",
+      "name": "Purity of Elements",
+      "tags": [
+        "aura",
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "PurityOfFire",
+      "name": "Purity of Fire",
+      "tags": [
+        "aura",
+        "elemental",
+        "fire",
+        "spell"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "PurityOfIce",
+      "name": "Purity of Ice",
+      "tags": [
+        "aura",
+        "cold",
+        "elemental",
+        "spell"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "PurityOfLightning",
+      "name": "Purity of Lightning",
+      "tags": [
+        "aura",
+        "elemental",
+        "lightning",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "PyroclastMine",
+      "name": "Pyroclast Mine",
+      "tags": [
+        "aura",
+        "elemental",
+        "fire",
+        "projectile",
+        "spell"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "PyroclastMineAltX",
+      "name": "Pyroclast Mine of Sabotage",
+      "tags": [
+        "aura",
+        "elemental",
+        "fire",
+        "projectile",
+        "spell"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "QuickstepHardMode",
+      "name": "Quickstep",
+      "tags": [
+        "movement",
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "RageVortex",
+      "name": "Rage Vortex",
+      "tags": [
+        "attack",
+        "duration",
+        "melee"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "RageVortexAltX",
+      "name": "Rage Vortex of Berserking",
+      "tags": [
+        "attack",
+        "melee"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "RainOfArrows",
+      "name": "Rain of Arrows",
+      "tags": [
+        "attack"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "RainOfArrowsAltX",
+      "name": "Rain of Arrows of Artillery",
+      "tags": [
+        "attack"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "RainOfArrowsAltY",
+      "name": "Rain of Arrows of Saturation",
+      "tags": [
+        "attack"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "RaiseSpectre",
+      "name": "Raise Spectre",
+      "tags": [
+        "minion",
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "RaiseSpectreAltX",
+      "name": "Raise Spectre of Transience",
+      "tags": [
+        "duration",
+        "minion",
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "RaiseZombie",
+      "name": "Raise Zombie",
+      "tags": [
+        "minion",
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "RaiseZombieAltY",
+      "name": "Raise Zombie of Falling",
+      "tags": [
+        "minion",
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "RaiseZombieAltX",
+      "name": "Raise Zombie of Slamming",
+      "tags": [
+        "minion",
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "RallyingCry",
+      "name": "Rallying Cry",
+      "tags": [
+        "duration",
+        "warcry"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "Reap",
+      "name": "Reap",
+      "tags": [
+        "dot",
+        "duration",
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "Reave",
+      "name": "Reave",
+      "tags": [
+        "attack",
+        "melee"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "ReaveAltX",
+      "name": "Reave of Refraction",
+      "tags": [
+        "attack",
+        "melee"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "RejuvenationTotem",
+      "name": "Rejuvenation Totem",
+      "tags": [
+        "aura",
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "RighteousFire",
+      "name": "Righteous Fire",
+      "tags": [
+        "dot",
+        "elemental",
+        "fire",
+        "spell"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "RighteousFireAltX",
+      "name": "Righteous Fire of Arcane Devotion",
+      "tags": [
+        "dot",
+        "elemental",
+        "fire",
+        "spell"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "RollingMagma",
+      "name": "Rolling Magma",
+      "tags": [
+        "chaining",
+        "elemental",
+        "fire",
+        "projectile",
+        "spell"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "RuneBlast",
+      "name": "Rune Blast",
+      "tags": [
+        "channelling",
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "RuneBlastAltX",
+      "name": "Rune Blast of Teleportation",
+      "tags": [
+        "channelling",
+        "movement",
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "ScorchingRay",
+      "name": "Scorching Ray",
+      "tags": [
+        "channelling",
+        "dot",
+        "duration",
+        "elemental",
+        "fire",
+        "spell"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "ScorchingRayAltX",
+      "name": "Scorching Ray of Immolation",
+      "tags": [
+        "channelling",
+        "dot",
+        "duration",
+        "elemental",
+        "fire",
+        "spell"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "ScourgeArrow",
+      "name": "Scourge Arrow",
+      "tags": [
+        "attack",
+        "channelling",
+        "chaos",
+        "projectile"
+      ],
+      "damage_types": [
+        "chaos"
+      ]
+    },
+    {
+      "skill_id": "ScourgeArrowAltX",
+      "name": "Scourge Arrow of Menace",
+      "tags": [
+        "attack",
+        "chaos",
+        "projectile"
+      ],
+      "damage_types": [
+        "chaos"
+      ]
+    },
+    {
+      "skill_id": "SearingBond",
+      "name": "Searing Bond",
+      "tags": [
+        "dot",
+        "elemental",
+        "fire",
+        "spell"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "SearingBondAltX",
+      "name": "Searing Bond of Detonation",
+      "tags": [
+        "dot",
+        "duration",
+        "elemental",
+        "fire",
+        "spell"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "SeismicCry",
+      "name": "Seismic Cry",
+      "tags": [
+        "duration",
+        "warcry"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "SeismicTrap",
+      "name": "Seismic Trap",
+      "tags": [
+        "duration",
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "SeismicTrapAltX",
+      "name": "Seismic Trap of Swells",
+      "tags": [
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "ShatteringSteel",
+      "name": "Shattering Steel",
+      "tags": [
+        "attack",
+        "physical",
+        "projectile"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "ShatteringSteelAltX",
+      "name": "Shattering Steel of Ammunition",
+      "tags": [
+        "attack",
+        "duration",
+        "physical",
+        "projectile"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "ShieldCharge",
+      "name": "Shield Charge",
+      "tags": [
+        "attack",
+        "melee",
+        "movement",
+        "physical"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "ShieldCrush",
+      "name": "Shield Crush",
+      "tags": [
+        "attack",
+        "melee",
+        "physical"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "ShieldCrushAltX",
+      "name": "Shield Crush of the Chieftain",
+      "tags": [
+        "attack",
+        "elemental",
+        "fire",
+        "melee"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "ShieldOfLight",
+      "name": "Shield of Light",
+      "tags": [
+        "attack",
+        "elemental",
+        "lightning",
+        "melee",
+        "physical"
+      ],
+      "damage_types": [
+        "lightning",
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "ShockNova",
+      "name": "Shock Nova",
+      "tags": [
+        "elemental",
+        "lightning",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "ShockNovaAltX",
+      "name": "Shock Nova of Procession",
+      "tags": [
+        "elemental",
+        "lightning",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "ShockwaveTotem",
+      "name": "Shockwave Totem",
+      "tags": [
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "ShockwaveTotemAltX",
+      "name": "Shockwave Totem of Authority",
+      "tags": [
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "ShrapnelBallista",
+      "name": "Shrapnel Ballista",
+      "tags": [
+        "attack",
+        "projectile"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "ShrapnelBallistaAltX",
+      "name": "Shrapnel Ballista of Steel",
+      "tags": [
+        "attack",
+        "physical",
+        "projectile"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "SiegeBallista",
+      "name": "Siege Ballista",
+      "tags": [
+        "attack",
+        "projectile"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "SiegeBallistaAltX",
+      "name": "Siege Ballista of Splintering",
+      "tags": [
+        "attack",
+        "projectile"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "SiegeBallistaAltY",
+      "name": "Siege Ballista of Trarthus",
+      "tags": [
+        "attack",
+        "projectile"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "SigilOfPower",
+      "name": "Sigil of Power",
+      "tags": [
+        "duration",
+        "elemental",
+        "lightning",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "SiphoningTrap",
+      "name": "Siphoning Trap",
+      "tags": [
+        "cold",
+        "dot",
+        "duration",
+        "elemental",
+        "spell"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "SiphoningTrapAltX",
+      "name": "Siphoning Trap of Pain",
+      "tags": [
+        "cold",
+        "dot",
+        "duration",
+        "elemental",
+        "spell"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "Smite",
+      "name": "Smite",
+      "tags": [
+        "attack",
+        "aura",
+        "duration",
+        "elemental",
+        "lightning",
+        "melee"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "SmiteAltX",
+      "name": "Smite of Divine Judgement",
+      "tags": [
+        "attack",
+        "elemental",
+        "lightning",
+        "melee"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "SmokeMine",
+      "name": "Smoke Mine",
+      "tags": [
+        "duration",
+        "movement",
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "Snipe",
+      "name": "Snipe",
+      "tags": [
+        "attack",
+        "channelling",
+        "physical",
+        "projectile"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "SnipersMark",
+      "name": "Sniper's Mark",
+      "tags": [
+        "curse",
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "SomaticShell",
+      "name": "Somatic Shell",
+      "tags": [
+        "attack",
+        "duration",
+        "physical",
+        "projectile"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "SoulLink",
+      "name": "Soul Link",
+      "tags": [
+        "duration",
+        "link",
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "Soulrend",
+      "name": "Soulrend",
+      "tags": [
+        "chaos",
+        "dot",
+        "duration",
+        "projectile",
+        "spell"
+      ],
+      "damage_types": [
+        "chaos"
+      ]
+    },
+    {
+      "skill_id": "SoulrendAltX",
+      "name": "Soulrend of Reaping",
+      "tags": [
+        "chaos",
+        "projectile",
+        "spell"
+      ],
+      "damage_types": [
+        "chaos"
+      ]
+    },
+    {
+      "skill_id": "SoulrendAltY",
+      "name": "Soulrend of the Spiral",
+      "tags": [
+        "chaos",
+        "dot",
+        "duration",
+        "projectile",
+        "spell"
+      ],
+      "damage_types": [
+        "chaos"
+      ]
+    },
+    {
+      "skill_id": "Spark",
+      "name": "Spark",
+      "tags": [
+        "duration",
+        "elemental",
+        "lightning",
+        "projectile",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "SparkAltY",
+      "name": "Spark of Unpredictability",
+      "tags": [
+        "duration",
+        "elemental",
+        "lightning",
+        "projectile",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "SparkAltX",
+      "name": "Spark of the Nova",
+      "tags": [
+        "duration",
+        "elemental",
+        "lightning",
+        "projectile",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "SpectralHelix",
+      "name": "Spectral Helix",
+      "tags": [
+        "attack",
+        "projectile"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "SpectralHelixAltY",
+      "name": "Spectral Helix of Trarthus",
+      "tags": [
+        "attack",
+        "projectile"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "SpectralShieldThrow",
+      "name": "Spectral Shield Throw",
+      "tags": [
+        "attack",
+        "physical",
+        "projectile"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "SpectralShieldThrowAltX",
+      "name": "Spectral Shield Throw of Shattering",
+      "tags": [
+        "attack",
+        "cold",
+        "elemental",
+        "projectile"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "SpectralShieldThrowAltY",
+      "name": "Spectral Shield Throw of Trarthus",
+      "tags": [
+        "attack",
+        "physical",
+        "projectile"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "SpectralThrow",
+      "name": "Spectral Throw",
+      "tags": [
+        "attack",
+        "projectile"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "SpectralThrowAltX",
+      "name": "Spectral Throw of Materialising",
+      "tags": [
+        "attack",
+        "projectile"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "SpectralThrowAltY",
+      "name": "Spectral Throw of Trarthus",
+      "tags": [
+        "attack",
+        "projectile"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "Spellslinger",
+      "name": "Spellslinger",
+      "tags": [
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "SpiritOffering",
+      "name": "Spirit Offering",
+      "tags": [
+        "duration",
+        "minion",
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "SplitArrow",
+      "name": "Split Arrow",
+      "tags": [
+        "attack",
+        "projectile"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "SplitArrowAltX",
+      "name": "Split Arrow of Splitting",
+      "tags": [
+        "attack",
+        "projectile"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "SplittingSteel",
+      "name": "Splitting Steel",
+      "tags": [
+        "attack",
+        "physical",
+        "projectile"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "SplittingSteelAltX",
+      "name": "Splitting Steel of Ammunition",
+      "tags": [
+        "attack",
+        "physical",
+        "projectile"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "StaticStrike",
+      "name": "Static Strike",
+      "tags": [
+        "attack",
+        "chaining",
+        "duration",
+        "elemental",
+        "lightning",
+        "melee"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "StaticStrikeAltX",
+      "name": "Static Strike of Gathering Lightning",
+      "tags": [
+        "attack",
+        "chaining",
+        "duration",
+        "elemental",
+        "lightning",
+        "melee"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "QuickGuard",
+      "name": "Steelskin",
+      "tags": [
+        "duration",
+        "guard",
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "StormBrand",
+      "name": "Storm Brand",
+      "tags": [
+        "brand",
+        "chaining",
+        "duration",
+        "elemental",
+        "lightning",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "StormBrandAltX",
+      "name": "Storm Brand of Indecision",
+      "tags": [
+        "brand",
+        "chaining",
+        "duration",
+        "elemental",
+        "lightning",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "StormBurst",
+      "name": "Storm Burst",
+      "tags": [
+        "channelling",
+        "duration",
+        "elemental",
+        "lightning",
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning",
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "StormBurstAltX",
+      "name": "Storm Burst of Repulsion",
+      "tags": [
+        "channelling",
+        "duration",
+        "elemental",
+        "lightning",
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning",
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "StormCall",
+      "name": "Storm Call",
+      "tags": [
+        "duration",
+        "elemental",
+        "lightning",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "StormCallAltX",
+      "name": "Storm Call of Trarthus",
+      "tags": [
+        "dot",
+        "duration",
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "StormRain",
+      "name": "Storm Rain",
+      "tags": [
+        "attack",
+        "elemental",
+        "lightning"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "StormRainAltX",
+      "name": "Storm Rain of the Conduit",
+      "tags": [
+        "attack",
+        "elemental",
+        "lightning"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "StormRainAltY",
+      "name": "Storm Rain of the Fence",
+      "tags": [
+        "attack",
+        "elemental",
+        "lightning"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "Stormbind",
+      "name": "Stormbind",
+      "tags": [
+        "channelling",
+        "duration",
+        "elemental",
+        "lightning",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "StormbindAltX",
+      "name": "Stormbind of Teleportation",
+      "tags": [
+        "channelling",
+        "duration",
+        "elemental",
+        "lightning",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "StormblastMine",
+      "name": "Stormblast Mine",
+      "tags": [
+        "aura",
+        "elemental",
+        "lightning",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "SummonCarrionGolem",
+      "name": "Summon Carrion Golem",
+      "tags": [
+        "minion",
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "SummonCarrionGolemAltX",
+      "name": "Summon Carrion Golem of Hordes",
+      "tags": [
+        "minion",
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "SummonCarrionGolemAltY",
+      "name": "Summon Carrion Golem of Scavenging",
+      "tags": [
+        "minion",
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "SummonChaosGolem",
+      "name": "Summon Chaos Golem",
+      "tags": [
+        "chaos",
+        "minion",
+        "spell"
+      ],
+      "damage_types": [
+        "chaos"
+      ]
+    },
+    {
+      "skill_id": "SummonChaosGolemAltX",
+      "name": "Summon Chaos Golem of Hordes",
+      "tags": [
+        "chaos",
+        "minion",
+        "spell"
+      ],
+      "damage_types": [
+        "chaos"
+      ]
+    },
+    {
+      "skill_id": "SummonChaosGolemAltY",
+      "name": "Summon Chaos Golem of the Maelström",
+      "tags": [
+        "chaos",
+        "minion",
+        "spell"
+      ],
+      "damage_types": [
+        "chaos"
+      ]
+    },
+    {
+      "skill_id": "SummonFlameGolem",
+      "name": "Summon Flame Golem",
+      "tags": [
+        "elemental",
+        "fire",
+        "minion",
+        "spell"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "SummonFlameGolemAltX",
+      "name": "Summon Flame Golem of Hordes",
+      "tags": [
+        "elemental",
+        "fire",
+        "minion",
+        "spell"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "SummonFlameGolemAltY",
+      "name": "Summon Flame Golem of the Meteor",
+      "tags": [
+        "elemental",
+        "fire",
+        "minion",
+        "spell"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "SummonHolyRelic",
+      "name": "Summon Holy Relic",
+      "tags": [
+        "minion",
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "SummonHolyRelicAltX",
+      "name": "Summon Holy Relic of Conviction",
+      "tags": [
+        "minion",
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "SummonIceGolem",
+      "name": "Summon Ice Golem",
+      "tags": [
+        "cold",
+        "elemental",
+        "minion",
+        "spell"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "SummonIceGolemAltX",
+      "name": "Summon Ice Golem of Hordes",
+      "tags": [
+        "cold",
+        "elemental",
+        "minion",
+        "spell"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "SummonIceGolemAltY",
+      "name": "Summon Ice Golem of Shattering",
+      "tags": [
+        "cold",
+        "elemental",
+        "minion",
+        "spell"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "SummonLightningGolem",
+      "name": "Summon Lightning Golem",
+      "tags": [
+        "elemental",
+        "lightning",
+        "minion",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "SummonLightningGolemAltX",
+      "name": "Summon Lightning Golem of Hordes",
+      "tags": [
+        "elemental",
+        "lightning",
+        "minion",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "SummonRagingSpirit",
+      "name": "Summon Raging Spirit",
+      "tags": [
+        "duration",
+        "elemental",
+        "fire",
+        "minion",
+        "spell"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "SummonRagingSpiritAltX",
+      "name": "Summon Raging Spirit of Enormity",
+      "tags": [
+        "duration",
+        "elemental",
+        "fire",
+        "minion",
+        "spell"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "SummonReaper",
+      "name": "Summon Reaper",
+      "tags": [
+        "minion",
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "SummonReaperAltY",
+      "name": "Summon Reaper of Eviscerating",
+      "tags": [
+        "minion",
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "SummonReaperAltX",
+      "name": "Summon Reaper of Revenants",
+      "tags": [
+        "minion",
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "SummonSkeletons",
+      "name": "Summon Skeletons",
+      "tags": [
+        "duration",
+        "minion",
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "SummonSkeletonsAltX",
+      "name": "Summon Skeletons of Archers",
+      "tags": [
+        "duration",
+        "minion",
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "SummonSkeletonsAltY",
+      "name": "Summon Skeletons of Mages",
+      "tags": [
+        "duration",
+        "minion",
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "SummonSkitterbots",
+      "name": "Summon Skitterbots",
+      "tags": [
+        "aura",
+        "cold",
+        "elemental",
+        "lightning",
+        "minion",
+        "spell"
+      ],
+      "damage_types": [
+        "cold",
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "SummonStoneGolem",
+      "name": "Summon Stone Golem",
+      "tags": [
+        "minion",
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "SummonStoneGolemAltX",
+      "name": "Summon Stone Golem of Hordes",
+      "tags": [
+        "minion",
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "SummonStoneGolemAltY",
+      "name": "Summon Stone Golem of Safeguarding",
+      "tags": [
+        "minion",
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "Sunder",
+      "name": "Sunder",
+      "tags": [
+        "attack",
+        "melee",
+        "slam"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "SunderAltX",
+      "name": "Sunder of Earthbreaking",
+      "tags": [
+        "attack",
+        "melee",
+        "slam"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "SunderAltY",
+      "name": "Sunder of Trarthus",
+      "tags": [
+        "attack",
+        "melee",
+        "slam"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "Swordstorm",
+      "name": "Swordstorm",
+      "tags": [
+        "attack",
+        "melee"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "TectonicSlam",
+      "name": "Tectonic Slam",
+      "tags": [
+        "attack",
+        "elemental",
+        "fire",
+        "melee",
+        "slam"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "TectonicSlamAltX",
+      "name": "Tectonic Slam of Cataclysm",
+      "tags": [
+        "attack",
+        "elemental",
+        "fire",
+        "melee",
+        "slam"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "TempestShield",
+      "name": "Tempest Shield",
+      "tags": [
+        "chaining",
+        "elemental",
+        "lightning",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "TemporalChains",
+      "name": "Temporal Chains",
+      "tags": [
+        "curse",
+        "duration",
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "TemporalRift",
+      "name": "Temporal Rift",
+      "tags": [
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "ThunderstormMiniTornados",
+      "name": "Thunderburst",
+      "tags": [
+        "attack",
+        "duration",
+        "elemental",
+        "lightning",
+        "projectile",
+        "triggered"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "Thunderstorm",
+      "name": "Thunderstorm",
+      "tags": [
+        "attack",
+        "duration",
+        "elemental",
+        "lightning"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "Tornado",
+      "name": "Tornado",
+      "tags": [
+        "duration",
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "TornadoShot",
+      "name": "Tornado Shot",
+      "tags": [
+        "attack",
+        "projectile"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "TornadoShotAltX",
+      "name": "Tornado Shot of Cloudburst",
+      "tags": [
+        "attack",
+        "projectile"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "TornadoAltY",
+      "name": "Tornado of Elemental Turbulence",
+      "tags": [
+        "cold",
+        "duration",
+        "elemental",
+        "fire",
+        "lightning",
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "cold",
+        "fire",
+        "lightning",
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "ToxicRain",
+      "name": "Toxic Rain",
+      "tags": [
+        "attack",
+        "chaos",
+        "dot",
+        "duration"
+      ],
+      "damage_types": [
+        "chaos"
+      ]
+    },
+    {
+      "skill_id": "ToxicRainAltX",
+      "name": "Toxic Rain of Sporeburst",
+      "tags": [
+        "attack",
+        "chaos",
+        "duration"
+      ],
+      "damage_types": [
+        "chaos"
+      ]
+    },
+    {
+      "skill_id": "ToxicRainAltY",
+      "name": "Toxic Rain of Withering",
+      "tags": [
+        "attack",
+        "chaos",
+        "dot",
+        "duration"
+      ],
+      "damage_types": [
+        "chaos"
+      ]
+    },
+    {
+      "skill_id": "Unearth",
+      "name": "Unearth",
+      "tags": [
+        "physical",
+        "projectile",
+        "spell"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "VaalAbsolution",
+      "name": "Vaal Absolution",
+      "tags": [
+        "duration",
+        "elemental",
+        "lightning",
+        "minion",
+        "physical",
+        "spell",
+        "vaal"
+      ],
+      "damage_types": [
+        "lightning",
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "VaalAnimateWeapon",
+      "name": "Vaal Animate Weapon",
+      "tags": [
+        "duration",
+        "minion",
+        "spell",
+        "vaal"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "VaalArc",
+      "name": "Vaal Arc",
+      "tags": [
+        "chaining",
+        "duration",
+        "elemental",
+        "lightning",
+        "spell",
+        "vaal"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "VaalArcticArmour",
+      "name": "Vaal Arctic Armour",
+      "tags": [
+        "cold",
+        "duration",
+        "elemental",
+        "spell",
+        "vaal"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "VaalBladeFlurry",
+      "name": "Vaal Blade Flurry",
+      "tags": [
+        "attack",
+        "channelling",
+        "melee",
+        "vaal"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "VaalBladeVortex",
+      "name": "Vaal Blade Vortex",
+      "tags": [
+        "duration",
+        "physical",
+        "spell",
+        "vaal"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "VaalBlight",
+      "name": "Vaal Blight",
+      "tags": [
+        "chaos",
+        "dot",
+        "duration",
+        "spell",
+        "vaal"
+      ],
+      "damage_types": [
+        "chaos"
+      ]
+    },
+    {
+      "skill_id": "VaalBreach",
+      "name": "Vaal Breach",
+      "tags": [
+        "spell",
+        "vaal"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "VaalBurningArrow",
+      "name": "Vaal Burning Arrow",
+      "tags": [
+        "attack",
+        "elemental",
+        "fire",
+        "projectile",
+        "vaal"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "VaalCausticArrow",
+      "name": "Vaal Caustic Arrow",
+      "tags": [
+        "attack",
+        "chaos",
+        "dot",
+        "duration",
+        "projectile",
+        "vaal"
+      ],
+      "damage_types": [
+        "chaos"
+      ]
+    },
+    {
+      "skill_id": "VaalClarity",
+      "name": "Vaal Clarity",
+      "tags": [
+        "aura",
+        "duration",
+        "spell",
+        "vaal"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "VaalCleave",
+      "name": "Vaal Cleave",
+      "tags": [
+        "attack",
+        "duration",
+        "melee",
+        "vaal"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "VaalColdSnap",
+      "name": "Vaal Cold Snap",
+      "tags": [
+        "cold",
+        "duration",
+        "elemental",
+        "spell",
+        "vaal"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "VaalCyclone",
+      "name": "Vaal Cyclone",
+      "tags": [
+        "attack",
+        "duration",
+        "melee",
+        "vaal"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "VaalDetonateDead",
+      "name": "Vaal Detonate Dead",
+      "tags": [
+        "elemental",
+        "fire",
+        "spell",
+        "vaal"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "VaalDiscipline",
+      "name": "Vaal Discipline",
+      "tags": [
+        "aura",
+        "duration",
+        "spell",
+        "vaal"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "VaalDomination",
+      "name": "Vaal Domination",
+      "tags": [
+        "duration",
+        "minion",
+        "spell",
+        "vaal"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "VaalDoubleStrike",
+      "name": "Vaal Double Strike",
+      "tags": [
+        "attack",
+        "duration",
+        "melee",
+        "physical",
+        "vaal"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "VaalEarthquake",
+      "name": "Vaal Earthquake",
+      "tags": [
+        "attack",
+        "duration",
+        "melee",
+        "slam",
+        "vaal"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "VaalFireball",
+      "name": "Vaal Fireball",
+      "tags": [
+        "elemental",
+        "fire",
+        "projectile",
+        "spell",
+        "vaal"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "VaalFirestorm",
+      "name": "Vaal Firestorm",
+      "tags": [
+        "duration",
+        "elemental",
+        "fire",
+        "spell",
+        "vaal"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "VaalFlameblast",
+      "name": "Vaal Flameblast",
+      "tags": [
+        "elemental",
+        "fire",
+        "spell",
+        "vaal"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "VaalFlickerStrike",
+      "name": "Vaal Flicker Strike",
+      "tags": [
+        "attack",
+        "melee",
+        "movement",
+        "vaal"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "VaalGlacialHammer",
+      "name": "Vaal Glacial Hammer",
+      "tags": [
+        "attack",
+        "cold",
+        "duration",
+        "elemental",
+        "melee",
+        "vaal"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "VaalGrace",
+      "name": "Vaal Grace",
+      "tags": [
+        "aura",
+        "duration",
+        "spell",
+        "vaal"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "VaalGroundSlam",
+      "name": "Vaal Ground Slam",
+      "tags": [
+        "attack",
+        "melee",
+        "slam",
+        "vaal"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "VaalHaste",
+      "name": "Vaal Haste",
+      "tags": [
+        "aura",
+        "duration",
+        "spell",
+        "vaal"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "VaalIceNova",
+      "name": "Vaal Ice Nova",
+      "tags": [
+        "cold",
+        "elemental",
+        "spell",
+        "vaal"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "VaalIceShot",
+      "name": "Vaal Ice Shot",
+      "tags": [
+        "attack",
+        "cold",
+        "duration",
+        "elemental",
+        "projectile",
+        "vaal"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "VaalImmortalCall",
+      "name": "Vaal Immortal Call",
+      "tags": [
+        "duration",
+        "spell",
+        "vaal"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "VaalImpurityOfFire",
+      "name": "Vaal Impurity of Fire",
+      "tags": [
+        "aura",
+        "duration",
+        "elemental",
+        "fire",
+        "spell",
+        "vaal"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "VaalImpurityOfIce",
+      "name": "Vaal Impurity of Ice",
+      "tags": [
+        "aura",
+        "cold",
+        "duration",
+        "elemental",
+        "spell",
+        "vaal"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "VaalImpurityOfLightning",
+      "name": "Vaal Impurity of Lightning",
+      "tags": [
+        "aura",
+        "duration",
+        "elemental",
+        "lightning",
+        "spell",
+        "vaal"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "VaalLightningArrow",
+      "name": "Vaal Lightning Arrow",
+      "tags": [
+        "attack",
+        "elemental",
+        "lightning",
+        "projectile",
+        "vaal"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "VaalLightningStrike",
+      "name": "Vaal Lightning Strike",
+      "tags": [
+        "attack",
+        "duration",
+        "elemental",
+        "lightning",
+        "melee",
+        "projectile",
+        "vaal"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "VaalLightningTrap",
+      "name": "Vaal Lightning Trap",
+      "tags": [
+        "duration",
+        "elemental",
+        "lightning",
+        "projectile",
+        "spell",
+        "vaal"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "VaalLightningWarpInstant",
+      "name": "Vaal Lightning Warp",
+      "tags": [
+        "duration",
+        "elemental",
+        "lightning",
+        "spell",
+        "vaal"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "VaalMoltenShell",
+      "name": "Vaal Molten Shell",
+      "tags": [
+        "duration",
+        "elemental",
+        "fire",
+        "guard",
+        "physical",
+        "spell",
+        "vaal"
+      ],
+      "damage_types": [
+        "fire",
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "VaalMoltenStrike",
+      "name": "Vaal Molten Strike",
+      "tags": [
+        "attack",
+        "chaining",
+        "elemental",
+        "fire",
+        "melee",
+        "projectile",
+        "vaal"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "VaalPowerSiphon",
+      "name": "Vaal Power Siphon",
+      "tags": [
+        "attack",
+        "projectile",
+        "vaal"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "VaalRainOfArrows",
+      "name": "Vaal Rain of Arrows",
+      "tags": [
+        "attack",
+        "vaal"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "VaalReap",
+      "name": "Vaal Reap",
+      "tags": [
+        "dot",
+        "duration",
+        "physical",
+        "spell",
+        "vaal"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "VaalReave",
+      "name": "Vaal Reave",
+      "tags": [
+        "attack",
+        "melee",
+        "vaal"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "VaalRejuvenationTotem",
+      "name": "Vaal Rejuvenation Totem",
+      "tags": [
+        "aura",
+        "spell",
+        "vaal"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "VaalRighteousFire",
+      "name": "Vaal Righteous Fire",
+      "tags": [
+        "dot",
+        "duration",
+        "elemental",
+        "fire",
+        "spell",
+        "vaal"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "VaalSmite",
+      "name": "Vaal Smite",
+      "tags": [
+        "attack",
+        "aura",
+        "duration",
+        "elemental",
+        "lightning",
+        "melee",
+        "vaal"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "VaalSpark",
+      "name": "Vaal Spark",
+      "tags": [
+        "duration",
+        "elemental",
+        "lightning",
+        "projectile",
+        "spell",
+        "vaal"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "VaalSpectralThrow",
+      "name": "Vaal Spectral Throw",
+      "tags": [
+        "attack",
+        "projectile",
+        "vaal"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "VaalStormCall",
+      "name": "Vaal Storm Call",
+      "tags": [
+        "duration",
+        "elemental",
+        "lightning",
+        "spell",
+        "vaal"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "VaalSummonSkeletons",
+      "name": "Vaal Summon Skeletons",
+      "tags": [
+        "duration",
+        "minion",
+        "spell",
+        "vaal"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "VaalVenomGyre",
+      "name": "Vaal Venom Gyre",
+      "tags": [
+        "attack",
+        "chaos",
+        "duration",
+        "projectile",
+        "vaal"
+      ],
+      "damage_types": [
+        "chaos"
+      ]
+    },
+    {
+      "skill_id": "VaalVolcanicFissure",
+      "name": "Vaal Volcanic Fissure",
+      "tags": [
+        "attack",
+        "elemental",
+        "fire",
+        "melee",
+        "projectile",
+        "slam",
+        "vaal"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "VampiricLink",
+      "name": "Vampiric Link",
+      "tags": [
+        "duration",
+        "link",
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "VengefulCry",
+      "name": "Vengeful Cry",
+      "tags": [
+        "duration",
+        "warcry"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "VenomGyre",
+      "name": "Venom Gyre",
+      "tags": [
+        "attack",
+        "chaos",
+        "duration",
+        "projectile"
+      ],
+      "damage_types": [
+        "chaos"
+      ]
+    },
+    {
+      "skill_id": "VigilantStrike",
+      "name": "Vigilant Strike",
+      "tags": [
+        "attack",
+        "melee"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "ViperStrike",
+      "name": "Viper Strike",
+      "tags": [
+        "attack",
+        "chaos",
+        "dot",
+        "duration",
+        "melee"
+      ],
+      "damage_types": [
+        "chaos"
+      ]
+    },
+    {
+      "skill_id": "ViperStrikeAltX",
+      "name": "Viper Strike of the Mamba",
+      "tags": [
+        "attack",
+        "chaos",
+        "dot",
+        "duration",
+        "melee"
+      ],
+      "damage_types": [
+        "chaos"
+      ]
+    },
+    {
+      "skill_id": "Vitality",
+      "name": "Vitality",
+      "tags": [
+        "aura",
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "VoidSphere",
+      "name": "Void Sphere",
+      "tags": [
+        "chaos",
+        "duration",
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "chaos",
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "VoidSphereAltX",
+      "name": "Void Sphere of Rending",
+      "tags": [
+        "chaos",
+        "duration",
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "chaos",
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "VolatileDead",
+      "name": "Volatile Dead",
+      "tags": [
+        "elemental",
+        "fire",
+        "spell"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "VolatileDeadAltX",
+      "name": "Volatile Dead of Confinement",
+      "tags": [
+        "duration",
+        "elemental",
+        "fire",
+        "spell"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "VolatileDeadAltY",
+      "name": "Volatile Dead of Seething",
+      "tags": [
+        "elemental",
+        "fire",
+        "spell"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "VolcanicFissure",
+      "name": "Volcanic Fissure",
+      "tags": [
+        "attack",
+        "elemental",
+        "fire",
+        "melee",
+        "projectile",
+        "slam"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "VolcanicFissureAltX",
+      "name": "Volcanic Fissure of Snaking",
+      "tags": [
+        "attack",
+        "elemental",
+        "fire",
+        "melee",
+        "slam"
+      ],
+      "damage_types": [
+        "fire"
+      ]
+    },
+    {
+      "skill_id": "VoltaxicBurst",
+      "name": "Voltaxic Burst",
+      "tags": [
+        "chaos",
+        "duration",
+        "elemental",
+        "lightning",
+        "spell"
+      ],
+      "damage_types": [
+        "chaos",
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "Vortex",
+      "name": "Vortex",
+      "tags": [
+        "cold",
+        "duration",
+        "elemental",
+        "spell"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "VortexAltX",
+      "name": "Vortex of Projection",
+      "tags": [
+        "cold",
+        "duration",
+        "elemental",
+        "spell"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "Vulnerability",
+      "name": "Vulnerability",
+      "tags": [
+        "curse",
+        "duration",
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "WallOfForce",
+      "name": "Wall of Force",
+      "tags": [
+        "duration",
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "WarBanner",
+      "name": "War Banner",
+      "tags": [
+        "aura",
+        "banner",
+        "duration",
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "WarlordsMark",
+      "name": "Warlord's Mark",
+      "tags": [
+        "curse",
+        "spell"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "WaveOfConviction",
+      "name": "Wave of Conviction",
+      "tags": [
+        "duration",
+        "elemental",
+        "fire",
+        "lightning",
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "fire",
+        "lightning",
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "WaveOfConvictionAltY",
+      "name": "Wave of Conviction of Trarthus",
+      "tags": [
+        "duration",
+        "elemental",
+        "fire",
+        "physical",
+        "spell"
+      ],
+      "damage_types": [
+        "fire",
+        "physical"
+      ]
+    },
+    {
+      "skill_id": "WhirlingBlades",
+      "name": "Whirling Blades",
+      "tags": [
+        "attack",
+        "melee",
+        "movement"
+      ],
+      "damage_types": []
+    },
+    {
+      "skill_id": "WildStrike",
+      "name": "Wild Strike",
+      "tags": [
+        "attack",
+        "chaining",
+        "cold",
+        "elemental",
+        "fire",
+        "lightning",
+        "melee",
+        "projectile"
+      ],
+      "damage_types": [
+        "cold",
+        "fire",
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "WildStrikeAltX",
+      "name": "Wild Strike of Extremes",
+      "tags": [
+        "attack",
+        "chaining",
+        "cold",
+        "elemental",
+        "fire",
+        "lightning",
+        "melee",
+        "projectile"
+      ],
+      "damage_types": [
+        "cold",
+        "fire",
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "WinterOrb",
+      "name": "Winter Orb",
+      "tags": [
+        "channelling",
+        "cold",
+        "duration",
+        "elemental",
+        "projectile",
+        "spell"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "WintertideBrand",
+      "name": "Wintertide Brand",
+      "tags": [
+        "brand",
+        "cold",
+        "dot",
+        "duration",
+        "elemental",
+        "spell"
+      ],
+      "damage_types": [
+        "cold"
+      ]
+    },
+    {
+      "skill_id": "Wither",
+      "name": "Wither",
+      "tags": [
+        "channelling",
+        "chaos",
+        "duration",
+        "spell"
+      ],
+      "damage_types": [
+        "chaos"
+      ]
+    },
+    {
+      "skill_id": "WitheringStep",
+      "name": "Withering Step",
+      "tags": [
+        "chaos",
+        "duration",
+        "movement",
+        "spell"
+      ],
+      "damage_types": [
+        "chaos"
+      ]
+    },
+    {
+      "skill_id": "Wrath",
+      "name": "Wrath",
+      "tags": [
+        "aura",
+        "elemental",
+        "lightning",
+        "spell"
+      ],
+      "damage_types": [
+        "lightning"
+      ]
+    },
+    {
+      "skill_id": "Zealotry",
+      "name": "Zealotry",
+      "tags": [
+        "aura",
+        "spell"
+      ],
+      "damage_types": []
+    }
+  ],
+  "supports": [
+    {
+      "skill_id": "SupportAddedChaosDamage",
+      "name": "Added Chaos Damage",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportAddedColdDamage",
+      "name": "Added Cold Damage",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportAddedFireDamage",
+      "name": "Added Fire Damage",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportAddedLightningDamage",
+      "name": "Added Lightning Damage",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportAdditionalAccuracy",
+      "name": "Additional Accuracy",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportAdvancedTraps",
+      "name": "Advanced Traps",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportAncestralCall",
+      "name": "Ancestral Call",
+      "valid_gem_tags": [],
+      "exclude_tags": [
+        "triggered",
+        "vaal"
+      ],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportAnnhilation",
+      "name": "Annihilation",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportArcaneSurge",
+      "name": "Arcane Surge",
+      "valid_gem_tags": [
+        "spell"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportBrandSupport",
+      "name": "Arcanist Brand",
+      "valid_gem_tags": [
+        "spell"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportArchmage",
+      "name": "Archmage",
+      "valid_gem_tags": [
+        "spell"
+      ],
+      "exclude_tags": [
+        "brand",
+        "vaal"
+      ],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportArrogance",
+      "name": "Arrogance",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportArrowNova",
+      "name": "Arrow Nova",
+      "valid_gem_tags": [
+        "projectile"
+      ],
+      "exclude_tags": [
+        "channelling"
+      ],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportAutoexertion",
+      "name": "Autoexertion",
+      "valid_gem_tags": [
+        "warcry"
+      ],
+      "exclude_tags": [
+        "vaal"
+      ],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportAutomation",
+      "name": "Automation",
+      "valid_gem_tags": [
+        "spell"
+      ],
+      "exclude_tags": [
+        "vaal"
+      ],
+      "priority": 96
+    },
+    {
+      "skill_id": "AvengingFlame",
+      "name": "Avenging Flame",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportAwakenedAddedChaosDamage",
+      "name": "Awakened Added Chaos Damage",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 101
+    },
+    {
+      "skill_id": "SupportAwakenedAddedColdDamage",
+      "name": "Awakened Added Cold Damage",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 101
+    },
+    {
+      "skill_id": "SupportAwakenedAddedFireDamage",
+      "name": "Awakened Added Fire Damage",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 101
+    },
+    {
+      "skill_id": "SupportAwakenedAddedLightningDamage",
+      "name": "Awakened Added Lightning Damage",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 101
+    },
+    {
+      "skill_id": "SupportAwakenedAncestralCall",
+      "name": "Awakened Ancestral Call",
+      "valid_gem_tags": [],
+      "exclude_tags": [
+        "triggered",
+        "vaal"
+      ],
+      "priority": 105
+    },
+    {
+      "skill_id": "SupportAwakenedArrowNova",
+      "name": "Awakened Arrow Nova",
+      "valid_gem_tags": [
+        "projectile"
+      ],
+      "exclude_tags": [
+        "channelling"
+      ],
+      "priority": 101
+    },
+    {
+      "skill_id": "SupportAwakenedBlasphemy",
+      "name": "Awakened Blasphemy",
+      "valid_gem_tags": [
+        "curse"
+      ],
+      "exclude_tags": [],
+      "priority": 101
+    },
+    {
+      "skill_id": "SupportAwakenedBrutality",
+      "name": "Awakened Brutality",
+      "valid_gem_tags": [
+        "attack",
+        "dot"
+      ],
+      "exclude_tags": [],
+      "priority": 97
+    },
+    {
+      "skill_id": "SupportAwakenedBurningDamage",
+      "name": "Awakened Burning Damage",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 101
+    },
+    {
+      "skill_id": "SupportAwakenedCastOnCriticalStrike",
+      "name": "Awakened Cast On Critical Strike",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 101
+    },
+    {
+      "skill_id": "SupportAwakenedCastWhileChannelling",
+      "name": "Awakened Cast While Channelling",
+      "valid_gem_tags": [
+        "channelling"
+      ],
+      "exclude_tags": [],
+      "priority": 101
+    },
+    {
+      "skill_id": "SupportAwakenedChain",
+      "name": "Awakened Chain",
+      "valid_gem_tags": [
+        "chaining",
+        "projectile"
+      ],
+      "exclude_tags": [],
+      "priority": 97
+    },
+    {
+      "skill_id": "SupportAwakenedColdPenetration",
+      "name": "Awakened Cold Penetration",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 101
+    },
+    {
+      "skill_id": "SupportAwakenedControlledDestruction",
+      "name": "Awakened Controlled Destruction",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 101
+    },
+    {
+      "skill_id": "SupportAwakenedDeadlyAilments",
+      "name": "Awakened Deadly Ailments",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 101
+    },
+    {
+      "skill_id": "SupportAwakenedElementalDamageWithAttacks",
+      "name": "Awakened Elemental Damage with Attacks",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 101
+    },
+    {
+      "skill_id": "SupportAwakenedElementalFocus",
+      "name": "Awakened Elemental Focus",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 101
+    },
+    {
+      "skill_id": "SupportAwakenedEmpower",
+      "name": "Awakened Empower",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 105
+    },
+    {
+      "skill_id": "SupportAwakenedEnhance",
+      "name": "Awakened Enhance",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 105
+    },
+    {
+      "skill_id": "SupportAwakenedEnlighten",
+      "name": "Awakened Enlighten",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 105
+    },
+    {
+      "skill_id": "SupportAwakenedFirePenetration",
+      "name": "Awakened Fire Penetration",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 101
+    },
+    {
+      "skill_id": "SupportAwakenedFork",
+      "name": "Awakened Fork",
+      "valid_gem_tags": [
+        "projectile"
+      ],
+      "exclude_tags": [],
+      "priority": 101
+    },
+    {
+      "skill_id": "SupportAwakenedGenerosity",
+      "name": "Awakened Generosity",
+      "valid_gem_tags": [
+        "aura"
+      ],
+      "exclude_tags": [],
+      "priority": 101
+    },
+    {
+      "skill_id": "SupportAwakenedGreaterMultipleProjectiles",
+      "name": "Awakened Greater Multiple Projectiles",
+      "valid_gem_tags": [
+        "projectile"
+      ],
+      "exclude_tags": [],
+      "priority": 101
+    },
+    {
+      "skill_id": "SupportAwakenedHextouch",
+      "name": "Awakened Hextouch",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 101
+    },
+    {
+      "skill_id": "SupportAwakenedIncreasedAreaofEffect",
+      "name": "Awakened Increased Area of Effect",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 105
+    },
+    {
+      "skill_id": "SupportAwakenedLightningPenetration",
+      "name": "Awakened Lightning Penetration",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 101
+    },
+    {
+      "skill_id": "SupportAwakenedMeleePhysicalDamage",
+      "name": "Awakened Melee Physical Damage",
+      "valid_gem_tags": [
+        "melee"
+      ],
+      "exclude_tags": [],
+      "priority": 101
+    },
+    {
+      "skill_id": "SupportAwakenedMeleeSplash",
+      "name": "Awakened Melee Splash",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 105
+    },
+    {
+      "skill_id": "SupportAwakenedMinionDamage",
+      "name": "Awakened Minion Damage",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 105
+    },
+    {
+      "skill_id": "SupportAwakenedMultistrike",
+      "name": "Awakened Multistrike",
+      "valid_gem_tags": [],
+      "exclude_tags": [
+        "vaal"
+      ],
+      "priority": 105
+    },
+    {
+      "skill_id": "SupportAwakenedSpellCascade",
+      "name": "Awakened Spell Cascade",
+      "valid_gem_tags": [],
+      "exclude_tags": [
+        "aura",
+        "vaal"
+      ],
+      "priority": 105
+    },
+    {
+      "skill_id": "SupportAwakenedSpellEcho",
+      "name": "Awakened Spell Echo",
+      "valid_gem_tags": [],
+      "exclude_tags": [
+        "triggered",
+        "vaal"
+      ],
+      "priority": 105
+    },
+    {
+      "skill_id": "SupportAwakenedSwiftAffliction",
+      "name": "Awakened Swift Affliction",
+      "valid_gem_tags": [
+        "attack",
+        "duration"
+      ],
+      "exclude_tags": [],
+      "priority": 97
+    },
+    {
+      "skill_id": "SupportAwakenedUnboundAilments",
+      "name": "Awakened Unbound Ailments",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 101
+    },
+    {
+      "skill_id": "SupportAwakenedUnleash",
+      "name": "Awakened Unleash",
+      "valid_gem_tags": [],
+      "exclude_tags": [
+        "channelling",
+        "triggered",
+        "vaal"
+      ],
+      "priority": 105
+    },
+    {
+      "skill_id": "SupportAwakenedViciousProjectiles",
+      "name": "Awakened Vicious Projectiles",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 105
+    },
+    {
+      "skill_id": "SupportAwakenedVoidManipulation",
+      "name": "Awakened Void Manipulation",
+      "valid_gem_tags": [
+        "attack",
+        "dot"
+      ],
+      "exclude_tags": [],
+      "priority": 97
+    },
+    {
+      "skill_id": "SupportBallistaTotem",
+      "name": "Ballista Totem",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportDarkRitual",
+      "name": "Bane",
+      "valid_gem_tags": [
+        "curse"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportBarrage",
+      "name": "Barrage Support",
+      "valid_gem_tags": [
+        "projectile"
+      ],
+      "exclude_tags": [
+        "channelling",
+        "triggered"
+      ],
+      "priority": 96
+    },
+    {
+      "skill_id": "BattlemagesCrySupport",
+      "name": "Battlemage's Cry",
+      "valid_gem_tags": [
+        "spell"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportBehead",
+      "name": "Behead",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportBlasphemy",
+      "name": "Blasphemy",
+      "valid_gem_tags": [
+        "curse"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportBlastchainMine",
+      "name": "Blastchain Mine",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportBlessedCall",
+      "name": "Blessed Call",
+      "valid_gem_tags": [
+        "warcry"
+      ],
+      "exclude_tags": [
+        "triggered"
+      ],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportBlind",
+      "name": "Blind",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportBlockChanceReduction",
+      "name": "Block Chance Reduction",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportBloodlust",
+      "name": "Bloodlust",
+      "valid_gem_tags": [
+        "melee"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportBloodsoakedBanner",
+      "name": "Bloodsoaked Banner",
+      "valid_gem_tags": [
+        "banner"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportBloodthirst",
+      "name": "Bloodthirst",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [
+        "triggered"
+      ],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportBonechill",
+      "name": "Bonechill",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportBonespire",
+      "name": "Bonespire",
+      "valid_gem_tags": [
+        "warcry"
+      ],
+      "exclude_tags": [
+        "triggered"
+      ],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportBrutality",
+      "name": "Brutality",
+      "valid_gem_tags": [
+        "attack",
+        "dot"
+      ],
+      "exclude_tags": [],
+      "priority": 92
+    },
+    {
+      "skill_id": "SupportBurningDamage",
+      "name": "Burning Damage",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "TriggeredSupportHextoad",
+      "name": "Bursting Toad",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "TriggeredSupportPyre",
+      "name": "Call the Pyre",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportCastOnCriticalStrike",
+      "name": "Cast On Critical Strike",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportCastOnDeath",
+      "name": "Cast on Death",
+      "valid_gem_tags": [
+        "spell"
+      ],
+      "exclude_tags": [
+        "aura",
+        "minion"
+      ],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportCastOnMeleeKill",
+      "name": "Cast on Melee Kill",
+      "valid_gem_tags": [
+        "melee"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportCastOnWardBreak",
+      "name": "Cast on Ward Break",
+      "valid_gem_tags": [
+        "spell"
+      ],
+      "exclude_tags": [
+        "aura"
+      ],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportCastWhenDamageTaken",
+      "name": "Cast when Damage Taken",
+      "valid_gem_tags": [
+        "spell"
+      ],
+      "exclude_tags": [
+        "aura"
+      ],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportCastWhenStunned",
+      "name": "Cast when Stunned",
+      "valid_gem_tags": [
+        "spell"
+      ],
+      "exclude_tags": [
+        "aura"
+      ],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportCastWhileChannelling",
+      "name": "Cast while Channelling",
+      "valid_gem_tags": [
+        "channelling"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportChain",
+      "name": "Chain",
+      "valid_gem_tags": [
+        "chaining",
+        "projectile"
+      ],
+      "exclude_tags": [],
+      "priority": 92
+    },
+    {
+      "skill_id": "SupportChanceToBleed",
+      "name": "Chance to Bleed",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportChanceToFlee",
+      "name": "Chance to Flee",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportChanceToPoison",
+      "name": "Chance to Poison",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportChargedMines",
+      "name": "Charged Mines",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportChargedTraps",
+      "name": "Charged Traps",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportCloseCombat",
+      "name": "Close Combat",
+      "valid_gem_tags": [
+        "melee"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportClusterTraps",
+      "name": "Cluster Traps",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportColdPenetration",
+      "name": "Cold Penetration",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportColdToFire",
+      "name": "Cold to Fire",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportCombustion",
+      "name": "Combustion",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportCompanionship",
+      "name": "Companionship",
+      "valid_gem_tags": [],
+      "exclude_tags": [
+        "triggered"
+      ],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportConcentratedEffect",
+      "name": "Concentrated Effect",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportCongregation",
+      "name": "Congregation",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportControlledBlaze",
+      "name": "Controlled Blaze",
+      "valid_gem_tags": [
+        "melee"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportControlledDestruction",
+      "name": "Controlled Destruction",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportCooldownRecovery",
+      "name": "Cooldown Recovery",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportCorruptingCry",
+      "name": "Corrupting Cry",
+      "valid_gem_tags": [
+        "warcry"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportCriticalStrikeAffliction",
+      "name": "Critical Strike Affliction",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportCruelty",
+      "name": "Cruelty",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportCullTheWeak",
+      "name": "Cull the Weak",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportCullingStrike",
+      "name": "Culling Strike",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportCursedGround",
+      "name": "Cursed Ground",
+      "valid_gem_tags": [
+        "curse"
+      ],
+      "exclude_tags": [
+        "aura"
+      ],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportDamageOnFullLife",
+      "name": "Damage on Full Life",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportDeadlyAilments",
+      "name": "Deadly Ailments",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportDecay",
+      "name": "Decay",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportDevour",
+      "name": "Devour",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportDivineSentinel",
+      "name": "Divine Sentinel",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "DoomBlast",
+      "name": "Doom Blast",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportEclipse",
+      "name": "Eclipse",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportEfficacy",
+      "name": "Efficacy",
+      "valid_gem_tags": [
+        "attack",
+        "dot",
+        "duration"
+      ],
+      "exclude_tags": [],
+      "priority": 88
+    },
+    {
+      "skill_id": "SupportEldritchBlasphemy",
+      "name": "Eldritch Blasphemy",
+      "valid_gem_tags": [
+        "curse"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportElementalArmy",
+      "name": "Elemental Army",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportElementalDamageWithAttacks",
+      "name": "Elemental Damage with Attacks",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportElementalFocus",
+      "name": "Elemental Focus",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportElementalPenetration",
+      "name": "Elemental Penetration",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportElementalProliferation",
+      "name": "Elemental Proliferation",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportEmpower",
+      "name": "Empower",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportEnduranceChargeOnMeleeStun",
+      "name": "Endurance Charge on Melee Stun",
+      "valid_gem_tags": [
+        "melee"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportEnergyLeech",
+      "name": "Energy Leech",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportEnhance",
+      "name": "Enhance",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportEnlighten",
+      "name": "Enlighten",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportEternalBlessing",
+      "name": "Eternal Blessing",
+      "valid_gem_tags": [
+        "aura"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportExcommunicate",
+      "name": "Excommunicate",
+      "valid_gem_tags": [
+        "melee"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportExemplar",
+      "name": "Exemplar",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportExpertRetaliation",
+      "name": "Expert Retaliation",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportFasterAttacks",
+      "name": "Faster Attacks",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportFasterCasting",
+      "name": "Faster Casting",
+      "valid_gem_tags": [
+        "spell"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportFasterProjectiles",
+      "name": "Faster Projectiles",
+      "valid_gem_tags": [
+        "projectile"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportFeedingFrenzy",
+      "name": "Feeding Frenzy",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportFirePenetration",
+      "name": "Fire Penetration",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportFissure",
+      "name": "Fissure",
+      "valid_gem_tags": [
+        "slam"
+      ],
+      "exclude_tags": [
+        "triggered"
+      ],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportFistofWar",
+      "name": "Fist of War",
+      "valid_gem_tags": [
+        "slam"
+      ],
+      "exclude_tags": [
+        "vaal"
+      ],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportFlamewood",
+      "name": "Flamewood",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportFocusedBallista",
+      "name": "Focused Ballista",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportFocusedChannelling",
+      "name": "Focused Channelling",
+      "valid_gem_tags": [
+        "channelling",
+        "spell"
+      ],
+      "exclude_tags": [],
+      "priority": 92
+    },
+    {
+      "skill_id": "SupportFork",
+      "name": "Fork",
+      "valid_gem_tags": [
+        "projectile"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportFortify",
+      "name": "Fortify",
+      "valid_gem_tags": [
+        "melee"
+      ],
+      "exclude_tags": [
+        "triggered"
+      ],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportFoulgrasp",
+      "name": "Foulgrasp",
+      "valid_gem_tags": [
+        "brand"
+      ],
+      "exclude_tags": [
+        "triggered"
+      ],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportFreshMeat",
+      "name": "Fresh Meat",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportFrigidBond",
+      "name": "Frigid Bond",
+      "valid_gem_tags": [
+        "link"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportFrostmage",
+      "name": "Frostmage",
+      "valid_gem_tags": [
+        "spell"
+      ],
+      "exclude_tags": [
+        "brand",
+        "vaal"
+      ],
+      "priority": 96
+    },
+    {
+      "skill_id": "GeneralsCrySupport",
+      "name": "General's Cry",
+      "valid_gem_tags": [
+        "attack",
+        "melee"
+      ],
+      "exclude_tags": [
+        "spell",
+        "triggered",
+        "vaal"
+      ],
+      "priority": 92
+    },
+    {
+      "skill_id": "SupportGenerosity",
+      "name": "Generosity",
+      "valid_gem_tags": [
+        "aura"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportGluttony",
+      "name": "Gluttony",
+      "valid_gem_tags": [
+        "projectile",
+        "spell"
+      ],
+      "exclude_tags": [
+        "brand",
+        "channelling",
+        "triggered",
+        "vaal"
+      ],
+      "priority": 92
+    },
+    {
+      "skill_id": "SupportGreaterAncestralCall",
+      "name": "Greater Ancestral Call",
+      "valid_gem_tags": [],
+      "exclude_tags": [
+        "triggered",
+        "vaal"
+      ],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportGreaterChain",
+      "name": "Greater Chain",
+      "valid_gem_tags": [
+        "chaining",
+        "projectile"
+      ],
+      "exclude_tags": [],
+      "priority": 92
+    },
+    {
+      "skill_id": "SupportGreaterDevour",
+      "name": "Greater Devour",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportGreaterFork",
+      "name": "Greater Fork",
+      "valid_gem_tags": [
+        "projectile"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportGreaterKineticInstability",
+      "name": "Greater Kinetic Instability",
+      "valid_gem_tags": [],
+      "exclude_tags": [
+        "minion"
+      ],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportGreaterMultipleProjectiles",
+      "name": "Greater Multiple Projectiles",
+      "valid_gem_tags": [
+        "projectile"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportGreaterMultistrike",
+      "name": "Greater Multistrike",
+      "valid_gem_tags": [],
+      "exclude_tags": [
+        "vaal"
+      ],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportGreaterSpellCascade",
+      "name": "Greater Spell Cascade",
+      "valid_gem_tags": [],
+      "exclude_tags": [
+        "aura",
+        "vaal"
+      ],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportGreaterSpellEcho",
+      "name": "Greater Spell Echo",
+      "valid_gem_tags": [],
+      "exclude_tags": [
+        "brand",
+        "triggered",
+        "vaal"
+      ],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportGreaterUnleash",
+      "name": "Greater Unleash",
+      "valid_gem_tags": [],
+      "exclude_tags": [
+        "channelling",
+        "triggered",
+        "vaal"
+      ],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportGreaterVolley",
+      "name": "Greater Volley",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportGuardiansBlessing",
+      "name": "Guardian's Blessing",
+      "valid_gem_tags": [],
+      "exclude_tags": [
+        "triggered"
+      ],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportHallow",
+      "name": "Hallow",
+      "valid_gem_tags": [
+        "melee"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportHexBloom",
+      "name": "Hex Bloom",
+      "valid_gem_tags": [
+        "curse"
+      ],
+      "exclude_tags": [
+        "aura"
+      ],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportHexpass",
+      "name": "Hexpass",
+      "valid_gem_tags": [
+        "curse"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportHextoad",
+      "name": "Hextoad",
+      "valid_gem_tags": [
+        "curse"
+      ],
+      "exclude_tags": [
+        "aura",
+        "triggered"
+      ],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportHextouch",
+      "name": "Hextouch",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportHighImpactMine",
+      "name": "High-Impact Mine",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportHiveborn",
+      "name": "Hiveborn",
+      "valid_gem_tags": [],
+      "exclude_tags": [
+        "triggered"
+      ],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportHypothermia",
+      "name": "Hypothermia",
+      "valid_gem_tags": [
+        "attack",
+        "dot"
+      ],
+      "exclude_tags": [],
+      "priority": 92
+    },
+    {
+      "skill_id": "SupportIceBite",
+      "name": "Ice Bite",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportIgniteProliferation",
+      "name": "Ignite Proliferation",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportImmolate",
+      "name": "Immolate",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportImpale",
+      "name": "Impale",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportImpendingDoom",
+      "name": "Impending Doom",
+      "valid_gem_tags": [
+        "curse"
+      ],
+      "exclude_tags": [
+        "aura",
+        "triggered"
+      ],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportIncreasedAreaOfEffect",
+      "name": "Increased Area of Effect",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportIncreasedCriticalDamage",
+      "name": "Increased Critical Damage",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportIncreasedCriticalStrikes",
+      "name": "Increased Critical Strikes",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportInfernalLegion",
+      "name": "Infernal Legion",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportInfusedChannelling",
+      "name": "Infused Channelling",
+      "valid_gem_tags": [
+        "channelling"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportInnervate",
+      "name": "Innervate",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportInspiration",
+      "name": "Inspiration",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportIntensify",
+      "name": "Intensify",
+      "valid_gem_tags": [],
+      "exclude_tags": [
+        "channelling",
+        "triggered",
+        "vaal"
+      ],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportIntuitiveLink",
+      "name": "Intuitive Link",
+      "valid_gem_tags": [
+        "spell"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportInvention",
+      "name": "Invention",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportInvertTheRules",
+      "name": "Invert the Rules",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportIronGrip",
+      "name": "Iron Grip",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportIronWill",
+      "name": "Iron Will",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportItemQuantity",
+      "name": "Item Quantity",
+      "valid_gem_tags": [
+        "attack",
+        "dot"
+      ],
+      "exclude_tags": [],
+      "priority": 92
+    },
+    {
+      "skill_id": "SupportItemRarity",
+      "name": "Item Rarity",
+      "valid_gem_tags": [
+        "attack",
+        "dot"
+      ],
+      "exclude_tags": [],
+      "priority": 92
+    },
+    {
+      "skill_id": "TriggeredSupportKineticInstability",
+      "name": "Kinetic Flux",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportKineticInstability",
+      "name": "Kinetic Instability",
+      "valid_gem_tags": [],
+      "exclude_tags": [
+        "minion"
+      ],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportKnockback",
+      "name": "Knockback",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportLessDuration",
+      "name": "Less Duration",
+      "valid_gem_tags": [
+        "duration"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportLethalDose",
+      "name": "Lethal Dose",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportLifeGainOnHit",
+      "name": "Life Gain on Hit",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportLifeLeech",
+      "name": "Life Leech",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportLifetap",
+      "name": "Lifetap",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportLightningPenetration",
+      "name": "Lightning Penetration",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportLivingLightning",
+      "name": "Living Lightning",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportLocusMine",
+      "name": "Locus Mine",
+      "valid_gem_tags": [
+        "projectile"
+      ],
+      "exclude_tags": [
+        "triggered"
+      ],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportMachinations",
+      "name": "Machinations",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportMaim",
+      "name": "Maim",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportManaLeech",
+      "name": "Mana Leech",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportManaforgedArrows",
+      "name": "Manaforged Arrows",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportMarkOnHit",
+      "name": "Mark On Hit",
+      "valid_gem_tags": [
+        "curse"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportMeatShield",
+      "name": "Meat Shield",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportMeleePhysicalDamage",
+      "name": "Melee Physical Damage",
+      "valid_gem_tags": [
+        "melee"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportMeleeSplash",
+      "name": "Melee Splash",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportMinefield",
+      "name": "Minefield",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportMinionDamage",
+      "name": "Minion Damage",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportMinionLife",
+      "name": "Minion Life",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportMinionPact",
+      "name": "Minion Pact",
+      "valid_gem_tags": [
+        "spell"
+      ],
+      "exclude_tags": [
+        "brand",
+        "channelling",
+        "vaal"
+      ],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportMinionSpeed",
+      "name": "Minion Speed",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportMirageArcher",
+      "name": "Mirage Archer",
+      "valid_gem_tags": [],
+      "exclude_tags": [
+        "minion",
+        "vaal"
+      ],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportMomentum",
+      "name": "Momentum",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [
+        "triggered"
+      ],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportMoreDuration",
+      "name": "More Duration",
+      "valid_gem_tags": [
+        "duration"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportLesserMultipleProjectiles",
+      "name": "Multiple Projectiles",
+      "valid_gem_tags": [
+        "projectile"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportMultipleTotems",
+      "name": "Multiple Totems",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportMultipleTraps",
+      "name": "Multiple Traps",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportMultistrike",
+      "name": "Multistrike",
+      "valid_gem_tags": [],
+      "exclude_tags": [
+        "vaal"
+      ],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportNightblade",
+      "name": "Nightblade",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportOvercharge",
+      "name": "Overcharge",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportOverexertion",
+      "name": "Overexertion",
+      "valid_gem_tags": [
+        "melee"
+      ],
+      "exclude_tags": [
+        "channelling",
+        "triggered"
+      ],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportOverheat",
+      "name": "Overheat",
+      "valid_gem_tags": [
+        "melee"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportOverloadedIntensity",
+      "name": "Overloaded Intensity",
+      "valid_gem_tags": [],
+      "exclude_tags": [
+        "channelling",
+        "triggered",
+        "vaal"
+      ],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportPacifism",
+      "name": "Pacifism",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportPhysicalToLightning",
+      "name": "Physical to Lightning",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportPierce",
+      "name": "Pierce",
+      "valid_gem_tags": [
+        "projectile"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportPinpoint",
+      "name": "Pinpoint",
+      "valid_gem_tags": [
+        "projectile",
+        "spell"
+      ],
+      "exclude_tags": [
+        "channelling",
+        "triggered",
+        "vaal"
+      ],
+      "priority": 92
+    },
+    {
+      "skill_id": "SupportPointBlank",
+      "name": "Point Blank",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportPowerChargeOnCritical",
+      "name": "Power Charge On Critical",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportPredator",
+      "name": "Predator",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportPrismaticBurst",
+      "name": "Prismatic Burst",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [
+        "triggered"
+      ],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportPulverise",
+      "name": "Pulverise",
+      "valid_gem_tags": [
+        "melee"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportPyre",
+      "name": "Pyre",
+      "valid_gem_tags": [
+        "melee"
+      ],
+      "exclude_tags": [
+        "triggered"
+      ],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportRage",
+      "name": "Rage",
+      "valid_gem_tags": [
+        "melee"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportReturningProjectiles",
+      "name": "Returning Projectiles",
+      "valid_gem_tags": [
+        "projectile"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportRupture",
+      "name": "Rupture",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportRuthless",
+      "name": "Ruthless",
+      "valid_gem_tags": [
+        "slam"
+      ],
+      "exclude_tags": [
+        "channelling"
+      ],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportSacredWisps",
+      "name": "Sacred Wisps",
+      "valid_gem_tags": [],
+      "exclude_tags": [
+        "minion",
+        "vaal"
+      ],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportSacrifice",
+      "name": "Sacrifice",
+      "valid_gem_tags": [
+        "spell"
+      ],
+      "exclude_tags": [
+        "brand",
+        "channelling",
+        "vaal"
+      ],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportSadism",
+      "name": "Sadism",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportScornfulHerald",
+      "name": "Scornful Herald",
+      "valid_gem_tags": [
+        "herald"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportSecondWind",
+      "name": "Second Wind",
+      "valid_gem_tags": [],
+      "exclude_tags": [
+        "triggered"
+      ],
+      "priority": 100
+    },
+    {
+      "skill_id": "TriggeredSupportBonespire",
+      "name": "Seize the Flesh",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportShockwave",
+      "name": "Shockwave",
+      "valid_gem_tags": [
+        "melee"
+      ],
+      "exclude_tags": [
+        "triggered"
+      ],
+      "priority": 96
+    },
+    {
+      "skill_id": "SignalPrey",
+      "name": "Signal Prey",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportSlowerProjectiles",
+      "name": "Slower Projectiles",
+      "valid_gem_tags": [
+        "projectile"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "ChannelledSnipeSupport",
+      "name": "Snipe",
+      "valid_gem_tags": [],
+      "exclude_tags": [
+        "channelling",
+        "vaal"
+      ],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportSpellCascade",
+      "name": "Spell Cascade",
+      "valid_gem_tags": [],
+      "exclude_tags": [
+        "aura",
+        "vaal"
+      ],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportSpellEcho",
+      "name": "Spell Echo",
+      "valid_gem_tags": [],
+      "exclude_tags": [
+        "triggered",
+        "vaal"
+      ],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportSpellTotem",
+      "name": "Spell Totem",
+      "valid_gem_tags": [
+        "spell"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportSpellblade",
+      "name": "Spellblade",
+      "valid_gem_tags": [
+        "spell"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportSpellslinger",
+      "name": "Spellslinger",
+      "valid_gem_tags": [
+        "spell"
+      ],
+      "exclude_tags": [
+        "triggered"
+      ],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportStun",
+      "name": "Stun",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "TriggeredSupportHiveborn",
+      "name": "Summon Hiveborn",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "TriggeredSupportLivingLightning",
+      "name": "Summon Living Lightning",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportSummonPhantasm",
+      "name": "Summon Phantasm",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SummonSacredWisp",
+      "name": "Summon Sacred Wisps",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportSwiftAffliction",
+      "name": "Swift Affliction",
+      "valid_gem_tags": [
+        "attack",
+        "duration"
+      ],
+      "exclude_tags": [],
+      "priority": 92
+    },
+    {
+      "skill_id": "SupportSwiftAssembly",
+      "name": "Swift Assembly",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportSwiftbrand",
+      "name": "Swiftbrand",
+      "valid_gem_tags": [
+        "brand"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportTransfusion",
+      "name": "Transfusion",
+      "valid_gem_tags": [
+        "spell"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportTrap",
+      "name": "Trap",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportTrapAndMineDamage",
+      "name": "Trap and Mine Damage",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportTrauma",
+      "name": "Trauma",
+      "valid_gem_tags": [],
+      "exclude_tags": [
+        "triggered",
+        "vaal"
+      ],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportTrinity",
+      "name": "Trinity",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [
+        "brand",
+        "triggered"
+      ],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportUnboundAilments",
+      "name": "Unbound Ailments",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportUnholyTrinity",
+      "name": "Unholy Trinity",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [
+        "brand",
+        "triggered"
+      ],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportUnleash",
+      "name": "Unleash",
+      "valid_gem_tags": [],
+      "exclude_tags": [
+        "channelling",
+        "triggered",
+        "vaal"
+      ],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportUrgentOrders",
+      "name": "Urgent Orders",
+      "valid_gem_tags": [
+        "warcry"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportVaalSacrifice",
+      "name": "Vaal Sacrifice",
+      "valid_gem_tags": [
+        "vaal"
+      ],
+      "exclude_tags": [
+        "triggered"
+      ],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportVaalTemptation",
+      "name": "Vaal Temptation",
+      "valid_gem_tags": [
+        "vaal"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportViciousProjectiles",
+      "name": "Vicious Projectiles",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportVileToxins",
+      "name": "Vile Toxins",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportVoidManipulation",
+      "name": "Void Manipulation",
+      "valid_gem_tags": [
+        "attack",
+        "dot"
+      ],
+      "exclude_tags": [],
+      "priority": 92
+    },
+    {
+      "skill_id": "SupportVoidShockwave",
+      "name": "Void Shockwave",
+      "valid_gem_tags": [
+        "melee"
+      ],
+      "exclude_tags": [
+        "triggered"
+      ],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportVoidstorm",
+      "name": "Voidstorm",
+      "valid_gem_tags": [],
+      "exclude_tags": [
+        "triggered"
+      ],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportVolatility",
+      "name": "Volatility",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportVolley",
+      "name": "Volley",
+      "valid_gem_tags": [],
+      "exclude_tags": [],
+      "priority": 100
+    },
+    {
+      "skill_id": "SupportWindburst",
+      "name": "Windburst",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [
+        "triggered"
+      ],
+      "priority": 96
+    },
+    {
+      "skill_id": "SupportWitheringTouch",
+      "name": "Withering Touch",
+      "valid_gem_tags": [
+        "attack"
+      ],
+      "exclude_tags": [],
+      "priority": 96
+    }
+  ]
+}

@@ -1,56 +1,165 @@
 /**
- * TheorycrafterPage — `/theorycrafter`, the from-scratch Build Generator.
+ * TheorycrafterPage — `/theorycrafter`, the from-scratch Build Generator (v2).
  *
- * Step 39. The user describes a build in natural language; the backend
- * synthesises a `BuildSkeleton` from vendored PoE 3.28 data (archetype
- * catalogue + passive tree + item bases). It never retrieves builds
- * from the poe.ninja ladder — that is the Build Finder's job.
+ * Step 40. Form-driven (no free-text input): cascading selects for
+ * Class → Ascendancy → Primary Skill → Damage Type → Defence → Budget
+ * → Focus. The backend synthesises a `BuildSkeleton` from vendored
+ * PoE 3.28 data (passive tree, gem tags, item bases). Each gear slot
+ * card has a Trade icon that opens GGG Trade prefilled with the slot's
+ * base + stat priorities — identical pattern to Analyze/Planner.
  *
- * Pillar 1 only. The other three Theorycrafter pillars (item browser,
- * atlas, loot filter) are disabled placeholder tabs.
+ * No tab shell. Theorycrafter is one tool — the Build Generator.
  */
 
 import {
   Accordion,
+  ActionIcon,
   Alert,
   Badge,
   Box,
   Button,
   Card,
   CopyButton,
+  Divider,
   Group,
+  SegmentedControl,
   Select,
   Stack,
-  Tabs,
   Text,
-  Textarea,
   Title,
+  Tooltip,
 } from "@mantine/core";
-import { IconCheck, IconCopy, IconFlask, IconWand } from "@tabler/icons-react";
-import { useMutation } from "@tanstack/react-query";
-import type { BuildSkeleton, GearSlot, SkeletonBudget } from "../api/types";
-import { generateBuild } from "../api/fob";
+import { notifications } from "@mantine/notifications";
+import {
+  IconCheck,
+  IconCopy,
+  IconExternalLink,
+  IconFlask,
+} from "@tabler/icons-react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMemo } from "react";
+import { generateBuild, getTheorySkills } from "../api/fob";
+import { openTradeUrl } from "../api/tradeRedirect";
+import type {
+  BuildSkeleton,
+  DamageType,
+  DefenceArchetype,
+  SkeletonBudget,
+  TheoryContentFocus,
+  TheoryGearSlot,
+  TheoryIntent,
+} from "../api/types";
 import { ErrorBoundary } from "../components/ErrorBoundary";
 import { useLang, useT } from "../i18n";
 import { usePageStore } from "../store/pageStore";
 
-// Budget / focus option keys — labels resolved per-language in-component.
-const BUDGET_KEYS: { value: SkeletonBudget; it: string; en: string }[] = [
+// ---------------------------------------------------------------------------
+// Static lookup tables
+// ---------------------------------------------------------------------------
+
+const CLASSES = [
+  "Marauder",
+  "Duelist",
+  "Ranger",
+  "Witch",
+  "Templar",
+  "Shadow",
+  "Scion",
+] as const;
+
+const ASCENDANCIES: Record<string, string[]> = {
+  Marauder: ["Juggernaut", "Berserker", "Chieftain"],
+  Duelist: ["Slayer", "Gladiator", "Champion"],
+  Ranger: ["Deadeye", "Raider", "Pathfinder"],
+  Witch: ["Necromancer", "Occultist", "Elementalist"],
+  Templar: ["Inquisitor", "Hierophant", "Guardian"],
+  Shadow: ["Assassin", "Saboteur", "Trickster"],
+  Scion: ["Ascendant"],
+};
+
+const DAMAGE_TYPES: { value: DamageType; it: string; en: string }[] = [
+  { value: "fire", it: "Fuoco", en: "Fire" },
+  { value: "cold", it: "Freddo", en: "Cold" },
+  { value: "lightning", it: "Folgore", en: "Lightning" },
+  { value: "chaos", it: "Caos", en: "Chaos" },
+  { value: "physical", it: "Fisico", en: "Physical" },
+  { value: "spell", it: "Incantesimo", en: "Spell" },
+  { value: "attack", it: "Attacco", en: "Attack" },
+];
+
+const DEFENCES: { value: DefenceArchetype; it: string; en: string }[] = [
+  { value: "life", it: "Vita", en: "Life" },
+  { value: "es", it: "ES", en: "ES" },
+  { value: "ward", it: "Ward", en: "Ward" },
+  { value: "hybrid_life_es", it: "Vita+ES", en: "Life+ES" },
+];
+
+const BUDGETS: { value: SkeletonBudget; it: string; en: string }[] = [
   { value: "starter", it: "Inizio lega", en: "League start" },
   { value: "mid", it: "Medio", en: "Mid" },
   { value: "endgame", it: "Endgame", en: "Endgame" },
 ];
-const FOCUS_KEYS: { value: string; it: string; en: string }[] = [
+
+const FOCI: { value: TheoryContentFocus; it: string; en: string }[] = [
   { value: "mapping", it: "Mappatura", en: "Mapping" },
   { value: "bossing", it: "Boss", en: "Bossing" },
   { value: "allcontent", it: "Tutti i contenuti", en: "All content" },
-  { value: "league", it: "Meccaniche di lega", en: "League mechanic" },
 ];
+
+// ---------------------------------------------------------------------------
+// Sub-components
+// ---------------------------------------------------------------------------
+
+/** One gear-slot card — same visual language as Analyze's `GearCard` but
+ *  rendering a *recommendation* (base + stat priorities), not a real item. */
+function GearSlotCard({ slot }: { slot: TheoryGearSlot }) {
+  const t = useT();
+
+  const onTrade = (): void => {
+    openTradeUrl({ item_type: slot.base_name, stats: [] });
+  };
+
+  return (
+    <Box
+      className="vs-rarity"
+      data-rarity="rare"
+      style={{
+        borderLeft: "3px solid var(--vs-rare)",
+        padding: "8px 10px",
+        background: "var(--vs-surface-2)",
+        borderRadius: 4,
+        minWidth: 0,
+      }}
+    >
+      <Group justify="space-between" gap={4} wrap="nowrap">
+        <Text size="10px" c="dimmed" tt="uppercase" fw={600}>
+          {slot.slot}
+        </Text>
+        <Tooltip label={t({ it: "Cerca su Trade", en: "Search on Trade" })}>
+          <ActionIcon size="xs" variant="subtle" color="ember" onClick={onTrade}>
+            <IconExternalLink size={12} />
+          </ActionIcon>
+        </Tooltip>
+      </Group>
+      <Text size="sm" fw={600} mt={2}>
+        {slot.base_name}
+      </Text>
+      <Group gap={3} mt={4}>
+        {slot.stat_priorities.map((s) => (
+          <Badge key={s} size="xs" variant="light" color="ember">
+            {s}
+          </Badge>
+        ))}
+      </Group>
+    </Box>
+  );
+}
 
 function SkeletonResult({ skeleton }: { skeleton: BuildSkeleton }) {
   const t = useT();
   const { lang } = useLang();
-  const rationale = lang === "en" ? skeleton.rationale_en : skeleton.rationale_it;
+  const rationale =
+    lang === "en" ? skeleton.rationale_en : skeleton.rationale_it;
 
   return (
     <Stack gap="md" className="vs-card-reveal">
@@ -58,23 +167,76 @@ function SkeletonResult({ skeleton }: { skeleton: BuildSkeleton }) {
       <Card withBorder padding="md">
         <Group gap="sm" wrap="wrap">
           <Badge size="lg" color="ember" variant="filled">
-            {skeleton.class_name} · {skeleton.ascendancy}
+            {skeleton.intent.character_class} · {skeleton.intent.ascendancy}
           </Badge>
-          <Badge
-            size="lg"
-            color="ember"
-            variant="light"
-            leftSection={<IconWand size={14} />}
-          >
-            {skeleton.core_skill}
+          <Badge size="lg" color="ember" variant="light">
+            {skeleton.intent.primary_skill}
           </Badge>
           <Badge size="lg" variant="default">
-            {skeleton.budget_tier}
+            {skeleton.intent.damage_type}
           </Badge>
           <Badge size="lg" variant="default">
-            {skeleton.content_focus}
+            {skeleton.intent.defence_archetype}
+          </Badge>
+          <Badge size="lg" variant="default">
+            {skeleton.intent.budget}
+          </Badge>
+          <Badge size="lg" variant="default">
+            {skeleton.intent.focus}
           </Badge>
         </Group>
+      </Card>
+
+      {/* Stat estimates */}
+      <Card withBorder padding="md">
+        <Group justify="space-between" mb={4}>
+          <Text size="xs" tt="uppercase" fw={700} c="dimmed">
+            {t({ it: "Stime", en: "Estimates" })}
+          </Text>
+          <Tooltip
+            label={t({
+              it: "Valori stimati — importa in PoB per calcoli precisi",
+              en: "Estimated values — import into PoB for precise math",
+            })}
+          >
+            <Badge size="xs" variant="outline" color="yellow">
+              {t({ it: "~ stimato", en: "~ estimated" })}
+            </Badge>
+          </Tooltip>
+        </Group>
+        <Group gap="xl" wrap="wrap">
+          <Stack gap={0}>
+            <Text size="xs" c="dimmed">
+              {t({ it: "Vita", en: "Life" })}
+            </Text>
+            <Text className="mono" size="lg" fw={700}>
+              ~{skeleton.stats.life_estimate.toLocaleString()}
+            </Text>
+          </Stack>
+          {skeleton.stats.es_estimate > 0 && (
+            <Stack gap={0}>
+              <Text size="xs" c="dimmed">
+                {t({ it: "Energy shield", en: "Energy shield" })}
+              </Text>
+              <Text className="mono" size="lg" fw={700}>
+                ~{skeleton.stats.es_estimate.toLocaleString()}
+              </Text>
+            </Stack>
+          )}
+          <Stack gap={0}>
+            <Text size="xs" c="dimmed">
+              DPS index
+            </Text>
+            <Text className="mono" size="lg" fw={700}>
+              ~{skeleton.stats.dps_index.toLocaleString()}
+            </Text>
+          </Stack>
+        </Group>
+        {skeleton.stats.resistance_warning && (
+          <Alert mt="xs" color="yellow" variant="light">
+            {skeleton.stats.resistance_warning}
+          </Alert>
+        )}
       </Card>
 
       {/* Gem links */}
@@ -85,16 +247,16 @@ function SkeletonResult({ skeleton }: { skeleton: BuildSkeleton }) {
         <Stack gap="sm">
           {skeleton.links.map((link) => (
             <Group key={link.skill} gap={6} wrap="wrap">
-              <Badge
-                color="ember"
-                variant="filled"
-                className="vs-rarity"
-                data-rarity="unique"
-              >
+              <Badge color="ember" variant="filled">
                 {link.skill}
               </Badge>
-              {link.supports.map((s) => (
-                <Badge key={s} variant="outline" color="gray">
+              {link.supports.map((s, i) => (
+                <Badge
+                  key={`${s}-${i}`}
+                  variant={s === "(open)" ? "outline" : "outline"}
+                  color={s === "(open)" ? "gray" : "ember"}
+                  c={s === "(open)" ? "dimmed" : undefined}
+                >
                   {s}
                 </Badge>
               ))}
@@ -103,25 +265,36 @@ function SkeletonResult({ skeleton }: { skeleton: BuildSkeleton }) {
         </Stack>
       </Card>
 
-      {/* Tree milestones */}
+      {/* Tree nodes */}
       <Card withBorder padding="md">
         <Text size="xs" tt="uppercase" fw={700} c="dimmed" mb={6}>
-          {t({ it: "Tappe dell'albero passivo", en: "Passive tree milestones" })}
+          {t({ it: "Tappe dell'albero", en: "Tree milestones" })}
         </Text>
-        <Stack gap={6}>
-          {skeleton.tree_milestones.map((m, i) => (
-            <Group key={`${m.priority}-${i}`} gap={8} wrap="nowrap" align="flex-start">
-              <Badge size="sm" circle variant="light" color="ember">
-                {m.priority}
+        <Stack gap={4}>
+          {skeleton.tree_nodes.map((n) => (
+            <Group key={`${n.type}-${n.node_id}-${n.name}`} gap={6} wrap="nowrap">
+              <Badge
+                size="xs"
+                color={
+                  n.type === "keystone"
+                    ? "red"
+                    : n.type === "ascendancy"
+                      ? "grape"
+                      : n.type === "start"
+                        ? "gray"
+                        : "ember"
+                }
+                variant="light"
+                w={88}
+              >
+                {n.type}
               </Badge>
-              <Box style={{ flex: 1, minWidth: 0 }}>
-                <Text size="sm">{m.label}</Text>
-                {m.node_ids.length > 0 && (
-                  <Text size="10px" c="dimmed" className="mono">
-                    node id: {m.node_ids.join(", ")}
-                  </Text>
-                )}
-              </Box>
+              <Text size="sm">{n.name}</Text>
+              {n.node_id > 0 && (
+                <Text size="10px" c="dimmed" className="mono">
+                  #{n.node_id}
+                </Text>
+              )}
             </Group>
           ))}
         </Stack>
@@ -135,35 +308,12 @@ function SkeletonResult({ skeleton }: { skeleton: BuildSkeleton }) {
         <Box
           style={{
             display: "grid",
-            gap: 10,
+            gap: 8,
             gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
           }}
         >
-          {skeleton.gear_slots.map((g: GearSlot) => (
-            <Box
-              key={g.slot}
-              style={{
-                border: "1px solid var(--vs-border-faint)",
-                borderRadius: 6,
-                padding: 8,
-              }}
-            >
-              <Text size="sm" fw={600}>
-                {g.slot}
-              </Text>
-              {g.recommended_bases.length > 0 && (
-                <Text size="xs" c="dimmed" mt={2}>
-                  {g.recommended_bases.join(" · ")}
-                </Text>
-              )}
-              <Group gap={4} mt={4}>
-                {g.priority_stats.map((s) => (
-                  <Badge key={s} size="xs" variant="light" color="ember">
-                    {s}
-                  </Badge>
-                ))}
-              </Group>
-            </Box>
+          {skeleton.gear_slots.map((g) => (
+            <GearSlotCard key={g.slot} slot={g} />
           ))}
         </Box>
       </Card>
@@ -180,123 +330,255 @@ function SkeletonResult({ skeleton }: { skeleton: BuildSkeleton }) {
         </Accordion.Item>
       </Accordion>
 
-      {/* PoB import hint */}
+      {/* PoB export */}
       <Card withBorder padding="md">
-        <Group justify="space-between" mb={4}>
+        <Group justify="space-between" mb={6}>
           <Text size="xs" tt="uppercase" fw={700} c="dimmed">
-            {t({ it: "Come importarla in PoB", en: "How to import into PoB" })}
+            {t({ it: "Esporta in PoB", en: "Export to PoB" })}
           </Text>
-          <CopyButton value={skeleton.pob_import_hint}>
+          <CopyButton value={skeleton.pob_code}>
             {({ copied, copy }) => (
               <Button
-                size="compact-xs"
-                variant="subtle"
                 color={copied ? "teal" : "ember"}
                 leftSection={
-                  copied ? <IconCheck size={12} /> : <IconCopy size={12} />
+                  copied ? <IconCheck size={14} /> : <IconCopy size={14} />
                 }
-                onClick={copy}
+                onClick={() => {
+                  copy();
+                  notifications.show({
+                    color: "ember",
+                    title: t({ it: "Copiato", en: "Copied" }),
+                    message: t({
+                      it: "Incolla il codice nel pulsante \"Import\" di PoB.",
+                      en: 'Paste the code into PoB\'s "Import" button.',
+                    }),
+                  });
+                }}
               >
                 {copied
                   ? t({ it: "Copiato", en: "Copied" })
-                  : t({ it: "Copia", en: "Copy" })}
+                  : t({ it: "Copia codice PoB", en: "Copy PoB code" })}
               </Button>
             )}
           </CopyButton>
         </Group>
-        <Text size="xs" c="dimmed" style={{ whiteSpace: "pre-wrap" }}>
-          {skeleton.pob_import_hint}
+        <Text size="10px" c="dimmed" style={{ wordBreak: "break-all" }}>
+          {skeleton.pob_code.slice(0, 240)}…
         </Text>
       </Card>
     </Stack>
   );
 }
 
-function BuildGeneratorPanel() {
+// ---------------------------------------------------------------------------
+// Page
+// ---------------------------------------------------------------------------
+
+export function TheorycrafterPage() {
   const t = useT();
-  const { query, budgetTier, contentFocus, result } = usePageStore(
-    (s) => s.theory,
-  );
+  const { form, result } = usePageStore((s) => s.theory);
   const setTheory = usePageStore((s) => s.setTheory);
 
+  const skillsQuery = useQuery({
+    queryKey: ["theory-skills"],
+    queryFn: () => getTheorySkills(),
+    staleTime: 60 * 60 * 1000,
+  });
+
+  const skillsByName = useMemo(() => {
+    const m = new Map<string, { tags: string[]; damage_types: string[] }>();
+    for (const s of skillsQuery.data?.skills ?? []) {
+      m.set(s.name, { tags: s.tags, damage_types: s.damage_types });
+    }
+    return m;
+  }, [skillsQuery.data]);
+
   const genMut = useMutation({
-    mutationFn: () => generateBuild(query, budgetTier, contentFocus),
+    mutationFn: (intent: TheoryIntent) => generateBuild(intent),
     onSuccess: (data) => setTheory({ result: data }),
   });
 
-  const handleGenerate = () => {
-    if (!query.trim()) return;
-    setTheory({ result: null });
-    genMut.mutate();
-  };
+  const canSubmit =
+    !!form.character_class &&
+    !!form.ascendancy &&
+    !!form.primary_skill &&
+    !!form.damage_type;
 
-  const budgetData = BUDGET_KEYS.map((b) => ({
-    value: b.value,
-    label: t({ it: b.it, en: b.en }),
+  function patchForm(p: Partial<typeof form>): void {
+    setTheory({ form: { ...form, ...p } });
+  }
+
+  function onSelectClass(v: string | null): void {
+    patchForm({
+      character_class: v ?? "",
+      ascendancy: "",
+      primary_skill: "",
+      damage_type: "",
+    });
+  }
+
+  function onSelectAsc(v: string | null): void {
+    patchForm({ ascendancy: v ?? "", primary_skill: "", damage_type: "" });
+  }
+
+  function onSelectSkill(v: string | null): void {
+    const meta = v ? skillsByName.get(v) : undefined;
+    const dt = meta?.damage_types?.[0];
+    patchForm({
+      primary_skill: v ?? "",
+      damage_type:
+        (dt as DamageType | undefined) ??
+        (meta?.tags.find((tg) =>
+          ["fire", "cold", "lightning", "chaos", "physical"].includes(tg),
+        ) as DamageType | undefined) ??
+        "",
+    });
+  }
+
+  function onGenerate(): void {
+    if (!canSubmit) return;
+    setTheory({ result: null });
+    genMut.mutate({
+      character_class: form.character_class,
+      ascendancy: form.ascendancy,
+      primary_skill: form.primary_skill,
+      damage_type: form.damage_type as DamageType,
+      defence_archetype: form.defence_archetype,
+      budget: form.budget,
+      focus: form.focus,
+    });
+  }
+
+  const ascData = form.character_class
+    ? ASCENDANCIES[form.character_class] ?? []
+    : [];
+  const skillData = (skillsQuery.data?.skills ?? []).map((s) => ({
+    value: s.name,
+    label: s.name,
   }));
-  const focusData = FOCUS_KEYS.map((f) => ({
-    value: f.value,
-    label: t({ it: f.it, en: f.en }),
+  const damageData = DAMAGE_TYPES.map((d) => ({
+    value: d.value,
+    label: t({ it: d.it, en: d.en }),
   }));
 
   return (
     <Stack gap="md">
-      <Textarea
-        label={t({ it: "Descrivi la tua build", en: "Describe your build" })}
-        placeholder={t({
-          it: "es. Elementalist con Fireball, mapping veloce",
-          en: "e.g. Elementalist with Fireball, fast mapping",
+      <Title order={2}>Theorycrafter</Title>
+      <Text size="sm" c="dimmed" maw={640}>
+        {t({
+          it: "Compila i campi per generare uno scheletro di build da zero — albero, gemme e basi vengono dai dati ufficiali di PoE 3.28. Nessun campo libero: niente classi inventate o oggetti che non esistono.",
+          en: "Fill in the fields to generate a build skeleton from scratch — the tree, gems and bases come from official PoE 3.28 data. No free text input: no invented classes or items.",
         })}
-        value={query}
-        onChange={(e) => setTheory({ query: e.currentTarget.value })}
-        minRows={2}
-        autosize
-        onKeyDown={(e) => {
-          if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) handleGenerate();
-        }}
-      />
-      <Group gap="sm" align="flex-end" wrap="wrap">
-        <Select
-          label={t({ it: "Budget", en: "Budget" })}
-          data={budgetData}
-          value={budgetTier}
-          onChange={(v) =>
-            setTheory({ budgetTier: (v as SkeletonBudget | null) ?? "mid" })
-          }
-          allowDeselect={false}
-          w={160}
-        />
-        <Select
-          label={t({ it: "Focus", en: "Focus" })}
-          data={focusData}
-          value={contentFocus}
-          onChange={(v) => setTheory({ contentFocus: v ?? "mapping" })}
-          allowDeselect={false}
-          w={200}
-        />
-        <Button
-          leftSection={<IconFlask size={16} />}
-          onClick={handleGenerate}
-          loading={genMut.isPending}
-          disabled={!query.trim()}
-        >
-          {t({ it: "Genera", en: "Generate" })}
-        </Button>
-      </Group>
+      </Text>
 
+      {/* Form */}
+      <Card withBorder padding="md">
+        <Stack gap="sm">
+          <Group gap="sm" wrap="wrap" align="flex-end">
+            <Select
+              label={t({ it: "Classe", en: "Class" })}
+              placeholder={t({ it: "Scegli", en: "Pick" })}
+              data={CLASSES as unknown as string[]}
+              value={form.character_class || null}
+              onChange={onSelectClass}
+              w={160}
+            />
+            <Select
+              label="Ascendancy"
+              placeholder={t({ it: "Scegli", en: "Pick" })}
+              data={ascData}
+              value={form.ascendancy || null}
+              onChange={onSelectAsc}
+              disabled={!form.character_class}
+              w={170}
+            />
+            <Select
+              label={t({ it: "Skill primaria", en: "Primary skill" })}
+              placeholder={t({ it: "Scegli", en: "Pick" })}
+              data={skillData}
+              value={form.primary_skill || null}
+              onChange={onSelectSkill}
+              disabled={!form.ascendancy || skillsQuery.isLoading}
+              searchable
+              w={220}
+            />
+            <Select
+              label={t({ it: "Tipo di danno", en: "Damage type" })}
+              data={damageData}
+              value={form.damage_type || null}
+              onChange={(v) =>
+                patchForm({ damage_type: (v as DamageType | null) ?? "" })
+              }
+              disabled={!form.primary_skill}
+              w={170}
+            />
+          </Group>
+          <Group gap="md" wrap="wrap">
+            <Box>
+              <Text size="xs" c="dimmed" mb={4}>
+                {t({ it: "Difesa", en: "Defence" })}
+              </Text>
+              <SegmentedControl
+                value={form.defence_archetype}
+                onChange={(v) =>
+                  patchForm({ defence_archetype: v as DefenceArchetype })
+                }
+                data={DEFENCES.map((d) => ({
+                  value: d.value,
+                  label: t({ it: d.it, en: d.en }),
+                }))}
+              />
+            </Box>
+            <Box>
+              <Text size="xs" c="dimmed" mb={4}>
+                {t({ it: "Budget", en: "Budget" })}
+              </Text>
+              <SegmentedControl
+                value={form.budget}
+                onChange={(v) => patchForm({ budget: v as SkeletonBudget })}
+                data={BUDGETS.map((b) => ({
+                  value: b.value,
+                  label: t({ it: b.it, en: b.en }),
+                }))}
+              />
+            </Box>
+            <Box>
+              <Text size="xs" c="dimmed" mb={4}>
+                Focus
+              </Text>
+              <SegmentedControl
+                value={form.focus}
+                onChange={(v) => patchForm({ focus: v as TheoryContentFocus })}
+                data={FOCI.map((f) => ({
+                  value: f.value,
+                  label: t({ it: f.it, en: f.en }),
+                }))}
+              />
+            </Box>
+          </Group>
+          <Divider />
+          <Group justify="flex-end">
+            <Button
+              leftSection={<IconFlask size={16} />}
+              disabled={!canSubmit}
+              loading={genMut.isPending}
+              onClick={onGenerate}
+            >
+              {t({ it: "Genera build", en: "Generate build" })}
+            </Button>
+          </Group>
+        </Stack>
+      </Card>
+
+      {/* Errors / loading / result */}
       {genMut.isError && (
-        <Alert
-          color="red"
-          title={t({ it: "Errore di generazione", en: "Generation error" })}
-        >
+        <Alert color="red" title={t({ it: "Errore", en: "Error" })}>
           {genMut.error.message}
         </Alert>
       )}
-
       {genMut.isPending && (
-        <Box className="vs-skeleton vs-skeleton-card" style={{ height: 240 }} />
+        <Box className="vs-skeleton vs-skeleton-card" style={{ height: 280 }} />
       )}
-
       {!genMut.isPending && result && (
         <ErrorBoundary
           label={t({
@@ -307,40 +589,6 @@ function BuildGeneratorPanel() {
           <SkeletonResult skeleton={result} />
         </ErrorBoundary>
       )}
-    </Stack>
-  );
-}
-
-export function TheorycrafterPage() {
-  const t = useT();
-  return (
-    <Stack gap="md">
-      <Title order={2}>Theorycrafter</Title>
-      <Text size="sm" c="dimmed" maw={620}>
-        {t({
-          it: "Descrivi la build che vuoi giocare e ricevi uno scheletro completo — costruito da zero con i dati ufficiali di PoE 3.28, non copiato dalla classifica.",
-          en: "Describe the build you want to play and get a complete skeleton — built from scratch with official PoE 3.28 data, not copied from the ladder.",
-        })}
-      </Text>
-      <Tabs defaultValue="genera" color="ember">
-        <Tabs.List>
-          <Tabs.Tab value="genera">
-            {t({ it: "Genera build", en: "Generate build" })}
-          </Tabs.Tab>
-          <Tabs.Tab value="oggetti" disabled>
-            {t({ it: "Oggetti & mod — in arrivo", en: "Items & mods — soon" })}
-          </Tabs.Tab>
-          <Tabs.Tab value="atlas" disabled>
-            {t({ it: "Atlas — in arrivo", en: "Atlas — soon" })}
-          </Tabs.Tab>
-          <Tabs.Tab value="filter" disabled>
-            {t({ it: "Loot filter — in arrivo", en: "Loot filter — soon" })}
-          </Tabs.Tab>
-        </Tabs.List>
-        <Tabs.Panel value="genera" pt="md">
-          <BuildGeneratorPanel />
-        </Tabs.Panel>
-      </Tabs>
     </Stack>
   );
 }

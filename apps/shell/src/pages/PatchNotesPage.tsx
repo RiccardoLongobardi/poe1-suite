@@ -28,6 +28,35 @@ interface Release {
 // Prepend a new entry with user-facing (not technical) bilingual copy.
 const RELEASES: Release[] = [
   {
+    date: { it: "20 mag 2026", en: "20 May 2026" },
+    title: {
+      it: "Theorycrafter v2 — form e PoB importabile",
+      en: "Theorycrafter v2 — form-driven with PoB export",
+    },
+    summary: {
+      it: "Generatore di build completamente riprogettato: form a cascata, PoB code completo e link Trade per ogni slot.",
+      en: "Completely redesigned build generator: cascading form, full PoB code, Trade links per slot.",
+    },
+    entries: [
+      {
+        it: "Niente piu testo libero: scegli Classe -> Ascendancy -> Skill -> Danno -> Difesa -> Budget -> Focus. Le opzioni a valle si filtrano automaticamente.",
+        en: "No more free text: pick Class -> Ascendancy -> Skill -> Damage -> Defence -> Budget -> Focus. Downstream options filter automatically.",
+      },
+      {
+        it: "Ogni build generata ora include un codice PoB completo: copialo e incollalo nel pulsante \"Import\" di Path of Building.",
+        en: "Every generated build now ships a complete PoB code: copy it and paste into Path of Building's \"Import\" button.",
+      },
+      {
+        it: "Ogni slot di equipaggiamento ha un'icona Trade che apre la ricerca su pathofexile.com con il base type giusto.",
+        en: "Every gear slot has a Trade icon that opens a pathofexile.com search with the correct base type.",
+      },
+      {
+        it: "Albero passivo: vengono indicati i veri node id dei keystone e degli ascendancy notable, presi dai dati ufficiali 3.28.",
+        en: "Passive tree: real keystone and ascendancy-notable node IDs are surfaced, sourced from the official 3.28 data.",
+      },
+    ],
+  },
+  {
     date: { it: "19 mag 2026", en: "19 May 2026" },
     title: {
       it: "Theorycrafter — Genera build",

@@ -10,15 +10,16 @@ import type {
   ApiError,
   BuildIntent,
   BuildSkeleton,
-  SkeletonBudget,
   GearProgression,
   GemProgression,
   PlanResponse,
   PricingProgress,
   RecommendResponse,
+  SkillsResponse,
   StageExportRequest,
   StageExportResponse,
   TargetGoal,
+  TheoryIntent,
   TradeModExtractResponse,
   TradeUrlRequest,
   TradeUrlResponse,
@@ -74,22 +75,21 @@ export async function recommend(
 }
 
 /**
- * POST /fob/theory/generate — Theorycrafter Build Generator.
+ * POST /fob/theory/generate — Theorycrafter Build Generator v2.
  *
- * Rule-based, from-scratch: the server resolves the query to a curated
- * archetype and synthesises a `BuildSkeleton` from vendored 3.28 data.
- * No ladder retrieval, no LLM.
+ * Form-driven. The server synthesises a `BuildSkeleton` from a
+ * structured `TheoryIntent` using vendored 3.28 data (passive tree,
+ * gem tags, item bases) — no ladder, no LLM.
  */
 export async function generateBuild(
-  query: string,
-  budgetTier: SkeletonBudget = "mid",
-  contentFocus: string | null = null,
+  intent: TheoryIntent,
 ): Promise<BuildSkeleton> {
-  return post<BuildSkeleton>("/fob/theory/generate", {
-    query,
-    budget_tier: budgetTier,
-    content_focus: contentFocus,
-  });
+  return post<BuildSkeleton>("/fob/theory/generate", { intent });
+}
+
+/** GET /fob/theory/skills — active-skill catalogue for the form. */
+export async function getTheorySkills(): Promise<SkillsResponse> {
+  return get<SkillsResponse>("/fob/theory/skills");
 }
 
 /** POST /fob/analyze-pob */

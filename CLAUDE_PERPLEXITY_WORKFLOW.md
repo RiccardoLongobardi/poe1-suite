@@ -25,7 +25,7 @@ Don't trust earlier versions of this file — the section below is the authorita
   - Trade dialog: `TradeSearchDialog` with full GGG stat DB (~9.5k stats), name/base search, per-mod toggles + strictness slider, 5L/6L filter, Instant Buyout default, integer min-roll filters, domain-aware implicit/explicit stat resolution. ✅
   - Theorycrafter Build Generator v1 (Step 39) — rule-based from-scratch, `archetypes_3_28.json`, no ladder, no LLM. **To be superseded by v2 (Step 40).** ✅
 - **Design system**: "Void Stone & Ember" — void-black warm backgrounds, ember-gold accent, parchment text, Cinzel/Cabinet Grotesk/Geist Mono type. Light mode: "Parchment" (warm cream + ink). Both QA-verified. ✅
-- **Step 40 (Theorycrafter Build Generator v2) IN PROGRESS** — form-driven UI (no free text), graph engine over vendored data, complete PoB XML export, trade links per gear slot.
+- **Step 40 (Theorycrafter Build Generator v2) DONE 2026-05-20** ✅ — form-driven UI (cascading selects, no free text), graph engine over vendored 3.28 data, complete importable PoB code, Trade icon per gear slot, anti-hallucination runtime asserts. v1 archetype JSON deleted. 727 tests / 128 mypy.
 
 **Baseline gate (current): 722 tests green / 129 mypy / ruff clean.**
 
@@ -126,7 +126,7 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 
 ### IN PROGRESS
 
-- **Step 40 — Theorycrafter Build Generator v2** (Prompt 027 — see §8)
+*(none as of 2026-05-20 — Step 40 shipped)*
 
 ### CANDIDATE FUTURE WORK
 
@@ -138,7 +138,8 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 
 ### DONE
 
-- [x] **Step 39 — Theorycrafter Build Generator v1** (2026-05-19, Prompt 026) — rule-based from-scratch generator. 722 tests / 129 mypy. To be superseded by v2.
+- [x] **Step 40 — Theorycrafter Build Generator v2** (2026-05-20, Prompt 027) — form-driven UI (cascading selects, no free text), graph engine over vendored 3.28 data (`gems_3_28.json` + `tree/3_28.json` + `base_items.json`), complete importable PoB code, Trade icon per gear slot, anti-hallucination runtime asserts. Step 39's archetype JSON deleted. 727 tests / 128 mypy.
+- [x] **Step 39 — Theorycrafter Build Generator v1** (2026-05-19, Prompt 026) — rule-based from-scratch generator. Superseded by Step 40.
 - [x] **Step 38r — Theorycrafter architectural reset** (2026-05-19, Prompt 025). ✅
 - [x] **Step 37 — Theorycrafter design & architecture analysis** (2026-05-19, Prompt 024). ✅
 - [x] **Step 36 — View Transitions API** (2026-05-19, Prompt 023) — Layer 3a only. ✅
@@ -164,6 +165,7 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 
 Reverse-chronological.
 
+- **2026-05-20** — *Step 40 shipped — gem data sourced from PoB Community upstream.* `scripts/extract_gems.py` lists `src/Data/Skills/*.lua` via the GitHub Contents API, fetches each file's raw text, and parses every top-level `skills["X"] = { ... }` block with a brace-balanced scanner. From each block it extracts: `name`, the `support` flag (with file location as secondary signal), `skillTypes`/`requireSkillTypes`/`excludeSkillTypes` (mapped through a `SkillType.X → tag` normalisation table — wiring-only flags like `Trappable`/`Totemable`/`CanRapidFire` are dropped), and excludes entries with `hidden = true`, `manualSkill = true`, `fromItem = true`, or no `levels = {` block. First successful run: **555 actives + 278 supports**. The hardcoded ~30-entry fallback I had written under the original Prompt 027 v1 was deleted before the run — no hand-authored data ships. Support priority is heuristic: `100 - 4 * len(require)` (tighter requirements → higher rank), `+5` for `Awakened`. Re-run the script per league.
 - **2026-05-20** — *No fallbacks to hand-authored data (permanent rule, §4 rule 7).* If `scripts/extract_gems.py` fails to parse the PoB Community `.lua` files, Claude must stop and report — not substitute invented or manually-curated gem data. Same principle applies to all future vendor scripts. Official data only.
 - **2026-05-20** — *Build Generator v2 architecture decided.* (1) **No free-text input**: UI is form-driven with cascading selects (Class → Ascendancy → Primary Skill → Damage Type → Defence Archetype → Budget → Focus). User cannot enter invalid combinations — downstream options are filtered by upstream selections. (2) **Graph engine over vendored data**: given a structured `BuildIntent`, the engine traverses `tree/3_28.json` (pathfinding from class start node to relevant keystones/notables), `gems_3_28.json` (tag-based support compatibility), `base_items.json` (slot-filtered base selection). Zero hardcoded archetype JSON. (3) **Gem data source**: `scripts/extract_gems.py` parses PoB Community fork `src/Data/Skills/*.lua` — official data, no fallback. (4) **PoB XML export — complete**: class, ascendancy, passive tree nodes (real node IDs from `tree/3_28.json`), 6L gem links in Body Armour slot, secondary 4L setup, 5 flask slots with real base types from `base_items.json`, all gear slots with best base per budget tier, stat estimates derived from tree nodes + gear stat weights — flagged as estimates in the UI. (5) **Trade links per gear slot**: same `POST /fob/trade-url` pattern as Planner/Analyze. (6) **No tab shell on /theorycrafter**: Atlas Strategy and Item Filter Generator are separate future tools, not tabs. (7) **Item cards**: reuse `GearCard` from Analyze — unified visual language.
 - **2026-05-19** — *Step 39 shipped — Theorycrafter Build Generator v1.* ~18 curated archetypes in `archetypes_3_28.json`. Superseded by v2.
@@ -184,188 +186,7 @@ Reusable templates. Self-contained — runnable today without past-chat context.
 
 ---
 
-### Prompt 027 — Step 40: Theorycrafter Build Generator v2 (form-driven, graph engine, complete PoB XML)
-
-**Context for Claude**: Read `CLAUDE.md` and `CLAUDE_PERPLEXITY_WORKFLOW.md` §1/§7 before starting. Step 39's Build Generator used ~18 hardcoded archetypes as its sole data source — this is being superseded. v2 replaces the archetype JSON with a graph engine over existing vendored data and changes the UI from a free-text textarea to a cascading form. The `/theorycrafter` route and `poe1_fob.theory` subpackage already exist — this step rewrites their internals.
-
-**Data integrity rule (non-negotiable)**: use only official data sources. If any parse script fails or produces incomplete output, stop and report to the user — do NOT substitute hand-authored or manually-curated data as a fallback. An honest failure is better than silently degraded data quality.
-
----
-
-**Phase 1 — Gem data vendor (prerequisite)**
-
-Before touching any generator logic, establish `data/gems/gems_3_28.json`.
-
-1. Check if the file already exists under `packages/fob/data/gems/`. If it exists and is non-empty, skip to Phase 2.
-2. If it does not exist, write `scripts/extract_gems.py` that:
-   - Clones (shallow) or downloads the PoB Community fork: `https://github.com/PathOfBuildingCommunity/PathOfBuilding` — specifically `src/Data/Skills/*.lua`.
-   - Parses each `.lua` file to extract: `name` (skill name), `tags` (list of mechanic tags e.g. `["spell", "fire", "aoe", "projectile"]`), `skill_type` (`"active"` or `"support"`), `valid_gem_tags` (for supports: the list of tags a skill must have for this support to be linkable).
-   - Outputs `packages/fob/data/gems/gems_3_28.json` as a flat list of gem objects.
-   - **If the parse fails or produces fewer than 100 active skill entries, the script must exit with a non-zero code and a descriptive error. Do not produce a partial or hand-authored file. Stop and report.**
-3. Add `gems_3_28.json` to `packages/fob/data/__init__.py` or equivalent data loader.
-4. Add `scripts/extract_gems.py` to `.gitignore` if it downloads external repos. The output JSON must be committed.
-
----
-
-**Phase 2 — Graph engine (backend)**
-
-Replace the `poe1_fob.theory.generator` internals. The public API `POST /fob/theory/generate` signature stays — only the internal engine changes.
-
-The `BuildIntent` model changes from a free-text `query: str` to a structured form:
-
-```python
-class BuildIntent(BaseModel):
-    character_class: str        # e.g. "Witch"
-    ascendancy: str             # e.g. "Elementalist"
-    primary_skill: str          # e.g. "Fireball" — must be a valid name from gems_3_28.json
-    damage_type: str            # e.g. "fire" — derived from skill but overridable
-    defence_archetype: str      # "life" | "es" | "ward" | "hybrid_life_es"
-    budget: str                 # "starter" | "mid" | "endgame"
-    focus: str                  # "mapping" | "bossing" | "allcontent"
-```
-
-The engine pipeline — all steps use vendored data only, zero external calls:
-
-**Step A — Gem link resolution** (`gems_3_28.json`):
-- Fetch the primary skill entry. Get its `tags`.
-- For the 6L: find the 5 best support gems where `valid_gem_tags` is a subset of the skill's tags, ranked by a static `priority` field (you define this in the JSON — e.g. `Awakened Spell Cascade` → priority 100, `Greater Multiple Projectiles` → 90, etc.).
-- For the secondary 4L: pick a utility skill appropriate for `focus` (e.g. `focus=bossing` → include a curse; `focus=mapping` → include a movement skill).
-- Rule: never recommend a support that is not in `gems_3_28.json`. If fewer than 5 valid supports exist for a skill, fill remaining slots with `"(open)"` strings.
-
-**Step B — Passive tree pathfinding** (`tree/3_28.json`):
-- Locate the start node for `character_class` (each class has a fixed start node ID in the tree JSON).
-- Use BFS/Dijkstra over the tree graph to find the shortest path to the top 8 `notable` and top 2 `keystone` nodes that match the build's `damage_type` and `defence_archetype`.
-- Node selection criteria: a notable is "relevant" if its `stats` array contains keywords matching `damage_type` (e.g. `"fire damage"`, `"spell damage"`) or `defence_archetype` (e.g. `"maximum life"`, `"energy shield"`).
-- Output: list of `{node_id, name, type, stats[]}` — real node IDs from the tree JSON. No invented IDs.
-- Total node count target: 90–110 nodes for a complete endgame tree, scaled down proportionally for starter/mid budget.
-
-**Step C — Gear slot resolution** (`base_items.json`):
-- For each of the 13 gear slots (Helmet, Body Armour, Gloves, Boots, Belt, Amulet, Ring×2, Weapon, Off-hand, Flask×5), find the best base:
-  - Filter `base_items.json` by `item_class` matching the slot.
-  - Filter by `tags` — e.g. body armour for an ES build should have the `"energy_shield"` tag; for a life build prefer `"armour"` or hybrid.
-  - Filter by `drop_level` ≤ budget threshold (starter: ≤ 60, mid: ≤ 80, endgame: no filter).
-  - Pick the highest `drop_level` item within the budget threshold (proxy for "best accessible base").
-- Rule: every recommended base must exist verbatim in `base_items.json`. Validation: after selecting all bases, assert each `base_name` is in the set of names from `base_items.json` — raise a `500` with a descriptive message if any assertion fails.
-- For each gear slot, also derive `stat_priorities`: a list of 2–3 stat strings (e.g. `["#% increased maximum Life", "to maximum Life", "#% to Fire Resistance"]`) appropriate for the `BuildIntent`. These will be used for Trade link generation.
-
-**Step D — Stat estimates**:
-- Life pool estimate: `base_life[character_class]` (constant per class, hardcode these 7 values) + sum of `"maximum life"` stat values from selected tree nodes × 0.8 (conservative multiplier) + gear life estimate per budget tier (starter: 800, mid: 1500, endgame: 2500).
-- ES pool: same pattern with `"energy shield"` nodes + gear ES estimate.
-- Resistance coverage: count resistance nodes in tree + flag `"resistances need capping"` if < 3 distinct resistance notables found.
-- DPS proxy: sum of `"increased fire/cold/lightning/chaos/spell/attack damage"` node values — not a real DPS number, just a relative score. Label clearly as `"dps_index"` not `"dps"` in the response model.
-- These are estimates. Flag them with `"estimated": true` in the `BuildSkeleton` response model.
-
-**Step E — PoB XML generation** (`poe1_fob.theory.pob_export`):
-
-Generate a complete, importable PoB XML. The format is the PathOfBuilding Community XML format (documented at https://github.com/PathOfBuildingCommunity/PathOfBuilding/wiki). The XML must include:
-
-```xml
-<PathOfBuilding>
-  <Build level="100" targetVersion="3_21" bandit="None"
-         className="{class}" ascendClassName="{ascendancy}"
-         mainSocketGroup="1" viewMode="TREE">
-    <Stat stat="TotalDPS" value="{dps_index}" />
-    <Stat stat="Life" value="{life_estimate}" />
-  </Build>
-  <Skills>
-    <Skill mainActiveSkillCalcs="1" mainActiveSkill="1" enabled="true"
-           slot="Body Armour" label="Primary 6L">
-      <Gem skillId="{primary_skill_id}" level="20" quality="20" enabled="true" />
-      <!-- 5 support gems -->
-    </Skill>
-    <Skill enabled="true" slot="Helmet" label="Secondary 4L">
-      <!-- 4 gems -->
-    </Skill>
-  </Skills>
-  <Tree activeSpec="1">
-    <Spec title="{build_name}" ascendClassId="{asc_id}" nodes="{comma_separated_node_ids}" />
-  </Tree>
-  <Items>
-    <Item id="1">Rarity: Normal\n{base_name}\n</Item>
-    <!-- one per slot -->
-    <ItemSet id="1">
-      <Slot name="Helmet" itemId="1" />
-      <!-- all 13 slots -->
-    </ItemSet>
-  </Items>
-  <Notes>{rationale_en}</Notes>
-</PathOfBuilding>
-```
-
-The XML is base64-encoded and zlib-compressed (same format PoB uses for its clipboard codes). Expose a field `pob_code: str` in the `BuildSkeleton` response. Validate that `base64.b64decode` + `zlib.decompress` round-trips correctly in a unit test.
-
----
-
-**Phase 3 — Frontend (form-driven UI)**
-
-Replace the free-text `BuildGeneratorPanel` with a cascading form. Use the existing Mantine component library.
-
-The form has 7 fields in order:
-
-1. **Classe** — static list of all 7 PoE classes. Always shown.
-2. **Ascendancy** — filtered by selected class (3 options per class + Scion has 1). Disabled until class is selected.
-3. **Skill primaria** — fetched from `GET /fob/theory/skills` (see Phase 4). Disabled until ascendancy is selected.
-4. **Tipo di danno** — derived automatically from the selected skill's `tags`, overridable. Options: fire, cold, lightning, chaos, physical, spell, attack.
-5. **Difesa** — `SegmentedControl`: Vita | ES | Ward | Ibrido.
-6. **Budget** — `SegmentedControl`: Starter | Mid | Endgame.
-7. **Focus** — `SegmentedControl`: Mapping | Bossing | All Content.
-
-All 7 fields must be filled before "Genera Build" is enabled. No submit on Enter.
-
-Result display:
-- Use the existing `GearCard` component (from Analyze) for each gear slot. Do not create a new item card component — unified visual language is mandatory.
-- Each `GearCard` has a trade icon that calls `POST /fob/trade-url` with `base_name` + `stat_priorities` and opens the result URL in a new tab.
-- Gem links: pill badges (same style as existing skill-link panel in Analyze).
-- Tree section: compact list of notable/keystone nodes with their `stats` text.
-- Stat estimates: clearly labeled with `~` prefix + tooltip `"Valori stimati — importa in PoB per calcoli precisi"`.
-- PoB export button: ember-gold, bottom of result. Label: "Esporta in PoB" / "Export to PoB". On click: copies `pob_code` to clipboard + toast. Secondary: download as `{class}_{ascendancy}_{skill}_pob.txt`.
-- Remove the tab shell entirely. `/theorycrafter` is a single-page tool with no tabs.
-
----
-
-**Phase 4 — New endpoint for skills dropdown**
-
-Add `GET /fob/theory/skills` to `poe1_fob.theory.router`:
-- Query params: `class_name: str`, `ascendancy: str` (optional).
-- Returns: `{skills: [{name: str, tags: list[str], damage_types: list[str]}]}` — only active skills from `gems_3_28.json`.
-- Synchronous, reads only from vendored JSON, no poe.ninja calls.
-
----
-
-**Phase 5 — Tests**
-
-Minimum 12 tests. Required:
-
-- `test_gem_links_only_valid_supports` — every support in any 6L exists in `gems_3_28.json` and its `valid_gem_tags` ⊆ skill tags.
-- `test_tree_nodes_are_real` — every `node_id` in tree output exists in `tree/3_28.json`.
-- `test_gear_bases_are_real` — every `base_name` in all gear slots exists in `base_items.json`.
-- `test_pob_code_round_trip` — `pob_code` base64-decodes and zlib-decompresses to valid XML with correct class name.
-- `test_trade_url_per_slot` — `POST /fob/trade-url` with a slot's `base_name` + `stat_priorities` returns a non-empty URL.
-- `test_skills_endpoint` — `GET /fob/theory/skills` returns a non-empty list.
-- `test_full_pipeline_witch_elementalist_fireball` — full end-to-end with `{Witch, Elementalist, Fireball, fire, life, mid, mapping}`.
-- `test_full_pipeline_duelist_gladiator_bleed` — full end-to-end for a melee bleed build.
-
----
-
-**Phase 6 — Docs & gate**
-
-- Update `CLAUDE.md`: mark Step 40 done, update baseline gate numbers.
-- Update `CLAUDE_PERPLEXITY_WORKFLOW.md` §1 (snapshot), §6 (Step 40 to DONE), §7 (decision log).
-- Update `PatchNotesPage.tsx` `RELEASES` with bilingual (it/en) entry.
-- Gate: all existing + new tests pass. `mypy` + `ruff` clean.
-
----
-
-**Hard constraints (non-negotiable)**:
-
-1. Every recommended base name must exist in `base_items.json`. Assert at runtime.
-2. Every tree node ID must exist in `tree/3_28.json`. Assert at runtime.
-3. Every support gem must exist in `gems_3_28.json`. Assert at runtime.
-4. poe.ninja ladder is NOT a data source. Vendored data only.
-5. Reuse `GearCard` from Analyze. No new item card component.
-6. No tab shell on `/theorycrafter`.
-7. No free-text input anywhere in the form.
-8. **No fallbacks to hand-authored data.** If `extract_gems.py` fails or produces < 100 active skills, stop and report. Do not substitute curated data silently.
+*(no open prompts as of 2026-05-20 — Prompt 027 shipped, see §9)*
 
 ---
 
@@ -390,4 +211,5 @@ Closed prompts kept for context. Don't run these.
 - **Old Prompt 023 (Step 36 — View Transitions API)** — Shipped 2026-05-19, partially reverted. ✅
 - **Old Prompt 024 (Step 37 — Theorycrafter design & architecture analysis)** — Shipped 2026-05-19. ✅
 - **Old Prompt 025 (Step 38r — Theorycrafter architectural reset)** — Shipped 2026-05-19. ✅ Option C chosen.
-- **Old Prompt 026 (Step 39 — Theorycrafter Build Generator v1)** — Shipped 2026-05-19. ✅ Rule-based from-scratch generator. No ladder, no LLM. 722 tests / 129 mypy.
+- **Old Prompt 026 (Step 39 — Theorycrafter Build Generator v1)** — Shipped 2026-05-19. ✅ Superseded by Prompt 027.
+- **Old Prompt 027 (Step 40 — Theorycrafter Build Generator v2)** — Shipped 2026-05-20. ✅ Form-driven UI, graph engine over vendored 3.28 data, complete PoB code, Trade per slot, anti-hallucination asserts. Gem data extracted from official PoB Community source via `scripts/extract_gems.py` (555 actives + 278 supports — no hand-authored fallback). 727 tests / 129 mypy.

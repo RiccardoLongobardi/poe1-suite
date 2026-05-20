@@ -1,23 +1,41 @@
-"""Theorycrafter — from-scratch build generation for FOB.
+"""Theorycrafter — from-scratch build generation (v2, Step 40)."""
 
-Step 39 ships Pillar 1: the rule-based Build Generator. It synthesises
-a :class:`BuildSkeleton` from vendored 3.28 data — it never retrieves
-builds from the poe.ninja ladder (that is the Build Finder's job).
-"""
-
-from .archetypes import Archetype, get_archetypes, resolve_archetype
-from .generator import TheoryError, generate_build
-from .models import BudgetTier, BuildSkeleton, GearSlot, GemLink, TreeMilestone
+from .generator import (
+    TheoryError,
+    TheoryHallucinationError,
+    generate_build,
+    list_active_skills,
+)
+from .models import (
+    BudgetTier,
+    BuildSkeleton,
+    ContentFocus,
+    DamageType,
+    DefenceArchetype,
+    GearSlot,
+    GemLink,
+    SkillEntry,
+    SkillsResponse,
+    StatEstimate,
+    TheoryIntent,
+    TreeNodeRef,
+)
 
 __all__ = [
-    "Archetype",
     "BudgetTier",
     "BuildSkeleton",
+    "ContentFocus",
+    "DamageType",
+    "DefenceArchetype",
     "GearSlot",
     "GemLink",
+    "SkillEntry",
+    "SkillsResponse",
+    "StatEstimate",
     "TheoryError",
-    "TreeMilestone",
+    "TheoryHallucinationError",
+    "TheoryIntent",
+    "TreeNodeRef",
     "generate_build",
-    "get_archetypes",
-    "resolve_archetype",
+    "list_active_skills",
 ]
