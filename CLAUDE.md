@@ -77,7 +77,7 @@ uv run mypy .
 uv run pytest
 ```
 
-All four must pass with zero errors. Current baseline: **732 tests green (2 skipped — integration/LLM), 129 files type-checked clean**. Frontend build main ~465 KB / 149 KB gzip.
+All four must pass with zero errors. Current baseline: **747 tests green (2 skipped — integration/LLM), 132 files type-checked clean**. Frontend build main ~468 KB / 150 KB gzip.
 
 ## English support + uniform input font (2026-05-15) ✅
 
@@ -113,6 +113,39 @@ Frontend-only, no backend change.
 > copy, NOT technical jargon (no file names, no internal step numbers).
 > Updating the `.md` files without updating the Patch Notes is an
 > incomplete step.
+
+## Step 44 — Theorycrafter Build Generator BFS tree pathing (2026-05-20) ✅
+
+Prompt 031. Replaces `_select_tree_nodes`' flat top-scored list with a real BFS path on the vendored tree graph. Every consecutive pair of returned node IDs is now adjacent in `TreeData.adjacency` — PoB renders a single contiguous allocation instead of dropping floating points.
+
+- **`bfs_path(adjacency, src, dst, forbidden=frozenset())`** — module-level BFS with predecessor reconstruction, O(V+E). The `forbidden` set lets the waypoint walk route around already-visited nodes (required: without it, a naive `dict.fromkeys` dedup at the end would silently drop steps and break adjacency between consecutive list entries — debugged on the Marauder/Juggernaut integration test).
+- **`_select_tree_nodes`** rewrite: score every regular (non-mastery, non-cluster, non-ascendancy) keystone + notable via the existing `_score_node`; keep top 2 keystones + top 8 notables; visit them greedily from the highest-scored target outward, calling `bfs_path(..., forbidden = visited - {current})` each step. Cap to `_MAX_TREE_NODES = 120`. Connect to the ascendancy entry node (`td.ascendancy_starts`) at the end if free budget remains. Travel nodes carry the new `type="travel"`; keystone/notable IDs are tracked separately so the path's intermediate nodes are correctly tagged. Ascendancy notables are still appended after the path as display-only entries (lab allocation, not tree-graph).
+- **`TreeNodeRef.type`** Literal extended with `"travel"`. Frontend `TreeNodeRef.type` mirrored.
+- **Frontend** filters `n.type === "travel"` out of the displayed tree-milestones list and appends a small caption: "Albero generato con N nodi (inclusi K nodi di percorso)." / "Tree generated with N nodes (K path nodes)."
+- **Cluster jewel nodes** (id ≥ 65536) and `is_mastery` nodes are excluded from BFS targets, same as before.
+
+6 tests in `test_theory_tree_pathing.py`: `bfs_path` unit tests (direct neighbors, three-step path including a shortcut, unreachable graph) + the critical **integration test** `test_select_tree_nodes_connected` that asserts `curr.node_id in td.adjacency[prev.node_id]` for every consecutive pair (excluding the ascendancy tail) on a real Marauder/Juggernaut intent, plus max-length and travel-tagging checks.
+
+Gate: 747 tests (+6) / 132 mypy / ruff clean.
+
+## Step 43 — Theorycrafter Build Generator viability validation (2026-05-20) ✅
+
+Prompt 030. New `poe1_fob.theory.viability` module returning a `ViabilityReport` attached to every `BuildSkeleton`. The pipeline never refuses to emit a build — the report is purely additive feedback the UI surfaces as alerts.
+
+- **`ViabilityIssue`** — `severity ("error"|"warning") + code + message_it + message_en`. **`ViabilityReport`** — `passed: bool` (no errors) + `issues: tuple[ViabilityIssue, ...]`.
+- **6 checks** in `validate_build(skeleton)`:
+  1. `res_always_gear` (always emitted) — reminder that resistances cap through gear, not the tree (~135% on items to cover Elemental Weakness).
+  2. `life_below_floor` (error) — life under SC mapping floor per budget: starter < 3 000, mid < 4 000, endgame < 5 500. Skipped for `defence_archetype == "es"`.
+  3. `es_below_floor` (error) — symmetric for ES (4 000 / 6 000 / 9 000), only for ES defence.
+  4. `single_defence_layer` (warning) — < 2 detected layers. Layers derived from `defence_archetype` + keystone presence (Acrobatics/Phase Acrobatics → evasion, Iron Reflexes → armour, Mind Over Matter → MoM, Chaos Inoculation → CI when defence is ES).
+  5. `no_movement_skill` (warning) — no `Flame Dash` / `Leap Slam` / etc. in any `GemLink.skill`.
+  6. `missing_mana_sustain` (warning) — no mana flask in `gear_slots` AND no `Lifetap` support in any link.
+- **Wiring**: `validate_build` runs at the end of `generate_build` (after `_assert_valid`); the result is attached via `model_copy(update={"viability": ...})` to keep `BuildSkeleton` frozen.
+- **Frontend**: new `ViabilityPanel` rendered right after the result header. Green alert when `passed` and no warnings; amber when only warnings; red header when any error, with a compact list of issue rows (red/yellow badge + bilingual message). Uses `IconCircleCheck` / `IconAlertTriangle`.
+
+8 tests in `test_theory_viability.py` cover each check + Lifetap-as-mana-sustain edge case. Tests construct `BuildSkeleton`s directly (no `generate_build` round-trip — too slow + orthogonal).
+
+Gate: 741 tests / 131 mypy / ruff clean.
 
 ## Step 42 — Theorycrafter gear card UX + Trade dialog (2026-05-20) ✅
 

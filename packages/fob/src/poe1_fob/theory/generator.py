@@ -27,6 +27,7 @@ Hard constraints (asserted at runtime — 500 over a hallucination):
 from __future__ import annotations
 
 import json
+from collections import deque
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
@@ -51,6 +52,7 @@ from .models import (
     TheoryIntent,
     TreeNodeRef,
 )
+from .viability import validate_build
 
 log = get_logger(__name__)
 
@@ -205,67 +207,165 @@ def _score_node(node: TreeNode, dmg: str, defence: str) -> int:
     return score
 
 
+def bfs_path(
+    adjacency: dict[int, frozenset[int]],
+    src: int,
+    dst: int,
+    forbidden: frozenset[int] | set[int] = frozenset(),
+) -> list[int] | None:
+    """Shortest path from *src* to *dst* on an undirected adjacency graph.
+
+    ``forbidden`` is a set of node ids the path must not traverse. *src*
+    and *dst* themselves are always allowed even if listed in
+    ``forbidden`` — they bookend the path. Used by the waypoint
+    expansion in ``_select_tree_nodes`` to route around already-visited
+    nodes so the overall allocation is a single connected component
+    with no duplicate steps.
+
+    Returns the list of node IDs from src to dst inclusive, or ``None``
+    if dst is unreachable from src without crossing forbidden nodes.
+    O(V+E) — predecessor reconstruction.
+    """
+    if src == dst:
+        return [src]
+    parents: dict[int, int | None] = {src: None}
+    queue: deque[int] = deque([src])
+    while queue:
+        node = queue.popleft()
+        for neighbor in adjacency.get(node, frozenset()):
+            if neighbor in parents:
+                continue
+            if neighbor in forbidden and neighbor != dst:
+                continue
+            parents[neighbor] = node
+            if neighbor == dst:
+                path: list[int] = [dst]
+                cur: int | None = node
+                while cur is not None:
+                    path.append(cur)
+                    cur = parents[cur]
+                path.reverse()
+                return path
+            queue.append(neighbor)
+    return None
+
+
+_MAX_TREE_NODES = 120
+_CLUSTER_JEWEL_MIN_ID = 65536
+
+
 def _select_tree_nodes(intent: TheoryIntent) -> tuple[TreeNodeRef, ...]:
-    """Pick relevant keystones, notables and ascendancy notables."""
+    """BFS path from the class start through the best-scored notables.
+
+    Step 44: replaces the previous flat "top-scored nodes" list. Every
+    consecutive pair of returned node IDs is guaranteed adjacent in
+    `TreeData.adjacency`, so PoB renders a contiguous allocation rather
+    than floating disconnected points. Ascendancy notables are still
+    listed for display but live outside the BFS path (they are
+    allocated via the lab, not the tree graph).
+    """
     td = get_tree_data()
+    class_idx = _CLASS_ID.get(intent.character_class, 0)
+    start_id = td.class_starts.get(class_idx, 0)
+
+    # Score regular (non-ascendancy, non-mastery, non-cluster) nodes.
     scored: list[tuple[int, TreeNode]] = []
     for n in td.nodes_by_id.values():
+        if n.id >= _CLUSTER_JEWEL_MIN_ID or n.is_mastery:
+            continue
         s = _score_node(n, intent.damage_type, intent.defence_archetype)
         if s > 0:
             scored.append((s, n))
     scored.sort(key=lambda t: (-t[0], t[1].id))
 
-    keystones = [n for _, n in scored if n.is_keystone][:2]
-    notables = [n for _, n in scored if n.is_notable][:8]
+    target_keystones = [n for _, n in scored if n.is_keystone][:2]
+    target_notables = [n for _, n in scored if n.is_notable][:8]
+    keystone_ids = {n.id for n in target_keystones}
+    notable_ids = {n.id for n in target_notables}
 
-    # Ascendancy notables for the chosen ascendancy.
-    asc_notables = [
-        n
-        for n in td.nodes_by_id.values()
-        if n.ascendancy_name == intent.ascendancy and n.is_notable and n.name
-    ]
-    asc_notables.sort(key=lambda n: n.id)
-    asc_notables = asc_notables[:4]
+    # Greedy waypoint expansion: visit the highest-scored target first,
+    # then route to the next via BFS from the current position.
+    targets: list[TreeNode] = sorted(
+        target_keystones + target_notables,
+        key=lambda n: -_score_node(n, intent.damage_type, intent.defence_archetype),
+    )
+
+    # Visit-tracking BFS: each new segment forbids already-visited
+    # nodes (except the current src) so the final path is contiguous
+    # with NO repeats — a simple `dict.fromkeys` dedup at the end would
+    # silently drop steps and break adjacency between consecutive list
+    # entries.
+    path: list[int] = [start_id]
+    visited: set[int] = {start_id}
+    current = start_id
+    for target in targets:
+        if target.id in visited:
+            current = target.id
+            continue
+        forbidden = visited - {current}
+        segment = bfs_path(td.adjacency, current, target.id, forbidden=forbidden)
+        if segment is None:
+            continue
+        if len(path) + len(segment) - 1 > _MAX_TREE_NODES:
+            break
+        path.extend(segment[1:])
+        visited.update(segment)
+        current = target.id
+
+    # Connect to the ascendancy entry node (lab path), if known.
+    asc_entry = td.ascendancy_starts.get(intent.ascendancy)
+    if asc_entry is not None and asc_entry not in visited and len(path) < _MAX_TREE_NODES:
+        forbidden = visited - {current}
+        segment = bfs_path(td.adjacency, current, asc_entry, forbidden=forbidden)
+        if segment is not None:
+            cap_slice = segment[1 : _MAX_TREE_NODES - len(path) + 1]
+            path.extend(cap_slice)
+            visited.update(cap_slice)
+
+    deduped = path  # visit-tracking BFS guarantees no duplicates already
 
     out: list[TreeNodeRef] = []
-    # Class start — use the real class index, not always Scion (0).
-    class_idx = _CLASS_ID.get(intent.character_class, 0)
-    start_id = td.class_starts.get(class_idx, 0)
-    out.append(
-        TreeNodeRef(
-            node_id=start_id,
-            name=f"{intent.character_class} start",
-            type="start",
-            stats=(),
-        )
+    for i, nid in enumerate(deduped):
+        node = td.nodes_by_id.get(nid)
+        if i == 0:
+            out.append(
+                TreeNodeRef(
+                    node_id=nid,
+                    name=f"{intent.character_class} start",
+                    type="start",
+                    stats=(),
+                ),
+            )
+            continue
+        if node is None:
+            continue
+        name = node.name or ("?" if nid in keystone_ids or nid in notable_ids else "")
+        if nid in keystone_ids:
+            out.append(TreeNodeRef(node_id=nid, name=name, type="keystone", stats=()))
+        elif nid in notable_ids:
+            out.append(TreeNodeRef(node_id=nid, name=name, type="notable", stats=()))
+        else:
+            out.append(TreeNodeRef(node_id=nid, name=name, type="travel", stats=()))
+
+    # Ascendancy notables — display-only, allocated via the lab.
+    asc_notables = sorted(
+        (
+            n
+            for n in td.nodes_by_id.values()
+            if n.ascendancy_name == intent.ascendancy and n.is_notable and n.name
+        ),
+        key=lambda n: n.id,
     )
-    for n in keystones:
-        out.append(
-            TreeNodeRef(
-                node_id=n.id,
-                name=n.name or "?",
-                type="keystone",
-                stats=(),
-            )
-        )
-    for n in notables:
-        out.append(
-            TreeNodeRef(
-                node_id=n.id,
-                name=n.name or "?",
-                type="notable",
-                stats=(),
-            )
-        )
-    for n in asc_notables:
+    for n in asc_notables[:4]:
         out.append(
             TreeNodeRef(
                 node_id=n.id,
                 name=n.name or "?",
                 type="ascendancy",
                 stats=(),
-            )
+            ),
         )
+
     return tuple(out)
 
 
@@ -919,6 +1019,9 @@ def generate_build(intent: TheoryIntent) -> BuildSkeleton:
         rationale_en=rationale_en,
         pob_code=pob_code,
     )
+    # Step 43 — run viability checks and attach the report. Never raises;
+    # error-severity issues are surfaced in the UI as alerts.
+    skeleton = skeleton.model_copy(update={"viability": validate_build(skeleton)})
     log.info(
         "theory_v2_ok",
         class_name=intent.character_class,
@@ -926,6 +1029,8 @@ def generate_build(intent: TheoryIntent) -> BuildSkeleton:
         skill=intent.primary_skill,
         nodes=len(nodes),
         slots=len(gear),
+        viability_passed=skeleton.viability.passed,
+        viability_issues=len(skeleton.viability.issues),
     )
     return skeleton
 

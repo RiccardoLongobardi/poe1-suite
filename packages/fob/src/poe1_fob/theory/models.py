@@ -24,6 +24,8 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from .viability import ViabilityReport
+
 BudgetTier = Literal["starter", "mid", "endgame"]
 DefenceArchetype = Literal["life", "es", "ward", "hybrid_life_es"]
 ContentFocus = Literal["mapping", "bossing", "allcontent"]
@@ -62,7 +64,7 @@ class TreeNodeRef(BaseModel):
 
     node_id: int
     name: str
-    type: Literal["keystone", "notable", "ascendancy", "start"]
+    type: Literal["keystone", "notable", "ascendancy", "start", "travel"]
     stats: tuple[str, ...] = ()
 
 
@@ -106,6 +108,7 @@ class BuildSkeleton(BaseModel):
     rationale_it: str
     rationale_en: str
     pob_code: str = Field(description="Base64+zlib PoB import code.")
+    viability: ViabilityReport = Field(default_factory=ViabilityReport)
 
 
 class SkillEntry(BaseModel):

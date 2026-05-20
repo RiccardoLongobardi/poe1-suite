@@ -32,9 +32,11 @@ import {
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import {
+  IconAlertTriangle,
   IconCheck,
   IconChevronDown,
   IconChevronUp,
+  IconCircleCheck,
   IconCopy,
   IconExternalLink,
   IconFlask,
@@ -51,6 +53,7 @@ import type {
   TheoryContentFocus,
   TheoryGearSlot,
   TheoryIntent,
+  ViabilityReport,
 } from "../api/types";
 import { ErrorBoundary } from "../components/ErrorBoundary";
 import { useLang, useT } from "../i18n";
@@ -235,6 +238,64 @@ function GearSlotCard({ slot, onTrade }: GearSlotCardProps) {
   );
 }
 
+/** Viability findings rendered as a stack of compact alert rows. */
+function ViabilityPanel({ report }: { report: ViabilityReport }) {
+  const t = useT();
+  const { lang } = useLang();
+  const errors = report.issues.filter((i) => i.severity === "error");
+  const warnings = report.issues.filter((i) => i.severity === "warning");
+
+  if (report.passed && warnings.length === 0) {
+    return (
+      <Alert color="green" icon={<IconCircleCheck size={16} />}>
+        {t({
+          it: "Build strutturalmente valida. Verifica sempre la cappatura delle resistenze sull'equipaggiamento.",
+          en: "Build structurally valid. Always verify resistance cap on gear.",
+        })}
+      </Alert>
+    );
+  }
+
+  const headerColor = errors.length > 0 ? "red" : "yellow";
+  const headerText =
+    errors.length > 0
+      ? t({
+          it: `${errors.length} errore${errors.length === 1 ? "" : "i"} bloccante${errors.length === 1 ? "" : "i"} — la build non è viable cosi com'è.`,
+          en: `${errors.length} blocking error${errors.length === 1 ? "" : "s"} — the build is not viable as-is.`,
+        })
+      : t({
+          it: `${warnings.length} avviso${warnings.length === 1 ? "" : "i"} di viabilità.`,
+          en: `${warnings.length} viability warning${warnings.length === 1 ? "" : "s"}.`,
+        });
+
+  return (
+    <Alert color={headerColor} icon={<IconAlertTriangle size={16} />}>
+      <Stack gap={6}>
+        <Text size="sm" fw={600}>
+          {headerText}
+        </Text>
+        {report.issues.map((issue) => (
+          <Group key={issue.code} gap={8} wrap="nowrap" align="flex-start">
+            <Badge
+              size="xs"
+              color={issue.severity === "error" ? "red" : "yellow"}
+              variant="light"
+              style={{ flexShrink: 0, marginTop: 2 }}
+            >
+              {issue.severity === "error"
+                ? t({ it: "errore", en: "error" })
+                : t({ it: "avviso", en: "warning" })}
+            </Badge>
+            <Text size="xs" style={{ lineHeight: 1.4 }}>
+              {lang === "en" ? issue.message_en : issue.message_it}
+            </Text>
+          </Group>
+        ))}
+      </Stack>
+    </Alert>
+  );
+}
+
 function SkeletonResult({ skeleton }: { skeleton: BuildSkeleton }) {
   const t = useT();
   const { lang } = useLang();
@@ -268,6 +329,9 @@ function SkeletonResult({ skeleton }: { skeleton: BuildSkeleton }) {
           </Badge>
         </Group>
       </Card>
+
+      {/* Viability report (Step 43) */}
+      <ViabilityPanel report={skeleton.viability} />
 
       {/* Stat estimates */}
       <Card withBorder padding="md">
@@ -357,7 +421,9 @@ function SkeletonResult({ skeleton }: { skeleton: BuildSkeleton }) {
                 {t({ it: "Tappe dell'albero", en: "Tree milestones" })}
               </Text>
               <Stack gap={4}>
-                {skeleton.tree_nodes.map((n) => (
+                {skeleton.tree_nodes
+                  .filter((n) => n.type !== "travel")
+                  .map((n) => (
                   <Group
                     key={`${n.type}-${n.node_id}-${n.name}`}
                     gap={6}
@@ -388,6 +454,20 @@ function SkeletonResult({ skeleton }: { skeleton: BuildSkeleton }) {
                   </Group>
                 ))}
               </Stack>
+              {(() => {
+                const total = skeleton.tree_nodes.length;
+                const travel = skeleton.tree_nodes.filter(
+                  (n) => n.type === "travel",
+                ).length;
+                return travel > 0 ? (
+                  <Text size="10px" c="dimmed" fs="italic" mt={6}>
+                    {t({
+                      it: `Albero generato con ${total} nodi (inclusi ${travel} nodi di percorso).`,
+                      en: `Tree generated with ${total} nodes (${travel} path nodes).`,
+                    })}
+                  </Text>
+                ) : null;
+              })()}
             </Card>
           </Stack>
         </Grid.Col>

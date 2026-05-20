@@ -30,6 +30,48 @@ const RELEASES: Release[] = [
   {
     date: { it: "20 mag 2026", en: "20 May 2026" },
     title: {
+      it: "Theorycrafter — albero passivo connesso",
+      en: "Theorycrafter — connected passive tree",
+    },
+    summary: {
+      it: "Il generatore costruisce ora un percorso reale sull'albero invece di far galleggiare nodi disconnessi.",
+      en: "The generator now builds a real path on the passive tree instead of floating disconnected nodes.",
+    },
+    entries: [
+      {
+        it: "I nodi dell'albero sono collegati con un BFS dal punto di partenza della classe attraverso i notable piu rilevanti — le build importate in PoB mostrano un'allocazione contigua.",
+        en: "Tree nodes are connected with a BFS from the class start through the most relevant notables — builds imported into PoB now show a contiguous allocation.",
+      },
+      {
+        it: "I nodi di passaggio (necessari solo per collegare il percorso) non occupano spazio nella lista visibile; un piccolo testo sotto riassume il totale e quanti sono i nodi di percorso.",
+        en: "Path nodes (only needed to connect the route) no longer clutter the visible list; a small caption summarises the total and how many are path-only.",
+      },
+    ],
+  },
+  {
+    date: { it: "20 mag 2026", en: "20 May 2026" },
+    title: {
+      it: "Theorycrafter — rapporto di viabilità",
+      en: "Theorycrafter — viability report",
+    },
+    summary: {
+      it: "Ogni build generata mostra ora avvisi e errori strutturali per evitare scheletri non viable.",
+      en: "Every generated build now surfaces structural warnings and errors so you don't ship a non-viable skeleton.",
+    },
+    entries: [
+      {
+        it: "Controlli: resistenze (sempre via equipaggiamento), vita/ES sotto soglia per budget, almeno 2 layer difensivi, presenza di una skill di movimento, mana sustain.",
+        en: "Checks: resistances (always gear-side), life/ES below the budget floor, ≥2 defence layers, a movement skill, and mana sustain.",
+      },
+      {
+        it: "Gli errori bloccanti sono rossi, gli avvisi gialli, il via libera verde — con messaggi bilingui.",
+        en: "Blocking errors show red, warnings yellow, all-clear green — with bilingual messages.",
+      },
+    ],
+  },
+  {
+    date: { it: "20 mag 2026", en: "20 May 2026" },
+    title: {
       it: "Theorycrafter — carte oggetto espandibili",
       en: "Theorycrafter — expandable gear cards",
     },

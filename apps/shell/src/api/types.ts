@@ -619,7 +619,7 @@ export interface TheoryGemLink {
 export interface TreeNodeRef {
   node_id: number;
   name: string;
-  type: "keystone" | "notable" | "ascendancy" | "start";
+  type: "keystone" | "notable" | "ascendancy" | "start" | "travel";
   stats: string[];
 }
 
@@ -638,6 +638,18 @@ export interface StatEstimate {
   estimated: boolean;
 }
 
+export interface ViabilityIssue {
+  severity: "error" | "warning";
+  code: string;
+  message_it: string;
+  message_en: string;
+}
+
+export interface ViabilityReport {
+  passed: boolean;
+  issues: ViabilityIssue[];
+}
+
 /** A complete from-scratch build skeleton (v2). */
 export interface BuildSkeleton {
   intent: TheoryIntent;
@@ -648,6 +660,7 @@ export interface BuildSkeleton {
   rationale_it: string;
   rationale_en: string;
   pob_code: string;
+  viability: ViabilityReport;
 }
 
 export interface SkillEntry {

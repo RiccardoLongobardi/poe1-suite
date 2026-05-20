@@ -20,6 +20,7 @@ from .models import (
     TheoryIntent,
     TreeNodeRef,
 )
+from .viability import ViabilityIssue, ViabilityReport, validate_build
 
 __all__ = [
     "BudgetTier",
@@ -36,6 +37,9 @@ __all__ = [
     "TheoryHallucinationError",
     "TheoryIntent",
     "TreeNodeRef",
+    "ViabilityIssue",
+    "ViabilityReport",
     "generate_build",
     "list_active_skills",
+    "validate_build",
 ]
