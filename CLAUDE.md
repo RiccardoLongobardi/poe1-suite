@@ -77,7 +77,7 @@ uv run mypy .
 uv run pytest
 ```
 
-All four must pass with zero errors. Current baseline: **722 tests green (2 skipped — integration/LLM), 129 files type-checked clean**. Frontend build main ~464 KB / 148 KB gzip.
+All four must pass with zero errors. Current baseline: **732 tests green (2 skipped — integration/LLM), 129 files type-checked clean**. Frontend build main ~465 KB / 149 KB gzip.
 
 ## English support + uniform input font (2026-05-15) ✅
 
@@ -113,6 +113,24 @@ Frontend-only, no backend change.
 > copy, NOT technical jargon (no file names, no internal step numbers).
 > Updating the `.md` files without updating the Patch Notes is an
 > incomplete step.
+
+## Step 41 — Build Generator v2: PoB export completeness (2026-05-20) ✅
+
+Prompt 028. Five structural bugs in the Step 40 generator's PoB output, all fixed in this step. No encoder contract change.
+
+**Bug 1 — tree scoring on node name only.** `TreeNode` was a lightweight projection without the `stats` array; `_score_node` joined only `node.name`. Most relevant notables (e.g. "Acrobatics" → "30% chance to Dodge Spell Hits") therefore scored 0. **Fix**: extend `TreeNode` with `stats: tuple[str, ...]` populated from the raw tree JSON's `node["stats"]` list; `_score_node` now joins `name + stats` and matches the full damage/defence keyword set (life keywords expanded to include `"armour"` and `"evasion"`).
+
+**Bug 2 — only Primary 6L emitted.** `links = (primary_link,)` was a one-element tuple. **Fix**: new `_build_gem_layout(intent, primary, skill)` returns **five** `GemLink`s — Body 6L (unchanged), Helmet 4L (same skill + 3 supports), Gloves 4L (aura by damage type: Anger/Hatred/Wrath/Malevolence + Generosity/Increased Duration/Arcane Surge), Boots 4L (Flame Dash or Leap Slam + Faster Casting/Second Wind/Fortify), Weapon 4L (Enduring Cry + Second Wind/Increased Duration/Lifetap). Every active and support is validated against `gems_3_28.json` via new `_pick_active` / `_pick_supports` helpers; unknowns degrade to `(open)`. `_assert_valid` now also checks active gem names against the catalogue.
+
+**Bug 3 — items exported as white (no affixes).** `_placeholder_item_body` ignored the recommended `base_name` and emitted `Rarity: RARE / Crafted X / default_base / Implicits: 0`. **Fix**: new `_theory_item_body(slot, base, stat_priorities, budget)` in `generator.py` builds the full PoB item text with simulated affix lines from `_AFFIX_VALUES` (a budget-scaled table — `+90 to maximum Life`, `+40% to Fire Resistance`, etc.). Surgical change to `_placeholder_item_body`: when `kind == "rare_craft"` and `item_name` is multi-line, return it verbatim. The encoder's public contract (`encode_pob_code` signature) is unchanged. `_stat_priorities` was rewritten to emit English PoE mod stems so the same list drives UI, Trade links, and the affix generator.
+
+**Bug 4 — flasks and jewels missing.** `_SLOTS` didn't include `ItemSlot.FLASK` / `JEWEL`, and the encoder's `<Slot name=>` mapping was 1:1 with `ItemSlot` — all five flasks would have collided on the same name. **Fix**: new `_select_flasks(intent)` (5 slots: Divine Life / Eternal Mana, Quicksilver, Jade/Granite/Sulphur by archetype, Diamond/Silver/Amethyst by build, Bismuth) + `_select_jewels(intent)` (2 jewels: Crimson/Cobalt/Viridian). Every base passes through new `_verify_base(name, fallback)`. In the encoder's items loop, per-type running counts label flasks `"Flask 1" .. "Flask 5"` and jewels `"Jewel 1" / "Jewel 2"` while non-flask/jewel slots keep their existing label.
+
+**Bug 5 — class start node always Scion (0).** `td.class_starts.get(0, 0)` ignored the intent. **Fix**: local `_CLASS_ID` mirror of `pob.encode._CLASS_ID` (avoids importing a private helper); `_select_tree_nodes` looks up the right class index before reading `class_starts`.
+
+5 new tests cover the fix surface: decode `pob_code` → assert 5 `<SkillSet>/<Skill>` groups across 3 representative intents (Ranger/Witch/Marauder), assert at least one `<Item>` text carries `+` or `%`, assert ≥5 `Flask N` slots, ≥2 `Jewel N` slots, and a unit test that a `TreeNode(name="Acrobatics", stats=("...evasion...",))` scores > 0 under the life-defence keywords.
+
+Gate: 732 tests (+5) / 129 mypy / ruff clean. Frontend build main ~465 KB / 149 KB gzip.
 
 ## Step 40 — Theorycrafter Build Generator v2 (2026-05-20) ✅
 

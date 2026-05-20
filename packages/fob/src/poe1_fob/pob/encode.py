@@ -366,9 +366,26 @@ def _build_xml(
             attrib={"id": "1", "useSecondWeaponSet": "false", "title": "Default"},
         )
         if gear is not None:
+            # PoB names each flask "Flask 1" .. "Flask 5" and jewels
+            # "Jewel 1" .. "Jewel 2" / abyss "Abyssal Socket 1" ..; the
+            # ItemSlot enum collapses all flasks (and all jewels) to one
+            # value, so we count occurrences per slot type and append
+            # the running index. Non-flask, non-jewel slots use the
+            # label verbatim from _slot_to_pob_label.
+            flask_n = 0
+            jewel_n = 0
             for idx, slot_spec in enumerate(gear.slots, start=1):
                 if slot_spec.kind == "skip":
                     continue
+                base_label = _slot_to_pob_label(slot_spec.slot)
+                if slot_spec.slot is ItemSlot.FLASK:
+                    flask_n += 1
+                    slot_label = f"Flask {flask_n}"
+                elif slot_spec.slot is ItemSlot.JEWEL:
+                    jewel_n += 1
+                    slot_label = f"Jewel {jewel_n}"
+                else:
+                    slot_label = base_label
                 item = ET.SubElement(
                     items_elem,
                     "Item",
@@ -381,7 +398,7 @@ def _build_xml(
                     item_set,
                     "Slot",
                     attrib={
-                        "name": _slot_to_pob_label(slot_spec.slot),
+                        "name": slot_label,
                         "itemId": str(idx),
                         "active": "true",
                     },
@@ -488,12 +505,20 @@ def _placeholder_item_body(item_name: str, slot: ItemSlot, kind: str) -> str:
     Mod tiers are deliberately omitted — this is "scaffolding" not a
     fully crafted item.
 
-    Unique items use the actual item name so PoB can look up the correct
-    implicit/explicit block from its data. Rare / leveling items use a
-    slot-derived name and Rarity RARE so PoB shows them as rares rather
-    than trying to match a non-existent unique name.
+    Three modes:
+
+    * ``kind == "unique"`` — emit a UNIQUE block with ``item_name`` as
+      the unique's name and PoB's default base for the slot; PoB looks
+      up implicits/explicits from its own data.
+    * ``kind == "rare_craft"`` with a multi-line ``item_name`` —
+      the caller has pre-built the full item body (Rarity + name +
+      base + Implicits + explicit lines). Return it verbatim so the
+      Theorycrafter Build Generator can emit simulated affixes.
+    * Otherwise — slot-default base with no affixes (legacy behavior).
     """
 
+    if kind == "rare_craft" and "\n" in item_name.strip():
+        return f"\n{item_name.strip()}\n"
     base = _slot_default_base(slot)
     if kind == "unique":
         return f"\nRarity: UNIQUE\n{item_name}\n{base}\nImplicits: 0\n"

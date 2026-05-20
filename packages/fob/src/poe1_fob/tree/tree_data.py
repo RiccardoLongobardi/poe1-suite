@@ -49,6 +49,7 @@ class TreeNode:
     # both ``in`` and ``out``; ``out`` alone covers all edges from this node).
     class_start_index: int | None  # 0..6 when this is a class start, else None
     group: int | None  # cluster id for spatial layout, irrelevant for BFS
+    stats: tuple[str, ...]  # human-readable mod lines from the raw tree JSON
 
 
 @dataclass(frozen=True, slots=True)
@@ -104,6 +105,10 @@ def _load_from_disk(path: Path) -> TreeData:
         group_val = group_raw if isinstance(group_raw, int) else None
         name_raw = raw_node.get("name")
         asc_raw = raw_node.get("ascendancyName")
+        stats_raw = raw_node.get("stats")
+        stats_iter: tuple[str, ...] = (
+            tuple(s for s in stats_raw if isinstance(s, str)) if isinstance(stats_raw, list) else ()
+        )
         node = TreeNode(
             id=nid,
             name=name_raw if isinstance(name_raw, str) else None,
@@ -115,6 +120,7 @@ def _load_from_disk(path: Path) -> TreeData:
             out=out_iter,
             class_start_index=csi,
             group=group_val,
+            stats=stats_iter,
         )
         nodes_by_id[nid] = node
         if node.class_start_index is not None:

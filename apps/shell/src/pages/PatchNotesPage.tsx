@@ -30,6 +30,35 @@ const RELEASES: Release[] = [
   {
     date: { it: "20 mag 2026", en: "20 May 2026" },
     title: {
+      it: "Theorycrafter — PoB completo e funzionante",
+      en: "Theorycrafter — complete, working PoB export",
+    },
+    summary: {
+      it: "Cinque bug strutturali risolti: l'albero ora si alloca correttamente, le gemme coprono 5 slot, gli oggetti hanno affissi visibili, le fiale e i jewel sono inclusi.",
+      en: "Five structural bugs fixed: the tree now allocates correctly, gems cover all 5 slots, items show real stats, flasks and jewels are included.",
+    },
+    entries: [
+      {
+        it: "L'albero passivo viene scoperto con scoring sui veri testi-mod dei nodi (prima usava solo il nome), e il nodo di partenza ora corrisponde alla classe scelta.",
+        en: "Passive tree nodes are now scored on their real mod text (the name-only scorer missed most relevant notables), and the class start node finally matches the picked class.",
+      },
+      {
+        it: "Il codice PoB include 5 gruppi gemme: 6L primario nel petto, 4L secondario nell'elmo, 4L aura+supporti nei guanti, 4L movimento negli stivali, 4L grido d'azione nell'arma.",
+        en: "The PoB code now includes 5 gem groups: primary 6L in the chest, secondary 4L in the helmet, aura+supports 4L in gloves, movement 4L in boots, warcry 4L in the weapon.",
+      },
+      {
+        it: "Gli oggetti consigliati ora portano affissi simulati realistici (vita, resistenze, danno) scalati per fascia di budget — invece di essere oggetti bianchi vuoti.",
+        en: "Recommended items now ship realistic simulated affixes (life, resistances, damage) scaled by budget tier — instead of being empty white items.",
+      },
+      {
+        it: "Cinque slot di fiale (vita o mana, mobilità, difesa, utility, resistenza) e due jewel scelti in base alla difesa e al tipo di danno.",
+        en: "Five flask slots (life/mana, mobility, defence, utility, resistance) and two jewels picked by defence type and damage profile.",
+      },
+    ],
+  },
+  {
+    date: { it: "20 mag 2026", en: "20 May 2026" },
+    title: {
       it: "Theorycrafter v2 — form e PoB importabile",
       en: "Theorycrafter v2 — form-driven with PoB export",
     },

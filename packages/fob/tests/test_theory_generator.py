@@ -132,6 +132,137 @@ def test_supports_are_in_catalogue_for_every_active_skill() -> None:
         assert len(sk.links[0].supports) == 5
 
 
+# ---------------------------------------------------------------------------
+# Step 41 — PoB export completeness
+# ---------------------------------------------------------------------------
+
+
+def _decode_pob_xml(pob_code: str) -> str:
+    import base64
+    import zlib
+
+    padded = pob_code + "=" * (-len(pob_code) % 4)
+    xml = zlib.decompress(base64.urlsafe_b64decode(padded.encode("ascii")))
+    return xml.decode("utf-8")
+
+
+_PIPELINE_INTENTS: tuple[dict[str, object], ...] = (
+    {
+        "character_class": "Ranger",
+        "ascendancy": "Deadeye",
+        "primary_skill": "Lightning Arrow",
+        "damage_type": "lightning",
+        "defence_archetype": "life",
+        "budget": "endgame",
+        "focus": "mapping",
+    },
+    {
+        "character_class": "Witch",
+        "ascendancy": "Occultist",
+        "primary_skill": "Vortex",
+        "damage_type": "cold",
+        "defence_archetype": "es",
+        "budget": "mid",
+        "focus": "allcontent",
+    },
+    {
+        "character_class": "Marauder",
+        "ascendancy": "Juggernaut",
+        "primary_skill": "Cyclone",
+        "damage_type": "physical",
+        "defence_archetype": "life",
+        "budget": "starter",
+        "focus": "bossing",
+    },
+)
+
+
+def test_pob_export_has_all_gem_slots() -> None:
+    """Five gem groups in <Skills>: Body 6L + Helmet/Gloves/Boots/Weapon 4L."""
+    import xml.etree.ElementTree as ET
+
+    for ovr in _PIPELINE_INTENTS:
+        sk = generate_build(_intent(**ovr))
+        root = ET.fromstring(_decode_pob_xml(sk.pob_code))
+        # Skill groups live under <Skills>/<SkillSet>/<Skill> in PoB XML.
+        skill_groups = root.findall(".//SkillSet/Skill")
+        assert len(skill_groups) == 5, (
+            f"{ovr['primary_skill']}: expected 5 skill groups, got {len(skill_groups)}"
+        )
+
+
+def test_pob_export_items_have_stats() -> None:
+    """Every recommended rare ships at least one simulated affix line."""
+    import xml.etree.ElementTree as ET
+
+    for ovr in _PIPELINE_INTENTS:
+        sk = generate_build(_intent(**ovr))
+        root = ET.fromstring(_decode_pob_xml(sk.pob_code))
+        items = root.find("Items")
+        assert items is not None
+        any_affix = any(
+            ("+" in (it.text or "")) or ("%" in (it.text or "")) for it in items.findall("Item")
+        )
+        assert any_affix, f"{ovr['primary_skill']}: no item carries simulated stats"
+
+
+def test_pob_export_has_flasks() -> None:
+    """Five flask slots — labelled 'Flask 1' .. 'Flask 5' in <ItemSet>."""
+    import xml.etree.ElementTree as ET
+
+    for ovr in _PIPELINE_INTENTS:
+        sk = generate_build(_intent(**ovr))
+        root = ET.fromstring(_decode_pob_xml(sk.pob_code))
+        item_set = root.find(".//ItemSet")
+        assert item_set is not None
+        flask_slots = [
+            s for s in item_set.findall("Slot") if (s.get("name") or "").startswith("Flask")
+        ]
+        assert len(flask_slots) >= 5, (
+            f"{ovr['primary_skill']}: expected ≥5 flask slots, got {len(flask_slots)}"
+        )
+
+
+def test_pob_export_has_jewels() -> None:
+    """Two jewel slots — labelled 'Jewel 1' and 'Jewel 2'."""
+    import xml.etree.ElementTree as ET
+
+    for ovr in _PIPELINE_INTENTS:
+        sk = generate_build(_intent(**ovr))
+        root = ET.fromstring(_decode_pob_xml(sk.pob_code))
+        item_set = root.find(".//ItemSet")
+        assert item_set is not None
+        jewel_slots = [
+            s for s in item_set.findall("Slot") if (s.get("name") or "").startswith("Jewel")
+        ]
+        assert len(jewel_slots) >= 2, (
+            f"{ovr['primary_skill']}: expected ≥2 jewel slots, got {len(jewel_slots)}"
+        )
+
+
+def test_tree_scoring_uses_stats() -> None:
+    """A node whose name has no keyword but whose stats do still scores."""
+    from poe1_fob.tree.tree_data import TreeNode
+
+    node = TreeNode(
+        id=42,
+        name="Acrobatics",
+        is_keystone=True,
+        is_notable=False,
+        is_mastery=False,
+        is_ascendancy_start=False,
+        ascendancy_name=None,
+        out=(),
+        class_start_index=None,
+        group=None,
+        stats=("30% chance to Dodge Spell Hits while you have evasion",),
+    )
+    # "evasion" is a life-defence keyword (Bug 1 fix); without the
+    # stats array the old name-only scorer would have returned 0.
+    score = gen._score_node(node, "physical", "life")
+    assert score > 0
+
+
 def test_hallucination_guard_blocks_invented_base(monkeypatch: pytest.MonkeyPatch) -> None:
     """Patching the gear stage to inject a fake base triggers the guard."""
 

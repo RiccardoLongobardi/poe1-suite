@@ -161,30 +161,46 @@ _DAMAGE_KEYWORDS: dict[str, tuple[str, ...]] = {
     "attack": ("attack damage", "attack speed", "increased attack"),
 }
 _DEFENCE_KEYWORDS: dict[str, tuple[str, ...]] = {
-    "life": ("maximum life", "life regen", "life leech"),
+    "life": ("maximum life", "life regen", "life leech", "armour", "evasion"),
     "es": ("energy shield", "energy shield regen", "es leech"),
     "ward": ("ward", "maximum ward"),
     "hybrid_life_es": ("maximum life", "energy shield"),
 }
 
+# Mirror of `pob.encode._CLASS_ID` — duplicated here to avoid importing
+# a private helper. PoB's class enum is stable across leagues.
+_CLASS_ID: dict[str, int] = {
+    "Scion": 0,
+    "Marauder": 1,
+    "Ranger": 2,
+    "Witch": 3,
+    "Duelist": 4,
+    "Templar": 5,
+    "Shadow": 6,
+}
+
 
 def _score_node(node: TreeNode, dmg: str, defence: str) -> int:
-    """Higher = more relevant to the build."""
+    """Higher = more relevant to the build.
+
+    Scores both the node name and its `stats` array (the human-readable
+    mod lines from the raw tree JSON — most notables are named generic
+    things like "Acrobatics" and their relevance comes from the stats).
+    """
     if not node.is_keystone and not node.is_notable:
         return 0
     if node.ascendancy_name is not None:
-        # Ascendancy nodes handled separately; not scored here.
+        # Ascendancy nodes are handled separately.
         return 0
-    stats_text = " ".join((node.name or "", "")).lower()
-    # tree_data exposes only id+name+flags — stat strings live on the raw
-    # tree JSON. For v2 we score on node name only (the in-engine
-    # TreeNode is the lightweight projection we already vendored).
+    text_parts: list[str] = [node.name or ""]
+    text_parts.extend(node.stats)
+    stats_text = " ".join(text_parts).lower()
     score = 0
     for kw in _DAMAGE_KEYWORDS.get(dmg, ()):
-        if kw.split()[0] in stats_text:
+        if kw in stats_text:
             score += 3
     for kw in _DEFENCE_KEYWORDS.get(defence, ()):
-        if kw.split()[0] in stats_text:
+        if kw in stats_text:
             score += 2
     return score
 
@@ -212,10 +228,12 @@ def _select_tree_nodes(intent: TheoryIntent) -> tuple[TreeNodeRef, ...]:
     asc_notables = asc_notables[:4]
 
     out: list[TreeNodeRef] = []
-    # Class start (prose-only — class start node ids vary by class).
+    # Class start — use the real class index, not always Scion (0).
+    class_idx = _CLASS_ID.get(intent.character_class, 0)
+    start_id = td.class_starts.get(class_idx, 0)
     out.append(
         TreeNodeRef(
-            node_id=td.class_starts.get(0, 0),
+            node_id=start_id,
             name=f"{intent.character_class} start",
             type="start",
             stats=(),
@@ -281,22 +299,123 @@ _SLOTS: tuple[tuple[ItemSlot, str], ...] = (
 
 
 def _stat_priorities(slot_name: str, intent: TheoryIntent) -> tuple[str, ...]:
-    """Per-slot stat priorities used for both the UI and Trade links."""
+    """Per-slot stat priorities — English PoE mod stems.
+
+    Phrases match the keys in :data:`_AFFIX_VALUES` so the same list
+    drives the UI badges, Trade links and the simulated PoB affix lines.
+    """
     base = "to maximum Life" if intent.defence_archetype != "es" else "to maximum Energy Shield"
     res = "to Fire Resistance" if intent.damage_type != "fire" else "to Cold Resistance"
     if slot_name == "Boots":
-        return (f"{base}", res, "increased Movement Speed")
+        return (base, res, "Movement Speed")
     if slot_name in ("Weapon", "Off-hand"):
         if intent.damage_type in ("fire", "cold", "lightning"):
-            return (
-                "increased Spell Damage",
-                f"to {intent.damage_type.capitalize()} Damage",
-                "critical strike",
-            )
+            return ("increased Spell Damage", res, "critical strike")
         if intent.damage_type == "chaos":
-            return ("increased Chaos Damage", "increased damage over time", "critical strike")
-        return ("increased Physical Damage", "increased Attack Speed", "critical strike")
+            return ("increased Chaos Damage", "increased damage", "critical strike")
+        return ("increased Physical Damage", "Attack Speed", "critical strike")
     return (base, res, "increased damage")
+
+
+# Stat keyword → (starter, mid, endgame) value. The keyword is matched
+# as a substring against each entry in `stat_priorities`; first hit
+# wins. Values are intentionally fixed (not rolled) — the build is
+# generated, not real loot.
+_AFFIX_VALUES: tuple[tuple[str, str, str, str], ...] = (
+    ("maximum Life", "+60 to maximum Life", "+90 to maximum Life", "+120 to maximum Life"),
+    (
+        "maximum Energy Shield",
+        "+50 to maximum Energy Shield",
+        "+80 to maximum Energy Shield",
+        "+110 to maximum Energy Shield",
+    ),
+    (
+        "Fire Resistance",
+        "+30% to Fire Resistance",
+        "+40% to Fire Resistance",
+        "+45% to Fire Resistance",
+    ),
+    (
+        "Cold Resistance",
+        "+30% to Cold Resistance",
+        "+40% to Cold Resistance",
+        "+45% to Cold Resistance",
+    ),
+    (
+        "Lightning Resistance",
+        "+30% to Lightning Resistance",
+        "+40% to Lightning Resistance",
+        "+45% to Lightning Resistance",
+    ),
+    (
+        "increased Spell Damage",
+        "15% increased Spell Damage",
+        "25% increased Spell Damage",
+        "40% increased Spell Damage",
+    ),
+    (
+        "increased Physical Damage",
+        "15% increased Physical Damage",
+        "25% increased Physical Damage",
+        "40% increased Physical Damage",
+    ),
+    (
+        "increased Chaos Damage",
+        "15% increased Chaos Damage",
+        "25% increased Chaos Damage",
+        "40% increased Chaos Damage",
+    ),
+    ("increased damage", "15% increased Damage", "25% increased Damage", "40% increased Damage"),
+    (
+        "Movement Speed",
+        "20% increased Movement Speed",
+        "25% increased Movement Speed",
+        "30% increased Movement Speed",
+    ),
+    (
+        "critical strike",
+        "25% increased Critical Strike Chance",
+        "35% increased Critical Strike Chance",
+        "50% increased Critical Strike Chance",
+    ),
+    (
+        "Attack Speed",
+        "10% increased Attack Speed",
+        "14% increased Attack Speed",
+        "18% increased Attack Speed",
+    ),
+)
+
+_BUDGET_COL: dict[BudgetTier, int] = {"starter": 1, "mid": 2, "endgame": 3}
+
+
+def _affix_line(priority: str, budget: BudgetTier) -> str | None:
+    """Pick a simulated affix line for a stat priority + budget tier."""
+    col = _BUDGET_COL[budget]
+    for kw, *vals in _AFFIX_VALUES:
+        if kw.lower() in priority.lower():
+            return vals[col - 1]
+    return None
+
+
+def _theory_item_body(
+    slot_name: str,
+    base_name: str,
+    stat_priorities: tuple[str, ...],
+    budget: BudgetTier,
+) -> str:
+    """Multi-line PoB item body — Rarity: RARE + base + simulated affixes."""
+    lines = [
+        "Rarity: RARE",
+        f"Theorycrafted {slot_name}",
+        base_name,
+        "Implicits: 0",
+    ]
+    for p in stat_priorities:
+        affix = _affix_line(p, budget)
+        if affix:
+            lines.append(affix)
+    return "\n".join(lines)
 
 
 def _pick_base(slot_enum: ItemSlot, intent: TheoryIntent) -> str:
@@ -366,7 +485,86 @@ def _select_gear(intent: TheoryIntent) -> tuple[GearSlot, ...]:
                     budget_tier=intent.budget,
                 ),
             )
+    out.extend(_select_flasks(intent))
+    out.extend(_select_jewels(intent))
     return tuple(out)
+
+
+# ---------------------------------------------------------------------------
+# Flasks & jewels (Bug 4 fix)
+# ---------------------------------------------------------------------------
+
+
+def _verify_base(name: str, fallback: str) -> str:
+    """Return *name* if it exists in base_items.json, else *fallback*."""
+    known = {b.name for b in get_base_catalogue()}
+    return name if name in known else fallback
+
+
+def _select_flasks(intent: TheoryIntent) -> tuple[GearSlot, ...]:
+    """5 flask slots — life/mana, mobility, defence, utility, resistance."""
+    skill = _find_active(intent.primary_skill)
+    is_es = intent.defence_archetype == "es"
+    is_melee = "melee" in skill.tags
+    is_bow = "bow" in skill.tags
+    is_chaos = intent.damage_type == "chaos"
+
+    flask_1 = _verify_base(
+        "Eternal Mana Flask" if is_es else "Divine Life Flask", "Divine Life Flask"
+    )
+    flask_2 = _verify_base("Quicksilver Flask", "Quicksilver Flask")
+    if is_bow:
+        flask_3 = _verify_base("Jade Flask", "Quartz Flask")
+    elif is_melee:
+        flask_3 = _verify_base("Granite Flask", "Basalt Flask")
+    else:
+        flask_3 = _verify_base("Sulphur Flask", "Quartz Flask")
+    if is_chaos:
+        flask_4 = _verify_base("Amethyst Flask", "Diamond Flask")
+    elif "physical" in skill.tags:
+        flask_4 = _verify_base("Silver Flask", "Diamond Flask")
+    else:
+        flask_4 = _verify_base("Diamond Flask", "Quartz Flask")
+    flask_5 = _verify_base("Bismuth Flask", "Ruby Flask")
+
+    bases = (flask_1, flask_2, flask_3, flask_4, flask_5)
+    notes = (
+        ("Increased Life Recovery",),
+        ("Increased Duration",),
+        ("Reduced Charges Used",),
+        ("Increased Charges Gained",),
+        ("Reduced Charges Used",),
+    )
+    return tuple(
+        GearSlot(
+            slot=f"Flask {i + 1}",
+            base_name=bases[i],
+            stat_priorities=notes[i],
+            budget_tier=intent.budget,
+        )
+        for i in range(5)
+    )
+
+
+def _select_jewels(intent: TheoryIntent) -> tuple[GearSlot, ...]:
+    """2 jewel slots — Crimson (life) / Cobalt (ES, spell) / Viridian (dex)."""
+    skill = _find_active(intent.primary_skill)
+    if intent.defence_archetype == "es" or "spell" in skill.tags:
+        jewel_base = _verify_base("Cobalt Jewel", "Crimson Jewel")
+    elif "bow" in skill.tags or intent.defence_archetype == "ward":
+        jewel_base = _verify_base("Viridian Jewel", "Crimson Jewel")
+    else:
+        jewel_base = _verify_base("Crimson Jewel", "Cobalt Jewel")
+    priorities = ("to maximum Life", "increased damage")
+    return tuple(
+        GearSlot(
+            slot=f"Jewel {i + 1}",
+            base_name=jewel_base,
+            stat_priorities=priorities,
+            budget_tier=intent.budget,
+        )
+        for i in range(2)
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -428,14 +626,29 @@ def _to_pob_gear(slots: tuple[GearSlot, ...]) -> StageGearSet:
         "Bow": ItemSlot.WEAPON_MAIN,
         "Weapon": ItemSlot.WEAPON_MAIN,
         "Shield": ItemSlot.WEAPON_OFFHAND,
+        # Flasks and jewels — the encoder counts occurrences and labels
+        # them "Flask 1".."Flask 5" / "Jewel 1".."Jewel 2" at the
+        # ItemSet level (Step 41 Bug 4 fix in encode.py).
+        "Flask 1": ItemSlot.FLASK,
+        "Flask 2": ItemSlot.FLASK,
+        "Flask 3": ItemSlot.FLASK,
+        "Flask 4": ItemSlot.FLASK,
+        "Flask 5": ItemSlot.FLASK,
+        "Jewel 1": ItemSlot.JEWEL,
+        "Jewel 2": ItemSlot.JEWEL,
     }
     for g in slots:
-        if g.slot not in slot_enum_map:
+        enum = slot_enum_map.get(g.slot)
+        if enum is None:
             continue
+        # Bug 3 fix: pre-build the full PoB item body (with simulated
+        # affixes) and pass it as ``item_name``. ``_placeholder_item_body``
+        # detects the multi-line value and emits it verbatim.
+        body = _theory_item_body(g.slot, g.base_name, g.stat_priorities, g.budget_tier)
         pob_slots.append(
             StageGearSlot(
-                slot=slot_enum_map[g.slot],
-                item_name=g.base_name,
+                slot=enum,
+                item_name=body,
                 kind="rare_craft",
                 notes=", ".join(g.stat_priorities),
                 budget_div_max=None,
@@ -444,24 +657,144 @@ def _to_pob_gear(slots: tuple[GearSlot, ...]) -> StageGearSet:
     return StageGearSet(stage_key="theory_v2", slots=tuple(pob_slots))
 
 
-def _to_pob_gems(link: GemLink) -> StageGemLinks:
-    gems = [GemSpec(name=link.skill, level=20, quality=20, is_support=False)]
-    gems.extend(
-        GemSpec(name=s, level=20, quality=20, is_support=True)
-        for s in link.supports
-        if s != "(open)"
+_SLOT_NAME_TO_ENUM: dict[str, ItemSlot] = {
+    "Body Armour": ItemSlot.BODY_ARMOUR,
+    "Helmet": ItemSlot.HELMET,
+    "Gloves": ItemSlot.GLOVES,
+    "Boots": ItemSlot.BOOTS,
+    "Weapon": ItemSlot.WEAPON_MAIN,
+}
+
+
+def _to_pob_gems(links: tuple[GemLink, ...]) -> StageGemLinks:
+    """Map theory `GemLink`s to encoder `PobGemLink`s — one per slot."""
+    pob_links: list[PobGemLink] = []
+    for link in links:
+        gems = [GemSpec(name=link.skill, level=20, quality=20, is_support=False)]
+        gems.extend(
+            GemSpec(name=s, level=20, quality=20, is_support=True)
+            for s in link.supports
+            if s != "(open)"
+        )
+        # PoB requires sockets == len(gems); we don't pad with empty
+        # placeholders (PoB would reject them).
+        sockets = max(1, min(6, len(gems)))
+        slot_enum = _SLOT_NAME_TO_ENUM.get(link.slot, ItemSlot.BODY_ARMOUR)
+        pob_links.append(
+            PobGemLink(
+                slot=slot_enum,
+                sockets=sockets,
+                color_pattern="R" * sockets,
+                gems=tuple(gems[:sockets]),
+                notes=link.label or "Theory link",
+            ),
+        )
+    return StageGemLinks(stage_key="theory_v2", links=tuple(pob_links))
+
+
+# ---------------------------------------------------------------------------
+# 5-slot gem layout (Bug 2 fix)
+# ---------------------------------------------------------------------------
+
+
+def _known_active_names() -> set[str]:
+    actives, _ = _gem_catalogue()
+    return {a.name for a in actives}
+
+
+def _known_support_names() -> set[str]:
+    _, supports = _gem_catalogue()
+    return {s.name for s in supports}
+
+
+def _pick_active(name: str, fallback: str) -> str:
+    """Return *name* if it exists in the active-gem catalogue, else *fallback*."""
+    return name if name in _known_active_names() else fallback
+
+
+def _pick_supports(prefer: tuple[str, ...], n: int) -> tuple[str, ...]:
+    """Filter *prefer* down to supports in the catalogue, pad with ``(open)``."""
+    known = _known_support_names()
+    picked: list[str] = [s for s in prefer if s in known][:n]
+    while len(picked) < n:
+        picked.append("(open)")
+    return tuple(picked)
+
+
+_AURA_BY_DAMAGE: dict[str, str] = {
+    "fire": "Anger",
+    "cold": "Hatred",
+    "lightning": "Wrath",
+    "chaos": "Malevolence",
+    "physical": "Hatred",
+}
+
+
+def _build_gem_layout(
+    intent: TheoryIntent, primary: GemLink, skill: _Active
+) -> tuple[GemLink, ...]:
+    """Five gem links: Body 6L + Helmet/Gloves/Boots/Weapon 4L.
+
+    Every gem name (active and support) is validated against
+    ``gems_3_28.json``. Unknown names degrade to ``(open)`` socket
+    placeholders so the anti-hallucination gate never trips.
+    """
+    is_melee = "melee" in skill.tags
+    primary_supports_pool = tuple(primary.supports)
+
+    # Helmet 4L: same primary skill + 3 supports.
+    helmet_supports = _pick_supports(primary_supports_pool, 3)
+    helmet_link = GemLink(
+        skill=primary.skill,
+        supports=helmet_supports,
+        slot="Helmet",
+        label="Secondary 4L",
     )
-    # PoB requires sockets == len(gems); we don't pad to 6 because PoB
-    # would reject an empty-named placeholder gem.
-    sockets = max(1, min(6, len(gems)))
-    pob_link = PobGemLink(
-        slot=ItemSlot.BODY_ARMOUR,
-        sockets=sockets,
-        color_pattern="R" * sockets,
-        gems=tuple(gems[:sockets]),
-        notes="Primary 6L",
+
+    # Gloves 4L: aura + 3 utility supports.
+    aura = _pick_active(
+        _AURA_BY_DAMAGE.get(intent.damage_type, "Hatred"),
+        primary.skill,
     )
-    return StageGemLinks(stage_key="theory_v2", links=(pob_link,))
+    gloves_supports = _pick_supports(
+        ("Generosity", "Increased Duration", "Arcane Surge", "Inspiration"),
+        3,
+    )
+    gloves_link = GemLink(
+        skill=aura,
+        supports=gloves_supports,
+        slot="Gloves",
+        label="Utility 4L",
+    )
+
+    # Boots 4L: movement skill + 3 supports.
+    movement_pref = "Leap Slam" if is_melee else "Flame Dash"
+    movement = _pick_active(movement_pref, primary.skill)
+    boots_supports = _pick_supports(
+        ("Faster Casting", "Second Wind", "Fortify", "Lifetap"),
+        3,
+    )
+    boots_link = GemLink(
+        skill=movement,
+        supports=boots_supports,
+        slot="Boots",
+        label="Movement 4L",
+    )
+
+    # Weapon 4L: warcry / utility.
+    warcry = _pick_active("Enduring Cry", primary.skill)
+    weapon_supports = _pick_supports(
+        ("Second Wind", "Increased Duration", "Lifetap", "Arcane Surge"),
+        3,
+    )
+    weapon_link = GemLink(
+        skill=warcry,
+        supports=weapon_supports,
+        slot="Weapon",
+        label="Warcry 4L",
+    )
+
+    return (primary, helmet_link, gloves_link, boots_link, weapon_link)
 
 
 def _to_pob_tree(intent: TheoryIntent, nodes: tuple[TreeNodeRef, ...]) -> StageTree:
@@ -489,7 +822,8 @@ def _assert_valid(
 ) -> None:
     known_bases = {b.name for b in get_base_catalogue()}
     known_nodes = set(get_tree_data().nodes_by_id.keys())
-    _, supports = _gem_catalogue()
+    actives, supports = _gem_catalogue()
+    known_actives = {a.name for a in actives}
     known_supports = {s.name for s in supports} | {"(open)"}
 
     for g in gear:
@@ -505,6 +839,10 @@ def _assert_valid(
                 f"node id {n.node_id} ('{n.name}') not in tree/3_28.json"
             )
     for link in links:
+        if link.skill not in known_actives:
+            raise TheoryHallucinationError(
+                f"active '{link.skill}' not in gems_3_28.json (slot {link.slot})"
+            )
         for s in link.supports:
             if s not in known_supports:
                 raise TheoryHallucinationError(f"support '{s}' not in gems_3_28.json")
@@ -542,7 +880,7 @@ def generate_build(intent: TheoryIntent) -> BuildSkeleton:
         slot="Body Armour",
         label="Primary 6L",
     )
-    links = (primary_link,)
+    links = _build_gem_layout(intent, primary_link, skill)
     nodes = _select_tree_nodes(intent)
     gear = _select_gear(intent)
 
@@ -554,7 +892,7 @@ def generate_build(intent: TheoryIntent) -> BuildSkeleton:
         ascendancy=intent.ascendancy,
         tree=_to_pob_tree(intent, nodes),
         gear=_to_pob_gear(gear),
-        gems=_to_pob_gems(primary_link),
+        gems=_to_pob_gems(links),
         level=90,
     )
 
