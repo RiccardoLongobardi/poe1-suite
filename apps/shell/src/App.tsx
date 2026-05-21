@@ -25,6 +25,7 @@ import {
   Loader,
   NavLink,
   SegmentedControl,
+  Stack,
   Text,
   Title,
   useMantineColorScheme,
@@ -223,7 +224,11 @@ function ShellLayout() {
   return (
     <AppShell
       header={{ height: 56 }}
-      navbar={{ width: 220, breakpoint: "sm", collapsed: { mobile: !opened } }}
+      navbar={{
+        width: 260,
+        breakpoint: 0,
+        collapsed: { desktop: !opened, mobile: !opened },
+      }}
       padding="md"
     >
       <AppShell.Header
@@ -235,7 +240,12 @@ function ShellLayout() {
       >
         <Group h="100%" px="md" justify="space-between">
           <Group gap={10}>
-            <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
+            <Burger
+              opened={opened}
+              onClick={toggle}
+              size="sm"
+              aria-label={t({ it: "Apri menu", en: "Open menu" })}
+            />
             <Group
               gap={8}
               style={{ cursor: "pointer" }}
@@ -312,71 +322,6 @@ function ShellLayout() {
         </Group>
       </AppShell.Header>
 
-      <AppShell.Navbar
-        p="xs"
-        style={{
-          backgroundColor: "var(--vs-surface-1)",
-          borderRight: "1px solid var(--vs-border-faint)",
-        }}
-      >
-        <NavLink
-          label={t({ it: "Home", en: "Home" })}
-          leftSection={<IconHome size={16} />}
-          active={isActive("/home")}
-          onClick={navTo("/home")}
-          variant="light"
-        />
-        <NavLink
-          label={t({ it: "Build Finder", en: "Build Finder" })}
-          leftSection={<IconSearch size={16} />}
-          active={isActive("/finder")}
-          onClick={navTo("/finder")}
-          variant="light"
-        />
-        <NavLink
-          label={t({ it: "Analizza PoB", en: "Analyse PoB" })}
-          leftSection={<IconTool size={16} />}
-          active={isActive("/analyze")}
-          onClick={navTo("/analyze")}
-          variant="light"
-        />
-        <NavLink
-          label={t({ it: "Planner", en: "Planner" })}
-          leftSection={<IconListCheck size={16} />}
-          active={isActive("/planner")}
-          onClick={navTo("/planner")}
-          variant="light"
-        />
-        <NavLink
-          label="Theorycrafter"
-          leftSection={<IconFlask size={16} />}
-          active={isActive("/theorycrafter")}
-          onClick={navTo("/theorycrafter")}
-          variant="light"
-        />
-
-        {/* Secondary — pushed to the bottom, low prominence. */}
-        <Divider mt="auto" mb={4} color="var(--vs-border-faint)" />
-        <NavLink
-          label={t({ it: "Note di rilascio", en: "Patch notes" })}
-          leftSection={<IconHistory size={14} />}
-          active={isActive("/patch-notes")}
-          onClick={navTo("/patch-notes")}
-          variant="light"
-          styles={{ label: { fontSize: "0.78rem", color: "var(--vs-text-muted)" } }}
-        />
-        <Button
-          size="xs"
-          variant="subtle"
-          color="ember"
-          leftSection={<IconHeart size={14} />}
-          onClick={donation.open}
-          hiddenFrom="sm"
-        >
-          {t({ it: "Supporta", en: "Support" })}
-        </Button>
-      </AppShell.Navbar>
-
       <AppShell.Main>
         <Container size="xl">
           {/* Keyed on the path so each route change replays the
@@ -405,6 +350,108 @@ function ShellLayout() {
           </div>
         </Container>
       </AppShell.Main>
+
+      <AppShell.Navbar
+        p="xs"
+        style={{
+          backgroundColor: "var(--vs-surface-1)",
+          borderRight: "1px solid var(--vs-border)",
+        }}
+      >
+        <Stack gap={0} h="100%">
+          {/* Primary tools */}
+          <Stack gap={2}>
+            <Text
+              size="10px"
+              c="dimmed"
+              tt="uppercase"
+              fw={700}
+              px={8}
+              pt={4}
+              pb={2}
+              style={{ letterSpacing: "0.08em" }}
+            >
+              {t({ it: "Strumenti", en: "Tools" })}
+            </Text>
+            <NavLink
+              label={t({ it: "Home", en: "Home" })}
+              leftSection={<IconHome size={16} />}
+              active={isActive("/home")}
+              onClick={navTo("/home")}
+              variant="light"
+            />
+            <NavLink
+              label={t({ it: "Build Finder", en: "Build Finder" })}
+              leftSection={<IconSearch size={16} />}
+              active={isActive("/finder")}
+              onClick={navTo("/finder")}
+              variant="light"
+            />
+            <NavLink
+              label={t({ it: "Analizza PoB", en: "Analyse PoB" })}
+              leftSection={<IconTool size={16} />}
+              active={isActive("/analyze")}
+              onClick={navTo("/analyze")}
+              variant="light"
+            />
+            <NavLink
+              label={t({ it: "Planner", en: "Planner" })}
+              leftSection={<IconListCheck size={16} />}
+              active={isActive("/planner")}
+              onClick={navTo("/planner")}
+              variant="light"
+            />
+            <NavLink
+              label="Theorycrafter"
+              leftSection={<IconFlask size={16} />}
+              active={isActive("/theorycrafter")}
+              onClick={navTo("/theorycrafter")}
+              variant="light"
+            />
+          </Stack>
+
+          {/* Bottom: secondary actions */}
+          <Stack gap={2} mt="auto">
+            <Divider mb={6} color="var(--vs-border-faint)" />
+            <Button
+              size="sm"
+              variant="light"
+              color="ember"
+              fullWidth
+              justify="flex-start"
+              leftSection={<IconHeart size={14} />}
+              onClick={() => {
+                close();
+                donation.open();
+              }}
+            >
+              {t({ it: "Supporta il progetto", en: "Support the project" })}
+            </Button>
+            <NavLink
+              label={t({ it: "Note di rilascio", en: "Patch notes" })}
+              leftSection={<IconHistory size={14} />}
+              active={isActive("/patch-notes")}
+              onClick={navTo("/patch-notes")}
+              variant="light"
+              styles={{
+                label: { fontSize: "0.78rem", color: "var(--vs-text-muted)" },
+              }}
+            />
+            <Text
+              size="10px"
+              c="dimmed"
+              ta="center"
+              mt={6}
+              style={{ opacity: 0.6 }}
+            >
+              {t({
+                it: "Costruito con cura per la community PoE 1",
+                en: "Built with care for the PoE 1 community",
+              })}
+            </Text>
+          </Stack>
+        </Stack>
+      </AppShell.Navbar>
 
       <DonationModal opened={donationOpen} onClose={donation.close} />
       <KeyboardShortcutsModal opened={helpOpen} onClose={help.close} />

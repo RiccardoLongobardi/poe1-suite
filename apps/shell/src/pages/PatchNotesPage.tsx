@@ -30,6 +30,27 @@ const RELEASES: Release[] = [
   {
     date: { it: "20 mag 2026", en: "20 May 2026" },
     title: {
+      it: "Barra laterale a comparsa",
+      en: "Slide-in sidebar",
+    },
+    summary: {
+      it: "La barra di navigazione si apre solo quando ti serve, lasciando piu spazio ai contenuti.",
+      en: "The navigation rail slides in only when you need it, leaving more room for content.",
+    },
+    entries: [
+      {
+        it: "Clicca l'icona hamburger in alto a sinistra per aprire le voci di navigazione; cliccarne una porta alla pagina e richiude la barra.",
+        en: "Click the hamburger icon at top-left to open the navigation; clicking an entry takes you there and closes the rail.",
+      },
+      {
+        it: "Sezione \"Strumenti\" per le pagine principali; in fondo: Supporta il progetto + Note di rilascio.",
+        en: "\"Tools\" section for the main pages; at the bottom: Support the project + Patch notes.",
+      },
+    ],
+  },
+  {
+    date: { it: "20 mag 2026", en: "20 May 2026" },
+    title: {
       it: "Theorycrafter — albero passivo connesso",
       en: "Theorycrafter — connected passive tree",
     },

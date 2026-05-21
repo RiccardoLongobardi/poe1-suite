@@ -114,6 +114,16 @@ Frontend-only, no backend change.
 > Updating the `.md` files without updating the Patch Notes is an
 > incomplete step.
 
+## Sidebar UX — slide-in navbar (2026-05-20) ✅
+
+QA: the always-visible 220px navbar on the left ate desktop screen real estate and looked dated. Refactored `App.tsx` to use Mantine `AppShell.Navbar` with `collapsed: { desktop: !opened, mobile: !opened }` (toggle controlled by the existing burger + `useDisclosure`). The burger is now visible on all viewports (removed `hiddenFrom="sm"`); clicking it slides the 260px navbar in over the content, clicking a `NavLink` navigates *and* closes the rail (`navTo` already chains `close()`).
+
+Inside the navbar: a "Strumenti" / "Tools" section label above the 5 main routes (Home, Build Finder, Analyze, Planner, Theorycrafter), divider, then secondary actions at the bottom (Supporta button + Patch Notes link + small footer text). Brand sits in the header beside the burger.
+
+**Important Mantine 7 gotcha noted while debugging**: a standalone `<Drawer>` placed inside `<AppShell>` (or outside it as a sibling) silently failed to render content despite `opened={true}` reaching it. The portal mounted an empty `.mantine-Drawer-root` div. Switching to `AppShell.Navbar` with `collapsed` toggling worked first try — and gives a built-in CSS-transform slide animation. **Don't reach for `<Drawer>` for the primary nav in an AppShell layout — use `AppShell.Navbar` with `collapsed`.**
+
+Frontend-only, no backend change. Gate: 747 tests / 132 mypy / ruff clean. Build ~471 KB / 151 KB gzip.
+
 ## Step 44 — Theorycrafter Build Generator BFS tree pathing (2026-05-20) ✅
 
 Prompt 031. Replaces `_select_tree_nodes`' flat top-scored list with a real BFS path on the vendored tree graph. Every consecutive pair of returned node IDs is now adjacent in `TreeData.adjacency` — PoB renders a single contiguous allocation instead of dropping floating points.
