@@ -35,7 +35,7 @@ from pathlib import Path
 from poe1_core.models.enums import ItemSlot
 from poe1_shared.logging import get_logger
 
-from ..gear.base_items import get_base_catalogue
+from ..gear.base_items import base_for_name, get_base_catalogue
 from ..gear.models import StageGearSet, StageGearSlot
 from ..gems.models import GemLink as PobGemLink
 from ..gems.models import GemSpec, StageGemLinks
@@ -52,6 +52,7 @@ from .models import (
     TheoryIntent,
     TreeNodeRef,
 )
+from .realmods import real_affix_line
 from .viability import validate_build
 
 log = get_logger(__name__)
@@ -687,8 +688,9 @@ def _stat_priorities(slot_name: str, intent: TheoryIntent) -> tuple[str, ...]:
     """Per-slot stat priorities — English PoE mod stems, ordered by real
     crafting/buying priority (the first entry is the most important).
 
-    Phrases match the keys in :data:`_AFFIX_VALUES` so the same list
-    drives the UI badges, Trade links and the simulated PoB affix lines.
+    Stems map (via :mod:`poe1_fob.theory.realmods`) to real PoE stat ids,
+    so the same list drives the UI badges, Trade links and the real PoB
+    affix lines.
     """
     is_es = intent.defence_archetype == "es"
     is_spell = intent.damage_type in ("fire", "cold", "lightning", "chaos")
@@ -725,118 +727,6 @@ def _stat_priorities(slot_name: str, intent: TheoryIntent) -> tuple[str, ...]:
         "Shield": (primary_def, main_res, sec_res, "Chance to Block"),
     }
     return slot_map.get(slot_name, (primary_def, main_res, "increased damage"))
-
-
-# Stat keyword → (starter, mid, endgame) value. The keyword is matched
-# as a substring against each entry in `stat_priorities`; first hit
-# wins. Values are intentionally fixed (not rolled) — the build is
-# generated, not real loot.
-_AFFIX_VALUES: tuple[tuple[str, str, str, str], ...] = (
-    ("maximum Life", "+60 to maximum Life", "+90 to maximum Life", "+120 to maximum Life"),
-    (
-        "maximum Energy Shield",
-        "+50 to maximum Energy Shield",
-        "+80 to maximum Energy Shield",
-        "+110 to maximum Energy Shield",
-    ),
-    (
-        "Fire Resistance",
-        "+30% to Fire Resistance",
-        "+40% to Fire Resistance",
-        "+45% to Fire Resistance",
-    ),
-    (
-        "Cold Resistance",
-        "+30% to Cold Resistance",
-        "+40% to Cold Resistance",
-        "+45% to Cold Resistance",
-    ),
-    (
-        "Lightning Resistance",
-        "+30% to Lightning Resistance",
-        "+40% to Lightning Resistance",
-        "+45% to Lightning Resistance",
-    ),
-    (
-        "increased Spell Damage",
-        "15% increased Spell Damage",
-        "25% increased Spell Damage",
-        "40% increased Spell Damage",
-    ),
-    (
-        "increased Physical Damage",
-        "15% increased Physical Damage",
-        "25% increased Physical Damage",
-        "40% increased Physical Damage",
-    ),
-    (
-        "increased Chaos Damage",
-        "15% increased Chaos Damage",
-        "25% increased Chaos Damage",
-        "40% increased Chaos Damage",
-    ),
-    ("increased damage", "15% increased Damage", "25% increased Damage", "40% increased Damage"),
-    (
-        "Movement Speed",
-        "20% increased Movement Speed",
-        "25% increased Movement Speed",
-        "30% increased Movement Speed",
-    ),
-    # "Critical Strike Multiplier" must precede "critical strike" — the
-    # latter is a substring of the former and `_affix_line` returns the
-    # first match, so the multiplier line would otherwise be shadowed by
-    # the crit-chance line.
-    (
-        "Critical Strike Multiplier",
-        "+25% to Critical Strike Multiplier",
-        "+35% to Critical Strike Multiplier",
-        "+50% to Critical Strike Multiplier",
-    ),
-    (
-        "critical strike",
-        "25% increased Critical Strike Chance",
-        "35% increased Critical Strike Chance",
-        "50% increased Critical Strike Chance",
-    ),
-    (
-        "Attack Speed",
-        "10% increased Attack Speed",
-        "14% increased Attack Speed",
-        "18% increased Attack Speed",
-    ),
-    (
-        "Cast Speed",
-        "6% increased Cast Speed",
-        "10% increased Cast Speed",
-        "14% increased Cast Speed",
-    ),
-    (
-        "Flask Life Recovery",
-        "30% increased Flask Life Recovery rate",
-        "40% increased Flask Life Recovery rate",
-        "50% increased Flask Life Recovery rate",
-    ),
-    ("to Mana", "+40 to maximum Mana", "+70 to maximum Mana", "+100 to maximum Mana"),
-    (
-        "to all Attributes",
-        "+20 to all Attributes",
-        "+30 to all Attributes",
-        "+40 to all Attributes",
-    ),
-    ("Accuracy", "+200 to Accuracy Rating", "+350 to Accuracy Rating", "+500 to Accuracy Rating"),
-    ("Chance to Block", "+8% Chance to Block", "+10% Chance to Block", "+12% Chance to Block"),
-)
-
-_BUDGET_COL: dict[BudgetTier, int] = {"starter": 1, "mid": 2, "endgame": 3}
-
-
-def _affix_line(priority: str, budget: BudgetTier) -> str | None:
-    """Pick a simulated affix line for a stat priority + budget tier."""
-    col = _BUDGET_COL[budget]
-    for kw, *vals in _AFFIX_VALUES:
-        if kw.lower() in priority.lower():
-            return vals[col - 1]
-    return None
 
 
 # Flask suffix per base — a real PoE utility/defence suffix so the
@@ -883,8 +773,14 @@ def _theory_item_body(
         base_name,
         "Implicits: 0",
     ]
+    # Step 47: emit ONLY real mod tiers from RePoE (the actual top roll
+    # that can spawn on this base at this budget). A priority that can't
+    # roll on this slot (e.g. spell damage on a helmet) is dropped rather
+    # than shown with an invented value — every line is a real mod.
+    base = base_for_name(base_name)
+    item_tags = frozenset(base.tags) if base else frozenset()
     for p in stat_priorities:
-        affix = _affix_line(p, budget)
+        affix = real_affix_line(p, item_tags, budget)
         if affix:
             lines.append(affix)
     return "\n".join(lines)

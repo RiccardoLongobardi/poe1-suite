@@ -30,6 +30,27 @@ const RELEASES: Release[] = [
   {
     date: { it: "22 mag 2026", en: "22 May 2026" },
     title: {
+      it: "Theorycrafter — modificatori reali sugli oggetti",
+      en: "Theorycrafter — real item modifiers",
+    },
+    summary: {
+      it: "Gli oggetti generati ora mostrano modificatori veri di PoE con i valori dei tier reali, non piu numeri inventati.",
+      en: "Generated items now show real PoE modifiers with real tier values, no more invented numbers.",
+    },
+    entries: [
+      {
+        it: "Ogni affisso viene dal pool reale di PoE (dati RePoE): es. +189 alla Vita massima e il tier piu alto vero per quel pezzo, non un valore di fantasia.",
+        en: "Every affix comes from PoE's real mod pool (RePoE data): e.g. +189 to maximum Life is the real top tier for that piece, not a made-up value.",
+      },
+      {
+        it: "Vengono mostrati solo i modificatori che possono davvero comparire su quello slot: niente piu danno da incantesimo su un elmo o multi critico sui guanti.",
+        en: "Only modifiers that can actually appear on that slot are shown: no more spell damage on a helmet or crit multiplier on gloves.",
+      },
+    ],
+  },
+  {
+    date: { it: "22 mag 2026", en: "22 May 2026" },
+    title: {
       it: "Theorycrafter — albero passivo piu realistico",
       en: "Theorycrafter — more realistic passive tree",
     },

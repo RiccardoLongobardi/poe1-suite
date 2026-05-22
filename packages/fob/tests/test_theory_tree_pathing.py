@@ -209,8 +209,8 @@ def test_select_tree_nodes_localized_and_clean() -> None:
             character_class=cls,
             ascendancy=asc,
             primary_skill=skill,
-            damage_type=dmg,
-            defence_archetype=defence,
+            damage_type=dmg,  # type: ignore[arg-type]
+            defence_archetype=defence,  # type: ignore[arg-type]
             budget="endgame",
             focus="allcontent",
         )

@@ -411,3 +411,43 @@ def test_stat_priorities_are_slot_aware() -> None:
     assert "of Staunching" in _decode_pob_xml(
         attack.pob_code
     ) or "Rarity: MAGIC" in _decode_pob_xml(attack.pob_code)
+
+
+def test_items_use_real_mod_tiers() -> None:
+    """Step 47: generated item affixes are real RePoE tiers, gated by what
+    can actually roll on the slot — not invented numbers."""
+    import re
+
+    from poe1_core.models.enums import ItemSlot
+    from poe1_fob.gear.base_items import base_for_name, bases_for_slot
+    from poe1_fob.theory.realmods import real_affix_line
+
+    # A real top-tier life roll on a body armour exceeds the old simulated
+    # cap of 120 (real T1 goes to ~189).
+    body = base_for_name("Astral Plate") or next(iter(bases_for_slot(ItemSlot.BODY_ARMOUR)))
+    line = real_affix_line("to maximum Life", frozenset(body.tags), "endgame")
+    assert line is not None
+    value = int(re.search(r"\d+", line).group())  # type: ignore[union-attr]
+    assert value > 120, f"life line {line!r} is not a real high tier"
+
+    # Spawn gating: Critical Strike Multiplier rolls on amulets, NOT gloves.
+    gloves = next(iter(bases_for_slot(ItemSlot.GLOVES)))
+    amulet = next(iter(bases_for_slot(ItemSlot.AMULET)))
+    assert real_affix_line("Critical Strike Multiplier", frozenset(gloves.tags), "endgame") is None
+    assert real_affix_line("Critical Strike Multiplier", frozenset(amulet.tags), "endgame")
+
+    # The end-to-end export carries real mod lines (no invented "Generated"
+    # placeholder values like the old +90 simulated life).
+    sk = generate_build(
+        _intent(
+            character_class="Marauder",
+            ascendancy="Juggernaut",
+            primary_skill="Cyclone",
+            damage_type="physical",
+            defence_archetype="life",
+            budget="endgame",
+            focus="allcontent",
+        )
+    )
+    xml = _decode_pob_xml(sk.pob_code)
+    assert "to maximum Life" in xml

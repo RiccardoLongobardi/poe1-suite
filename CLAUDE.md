@@ -124,6 +124,19 @@ Inside the navbar: a "Strumenti" / "Tools" section label above the 5 main routes
 
 Frontend-only, no backend change. Gate: 747 tests / 132 mypy / ruff clean. Build ~471 KB / 151 KB gzip.
 
+## Step 47 — Theorycrafter real item modifiers (RePoE) (2026-05-22) ✅
+
+QA: generated rares used *invented* affix values (the `_AFFIX_VALUES` table). Replaced with **real PoE mod tiers** from RePoE.
+
+- **New vendored file** `packages/fob/data/mods/mods_3_28.json` (~40 KB), produced by `scripts/extract_mods.py` from `repoe-fork/repoe-fork.github.io` `mods.json` (33 MB) + `stat_translations.json` (12 MB). Slimmed to **item-domain prefix/suffix single-stat mods** for the ~18 stat ids the generator actually recommends (`TARGET_STATS`): life/ES/mana, the three resistances + chaos, all-attributes, cast/attack speed, spell/physical damage, crit chance + multi, accuracy, movement speed, block, flask life recovery. Per stat: the tier list (`{name, affix, ilvl, min, max, spawn_weights}`) + a render template from the translation. Re-run per league: `uv run python scripts/extract_mods.py`.
+- **New module `poe1_fob.theory.realmods`** — `real_affix_line(stem, item_tags, budget)`: maps a recommendation stem (e.g. "to maximum Life") → real stat id (`_STEM_TO_STAT`), filters that stat's tiers to those that **can spawn** on the base's tags (real PoE spawn-weight semantics: first matching tag, or `default`, weight > 0) within the budget's ilvl cap, and renders the best tier's max value as the real mod line (`+189 to maximum Life`).
+- **`_theory_item_body`** now emits **only** real mod lines (a priority that can't roll on the slot is dropped, not shown with an invented value). The simulated `_AFFIX_VALUES` / `_affix_line` / `_BUDGET_COL` were **deleted**.
+- Spawn gating verified: Critical Strike Multiplier resolves on amulets but not gloves; local physical damage resolves on weapons but not amulets; body-armour life reaches the real +189 T1 (the old simulated cap was 120).
+
+Test (`test_theory_generator.py`): `test_items_use_real_mod_tiers` — real high-tier life > 120, crit-multi spawn-gated (amulet yes / gloves no), end-to-end export carries real mod text.
+
+Gate: 755 tests (+1) / 132 mypy / ruff clean.
+
 ## Step 46 — Theorycrafter realistic (localised) tree pathing (2026-05-22) ✅
 
 QA follow-up. Investigation first ruled out two suspects: (a) **tree-data drift** — all 3337 of our `tree/3_28.json` node IDs exist in PoB Community's 3.28 `tree.lua` (overlap 3337, zero missing), so the IDs are valid; (b) **disconnection** — every build's allocated set is one connected component from the class start (0 islands). The real defect was **sprawl**: the score-only selection threaded waypoints to high-scoring notables *anywhere* on the tree, so e.g. Ranger/Deadeye wandered a median of 24 hops out (11 nodes 30+ hops away, reaching toward the Marauder/Witch side) — connected but unrealistic.
