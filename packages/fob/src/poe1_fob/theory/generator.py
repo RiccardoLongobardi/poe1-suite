@@ -129,8 +129,12 @@ def _find_active(name: str) -> _Active:
     return actives[0]
 
 
-def _select_supports(skill: _Active, n: int = 5) -> tuple[str, ...]:
-    """Pick *n* support gems whose tag requirements fit *skill*."""
+def _select_supports_raw(skill: _Active, n: int = 5) -> tuple[_Support, ...]:
+    """Support gems whose tag requirements fit *skill*, best-priority first.
+
+    Returns the :class:`_Support` objects (no padding) so callers can
+    test compatibility, not just names.
+    """
     _, supports = _gem_catalogue()
     skill_tags = set(skill.tags)
     fits: list[_Support] = []
@@ -141,7 +145,12 @@ def _select_supports(skill: _Active, n: int = 5) -> tuple[str, ...]:
             continue
         fits.append(s)
     fits.sort(key=lambda s: s.priority, reverse=True)
-    picked = [s.name for s in fits[:n]]
+    return tuple(fits[:n])
+
+
+def _select_supports(skill: _Active, n: int = 5) -> tuple[str, ...]:
+    """Names of *n* support gems that fit *skill*, padded with ``(open)``."""
+    picked = [s.name for s in _select_supports_raw(skill, n)]
     while len(picked) < n:
         picked.append("(open)")
     return tuple(picked)
@@ -882,6 +891,28 @@ def _pick_supports(prefer: tuple[str, ...], n: int) -> tuple[str, ...]:
     return tuple(picked)
 
 
+def _pick_supports_for(skill: _Active, prefer: tuple[str, ...], n: int) -> tuple[str, ...]:
+    """Pick *n* supports from *prefer* that are **compatible** with *skill*,
+    then fill from the rest of the compatible pool, padded with ``(open)``.
+
+    Unlike :func:`_pick_supports` (which only checks the catalogue), this
+    enforces tag compatibility — so e.g. ``Faster Casting`` is never
+    attached to an attack-tagged movement skill.
+    """
+    compatible = _select_supports_raw(skill, n=99)
+    compatible_names = [s.name for s in compatible]
+    compatible_set = set(compatible_names)
+    picked: list[str] = [s for s in prefer if s in compatible_set][:n]
+    for name in compatible_names:
+        if len(picked) >= n:
+            break
+        if name not in picked:
+            picked.append(name)
+    while len(picked) < n:
+        picked.append("(open)")
+    return tuple(picked)
+
+
 _AURA_BY_DAMAGE: dict[str, str] = {
     "fire": "Anger",
     "cold": "Hatred",
@@ -889,6 +920,33 @@ _AURA_BY_DAMAGE: dict[str, str] = {
     "chaos": "Malevolence",
     "physical": "Hatred",
 }
+
+# Helmet 4L secondary skill by skill family — a genuinely *different*
+# active from the primary (movement / secondary attack / minion utility).
+_SECONDARY_SKILL: dict[str, str] = {
+    "melee": "Leap Slam",
+    "spell": "Flame Dash",
+    "bow": "Barrage",
+    "minion": "Raise Spectre",
+}
+
+
+def _pick_secondary(skill: _Active, primary_name: str) -> str:
+    """Pick a secondary active for the Helmet 4L, distinct from the primary.
+
+    Prefers a tag-appropriate movement/utility skill that exists in the
+    catalogue; falls back to the first catalogue active that differs from
+    the primary.
+    """
+    known = _known_active_names()
+    for tag, secondary in _SECONDARY_SKILL.items():
+        if tag in skill.tags and secondary != primary_name and secondary in known:
+            return secondary
+    actives, _ = _gem_catalogue()
+    for a in actives:
+        if a.name != primary_name:
+            return a.name
+    return primary_name
 
 
 def _build_gem_layout(
@@ -898,16 +956,18 @@ def _build_gem_layout(
 
     Every gem name (active and support) is validated against
     ``gems_3_28.json``. Unknown names degrade to ``(open)`` socket
-    placeholders so the anti-hallucination gate never trips.
+    placeholders so the anti-hallucination gate never trips. No active
+    skill appears in more than one link.
     """
-    is_melee = "melee" in skill.tags
-    primary_supports_pool = tuple(primary.supports)
+    primary_name = primary.skill
 
-    # Helmet 4L: same primary skill + 3 supports.
-    helmet_supports = _pick_supports(primary_supports_pool, 3)
+    # Helmet 4L: a *secondary* skill, distinct from the primary, with
+    # supports that actually fit it.
+    secondary = _pick_secondary(skill, primary_name)
+    secondary_active = _find_active(secondary)
     helmet_link = GemLink(
-        skill=primary.skill,
-        supports=helmet_supports,
+        skill=secondary,
+        supports=_select_supports(secondary_active, 3),
         slot="Helmet",
         label="Secondary 4L",
     )
@@ -915,42 +975,52 @@ def _build_gem_layout(
     # Gloves 4L: aura + 3 utility supports.
     aura = _pick_active(
         _AURA_BY_DAMAGE.get(intent.damage_type, "Hatred"),
-        primary.skill,
+        primary_name,
     )
-    gloves_supports = _pick_supports(
-        ("Generosity", "Increased Duration", "Arcane Surge", "Inspiration"),
-        3,
-    )
+    aura_active = _find_active(aura)
     gloves_link = GemLink(
         skill=aura,
-        supports=gloves_supports,
+        supports=_pick_supports_for(
+            aura_active,
+            ("Generosity", "Increased Duration", "Arcane Surge", "Inspiration"),
+            3,
+        ),
         slot="Gloves",
         label="Utility 4L",
     )
 
-    # Boots 4L: movement skill + 3 supports.
-    movement_pref = "Leap Slam" if is_melee else "Flame Dash"
-    movement = _pick_active(movement_pref, primary.skill)
-    boots_supports = _pick_supports(
-        ("Faster Casting", "Second Wind", "Fortify", "Lifetap"),
-        3,
+    # Boots 4L: movement skill, distinct from primary AND the helmet secondary.
+    movement_prefs = (
+        ("Leap Slam", "Flame Dash", "Dash") if "melee" in skill.tags else ("Flame Dash", "Dash")
     )
+    known = _known_active_names()
+    movement = primary_name
+    for m in movement_prefs:
+        if m in known and m != primary_name and m != secondary:
+            movement = m
+            break
+    movement_active = _find_active(movement)
     boots_link = GemLink(
         skill=movement,
-        supports=boots_supports,
+        supports=_pick_supports_for(
+            movement_active,
+            ("Second Wind", "Fortify", "Lifetap", "Faster Attacks", "Faster Casting"),
+            3,
+        ),
         slot="Boots",
         label="Movement 4L",
     )
 
     # Weapon 4L: warcry / utility.
-    warcry = _pick_active("Enduring Cry", primary.skill)
-    weapon_supports = _pick_supports(
-        ("Second Wind", "Increased Duration", "Lifetap", "Arcane Surge"),
-        3,
-    )
+    warcry = _pick_active("Enduring Cry", primary_name)
+    warcry_active = _find_active(warcry)
     weapon_link = GemLink(
         skill=warcry,
-        supports=weapon_supports,
+        supports=_pick_supports_for(
+            warcry_active,
+            ("Second Wind", "Increased Duration", "Infusion", "Lifetap"),
+            3,
+        ),
         slot="Weapon",
         label="Warcry 4L",
     )

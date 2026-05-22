@@ -30,6 +30,27 @@ const RELEASES: Release[] = [
   {
     date: { it: "22 mag 2026", en: "22 May 2026" },
     title: {
+      it: "Theorycrafter — gemme piu sensate",
+      en: "Theorycrafter — smarter gem links",
+    },
+    summary: {
+      it: "I gruppi di gemme generati non ripetono piu la skill principale e usano solo supporti compatibili.",
+      en: "Generated gem groups no longer repeat the main skill and only use compatible supports.",
+    },
+    entries: [
+      {
+        it: "Lo slot elmo ospita ora una seconda skill diversa (movimento o utilita) invece di duplicare la skill del corpo.",
+        en: "The helmet slot now hosts a distinct secondary skill (movement or utility) instead of duplicating the body-armour skill.",
+      },
+      {
+        it: "Ogni supporto e verificato contro la skill del suo gruppo: niente piu accoppiamenti senza senso (es. velocita di lancio su una skill da attacco).",
+        en: "Every support is checked against its group's skill: no more nonsensical pairings (e.g. cast speed on an attack skill).",
+      },
+    ],
+  },
+  {
+    date: { it: "22 mag 2026", en: "22 May 2026" },
+    title: {
       it: "Theorycrafter — albero passivo completo",
       en: "Theorycrafter — full passive tree",
     },

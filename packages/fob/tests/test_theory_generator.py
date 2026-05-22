@@ -283,3 +283,48 @@ def test_hallucination_guard_blocks_invented_base(monkeypatch: pytest.MonkeyPatc
     monkeypatch.setattr(gen, "_select_gear", fake_gear)
     with pytest.raises(TheoryHallucinationError):
         generate_build(_intent())
+
+
+def test_no_duplicate_primary_skill() -> None:
+    """The primary skill must appear in exactly one link (Step 45b Bug 1)."""
+    skeleton = generate_build(
+        _intent(
+            character_class="Marauder",
+            ascendancy="Juggernaut",
+            primary_skill="Earthquake",
+            damage_type="physical",
+            defence_archetype="life",
+            budget="mid",
+            focus="allcontent",
+        )
+    )
+    primary = skeleton.links[0].skill
+    duplicates = [link for link in skeleton.links if link.skill == primary]
+    assert len(duplicates) == 1, f"'{primary}' appears in {len(duplicates)} links"
+    # And no active skill at all is repeated across the layout.
+    skills = [link.skill for link in skeleton.links]
+    assert len(skills) == len(set(skills)), f"duplicate skill in {skills}"
+
+
+def test_no_incompatible_supports() -> None:
+    """Faster Casting must never support an attack-tagged skill (Bug 2)."""
+    skeleton = generate_build(
+        _intent(
+            character_class="Marauder",
+            ascendancy="Juggernaut",
+            primary_skill="Earthquake",
+            damage_type="physical",
+            defence_archetype="life",
+            budget="mid",
+            focus="allcontent",
+        )
+    )
+    for link in skeleton.links:
+        active = gen._find_active(link.skill)
+        for sup_name in link.supports:
+            if sup_name == "(open)":
+                continue
+            if sup_name == "Faster Casting":
+                assert "attack" not in active.tags, (
+                    f"Faster Casting on {link.skill} (attack-tagged)"
+                )

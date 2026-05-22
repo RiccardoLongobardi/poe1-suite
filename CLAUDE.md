@@ -124,6 +124,17 @@ Inside the navbar: a "Strumenti" / "Tools" section label above the 5 main routes
 
 Frontend-only, no backend change. Gate: 747 tests / 132 mypy / ruff clean. Build ~471 KB / 151 KB gzip.
 
+## Step 45b — Theorycrafter gem layout dedup + compatible supports (2026-05-22) ✅
+
+Prompt 033. Two distinct bugs in `_build_gem_layout` / support selection, fixed together.
+
+- **Bug 1 — duplicate primary skill.** The Helmet 4L was built with `skill=primary.skill`, so the same active skill (e.g. Earthquake) showed up in both the Body 6L and the Helmet 4L. **Fix**: new `_SECONDARY_SKILL` map (`melee`→Leap Slam, `spell`→Flame Dash, `bow`→Barrage, `minion`→Raise Spectre) + `_pick_secondary(skill, primary_name)` picks a tag-appropriate active **distinct** from the primary (catalogue-validated, with a "first different active" fallback). The Boots movement skill is also picked to avoid both the primary and the helmet secondary, so no active appears twice across the five links.
+- **Bug 2 — incompatible supports.** The Boots and Weapon links hard-coded support tuples (`Faster Casting` on a movement skill, `Arcane Surge`/`Lifetap` on Enduring Cry) and passed them through `_pick_supports`, which only checked the name exists in the catalogue — not tag compatibility with the link's skill. **Fix**: `_select_supports` split into `_select_supports_raw` (returns `_Support` objects, tag-filtered, priority-sorted) + a thin name wrapper. New `_pick_supports_for(skill, prefer, n)` keeps only the `prefer` entries that are in the skill's compatible pool, then fills from the rest of the compatible pool, padding with `(open)`. Gloves/Boots/Weapon links now route through `_pick_supports_for` so every support actually fits its skill.
+
+Tests (`test_theory_generator.py`): `test_no_duplicate_primary_skill` (primary appears in exactly one link + no active repeated across the layout) + `test_no_incompatible_supports` (Faster Casting never attached to an attack-tagged skill). Verified on a Marauder/Juggernaut Earthquake intent → Earthquake / Leap Slam / Hatred / Flame Dash / Enduring Cry (all distinct).
+
+Gate: 751 tests (+2) / 132 mypy / ruff clean.
+
 ## Step 45a — Theorycrafter tree node budget fill (2026-05-22) ✅
 
 Prompt 032. Step 44's BFS waypoint walk produced a *connected* but *tiny* allocation (~9-20 nodes — just the path threading 2 keystones + 8 notables). A real PoE tree is ~110-123 points. Step 45a expands the allocation to a credible size in two parts, keeping the single-connected-component invariant.
