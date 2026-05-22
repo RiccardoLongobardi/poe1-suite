@@ -124,6 +124,19 @@ Inside the navbar: a "Strumenti" / "Tools" section label above the 5 main routes
 
 Frontend-only, no backend change. Gate: 747 tests / 132 mypy / ruff clean. Build ~471 KB / 151 KB gzip.
 
+## Step 45d — Theorycrafter realistic per-slot item affixes (2026-05-22) ✅
+
+Prompt 033c. The generated items were "real" bases but their stat priorities were too generic (every armour got the same life+res, weapons ignored damage type, rings/amulets missed mana/attributes/crit-multi, flasks had meaningless notes). Step 45d makes each slot's affixes reflect the build.
+
+- **`_stat_priorities` rewritten as an explicit per-slot map** keyed by slot name, ordered by real crafting priority. Spell vs attack picks `increased Cast Speed` / `increased Spell Damage` vs `increased Attack Speed` / `increased Physical Damage`; ES vs life defence picks the right primary; `Amulet` carries `Critical Strike Multiplier` at mid/endgame (else `to all Attributes`); `Ring` carries `to Mana` + `to all Attributes`; `Weapon`/`Wand`/`Bow` each get type-appropriate priorities (Weapon also `Accuracy`); `Belt` gets `increased Flask Life Recovery`; shields/off-hand get `Chance to Block`.
+- **Weapon call passes `weapon_label`** (`"Wand"`/`"Bow"`/`"Weapon"`) instead of the literal `"Weapon"`, so the per-type map entry is selected.
+- **`_AFFIX_VALUES` extended** with `Cast Speed`, `Flask Life Recovery`, `to Mana`, `to all Attributes`, `Accuracy`, `Chance to Block`, and `Critical Strike Multiplier`. **Ordering gotcha**: `Critical Strike Multiplier` is inserted **before** the existing `critical strike` entry — `_affix_line` returns the first substring match and `"critical strike"` is a substring of `"critical strike multiplier"`, so the multiplier line would otherwise be shadowed by the crit-chance line.
+- **`_theory_item_body`**: dropped the misleading `Theorycrafted` name → `Generated`; flasks (`slot` starting `"Flask"`) now render as `Rarity: MAGIC` with name `<base> <suffix>` from the new `_FLASK_SUFFIX` map (e.g. Divine Life Flask → "of Staunching", Quicksilver → "of Adrenaline") instead of a blank rare.
+
+Test (`test_theory_generator.py`): `test_stat_priorities_are_slot_aware` asserts a spell build's gloves carry cast speed + spell damage, rings carry mana + attributes, an attack build's weapon carries attack speed + accuracy, no item carries the old `Theorycrafted` name, and flasks render as MAGIC.
+
+Gate: 753 tests (+1) / 132 mypy / ruff clean.
+
 ## Step 45c — Theorycrafter Awakened gem allowlist 3.28 (2026-05-22) ✅
 
 Prompt 033b. Content Update 3.28.0 removed every Awakened Support Gem from the drop pool **except Awakened Empower / Enlighten / Enhance**. `gems_3_28.json` is extracted from PoB Community source, which still carries all 38 Awakened gems — so the generator was emitting gems that don't exist in 3.28 standard (e.g. Awakened Ancestral Call, Awakened Increased Area of Effect).

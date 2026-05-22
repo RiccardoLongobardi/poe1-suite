@@ -30,6 +30,27 @@ const RELEASES: Release[] = [
   {
     date: { it: "22 mag 2026", en: "22 May 2026" },
     title: {
+      it: "Theorycrafter — affissi per slot realistici",
+      en: "Theorycrafter — realistic per-slot affixes",
+    },
+    summary: {
+      it: "Ogni pezzo di equipaggiamento generato mostra ora gli affissi giusti per la build, in ordine di priorita.",
+      en: "Every generated gear piece now shows the right affixes for the build, in priority order.",
+    },
+    entries: [
+      {
+        it: "Guanti e stivali ricevono velocita di lancio o di attacco a seconda della build; anelli vita/ES + mana + attributi; amuleto danno + multi critico; cintura recupero delle flask; arma con gli affissi giusti per tipo di danno.",
+        en: "Gloves and boots get cast or attack speed depending on the build; rings get life/ES + mana + attributes; amulet gets damage + crit multiplier; belt gets flask recovery; the weapon gets the right affixes for its damage type.",
+      },
+      {
+        it: "Le flask generate sono ora veri oggetti magici con un suffisso reale (es. \"di Cauterizzazione\", \"di Adrenalina\") invece di basi bianche.",
+        en: "Generated flasks are now real magic items with a real suffix (e.g. \"of Staunching\", \"of Adrenaline\") instead of blank white bases.",
+      },
+    ],
+  },
+  {
+    date: { it: "22 mag 2026", en: "22 May 2026" },
+    title: {
       it: "Theorycrafter — gemme Awakened aggiornate a 3.28",
       en: "Theorycrafter — Awakened gems matched to 3.28",
     },

@@ -493,22 +493,47 @@ _SLOTS: tuple[tuple[ItemSlot, str], ...] = (
 
 
 def _stat_priorities(slot_name: str, intent: TheoryIntent) -> tuple[str, ...]:
-    """Per-slot stat priorities — English PoE mod stems.
+    """Per-slot stat priorities — English PoE mod stems, ordered by real
+    crafting/buying priority (the first entry is the most important).
 
     Phrases match the keys in :data:`_AFFIX_VALUES` so the same list
     drives the UI badges, Trade links and the simulated PoB affix lines.
     """
-    base = "to maximum Life" if intent.defence_archetype != "es" else "to maximum Energy Shield"
-    res = "to Fire Resistance" if intent.damage_type != "fire" else "to Cold Resistance"
-    if slot_name == "Boots":
-        return (base, res, "Movement Speed")
-    if slot_name in ("Weapon", "Off-hand"):
-        if intent.damage_type in ("fire", "cold", "lightning"):
-            return ("increased Spell Damage", res, "critical strike")
-        if intent.damage_type == "chaos":
-            return ("increased Chaos Damage", "increased damage", "critical strike")
-        return ("increased Physical Damage", "Attack Speed", "critical strike")
-    return (base, res, "increased damage")
+    is_es = intent.defence_archetype == "es"
+    is_spell = intent.damage_type in ("fire", "cold", "lightning", "chaos")
+    is_crit = intent.budget in ("mid", "endgame")
+
+    primary_def = "to maximum Energy Shield" if is_es else "to maximum Life"
+    main_res = "to Fire Resistance"
+    sec_res = "to Cold Resistance"
+    speed = "increased Cast Speed" if is_spell else "increased Attack Speed"
+    main_dmg = "increased Spell Damage" if is_spell else "increased Physical Damage"
+
+    slot_map: dict[str, tuple[str, ...]] = {
+        "Helmet": (primary_def, main_res, sec_res, main_dmg),
+        "Body Armour": (primary_def, main_res, sec_res, "to Lightning Resistance"),
+        "Gloves": (primary_def, main_res, speed, main_dmg),
+        "Boots": (primary_def, "Movement Speed", main_res, speed),
+        "Belt": (primary_def, main_res, sec_res, "increased Flask Life Recovery"),
+        "Amulet": (
+            primary_def,
+            main_dmg,
+            "Critical Strike Multiplier" if is_crit else "to all Attributes",
+            main_res,
+        ),
+        "Ring": (primary_def, main_res, sec_res, "to Mana", "to all Attributes"),
+        "Wand": ("increased Spell Damage", "increased Cast Speed", "critical strike", main_res),
+        "Bow": ("increased Physical Damage", "increased Attack Speed", "critical strike", main_res),
+        "Weapon": (
+            "increased Physical Damage",
+            "increased Attack Speed",
+            "Accuracy",
+            main_res,
+        ),
+        "Off-hand": (primary_def, main_res, sec_res, "Chance to Block"),
+        "Shield": (primary_def, main_res, sec_res, "Chance to Block"),
+    }
+    return slot_map.get(slot_name, (primary_def, main_res, "increased damage"))
 
 
 # Stat keyword → (starter, mid, endgame) value. The keyword is matched
@@ -566,6 +591,16 @@ _AFFIX_VALUES: tuple[tuple[str, str, str, str], ...] = (
         "25% increased Movement Speed",
         "30% increased Movement Speed",
     ),
+    # "Critical Strike Multiplier" must precede "critical strike" — the
+    # latter is a substring of the former and `_affix_line` returns the
+    # first match, so the multiplier line would otherwise be shadowed by
+    # the crit-chance line.
+    (
+        "Critical Strike Multiplier",
+        "+25% to Critical Strike Multiplier",
+        "+35% to Critical Strike Multiplier",
+        "+50% to Critical Strike Multiplier",
+    ),
     (
         "critical strike",
         "25% increased Critical Strike Chance",
@@ -578,6 +613,27 @@ _AFFIX_VALUES: tuple[tuple[str, str, str, str], ...] = (
         "14% increased Attack Speed",
         "18% increased Attack Speed",
     ),
+    (
+        "Cast Speed",
+        "6% increased Cast Speed",
+        "10% increased Cast Speed",
+        "14% increased Cast Speed",
+    ),
+    (
+        "Flask Life Recovery",
+        "30% increased Flask Life Recovery rate",
+        "40% increased Flask Life Recovery rate",
+        "50% increased Flask Life Recovery rate",
+    ),
+    ("to Mana", "+40 to maximum Mana", "+70 to maximum Mana", "+100 to maximum Mana"),
+    (
+        "to all Attributes",
+        "+20 to all Attributes",
+        "+30 to all Attributes",
+        "+40 to all Attributes",
+    ),
+    ("Accuracy", "+200 to Accuracy Rating", "+350 to Accuracy Rating", "+500 to Accuracy Rating"),
+    ("Chance to Block", "+8% Chance to Block", "+10% Chance to Block", "+12% Chance to Block"),
 )
 
 _BUDGET_COL: dict[BudgetTier, int] = {"starter": 1, "mid": 2, "endgame": 3}
@@ -592,16 +648,47 @@ def _affix_line(priority: str, budget: BudgetTier) -> str | None:
     return None
 
 
+# Flask suffix per base — a real PoE utility/defence suffix so the
+# generated flask reads like an actual magic flask rather than a blank
+# white base.
+_FLASK_SUFFIX: dict[str, str] = {
+    "Divine Life Flask": "of Staunching",
+    "Quicksilver Flask": "of Adrenaline",
+    "Granite Flask": "of Iron Skin",
+    "Jade Flask": "of Reflexes",
+    "Sulphur Flask": "of the Owl",
+    "Diamond Flask": "of Reflexes",
+    "Silver Flask": "of the Dove",
+    "Bismuth Flask": "of the Dove",
+    "Eternal Mana Flask": "of Warding",
+    "Amethyst Flask": "of the Order",
+}
+
+
 def _theory_item_body(
     slot_name: str,
     base_name: str,
     stat_priorities: tuple[str, ...],
     budget: BudgetTier,
 ) -> str:
-    """Multi-line PoB item body — Rarity: RARE + base + simulated affixes."""
+    """Multi-line PoB item body.
+
+    Flasks become a MAGIC item named ``<base> <suffix>``; everything else
+    is a RARE with simulated affix lines derived from its stat priorities.
+    """
+    if slot_name.startswith("Flask"):
+        suffix = _FLASK_SUFFIX.get(base_name, "of Staunching")
+        return "\n".join(
+            [
+                "Rarity: MAGIC",
+                f"{base_name} {suffix}",
+                base_name,
+                "Implicits: 0",
+            ]
+        )
     lines = [
         "Rarity: RARE",
-        f"Theorycrafted {slot_name}",
+        f"Generated {slot_name}",
         base_name,
         "Implicits: 0",
     ]
@@ -658,7 +745,7 @@ def _select_gear(intent: TheoryIntent) -> tuple[GearSlot, ...]:
             GearSlot(
                 slot=weapon_label,
                 base_name=weapon_pool[0].name,
-                stat_priorities=_stat_priorities("Weapon", intent),
+                stat_priorities=_stat_priorities(weapon_label, intent),
                 budget_tier=intent.budget,
             ),
         )

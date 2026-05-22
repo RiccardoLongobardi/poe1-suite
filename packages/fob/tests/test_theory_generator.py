@@ -358,3 +358,50 @@ def test_no_unavailable_awakened_gems() -> None:
             for s in link.supports:
                 if s.startswith("Awakened ") and s not in allow:
                     pytest.fail(f"gem '{s}' not available in 3.28 (link {link.slot})")
+
+
+def test_stat_priorities_are_slot_aware() -> None:
+    """Per-slot priorities reflect the build (Step 45d).
+
+    Spell builds get cast speed + spell damage; attack builds get attack
+    speed + accuracy on the weapon; rings carry mana + attributes; flasks
+    render as MAGIC items with a real suffix.
+    """
+    spell = generate_build(
+        _intent(
+            character_class="Witch",
+            ascendancy="Elementalist",
+            primary_skill="Arc",
+            damage_type="lightning",
+            defence_archetype="es",
+            budget="endgame",
+            focus="allcontent",
+        )
+    )
+    by_slot = {g.slot: g for g in spell.gear_slots}
+    assert "increased Cast Speed" in by_slot["Gloves"].stat_priorities
+    assert "increased Spell Damage" in by_slot["Gloves"].stat_priorities
+    assert "to Mana" in by_slot["Ring"].stat_priorities
+    assert "to all Attributes" in by_slot["Ring"].stat_priorities
+
+    attack = generate_build(
+        _intent(
+            character_class="Marauder",
+            ascendancy="Juggernaut",
+            primary_skill="Earthquake",
+            damage_type="physical",
+            defence_archetype="life",
+            budget="mid",
+            focus="allcontent",
+        )
+    )
+    weapon = next(g for g in attack.gear_slots if g.slot in ("Weapon", "Bow", "Wand"))
+    assert "increased Attack Speed" in weapon.stat_priorities
+    assert "Accuracy" in weapon.stat_priorities
+
+    # No item carries the old "Theorycrafted" placeholder name.
+    assert "Theorycrafted" not in _decode_pob_xml(spell.pob_code)
+    # Flasks are MAGIC with a suffix.
+    assert "of Staunching" in _decode_pob_xml(
+        attack.pob_code
+    ) or "Rarity: MAGIC" in _decode_pob_xml(attack.pob_code)
