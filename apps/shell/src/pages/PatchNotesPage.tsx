@@ -30,6 +30,27 @@ const RELEASES: Release[] = [
   {
     date: { it: "22 mag 2026", en: "22 May 2026" },
     title: {
+      it: "Input piu diretti su Finder, Analyze e Planner",
+      en: "More direct inputs on Finder, Analyze and Planner",
+    },
+    summary: {
+      it: "Meno click: la ricerca parte subito e il testo resta sempre modificabile.",
+      en: "Fewer clicks: search runs in one go and the input stays editable.",
+    },
+    entries: [
+      {
+        it: "Nel Build Finder, inviare la richiesta cerca subito le build — non serve piu un secondo click su \"Trova build\".",
+        en: "In the Build Finder, submitting your query searches builds right away — no more second click on \"Find builds\".",
+      },
+      {
+        it: "In Finder, Analyze e Planner il campo di testo resta sempre modificabile: niente piu pulsante \"modifica\" per cambiare la richiesta.",
+        en: "In Finder, Analyze and Planner the text field stays editable: no more \"edit\" button to change your input.",
+      },
+    ],
+  },
+  {
+    date: { it: "22 mag 2026", en: "22 May 2026" },
+    title: {
       it: "Theorycrafter — affissi per slot realistici",
       en: "Theorycrafter — realistic per-slot affixes",
     },

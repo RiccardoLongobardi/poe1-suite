@@ -13,12 +13,10 @@
 import {
   Accordion,
   Alert,
-  Anchor,
   Badge,
   Box,
   Button,
   Card,
-  Code,
   Divider,
   Group,
   Stack,
@@ -529,7 +527,7 @@ function BuildDashboard({ data }: { data: AnalyzePobResponse }) {
 export function AnalyzePage() {
   const t = useT();
   // Cross-route persistent state — survives navigation away and back.
-  const { input, result, editing } = usePageStore((s) => s.analyze);
+  const { input, result } = usePageStore((s) => s.analyze);
   const setAnalyze = usePageStore((s) => s.setAnalyze);
 
   // Resolve the input then analyse it. The input may be:
@@ -568,45 +566,33 @@ export function AnalyzePage() {
     <Stack gap="md">
       <Title order={3}>{t({ it: "Analizza PoB", en: "Analyse PoB" })}</Title>
 
-      {editing ? (
-        <>
-          <Text c="dimmed" size="sm">
-            {t({
-              it: "Incolla un codice di esportazione PoB, un link pobb.in / pastebin oppure l'URL di un personaggio poe.ninja.",
-              en: "Paste a PoB export code, a pobb.in / pastebin link, or a poe.ninja character URL.",
-            })}
-          </Text>
-          <Group align="flex-end" gap="sm" wrap="nowrap">
-            <TextInput
-              flex={1}
-              placeholder="https://pobb.in/xxxx  ·  poe.ninja/builds/…  ·  eNqtVct…"
-              value={input}
-              onChange={(e) => setAnalyze({ input: e.currentTarget.value })}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) submit();
-              }}
-            />
-            <Button onClick={submit} loading={mut.isPending} disabled={!input.trim()}>
-              {t({ it: "Analizza", en: "Analyse" })}
-            </Button>
-          </Group>
-          <Text size="xs" c="dimmed">
-            {t({ it: "Ctrl+Enter per inviare", en: "Ctrl+Enter to submit" })}
-          </Text>
-        </>
-      ) : (
-        <Group gap={8} wrap="nowrap">
-          <Code style={{ overflow: "hidden", textOverflow: "ellipsis" }}>
-            {result?.build.source_id ?? input.slice(0, 48)}
-          </Code>
-          <Anchor
-            size="xs"
-            onClick={() => setAnalyze({ editing: true })}
-            style={{ flexShrink: 0 }}
-          >
-            {t({ it: "modifica", en: "edit" })}
-          </Anchor>
-        </Group>
+      {/* Input — always editable; no collapse / "edit" step. */}
+      {!result && (
+        <Text c="dimmed" size="sm">
+          {t({
+            it: "Incolla un codice di esportazione PoB, un link pobb.in / pastebin oppure l'URL di un personaggio poe.ninja.",
+            en: "Paste a PoB export code, a pobb.in / pastebin link, or a poe.ninja character URL.",
+          })}
+        </Text>
+      )}
+      <Group align="flex-end" gap="sm" wrap="nowrap">
+        <TextInput
+          flex={1}
+          placeholder="https://pobb.in/xxxx  ·  poe.ninja/builds/…  ·  eNqtVct…"
+          value={input}
+          onChange={(e) => setAnalyze({ input: e.currentTarget.value })}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) submit();
+          }}
+        />
+        <Button onClick={submit} loading={mut.isPending} disabled={!input.trim()}>
+          {t({ it: "Analizza", en: "Analyse" })}
+        </Button>
+      </Group>
+      {!result && (
+        <Text size="xs" c="dimmed">
+          {t({ it: "Ctrl+Enter per inviare", en: "Ctrl+Enter to submit" })}
+        </Text>
       )}
 
       {mut.isError && (

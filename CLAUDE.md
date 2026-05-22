@@ -124,6 +124,15 @@ Inside the navbar: a "Strumenti" / "Tools" section label above the 5 main routes
 
 Frontend-only, no backend change. Gate: 747 tests / 132 mypy / ruff clean. Build ~471 KB / 151 KB gzip.
 
+## UX — direct inputs on Finder / Analyze / Planner (2026-05-22) ✅
+
+QA feedback: (1) the Finder needed two clicks — "Consulta l'Oracolo" (extract intent) *then* "Trova build" (recommend); (2) all three input panels collapsed the input to a `<Code>` chip after submit, requiring a "modifica" / "edit" click to change the query. Frontend-only.
+
+- **Finder one-shot search.** `extractMut.onSuccess` now chains `recommendMut.mutate(applyOverrides(data, overridesFromIntent(data)))` — submitting the query parses the intent *and* runs the recommend in one action. The filter-row "Trova build →" button stays for re-running recommend after refining filters (it calls `recommend` only, no re-extract). `recommendMut.mutationFn` was changed to take the intent as an argument so the chained call uses the freshly-returned intent, not the stale store value. The submit button's `loading` covers both `extractMut.isPending || recommendMut.isPending`.
+- **Always-editable inputs.** The `editing ? <input> : <collapsed Code + edit link>` ternary was removed on all three pages (`FinderPage`, `AnalyzePage`, `PlannerPage`). The input (`Textarea` / `TextInput`) is now always rendered and editable; the helper description + "Ctrl+Enter" hint are hidden once a result exists (`!result` / `!intent`) to keep the post-result view tidy. Unused `Code`/`Anchor` imports and the `editing` store reads were dropped; the `editing` field stays in the store type (still written by some `onSuccess`/`start` paths, harmless).
+
+Gate: 753 tests / 132 mypy / ruff clean (Python untouched). Frontend build ~475 KB / 152 KB gzip.
+
 ## Step 45d — Theorycrafter realistic per-slot item affixes (2026-05-22) ✅
 
 Prompt 033c. The generated items were "real" bases but their stat priorities were too generic (every armour got the same life+res, weapons ignored damage type, rings/amulets missed mana/attributes/crit-multi, flasks had meaningless notes). Step 45d makes each slot's affixes reflect the build.

@@ -8,11 +8,9 @@
 
 import {
   Alert,
-  Anchor,
   Badge,
   Button,
   Card,
-  Code,
   Divider,
   Group,
   Progress,
@@ -257,7 +255,7 @@ export function PlannerPage({ initialInput }: Props) {
   // Cross-route persistent state — input, target, mode, the generated
   // plan and the editing flag survive navigating away and back
   // (Zustand `pageStore`).
-  const { input, resolvedCode, target, reverseMode, result, editing } =
+  const { input, resolvedCode, target, reverseMode, result } =
     usePageStore((s) => s.planner);
   const setPlanner = usePageStore((s) => s.setPlanner);
   // Transient flags — intentionally NOT persisted; they reset on
@@ -386,93 +384,71 @@ export function PlannerPage({ initialInput }: Props) {
     <Stack gap="md">
       <Title order={3}>{t({ it: "Planner build", en: "Build Planner" })}</Title>
 
-      {editing ? (
-        <>
-          <Text c="dimmed" size="sm">
-            {t({
-              it: "Incolla un codice di esportazione PoB, un link pobb.in / pastebin oppure l'URL di un personaggio poe.ninja: il planner analizza la build, prezza ogni unique su poe.ninja e ti restituisce un piano di upgrade in 6 stage.",
-              en: "Paste a PoB export code, a pobb.in / pastebin link, or a poe.ninja character URL: the planner analyses the build, prices every unique on poe.ninja and returns a 6-stage upgrade plan.",
-            })}
-          </Text>
-
-          {/* Input row — same layout as the Analyze PoB input:
-              flex TextInput + action button side by side, Ctrl+Enter
-              hint below. */}
-          <Group align="flex-end" gap="sm" wrap="nowrap">
-            <TextInput
-              flex={1}
-              placeholder="https://pobb.in/xxxx  ·  poe.ninja/builds/…  ·  eNqtVct…"
-              value={input}
-              onChange={(e) => setPlanner({ input: e.currentTarget.value })}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) void start();
-              }}
-            />
-            <Button
-              onClick={() => void start()}
-              loading={running}
-              disabled={!input.trim() || running}
-            >
-              {t({ it: "Genera piano", en: "Generate plan" })}
-            </Button>
-          </Group>
-          <Text size="xs" c="dimmed">
-            {t({ it: "Ctrl+Enter per inviare", en: "Ctrl+Enter to submit" })}
-          </Text>
-
-          {/* Planner-specific controls: target goal + reverse mode. */}
-          <Group justify="space-between" wrap="wrap" align="center">
-            <SegmentedControl
-              data={targetOptions}
-              value={target}
-              onChange={(v) => setPlanner({ target: v as TargetGoal })}
-              size="sm"
-            />
-            <Tooltip
-              multiline
-              w={320}
-              label={t({
-                it: "Quando attivo, ogni KeyItem endgame della tua build genera una upgrade ladder personalizzata (Mageblood → Bottled Faith → flask rare; Awakened gem 5 → 1 → support regular). Le rationale dei rung vengono mostrate nei rispettivi stage.",
-                en: "When enabled, each endgame KeyItem of your build generates a personalised upgrade ladder (Mageblood → Bottled Faith → rare flask; Awakened gem 5 → 1 → regular support). Each rung's rationale is shown in the matching stage.",
-              })}
-              withArrow
-            >
-              <Switch
-                checked={reverseMode}
-                onChange={(e) =>
-                  setPlanner({ reverseMode: e.currentTarget.checked })
-                }
-                label={t({
-                  it: "Modalità reverse-progression (sperimentale)",
-                  en: "Reverse-progression mode (experimental)",
-                })}
-                size="sm"
-              />
-            </Tooltip>
-          </Group>
-        </>
-      ) : (
-        <Group gap={8} wrap="nowrap">
-          <Code
-            style={{
-              flex: 1,
-              minWidth: 0,
-              overflow: "hidden",
-              whiteSpace: "nowrap",
-              textOverflow: "ellipsis",
-            }}
-          >
-            {input.trim()}
-          </Code>
-          <Anchor
-            size="xs"
-            onClick={() => setPlanner({ editing: true })}
-            style={{ flexShrink: 0 }}
-          >
-            {t({ it: "modifica", en: "edit" })}
-          </Anchor>
-        </Group>
+      {/* Input — always editable; no collapse / "edit" step. */}
+      {!result && (
+        <Text c="dimmed" size="sm">
+          {t({
+            it: "Incolla un codice di esportazione PoB, un link pobb.in / pastebin oppure l'URL di un personaggio poe.ninja: il planner analizza la build, prezza ogni unique su poe.ninja e ti restituisce un piano di upgrade in 6 stage.",
+            en: "Paste a PoB export code, a pobb.in / pastebin link, or a poe.ninja character URL: the planner analyses the build, prices every unique on poe.ninja and returns a 6-stage upgrade plan.",
+          })}
+        </Text>
       )}
+
+      {/* Input row — flex TextInput + action button side by side. */}
+      <Group align="flex-end" gap="sm" wrap="nowrap">
+        <TextInput
+          flex={1}
+          placeholder="https://pobb.in/xxxx  ·  poe.ninja/builds/…  ·  eNqtVct…"
+          value={input}
+          onChange={(e) => setPlanner({ input: e.currentTarget.value })}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) void start();
+          }}
+        />
+        <Button
+          onClick={() => void start()}
+          loading={running}
+          disabled={!input.trim() || running}
+        >
+          {t({ it: "Genera piano", en: "Generate plan" })}
+        </Button>
+      </Group>
+      {!result && (
+        <Text size="xs" c="dimmed">
+          {t({ it: "Ctrl+Enter per inviare", en: "Ctrl+Enter to submit" })}
+        </Text>
+      )}
+
+      {/* Planner-specific controls: target goal + reverse mode. */}
+      <Group justify="space-between" wrap="wrap" align="center">
+        <SegmentedControl
+          data={targetOptions}
+          value={target}
+          onChange={(v) => setPlanner({ target: v as TargetGoal })}
+          size="sm"
+        />
+        <Tooltip
+          multiline
+          w={320}
+          label={t({
+            it: "Quando attivo, ogni KeyItem endgame della tua build genera una upgrade ladder personalizzata (Mageblood → Bottled Faith → flask rare; Awakened gem 5 → 1 → support regular). Le rationale dei rung vengono mostrate nei rispettivi stage.",
+            en: "When enabled, each endgame KeyItem of your build generates a personalised upgrade ladder (Mageblood → Bottled Faith → rare flask; Awakened gem 5 → 1 → regular support). Each rung's rationale is shown in the matching stage.",
+          })}
+          withArrow
+        >
+          <Switch
+            checked={reverseMode}
+            onChange={(e) =>
+              setPlanner({ reverseMode: e.currentTarget.checked })
+            }
+            label={t({
+              it: "Modalità reverse-progression (sperimentale)",
+              en: "Reverse-progression mode (experimental)",
+            })}
+            size="sm"
+          />
+        </Tooltip>
+      </Group>
 
       {error && (
         <Alert color="red" title={t({ it: "Errore", en: "Error" })}>

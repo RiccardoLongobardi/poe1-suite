@@ -12,11 +12,9 @@
 
 import {
   Alert,
-  Anchor,
   Badge,
   Box,
   Button,
-  Code,
   Group,
   NumberInput,
   Pill,
@@ -192,27 +190,33 @@ export function FinderPage({ onSendToPlanner }: Props) {
   // Cross-route persistent state — query, parsed intent, filter
   // overrides, results, drill-down skill filter and the editing flag
   // all survive navigating away and back (Zustand `pageStore`).
-  const { query, topN, intent, overrides, result, skillFilter, editing } =
+  const { query, topN, intent, overrides, result, skillFilter } =
     usePageStore((s) => s.finder);
   const setFinder = usePageStore((s) => s.setFinder);
 
+  const recommendMut = useMutation({
+    mutationFn: (i: BuildIntent) => recommend(i, topN),
+    onSuccess: (data) => {
+      setFinder({ result: data, skillFilter: null });
+    },
+  });
+
+  // Submitting the query parses the intent AND immediately runs the
+  // recommend in one go — the user never has to click "Find builds" a
+  // second time. The filter row's button below re-runs recommend only
+  // (for refining the already-parsed intent).
   const extractMut = useMutation({
     mutationFn: () => extractIntent(query),
     onSuccess: (data) => {
+      const ov = overridesFromIntent(data);
       setFinder({
         intent: data,
-        overrides: overridesFromIntent(data),
+        overrides: ov,
         result: null,
         skillFilter: null,
         editing: false,
       });
-    },
-  });
-
-  const recommendMut = useMutation({
-    mutationFn: () => recommend(applyOverrides(intent!, overrides), topN),
-    onSuccess: (data) => {
-      setFinder({ result: data, skillFilter: null });
+      recommendMut.mutate(applyOverrides(data, ov));
     },
   });
 
@@ -265,64 +269,53 @@ export function FinderPage({ onSendToPlanner }: Props) {
 
   const handleRecommend = () => {
     if (!intent) return;
-    recommendMut.mutate();
+    recommendMut.mutate(applyOverrides(intent, overrides));
   };
 
   return (
     <Stack gap="lg">
-      {/* ── Hero search / collapsed query row ───────────────────────── */}
-      {editing ? (
-        <Stack align="center" gap="sm" py="md">
-          <Title order={2} ta="center">
-            {t({ it: "Consulta l'oracolo", en: "Consult the oracle" })}
-          </Title>
-          <Text c="dimmed" ta="center" size="sm" maw={520}>
-            {t({
-              it: 'Descrivi il build che cerchi in italiano o inglese — es. "cold self-cast per mapping, budget basso"',
-              en: 'Describe the build you want in Italian or English — e.g. "cold self-cast for mapping, low budget"',
-            })}
-          </Text>
-          <Textarea
-            w="100%"
-            maw={620}
-            placeholder={t({
-              it: "cerca RF con 6k life almeno...",
-              en: "search RF with at least 6k life...",
-            })}
-            value={query}
-            onChange={(e) => setFinder({ query: e.currentTarget.value })}
-            minRows={2}
-            autosize
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) handleExtract();
-            }}
-          />
-          <Button
-            size="md"
-            onClick={handleExtract}
-            loading={extractMut.isPending}
-            disabled={!query.trim()}
-          >
-            {t({ it: "Consulta l'Oracolo", en: "Consult the Oracle" })}
-          </Button>
-          <Text size="xs" c="dimmed">
-            Ctrl+Enter
-          </Text>
-        </Stack>
-      ) : (
-        <Group gap={8} wrap="nowrap">
-          <Code style={{ overflow: "hidden", textOverflow: "ellipsis", flex: 1 }}>
-            {query}
-          </Code>
-          <Anchor
-            size="xs"
-            onClick={() => setFinder({ editing: true })}
-            style={{ flexShrink: 0 }}
-          >
-            {t({ it: "modifica", en: "edit" })}
-          </Anchor>
-        </Group>
-      )}
+      {/* ── Search input — always editable, no edit/collapse step ───── */}
+      <Stack align="center" gap="sm" py={intent ? "xs" : "md"}>
+        {!intent && (
+          <>
+            <Title order={2} ta="center">
+              {t({ it: "Consulta l'oracolo", en: "Consult the oracle" })}
+            </Title>
+            <Text c="dimmed" ta="center" size="sm" maw={520}>
+              {t({
+                it: 'Descrivi il build che cerchi in italiano o inglese — es. "cold self-cast per mapping, budget basso"',
+                en: 'Describe the build you want in Italian or English — e.g. "cold self-cast for mapping, low budget"',
+              })}
+            </Text>
+          </>
+        )}
+        <Textarea
+          w="100%"
+          maw={620}
+          placeholder={t({
+            it: "cerca RF con 6k life almeno...",
+            en: "search RF with at least 6k life...",
+          })}
+          value={query}
+          onChange={(e) => setFinder({ query: e.currentTarget.value })}
+          minRows={2}
+          autosize
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) handleExtract();
+          }}
+        />
+        <Button
+          size="md"
+          onClick={handleExtract}
+          loading={extractMut.isPending || recommendMut.isPending}
+          disabled={!query.trim()}
+        >
+          {t({ it: "Consulta l'Oracolo", en: "Consult the Oracle" })}
+        </Button>
+        <Text size="xs" c="dimmed">
+          Ctrl+Enter
+        </Text>
+      </Stack>
 
       {extractMut.isError && (
         <Alert color="red" title={t({ it: "Errore extract-intent", en: "Intent extraction error" })}>
