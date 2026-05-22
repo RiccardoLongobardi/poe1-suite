@@ -124,6 +124,19 @@ Inside the navbar: a "Strumenti" / "Tools" section label above the 5 main routes
 
 Frontend-only, no backend change. Gate: 747 tests / 132 mypy / ruff clean. Build ~471 KB / 151 KB gzip.
 
+## Step 48 — Theorycrafter tree masteries + cleaner nodes + honest estimates (2026-05-22) ✅
+
+QA follow-up on the tree + the stat panel.
+
+- **Mastery effects allocated.** The tree loader now keeps `masteryEffects` per mastery node (`TreeNode.mastery_effects = ((effect_id, stats), ...)`). `_select_masteries` allocates a mastery once an adjacent node in its wheel is taken, picking the effect whose stats best match the build (life / resistance / the build's damage), skipping masteries with no relevant effect. Up to `_MAX_MASTERIES = 8`; the regular fill targets `_MAX_TREE_NODES - 8` so the total stays ~118 points. `TreeNodeRef` gains `type="mastery"` + `effect_id`; `_to_pob_tree` emits them as `<Spec masteryEffects="{node,effect},...">` (the encoder already supported this). A Marauder/Juggernaut Cyclone now allocates Life / Two Hand / Block / Fire / Armour masteries.
+- **No wrong-weapon nodes.** `_excluded_weapon_ids` drops every passive (notable, keystone *or* travel) that boosts a weapon class the build doesn't use — a sword build no longer grabs "increased Damage with Axes". The build's weapon family mirrors `_select_gear` (bow / wand / sword). Excluded ids are removed from waypoint scoring, the fill boundary, AND `bfs_path` travel.
+- **Items frontend matches PoB.** `_rollable_priorities` filters each gear slot's `stat_priorities` to stems that resolve to a real mod which can roll on that base — so the UI card no longer shows "increased Physical Damage" on a helmet (it was only being dropped from the PoB body before). Local-vs-global handled via multi-candidate stems: ES → flat `base_maximum_energy_shield` (jewellery) or `local_energy_shield_+%` (armour); attack speed / accuracy → global or `local_*` (weapons). `mods_3_28.json` regenerated with the local variants (21 stats / 325 tiers).
+- **Honest stat estimate.** The old life formula added a bogus `100 * 99` → ~13k. Rewritten to `(38 + 12·level + gear-flat-life) × (1 + tree-life-%)` → an endgame life build lands ~5k (matches PoB ballpark). The fabricated `dps_index` is set to 0 and hidden in the UI (real DPS needs PoB's calc engine — the panel now says "import into PoB for the precise number").
+
+Tests: `test_masteries_allocated_and_weapon_filtered` (masteries have valid node+effect, no excluded-weapon node on a sword build) + updated `test_select_tree_nodes_localized_and_clean` / `test_stat_priorities_are_slot_aware`. Gate: 756 tests / 132 mypy / ruff clean.
+
+**Still rough (honest):** notable-level efficiency (e.g. picking a "+2% to all max elemental res" notable over two separate +1 max res) isn't optimised — that's deeper Steiner-style optimisation, deferred.
+
 ## Step 47 — Theorycrafter real item modifiers (RePoE) (2026-05-22) ✅
 
 QA: generated rares used *invented* affix values (the `_AFFIX_VALUES` table). Replaced with **real PoE mod tiers** from RePoE.

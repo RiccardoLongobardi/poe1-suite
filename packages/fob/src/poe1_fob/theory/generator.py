@@ -41,7 +41,7 @@ from ..gems.models import GemLink as PobGemLink
 from ..gems.models import GemSpec, StageGemLinks
 from ..pob.encode import encode_pob_code
 from ..tree.models import StageTree
-from ..tree.tree_data import TreeNode, get_tree_data
+from ..tree.tree_data import TreeData, TreeNode, get_tree_data
 from .models import (
     BudgetTier,
     BuildSkeleton,
@@ -346,6 +346,19 @@ _CLASS_ID: dict[str, int] = {
 }
 
 
+def _score_text(text: str, dmg: str, defence: str) -> int:
+    """Keyword relevance of an arbitrary stat text to the build."""
+    low = text.lower()
+    score = 0
+    for kw in _DAMAGE_KEYWORDS.get(dmg, ()):
+        if kw in low:
+            score += 3
+    for kw in _DEFENCE_KEYWORDS.get(defence, ()):
+        if kw in low:
+            score += 2
+    return score
+
+
 def _score_node(node: TreeNode, dmg: str, defence: str) -> int:
     """Higher = more relevant to the build.
 
@@ -358,17 +371,50 @@ def _score_node(node: TreeNode, dmg: str, defence: str) -> int:
     if node.ascendancy_name is not None:
         # Ascendancy nodes are handled separately.
         return 0
-    text_parts: list[str] = [node.name or ""]
-    text_parts.extend(node.stats)
-    stats_text = " ".join(text_parts).lower()
-    score = 0
-    for kw in _DAMAGE_KEYWORDS.get(dmg, ()):
-        if kw in stats_text:
-            score += 3
-    for kw in _DEFENCE_KEYWORDS.get(defence, ()):
-        if kw in stats_text:
-            score += 2
-    return score
+    return _score_text(" ".join([node.name or "", *node.stats]), dmg, defence)
+
+
+# Weapon-type keywords. The generator recommends a specific weapon
+# (bow / wand / two-hand sword), so a passive that boosts a *different*
+# weapon class is dead — exclude those nodes from the allocation. A
+# Marauder using a sword no longer grabs "increased Damage with Axes".
+_WEAPON_KW: dict[str, tuple[str, ...]] = {
+    "sword": ("sword", "swords"),
+    "axe": ("axe", "axes"),
+    "mace": ("mace", "maces", "sceptre", "sceptres"),
+    "staff": ("staff", "staves", "stave"),
+    "bow": ("bow", "bows"),
+    "wand": ("wand", "wands"),
+    "dagger": ("dagger", "daggers"),
+    "claw": ("claw", "claws"),
+}
+_ALL_WEAPON_KW: frozenset[str] = frozenset(kw for kws in _WEAPON_KW.values() for kw in kws)
+
+
+def _build_weapon_group(intent: TheoryIntent) -> str:
+    """The weapon family the generator recommends for this build —
+    mirrors the choice in `_select_gear` (bow / wand / sword)."""
+    skill = _find_active(intent.primary_skill)
+    if "bow" in skill.tags:
+        return "bow"
+    if "melee" in skill.tags:
+        return "sword"
+    return "wand"
+
+
+def _excluded_weapon_ids(intent: TheoryIntent, td: TreeData) -> frozenset[int]:
+    """Node ids whose stats mention a *foreign* weapon type (one the build
+    doesn't use) and not the build's own — these are wasted points."""
+    own = set(_WEAPON_KW.get(_build_weapon_group(intent), ()))
+    foreign = _ALL_WEAPON_KW - own
+    excluded: set[int] = set()
+    for nid, n in td.nodes_by_id.items():
+        if n.ascendancy_name is not None or nid >= _CLUSTER_JEWEL_MIN_ID or n.is_mastery:
+            continue
+        text = " ".join([n.name or "", *n.stats]).lower()
+        if any(kw in text for kw in foreign) and not any(kw in text for kw in own):
+            excluded.add(nid)
+    return frozenset(excluded)
 
 
 def bfs_path(
@@ -416,6 +462,9 @@ def bfs_path(
 
 _MAX_TREE_NODES = 120
 _CLUSTER_JEWEL_MIN_ID = 65536
+# Up to this many mastery effects are allocated on top of the regular
+# tree; each costs a point, so the regular fill targets the remainder.
+_MAX_MASTERIES = 8
 
 # Locality penalty (points of node-score per hop of travel distance from
 # the class start). The tree allocation prefers high-value nodes that are
@@ -470,6 +519,7 @@ def _fill_to_budget(
     defence: str,
     budget: int,
     dist: dict[int, int] | None = None,
+    exclude: frozenset[int] = frozenset(),
 ) -> list[int]:
     """Greedy best-first boundary expansion until *budget* is reached.
 
@@ -500,7 +550,7 @@ def _fill_to_budget(
         boundary: set[int] = set()
         for v in visited:
             for n in adjacency.get(v, frozenset()):
-                if n in visited:
+                if n in visited or n in exclude:
                     continue
                 if _is_fillable(all_nodes.get(n), n):
                     boundary.add(n)
@@ -510,6 +560,35 @@ def _fill_to_budget(
         visited.add(best)
         added.append(best)
     return added
+
+
+def _select_masteries(
+    visited: set[int], td: TreeData, dmg: str, defence: str
+) -> list[tuple[int, int, str, tuple[str, ...]]]:
+    """Allocate mastery effects on the built tree.
+
+    A mastery node can be allocated once an adjacent node in its wheel is
+    taken. For each such mastery we pick the effect whose stats best match
+    the build (life / resistance / the build's damage), skipping masteries
+    where nothing is relevant. Returns (node_id, effect_id, name, stats),
+    best-first, capped to ``_MAX_MASTERIES``.
+    """
+    candidates: list[tuple[int, int, int, str, tuple[str, ...]]] = []
+    for nid, node in td.nodes_by_id.items():
+        if not node.is_mastery or not node.mastery_effects:
+            continue
+        if not (td.adjacency.get(nid, frozenset()) & visited):
+            continue  # no allocated node in this mastery's wheel
+        best_eff = max(
+            node.mastery_effects,
+            key=lambda e: _score_text(" ".join(e[1]), dmg, defence),
+        )
+        eff_score = _score_text(" ".join(best_eff[1]), dmg, defence)
+        if eff_score <= 0:
+            continue  # nothing relevant on this mastery for the build
+        candidates.append((eff_score, nid, best_eff[0], node.name or "Mastery", best_eff[1]))
+    candidates.sort(key=lambda c: (-c[0], c[1]))
+    return [(nid, eff, name, stats) for _, nid, eff, name, stats in candidates[:_MAX_MASTERIES]]
 
 
 def _select_tree_nodes(intent: TheoryIntent) -> tuple[TreeNodeRef, ...]:
@@ -529,6 +608,10 @@ def _select_tree_nodes(intent: TheoryIntent) -> tuple[TreeNodeRef, ...]:
     # Travel cost from the class start to every reachable regular node.
     dist = _regular_distances(td.adjacency, start_id, td.nodes_by_id)
 
+    # Nodes that boost a weapon class this build doesn't use are dead —
+    # exclude them from waypoints and fill (Step 48).
+    excluded = _excluded_weapon_ids(intent, td)
+
     # Score regular (non-ascendancy, non-mastery, non-cluster) nodes, then
     # rank by a *locality-aware* value: a node's keyword score minus a
     # per-hop travel penalty (Step 46). This keeps the chosen waypoints
@@ -542,6 +625,8 @@ def _select_tree_nodes(intent: TheoryIntent) -> tuple[TreeNodeRef, ...]:
     scored: list[tuple[float, TreeNode]] = []
     for n in td.nodes_by_id.values():
         if n.id >= _CLUSTER_JEWEL_MIN_ID or n.is_mastery or n.id not in dist:
+            continue
+        if n.id in excluded:
             continue
         if _score_node(n, intent.damage_type, intent.defence_archetype) <= 0:
             continue
@@ -566,12 +651,15 @@ def _select_tree_nodes(intent: TheoryIntent) -> tuple[TreeNodeRef, ...]:
     # exported tree. Forbid them all (the regular waypoint targets are
     # never in this set, so dst is always reachable).
     non_regular = frozenset(nid for nid, n in td.nodes_by_id.items() if not _is_fillable(n, nid))
+    # Travel must also avoid weapon-mismatched nodes (don't route a path
+    # *through* an axe notable on a sword build).
+    avoid = non_regular | excluded
 
     # Visit-tracking BFS: each new segment forbids already-visited nodes
-    # (except the current src) plus all non-regular nodes, so the final
-    # path is contiguous, regular-only, with NO repeats — a simple
-    # `dict.fromkeys` dedup at the end would silently drop steps and break
-    # adjacency between consecutive list entries.
+    # (except the current src) plus all non-regular / mismatched nodes, so
+    # the final path is contiguous, regular-only, with NO repeats — a
+    # simple `dict.fromkeys` dedup at the end would silently drop steps and
+    # break adjacency between consecutive list entries.
     path: list[int] = [start_id]
     visited: set[int] = {start_id}
     current = start_id
@@ -579,7 +667,7 @@ def _select_tree_nodes(intent: TheoryIntent) -> tuple[TreeNodeRef, ...]:
         if target.id in visited:
             current = target.id
             continue
-        forbidden = (visited - {current}) | non_regular
+        forbidden = (visited - {current}) | avoid
         segment = bfs_path(td.adjacency, current, target.id, forbidden=forbidden)
         if segment is None:
             continue
@@ -597,16 +685,22 @@ def _select_tree_nodes(intent: TheoryIntent) -> tuple[TreeNodeRef, ...]:
 
     # Step 45a fill: top the allocation up to a realistic endgame budget
     # with the best-scored reachable nodes (greedy boundary expansion).
+    # Leave room for the mastery effects (each costs a point), and skip
+    # weapon-mismatched nodes.
     fill = _fill_to_budget(
         visited,
         td.adjacency,
         td.nodes_by_id,
         intent.damage_type,
         intent.defence_archetype,
-        _MAX_TREE_NODES,
+        _MAX_TREE_NODES - _MAX_MASTERIES,
         dist=dist,
+        exclude=excluded,
     )
     path.extend(fill)
+
+    # Step 48: allocate mastery effects on the wheels we've taken.
+    masteries = _select_masteries(visited, td, intent.damage_type, intent.defence_archetype)
 
     out: list[TreeNodeRef] = []
     for i, nid in enumerate(path):
@@ -632,6 +726,11 @@ def _select_tree_nodes(intent: TheoryIntent) -> tuple[TreeNodeRef, ...]:
             out.append(TreeNodeRef(node_id=nid, name=node.name or "?", type="notable", stats=()))
         else:
             out.append(TreeNodeRef(node_id=nid, name=node.name or "", type="travel", stats=()))
+
+    # Mastery effects — real (node, effect) allocations the encoder turns
+    # into `<Spec masteryEffects>`. Tagged "mastery" + carry the effect id.
+    for nid, eff, name, stats in masteries:
+        out.append(TreeNodeRef(node_id=nid, name=name, type="mastery", stats=stats, effect_id=eff))
 
     # Ascendancy notables — display-only, allocated via the lab.
     asc_notables = sorted(
@@ -800,14 +899,31 @@ def _pick_base(slot_enum: ItemSlot, intent: TheoryIntent) -> str:
     return pool[0].name
 
 
+def _rollable_priorities(
+    stems: tuple[str, ...], base_name: str, budget: BudgetTier
+) -> tuple[str, ...]:
+    """Keep only stems that map to a real mod which can actually roll on
+    this base — so the UI gear card and the PoB export agree (no more
+    "increased Physical Damage" shown on a helmet)."""
+    base = base_for_name(base_name)
+    item_tags = frozenset(base.tags) if base else frozenset()
+    kept = tuple(s for s in stems if real_affix_line(s, item_tags, budget) is not None)
+    # Never return an empty list — fall back to the raw stems so a slot
+    # always shows *something* (only happens for exotic bases).
+    return kept or stems
+
+
 def _select_gear(intent: TheoryIntent) -> tuple[GearSlot, ...]:
     out: list[GearSlot] = []
     for slot_enum, slot_name in _SLOTS:
+        base_name = _pick_base(slot_enum, intent)
         out.append(
             GearSlot(
                 slot=slot_name,
-                base_name=_pick_base(slot_enum, intent),
-                stat_priorities=_stat_priorities(slot_name, intent),
+                base_name=base_name,
+                stat_priorities=_rollable_priorities(
+                    _stat_priorities(slot_name, intent), base_name, intent.budget
+                ),
                 budget_tier=intent.budget,
             ),
         )
@@ -832,7 +948,9 @@ def _select_gear(intent: TheoryIntent) -> tuple[GearSlot, ...]:
             GearSlot(
                 slot=weapon_label,
                 base_name=weapon_pool[0].name,
-                stat_priorities=_stat_priorities(weapon_label, intent),
+                stat_priorities=_rollable_priorities(
+                    _stat_priorities(weapon_label, intent), weapon_pool[0].name, intent.budget
+                ),
                 budget_tier=intent.budget,
             ),
         )
@@ -849,7 +967,9 @@ def _select_gear(intent: TheoryIntent) -> tuple[GearSlot, ...]:
                 GearSlot(
                     slot="Shield",
                     base_name=shield_pool[0].name,
-                    stat_priorities=_stat_priorities("Off-hand", intent),
+                    stat_priorities=_rollable_priorities(
+                        _stat_priorities("Off-hand", intent), shield_pool[0].name, intent.budget
+                    ),
                     budget_tier=intent.budget,
                 ),
             )
@@ -939,37 +1059,43 @@ def _select_jewels(intent: TheoryIntent) -> tuple[GearSlot, ...]:
 # Stat estimates (Step D)
 # ---------------------------------------------------------------------------
 
-_BASE_LIFE: dict[str, int] = {
-    "Marauder": 66,
-    "Duelist": 62,
-    "Templar": 62,
-    "Witch": 56,
-    "Shadow": 58,
-    "Ranger": 58,
-    "Scion": 60,
-}
-_GEAR_LIFE: dict[BudgetTier, int] = {"starter": 800, "mid": 1500, "endgame": 2500}
-_GEAR_ES: dict[BudgetTier, int] = {"starter": 500, "mid": 1500, "endgame": 3500}
+# Rough life model (the old one added a bogus `100 * 99` and produced
+# ~13k). PoE life ≈ (38 + ~12/level base + flat life from gear) scaled by
+# the tree's % increased life. These constants land an endgame life build
+# around 4-5k — in the right ballpark for what PoB reports, while staying
+# explicitly an estimate.
+_LEVEL_BY_BUDGET: dict[BudgetTier, int] = {"starter": 60, "mid": 82, "endgame": 92}
+_GEAR_FLAT_LIFE: dict[BudgetTier, int] = {"starter": 250, "mid": 600, "endgame": 950}
+_GEAR_FLAT_ES: dict[BudgetTier, int] = {"starter": 250, "mid": 900, "endgame": 1800}
 
 
 def _stat_estimate(intent: TheoryIntent, nodes: tuple[TreeNodeRef, ...]) -> StatEstimate:
-    base_life = _BASE_LIFE.get(intent.character_class, 60) + 100 * 99  # ~lvl 99
+    is_es = intent.defence_archetype == "es"
+    level = _LEVEL_BY_BUDGET[intent.budget]
     life_nodes = sum(1 for n in nodes if "life" in n.name.lower())
-    es_nodes = sum(1 for n in nodes if "energy" in n.name.lower())
+    es_nodes = sum(1 for n in nodes if "energy" in n.name.lower() or "shield" in n.name.lower())
     res_nodes = sum(1 for n in nodes if "resist" in n.name.lower())
-    dmg_nodes = sum(1 for n in nodes if intent.damage_type in n.name.lower())
 
-    life = base_life + life_nodes * 80 + _GEAR_LIFE[intent.budget]
-    es = es_nodes * 120 + _GEAR_ES[intent.budget] if intent.defence_archetype != "life" else 0
-    dps_index = dmg_nodes * 1500 + len(nodes) * 200
+    base_life = 38 + 12 * level
+    # % increased life from the tree, capped at a realistic spec total.
+    life_pct = min(80 if is_es else 180, life_nodes * 8)
+    life = round((base_life + _GEAR_FLAT_LIFE[intent.budget]) * (1 + life_pct / 100))
+
+    if is_es:
+        es_pct = min(240, es_nodes * 12)
+        es = round(_GEAR_FLAT_ES[intent.budget] * (1 + es_pct / 100))
+    else:
+        es = 0
 
     warning = (
         "Capping resistances requires gear — molto piu del solo albero." if res_nodes < 2 else None
     )
+    # `dps_index` is intentionally 0: real DPS needs PoB's calc engine, so
+    # we don't fabricate a number (the UI hides it and points to PoB).
     return StatEstimate(
         life_estimate=max(life, 0),
         es_estimate=max(es, 0),
-        dps_index=max(dps_index, 0),
+        dps_index=0,
         resistance_warning=warning,
         estimated=True,
     )
@@ -1241,19 +1367,24 @@ def _build_gem_layout(
 
 
 def _to_pob_tree(intent: TheoryIntent, nodes: tuple[TreeNodeRef, ...]) -> StageTree:
-    # Encode ONLY the regular tree path. The "start" node is auto-allocated
-    # by PoB, and ascendancy notables must NOT go into the main `nodes`
-    # list — they're allocated via the lab and have no connecting path on
-    # the main tree, so PoB would render them as disconnected floating
-    # points. They stay in `ascendancy_nodes` for display only.
+    # Encode the regular tree path + mastery nodes. The "start" node is
+    # auto-allocated by PoB; ascendancy notables must NOT go into the main
+    # `nodes` list (they're allocated via the lab and have no connecting
+    # path on the main tree → they'd float). Mastery nodes are allocated
+    # via the `nodes` list AND the `masteryEffects` (node, effect) pairs —
+    # PoB drops a mastery node from `nodes` unless its effect is listed.
     real_ids = tuple(
         n.node_id for n in nodes if n.type not in ("start", "ascendancy") and n.node_id > 0
+    )
+    mastery_effects = tuple(
+        (n.node_id, n.effect_id) for n in nodes if n.type == "mastery" and n.effect_id is not None
     )
     return StageTree(
         stage_key="theory_v2",
         node_ids=real_ids,
         notables=tuple(n.name for n in nodes if n.type == "notable"),
         ascendancy_nodes=tuple(n.name for n in nodes if n.type == "ascendancy"),
+        mastery_effects=mastery_effects,
         pob_url=None,
     )
 

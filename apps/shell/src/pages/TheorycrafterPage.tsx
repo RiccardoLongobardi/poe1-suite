@@ -369,15 +369,23 @@ function SkeletonResult({ skeleton }: { skeleton: BuildSkeleton }) {
               </Text>
             </Stack>
           )}
-          <Stack gap={0}>
-            <Text size="xs" c="dimmed">
-              DPS index
-            </Text>
-            <Text className="mono" size="lg" fw={700}>
-              ~{skeleton.stats.dps_index.toLocaleString()}
-            </Text>
-          </Stack>
+          {skeleton.stats.dps_index > 0 && (
+            <Stack gap={0}>
+              <Text size="xs" c="dimmed">
+                DPS index
+              </Text>
+              <Text className="mono" size="lg" fw={700}>
+                ~{skeleton.stats.dps_index.toLocaleString()}
+              </Text>
+            </Stack>
+          )}
         </Group>
+        <Text size="xs" c="dimmed" mt={4}>
+          {t({
+            it: "Il DPS reale dipende da gemme, link e item: importa in PoB per il calcolo preciso.",
+            en: "Real DPS depends on gems, links and items: import into PoB for the precise number.",
+          })}
+        </Text>
         {skeleton.stats.resistance_warning && (
           <Alert mt="xs" color="yellow" variant="light">
             {skeleton.stats.resistance_warning}
@@ -428,6 +436,7 @@ function SkeletonResult({ skeleton }: { skeleton: BuildSkeleton }) {
                     key={`${n.type}-${n.node_id}-${n.name}`}
                     gap={6}
                     wrap="nowrap"
+                    align="flex-start"
                   >
                     <Badge
                       size="xs"
@@ -436,17 +445,26 @@ function SkeletonResult({ skeleton }: { skeleton: BuildSkeleton }) {
                           ? "red"
                           : n.type === "ascendancy"
                             ? "grape"
-                            : n.type === "start"
-                              ? "gray"
-                              : "ember"
+                            : n.type === "mastery"
+                              ? "teal"
+                              : n.type === "start"
+                                ? "gray"
+                                : "ember"
                       }
                       variant="light"
                       w={88}
                     >
                       {n.type}
                     </Badge>
-                    <Text size="sm">{n.name}</Text>
-                    {n.node_id > 0 && (
+                    <div style={{ minWidth: 0 }}>
+                      <Text size="sm">{n.name}</Text>
+                      {n.type === "mastery" && n.stats[0] && (
+                        <Text size="11px" c="dimmed">
+                          {n.stats[0]}
+                        </Text>
+                      )}
+                    </div>
+                    {n.node_id > 0 && n.type !== "mastery" && (
                       <Text size="10px" c="dimmed" className="mono">
                         #{n.node_id}
                       </Text>

@@ -367,11 +367,12 @@ def test_no_unavailable_awakened_gems() -> None:
 
 
 def test_stat_priorities_are_slot_aware() -> None:
-    """Per-slot priorities reflect the build (Step 45d).
+    """Per-slot priorities reflect the build AND only show stats that can
+    actually roll on the slot (Step 45d + Step 48 rollable filter).
 
-    Spell builds get cast speed + spell damage; attack builds get attack
-    speed + accuracy on the weapon; rings carry mana + attributes; flasks
-    render as MAGIC items with a real suffix.
+    Spell builds get cast speed on gloves (spell damage is filtered out —
+    it can't roll on gloves); attack builds get attack speed + accuracy on
+    the weapon; rings carry mana + attributes; flasks render as MAGIC.
     """
     spell = generate_build(
         _intent(
@@ -386,7 +387,8 @@ def test_stat_priorities_are_slot_aware() -> None:
     )
     by_slot = {g.slot: g for g in spell.gear_slots}
     assert "increased Cast Speed" in by_slot["Gloves"].stat_priorities
-    assert "increased Spell Damage" in by_slot["Gloves"].stat_priorities
+    # Spell damage does NOT roll on gloves → must be filtered out.
+    assert "increased Spell Damage" not in by_slot["Gloves"].stat_priorities
     assert "to Mana" in by_slot["Ring"].stat_priorities
     assert "to all Attributes" in by_slot["Ring"].stat_priorities
 

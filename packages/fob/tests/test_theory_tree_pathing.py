@@ -186,7 +186,7 @@ def test_travel_nodes_have_type_travel() -> None:
     types = {n.type for n in nodes}
     assert "travel" in types
     # And no path node carries an unknown type.
-    assert types.issubset({"keystone", "notable", "ascendancy", "start", "travel"})
+    assert types.issubset({"keystone", "notable", "ascendancy", "start", "travel", "mastery"})
 
 
 def test_select_tree_nodes_localized_and_clean() -> None:
@@ -214,9 +214,15 @@ def test_select_tree_nodes_localized_and_clean() -> None:
             budget="endgame",
             focus="allcontent",
         )
-        nodes = [n for n in _select_tree_nodes(intent) if n.type not in ("start", "ascendancy")]
+        # The regular path excludes start/ascendancy AND the mastery tail
+        # (masteries are legitimately mastery nodes, allocated separately).
+        nodes = [
+            n
+            for n in _select_tree_nodes(intent)
+            if n.type not in ("start", "ascendancy", "mastery")
+        ]
 
-        # No non-regular node leaked onto the path.
+        # No non-regular node leaked onto the regular path.
         for n in nodes:
             td_node = td.nodes_by_id.get(n.node_id)
             assert td_node is not None
@@ -228,3 +234,38 @@ def test_select_tree_nodes_localized_and_clean() -> None:
         # radius of the class start (was 30+ hops for Ranger).
         dists = [dist.get(n.node_id, 999) for n in nodes]
         assert max(dists) <= 20, f"{cls}/{skill}: max hop distance {max(dists)} — sprawling"
+
+
+def test_masteries_allocated_and_weapon_filtered() -> None:
+    """Step 48: mastery effects are allocated (real node+effect), and a
+    sword build doesn't grab passives for other weapon classes."""
+    intent = TheoryIntent(
+        character_class="Marauder",
+        ascendancy="Juggernaut",
+        primary_skill="Cyclone",
+        damage_type="physical",
+        defence_archetype="life",
+        budget="endgame",
+        focus="allcontent",
+    )
+    td = get_tree_data()
+    nodes = _select_tree_nodes(intent)
+
+    masteries = [n for n in nodes if n.type == "mastery"]
+    assert masteries, "no mastery effects allocated"
+    for m in masteries:
+        assert m.effect_id is not None, f"mastery {m.name} has no effect id"
+        node = td.nodes_by_id.get(m.node_id)
+        assert node is not None and node.is_mastery
+        # The chosen effect id is one the mastery actually offers.
+        assert m.effect_id in {e for e, _ in node.mastery_effects}
+
+    # No foreign-weapon passive on a sword build's path (precise check
+    # against the exclusion set the generator computes).
+    from poe1_fob.theory.generator import _excluded_weapon_ids
+
+    excluded = _excluded_weapon_ids(intent, td)
+    for n in nodes:
+        if n.type in ("start", "ascendancy", "mastery"):
+            continue
+        assert n.node_id not in excluded, f"foreign-weapon node on sword build: {n.name}"

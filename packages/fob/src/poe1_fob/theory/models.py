@@ -64,8 +64,11 @@ class TreeNodeRef(BaseModel):
 
     node_id: int
     name: str
-    type: Literal["keystone", "notable", "ascendancy", "start", "travel"]
+    type: Literal["keystone", "notable", "ascendancy", "start", "travel", "mastery"]
     stats: tuple[str, ...] = ()
+    # For ``type == "mastery"``: the chosen mastery-effect id (PoB needs
+    # the (node, effect) pair to allocate it). None for every other type.
+    effect_id: int | None = None
 
 
 class GearSlot(BaseModel):

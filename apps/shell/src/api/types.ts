@@ -619,8 +619,9 @@ export interface TheoryGemLink {
 export interface TreeNodeRef {
   node_id: number;
   name: string;
-  type: "keystone" | "notable" | "ascendancy" | "start" | "travel";
+  type: "keystone" | "notable" | "ascendancy" | "start" | "travel" | "mastery";
   stats: string[];
+  effect_id?: number | null;
 }
 
 export interface TheoryGearSlot {

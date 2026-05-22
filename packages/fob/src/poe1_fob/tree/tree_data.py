@@ -50,6 +50,9 @@ class TreeNode:
     class_start_index: int | None  # 0..6 when this is a class start, else None
     group: int | None  # cluster id for spatial layout, irrelevant for BFS
     stats: tuple[str, ...]  # human-readable mod lines from the raw tree JSON
+    # For mastery nodes: the selectable effects, each (effect_id, stat lines).
+    # Empty for every non-mastery node.
+    mastery_effects: tuple[tuple[int, tuple[str, ...]], ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -109,6 +112,25 @@ def _load_from_disk(path: Path) -> TreeData:
         stats_iter: tuple[str, ...] = (
             tuple(s for s in stats_raw if isinstance(s, str)) if isinstance(stats_raw, list) else ()
         )
+        me_raw = raw_node.get("masteryEffects")
+        mastery_effects: tuple[tuple[int, tuple[str, ...]], ...] = ()
+        if isinstance(me_raw, list):
+            parsed_effects: list[tuple[int, tuple[str, ...]]] = []
+            for eff in me_raw:
+                if not isinstance(eff, dict):
+                    continue
+                raw_eff = eff.get("effect")
+                eid = _coerce_int(raw_eff) if isinstance(raw_eff, str | int) else None
+                if eid is None:
+                    continue
+                eff_stats_raw = eff.get("stats")
+                eff_stats = (
+                    tuple(s for s in eff_stats_raw if isinstance(s, str))
+                    if isinstance(eff_stats_raw, list)
+                    else ()
+                )
+                parsed_effects.append((eid, eff_stats))
+            mastery_effects = tuple(parsed_effects)
         node = TreeNode(
             id=nid,
             name=name_raw if isinstance(name_raw, str) else None,
@@ -121,6 +143,7 @@ def _load_from_disk(path: Path) -> TreeData:
             class_start_index=csi,
             group=group_val,
             stats=stats_iter,
+            mastery_effects=mastery_effects,
         )
         nodes_by_id[nid] = node
         if node.class_start_index is not None:

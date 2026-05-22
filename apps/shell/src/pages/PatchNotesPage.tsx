@@ -30,6 +30,35 @@ const RELEASES: Release[] = [
   {
     date: { it: "22 mag 2026", en: "22 May 2026" },
     title: {
+      it: "Theorycrafter — maestrie e albero piu pulito",
+      en: "Theorycrafter — masteries and a cleaner tree",
+    },
+    summary: {
+      it: "L'albero ora alloca le maestrie giuste, evita nodi inutili e i pannelli mostrano numeri realistici.",
+      en: "The tree now allocates the right masteries, avoids wasted nodes, and the panels show realistic numbers.",
+    },
+    entries: [
+      {
+        it: "Le maestrie (Vita, Resistenze, danno) vengono allocate con l'effetto piu adatto alla build.",
+        en: "Masteries (Life, Resistances, damage) are now allocated with the effect that best fits the build.",
+      },
+      {
+        it: "Niente piu nodi per armi che non usi (es. \"danno con le asce\" su una build con spada).",
+        en: "No more nodes for weapons you don't use (e.g. \"damage with axes\" on a sword build).",
+      },
+      {
+        it: "Le carte degli oggetti mostrano solo i modificatori che possono davvero comparire su quello slot (niente danno da incantesimo sull'elmo).",
+        en: "Item cards only show modifiers that can actually appear on that slot (no spell damage on a helmet).",
+      },
+      {
+        it: "La stima della Vita ora e realistica (~5k invece di ~13k); il DPS non viene piu mostrato con un numero fuorviante — importa in PoB per il calcolo preciso.",
+        en: "The Life estimate is now realistic (~5k instead of ~13k); DPS is no longer shown as a misleading number — import into PoB for the precise math.",
+      },
+    ],
+  },
+  {
+    date: { it: "22 mag 2026", en: "22 May 2026" },
+    title: {
       it: "Theorycrafter — modificatori reali sugli oggetti",
       en: "Theorycrafter — real item modifiers",
     },
