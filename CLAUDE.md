@@ -124,6 +124,19 @@ Inside the navbar: a "Strumenti" / "Tools" section label above the 5 main routes
 
 Frontend-only, no backend change. Gate: 747 tests / 132 mypy / ruff clean. Build ~471 KB / 151 KB gzip.
 
+## Step 46 — Theorycrafter realistic (localised) tree pathing (2026-05-22) ✅
+
+QA follow-up. Investigation first ruled out two suspects: (a) **tree-data drift** — all 3337 of our `tree/3_28.json` node IDs exist in PoB Community's 3.28 `tree.lua` (overlap 3337, zero missing), so the IDs are valid; (b) **disconnection** — every build's allocated set is one connected component from the class start (0 islands). The real defect was **sprawl**: the score-only selection threaded waypoints to high-scoring notables *anywhere* on the tree, so e.g. Ranger/Deadeye wandered a median of 24 hops out (11 nodes 30+ hops away, reaching toward the Marauder/Witch side) — connected but unrealistic.
+
+- **`_LOCALITY_ALPHA = 0.7`** — a per-hop travel penalty. Node desirability is now `keyword_score - _LOCALITY_ALPHA * distance_from_class_start`, so the allocation prefers high-value nodes *close* to the start.
+- **`_regular_distances(adjacency, start, nodes)`** — BFS hop-distance over the **regular** tree only (cluster/mastery/ascendancy nodes aren't traversable as travel). Feeds both the waypoint ranking and the fill.
+- **Waypoint selection** ranks the top-4 keystones + top-16 notables by that locality-aware value (skipping unreachable nodes); **`_fill_to_budget`** scores its boundary by the same value, so the allocation grows outward *compactly* rather than racing toward a far cluster.
+- **`bfs_path` now forbids non-regular nodes** on the waypoint segments (a `non_regular` frozenset). Previously a segment could route *through* a mastery/cluster-jewel node, leaking it into the exported `<Spec nodes>` (caught on the Scion build). The **ascendancy-entry connection step was removed** — the ascendancy is allocated via `ascendClassId` in the export, and that step pulled the non-regular ascendancy-start node onto the path.
+
+Result across all classes: median ~6-7 hops, max ~8-11 (was up to 30+), zero non-regular leaks, zero islands, 119 regular nodes. Test (`test_theory_tree_pathing.py`): `test_select_tree_nodes_localized_and_clean` asserts max hop distance ≤ 20 and no mastery/cluster/ascendancy node on the path, for the worst-case Ranger/Deadeye plus Marauder & Witch builds.
+
+Gate: 754 tests (+1) / 132 mypy / ruff clean.
+
 ## Bug — Theorycrafter gem links: incompatible supports + Awakened level + tree ascendancy float (2026-05-22) ✅
 
 QA (Riccardo) on a Marauder/Juggernaut Cyclone export: Cyclone was linked to **Advanced Traps** (not a trap) and **Ancestral Call** (not a strike); Awakened gems showed **level 20** (their cap is 4–5); ascendancy notables floated disconnected in the tree.
@@ -140,7 +153,7 @@ Fixes:
 
 Test: `test_gem_links_only_valid_supports` rewritten to PoB any-of semantics. Gate: 753 tests / 132 mypy / ruff clean.
 
-**Still open (reported, not yet fixed — needs follow-up):** (1) the tree allocation can *sprawl* toward far high-scoring nodes (the greedy score-only pathing isn't locality-aware, so a Marauder build may path toward the Ranger side — "Pathfinder nodes"); a possible cause of a node-count/connectivity mismatch in PoB is a tree-data-version drift between `tree/3_28.json` and the user's PoB. (2) Generated rare items still use *simulated* affix values rather than real RePoE mod tiers — the user wants real mods, which requires vendoring the RePoE mods file (a separate step).
+**Follow-up status:** (1) tree sprawl/"Pathfinder nodes" — **fixed in Step 46** (locality-aware pathing); tree-data drift was ruled out (all node IDs valid in PoB 3.28). (2) Generated rare items still use *simulated* affix values rather than real RePoE mod tiers — the user wants real mods, which requires vendoring the RePoE mods file (still a separate open step).
 
 ## UX — direct inputs on Finder / Analyze / Planner (2026-05-22) ✅
 

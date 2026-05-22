@@ -11,7 +11,14 @@ Two scopes:
 from __future__ import annotations
 
 from poe1_fob.theory import TheoryIntent
-from poe1_fob.theory.generator import _MAX_TREE_NODES, _select_tree_nodes, bfs_path
+from poe1_fob.theory.generator import (
+    _CLASS_ID,
+    _CLUSTER_JEWEL_MIN_ID,
+    _MAX_TREE_NODES,
+    _regular_distances,
+    _select_tree_nodes,
+    bfs_path,
+)
 from poe1_fob.tree.tree_data import get_tree_data
 
 
@@ -180,3 +187,44 @@ def test_travel_nodes_have_type_travel() -> None:
     assert "travel" in types
     # And no path node carries an unknown type.
     assert types.issubset({"keystone", "notable", "ascendancy", "start", "travel"})
+
+
+def test_select_tree_nodes_localized_and_clean() -> None:
+    """Step 46: the allocation stays a compact, regular-only cluster near
+    the class start — no sprawl to the far side of the tree, no mastery /
+    cluster-jewel / ascendancy nodes leaking onto the path.
+
+    Ranger/Deadeye was the worst offender (median ~24 hops, nodes 30+ hops
+    out) before locality weighting; it must now stay within a sane radius.
+    """
+    td = get_tree_data()
+    for cls, asc, skill, dmg, defence in [
+        ("Ranger", "Deadeye", "Tornado Shot", "physical", "life"),
+        ("Marauder", "Juggernaut", "Cyclone", "physical", "life"),
+        ("Witch", "Occultist", "Bane", "chaos", "es"),
+    ]:
+        start = td.class_starts[_CLASS_ID[cls]]
+        dist = _regular_distances(td.adjacency, start, td.nodes_by_id)
+        intent = TheoryIntent(
+            character_class=cls,
+            ascendancy=asc,
+            primary_skill=skill,
+            damage_type=dmg,
+            defence_archetype=defence,
+            budget="endgame",
+            focus="allcontent",
+        )
+        nodes = [n for n in _select_tree_nodes(intent) if n.type not in ("start", "ascendancy")]
+
+        # No non-regular node leaked onto the path.
+        for n in nodes:
+            td_node = td.nodes_by_id.get(n.node_id)
+            assert td_node is not None
+            assert n.node_id < _CLUSTER_JEWEL_MIN_ID, f"cluster node {n.node_id} on path"
+            assert not td_node.is_mastery, f"mastery node {n.node_id} on path"
+            assert td_node.ascendancy_name is None, f"ascendancy node {n.node_id} on path"
+
+        # Compact: every allocated node is reachable and within a sane
+        # radius of the class start (was 30+ hops for Ranger).
+        dists = [dist.get(n.node_id, 999) for n in nodes]
+        assert max(dists) <= 20, f"{cls}/{skill}: max hop distance {max(dists)} — sprawling"

@@ -416,6 +416,41 @@ def bfs_path(
 _MAX_TREE_NODES = 120
 _CLUSTER_JEWEL_MIN_ID = 65536
 
+# Locality penalty (points of node-score per hop of travel distance from
+# the class start). The tree allocation prefers high-value nodes that are
+# *close* to where the character starts, so a real build stays a compact
+# cluster near its class area instead of sprawling tendrils across the
+# whole tree toward far high-scoring nodes. Tuned so a Ranger/Deadeye
+# build (which used to wander 30+ hops toward the Marauder/Witch side)
+# stays within a sensible radius while still threading the best notables.
+_LOCALITY_ALPHA = 0.7
+
+
+def _regular_distances(
+    adjacency: dict[int, frozenset[int]],
+    start: int,
+    all_nodes: dict[int, TreeNode],
+) -> dict[int, int]:
+    """BFS hop-distance from *start* over the **regular** tree only.
+
+    Cluster-jewel, mastery and ascendancy nodes are not traversable as
+    travel, so they're excluded — the result reflects the real number of
+    passive points needed to reach each regular node.
+    """
+    dist: dict[int, int] = {start: 0}
+    queue: deque[int] = deque([start])
+    while queue:
+        x = queue.popleft()
+        for nb in adjacency.get(x, frozenset()):
+            if nb in dist:
+                continue
+            n = all_nodes.get(nb)
+            if not _is_fillable(n, nb):
+                continue
+            dist[nb] = dist[x] + 1
+            queue.append(nb)
+    return dist
+
 
 def _is_fillable(node: TreeNode | None, nid: int) -> bool:
     """A node the fill phase may allocate — regular tree only."""
@@ -433,19 +468,32 @@ def _fill_to_budget(
     dmg: str,
     defence: str,
     budget: int,
+    dist: dict[int, int] | None = None,
 ) -> list[int]:
     """Greedy best-first boundary expansion until *budget* is reached.
 
     Step 45a: after the waypoint BFS connects the chosen targets, the
     path is often only ~15-20 nodes — far short of an endgame ~100-point
     allocation. This grows the allocation by repeatedly taking the
-    highest-scored *boundary* node (an unvisited regular node adjacent
-    to the already-visited set) and adding it. Every added node is, by
-    construction, adjacent to at least one already-visited node — so the
-    final allocation stays a single connected component.
+    best *boundary* node (an unvisited regular node adjacent to the
+    already-visited set). Every added node is, by construction, adjacent
+    to at least one already-visited node — so the final allocation stays
+    a single connected component.
+
+    "Best" = ``score - _LOCALITY_ALPHA * distance_from_start`` (Step 46),
+    so the fill grows the allocation outward *compactly* near the class
+    start instead of racing across the tree toward a far high-scoring
+    cluster. ``dist`` is the precomputed regular-tree distance map; when
+    omitted the fill falls back to score-only (legacy behaviour).
 
     Mutates ``visited`` in place; returns the nodes added, in order.
     """
+    dist = dist or {}
+
+    def _value(nid: int) -> float:
+        score = _score_node(all_nodes[nid], dmg, defence)
+        return score - _LOCALITY_ALPHA * dist.get(nid, 0)
+
     added: list[int] = []
     while len(visited) < budget:
         boundary: set[int] = set()
@@ -457,10 +505,7 @@ def _fill_to_budget(
                     boundary.add(n)
         if not boundary:
             break
-        best = max(
-            boundary,
-            key=lambda nid: (_score_node(all_nodes[nid], dmg, defence), -nid),
-        )
+        best = max(boundary, key=lambda nid: (_value(nid), -nid))
         visited.add(best)
         added.append(best)
     return added
@@ -480,33 +525,52 @@ def _select_tree_nodes(intent: TheoryIntent) -> tuple[TreeNodeRef, ...]:
     class_idx = _CLASS_ID.get(intent.character_class, 0)
     start_id = td.class_starts.get(class_idx, 0)
 
-    # Score regular (non-ascendancy, non-mastery, non-cluster) nodes.
-    scored: list[tuple[int, TreeNode]] = []
-    for n in td.nodes_by_id.values():
-        if n.id >= _CLUSTER_JEWEL_MIN_ID or n.is_mastery:
-            continue
+    # Travel cost from the class start to every reachable regular node.
+    dist = _regular_distances(td.adjacency, start_id, td.nodes_by_id)
+
+    # Score regular (non-ascendancy, non-mastery, non-cluster) nodes, then
+    # rank by a *locality-aware* value: a node's keyword score minus a
+    # per-hop travel penalty (Step 46). This keeps the chosen waypoints
+    # close to the class start — a Marauder no longer threads a tendril to
+    # a high-scoring notable over on the Ranger side just because it
+    # scores well. Unreachable nodes (not in `dist`) are skipped.
+    def _value(n: TreeNode) -> float:
         s = _score_node(n, intent.damage_type, intent.defence_archetype)
-        if s > 0:
-            scored.append((s, n))
+        return s - _LOCALITY_ALPHA * dist[n.id]
+
+    scored: list[tuple[float, TreeNode]] = []
+    for n in td.nodes_by_id.values():
+        if n.id >= _CLUSTER_JEWEL_MIN_ID or n.is_mastery or n.id not in dist:
+            continue
+        if _score_node(n, intent.damage_type, intent.defence_archetype) <= 0:
+            continue
+        scored.append((_value(n), n))
     scored.sort(key=lambda t: (-t[0], t[1].id))
 
-    # Step 45a: more waypoints (was 2 + 8) so the BFS covers more of the
-    # tree before the fill phase tops the allocation up to budget.
+    # More waypoints (Step 45a: 4 + 16) so the BFS covers a meaningful
+    # spine before the fill tops the allocation up to budget.
     target_keystones = [n for _, n in scored if n.is_keystone][:4]
     target_notables = [n for _, n in scored if n.is_notable][:16]
 
-    # Greedy waypoint expansion: visit the highest-scored target first,
+    # Greedy waypoint expansion: visit the highest-value target first,
     # then route to the next via BFS from the current position.
     targets: list[TreeNode] = sorted(
         target_keystones + target_notables,
-        key=lambda n: -_score_node(n, intent.damage_type, intent.defence_archetype),
+        key=lambda n: -_value(n),
     )
 
-    # Visit-tracking BFS: each new segment forbids already-visited
-    # nodes (except the current src) so the final path is contiguous
-    # with NO repeats — a simple `dict.fromkeys` dedup at the end would
-    # silently drop steps and break adjacency between consecutive list
-    # entries.
+    # Non-regular nodes (mastery, cluster-jewel, ascendancy) must never
+    # appear ON the path — `bfs_path` would otherwise happily route a
+    # waypoint segment *through* a mastery node, leaking it into the
+    # exported tree. Forbid them all (the regular waypoint targets are
+    # never in this set, so dst is always reachable).
+    non_regular = frozenset(nid for nid, n in td.nodes_by_id.items() if not _is_fillable(n, nid))
+
+    # Visit-tracking BFS: each new segment forbids already-visited nodes
+    # (except the current src) plus all non-regular nodes, so the final
+    # path is contiguous, regular-only, with NO repeats — a simple
+    # `dict.fromkeys` dedup at the end would silently drop steps and break
+    # adjacency between consecutive list entries.
     path: list[int] = [start_id]
     visited: set[int] = {start_id}
     current = start_id
@@ -514,7 +578,7 @@ def _select_tree_nodes(intent: TheoryIntent) -> tuple[TreeNodeRef, ...]:
         if target.id in visited:
             current = target.id
             continue
-        forbidden = visited - {current}
+        forbidden = (visited - {current}) | non_regular
         segment = bfs_path(td.adjacency, current, target.id, forbidden=forbidden)
         if segment is None:
             continue
@@ -524,15 +588,11 @@ def _select_tree_nodes(intent: TheoryIntent) -> tuple[TreeNodeRef, ...]:
         visited.update(segment)
         current = target.id
 
-    # Connect to the ascendancy entry node (lab path), if known.
-    asc_entry = td.ascendancy_starts.get(intent.ascendancy)
-    if asc_entry is not None and asc_entry not in visited and len(path) < _MAX_TREE_NODES:
-        forbidden = visited - {current}
-        segment = bfs_path(td.adjacency, current, asc_entry, forbidden=forbidden)
-        if segment is not None:
-            cap_slice = segment[1 : _MAX_TREE_NODES - len(path) + 1]
-            path.extend(cap_slice)
-            visited.update(cap_slice)
+    # (The old "connect to the ascendancy entry node" step was removed in
+    # Step 46: the ascendancy is allocated via `ascendClassId` in the PoB
+    # export, not by threading the main tree to the ascendancy gate — and
+    # that step pulled the non-regular ascendancy-start node onto the
+    # path.)
 
     # Step 45a fill: top the allocation up to a realistic endgame budget
     # with the best-scored reachable nodes (greedy boundary expansion).
@@ -543,6 +603,7 @@ def _select_tree_nodes(intent: TheoryIntent) -> tuple[TreeNodeRef, ...]:
         intent.damage_type,
         intent.defence_archetype,
         _MAX_TREE_NODES,
+        dist=dist,
     )
     path.extend(fill)
 

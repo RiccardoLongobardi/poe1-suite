@@ -30,6 +30,27 @@ const RELEASES: Release[] = [
   {
     date: { it: "22 mag 2026", en: "22 May 2026" },
     title: {
+      it: "Theorycrafter — albero passivo piu realistico",
+      en: "Theorycrafter — more realistic passive tree",
+    },
+    summary: {
+      it: "L'albero generato resta un blocco compatto vicino al punto di partenza della classe, invece di allungarsi a caso dall'altra parte dell'albero.",
+      en: "The generated tree stays a compact cluster near the class start instead of sprawling across to the far side.",
+    },
+    entries: [
+      {
+        it: "La scelta dei nodi ora pesa la distanza dal punto di partenza: niente piu tentacoli verso nodi lontani (es. una build Marauder che pescava nell'area Ranger).",
+        en: "Node selection now weighs distance from the class start: no more tendrils toward far-off nodes (e.g. a Marauder build reaching into the Ranger area).",
+      },
+      {
+        it: "Nessun nodo di maestria, cluster jewel o ascendancy finisce piu per sbaglio nel percorso dell'albero principale.",
+        en: "No mastery, cluster-jewel or ascendancy node ends up on the main tree path by mistake.",
+      },
+    ],
+  },
+  {
+    date: { it: "22 mag 2026", en: "22 May 2026" },
+    title: {
       it: "Theorycrafter — gemme corrette e sensate",
       en: "Theorycrafter — correct, sensible gem links",
     },
