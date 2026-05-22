@@ -124,6 +124,18 @@ Inside the navbar: a "Strumenti" / "Tools" section label above the 5 main routes
 
 Frontend-only, no backend change. Gate: 747 tests / 132 mypy / ruff clean. Build ~471 KB / 151 KB gzip.
 
+## Step 45c — Theorycrafter Awakened gem allowlist 3.28 (2026-05-22) ✅
+
+Prompt 033b. Content Update 3.28.0 removed every Awakened Support Gem from the drop pool **except Awakened Empower / Enlighten / Enhance**. `gems_3_28.json` is extracted from PoB Community source, which still carries all 38 Awakened gems — so the generator was emitting gems that don't exist in 3.28 standard (e.g. Awakened Ancestral Call, Awakened Increased Area of Effect).
+
+- **`_AWAKENED_ALLOWLIST` + `_is_available_in_328(name)`.** A name beginning `"Awakened "` and not in the allowlist returns `False`. **Data note**: the catalogue stores Awakened names **without** a `" Support"` suffix (`"Awakened Empower"`, not `"Awakened Empower Support"`), so the allowlist uses those exact strings — the prompt's `" Support"`-suffixed strings would have blocked all 38 including the 3 valid ones.
+- **Filter at selection.** The guard runs inside `_select_supports_raw` (so both `_select_supports` and `_pick_supports_for` inherit it) and in the now-dead-but-defensive `_pick_supports`.
+- **Guard at the gate.** `_assert_valid` now skips `(open)` and raises `TheoryHallucinationError` for any support failing `_is_available_in_328` — a belt-and-braces check against future code paths.
+
+Test (`test_theory_generator.py`): `test_no_unavailable_awakened_gems` builds 4 endgame intents (Witch/Elementalist/Arc, Shadow/Saboteur/Fireball, Ranger/Deadeye/Tornado Shot, Marauder/Juggernaut/Earthquake) and asserts no link carries an `Awakened ` support outside the allowlist. Verified: Earthquake layout now shows only Awakened Empower/Enhance/Enlighten among Awakened gems.
+
+Gate: 752 tests (+1) / 132 mypy / ruff clean.
+
 ## Step 45b — Theorycrafter gem layout dedup + compatible supports (2026-05-22) ✅
 
 Prompt 033. Two distinct bugs in `_build_gem_layout` / support selection, fixed together.

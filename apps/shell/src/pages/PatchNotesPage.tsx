@@ -30,6 +30,23 @@ const RELEASES: Release[] = [
   {
     date: { it: "22 mag 2026", en: "22 May 2026" },
     title: {
+      it: "Theorycrafter — gemme Awakened aggiornate a 3.28",
+      en: "Theorycrafter — Awakened gems matched to 3.28",
+    },
+    summary: {
+      it: "Il generatore non propone piu gemme Awakened che in 3.28 non si possono piu ottenere.",
+      en: "The generator no longer suggests Awakened gems that can no longer be obtained in 3.28.",
+    },
+    entries: [
+      {
+        it: "In 3.28 sono rimaste droppabili solo Awakened Empower, Enlighten ed Enhance: ora i link generati usano solo queste tre tra le Awakened, le altre tornano alle versioni normali.",
+        en: "In 3.28 only Awakened Empower, Enlighten and Enhance still drop: generated links now use only those three among the Awakened ones, the rest fall back to their normal versions.",
+      },
+    ],
+  },
+  {
+    date: { it: "22 mag 2026", en: "22 May 2026" },
+    title: {
       it: "Theorycrafter — gemme piu sensate",
       en: "Theorycrafter — smarter gem links",
     },

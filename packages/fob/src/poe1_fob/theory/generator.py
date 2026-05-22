@@ -129,6 +129,28 @@ def _find_active(name: str) -> _Active:
     return actives[0]
 
 
+# 3.28 removed every Awakened Support Gem from the drop pool *except*
+# these three (Content Update 3.28.0 patch notes). The vendored
+# `gems_3_28.json` is extracted from PoB Community source, which still
+# carries all 38 Awakened gems — so we filter at selection time.
+#
+# NOTE: the catalogue stores Awakened names WITHOUT a " Support" suffix
+# (e.g. "Awakened Empower", not "Awakened Empower Support"), so the
+# allowlist must match those exact strings.
+_AWAKENED_ALLOWLIST: frozenset[str] = frozenset(
+    {
+        "Awakened Empower",
+        "Awakened Enlighten",
+        "Awakened Enhance",
+    }
+)
+
+
+def _is_available_in_328(name: str) -> bool:
+    """False for Awakened support gems not obtainable in PoE 3.28."""
+    return not (name.startswith("Awakened ") and name not in _AWAKENED_ALLOWLIST)
+
+
 def _select_supports_raw(skill: _Active, n: int = 5) -> tuple[_Support, ...]:
     """Support gems whose tag requirements fit *skill*, best-priority first.
 
@@ -139,6 +161,8 @@ def _select_supports_raw(skill: _Active, n: int = 5) -> tuple[_Support, ...]:
     skill_tags = set(skill.tags)
     fits: list[_Support] = []
     for s in supports:
+        if not _is_available_in_328(s.name):
+            continue
         if not set(s.valid_gem_tags).issubset(skill_tags):
             continue
         if any(t in skill_tags for t in s.exclude_tags):
@@ -885,7 +909,7 @@ def _pick_active(name: str, fallback: str) -> str:
 def _pick_supports(prefer: tuple[str, ...], n: int) -> tuple[str, ...]:
     """Filter *prefer* down to supports in the catalogue, pad with ``(open)``."""
     known = _known_support_names()
-    picked: list[str] = [s for s in prefer if s in known][:n]
+    picked: list[str] = [s for s in prefer if s in known and _is_available_in_328(s)][:n]
     while len(picked) < n:
         picked.append("(open)")
     return tuple(picked)
@@ -1075,8 +1099,12 @@ def _assert_valid(
                 f"active '{link.skill}' not in gems_3_28.json (slot {link.slot})"
             )
         for s in link.supports:
+            if s == "(open)":
+                continue
             if s not in known_supports:
                 raise TheoryHallucinationError(f"support '{s}' not in gems_3_28.json")
+            if not _is_available_in_328(s):
+                raise TheoryHallucinationError(f"support '{s}' not obtainable in PoE 3.28")
     _ = intent  # signature parity
 
 

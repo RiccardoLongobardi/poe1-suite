@@ -328,3 +328,33 @@ def test_no_incompatible_supports() -> None:
                 assert "attack" not in active.tags, (
                     f"Faster Casting on {link.skill} (attack-tagged)"
                 )
+
+
+def test_no_unavailable_awakened_gems() -> None:
+    """Only the 3 allowlisted Awakened gems may appear in any link (Step 45c).
+
+    3.28 removed every Awakened Support except Empower / Enlighten /
+    Enhance. The catalogue stores them without a " Support" suffix.
+    """
+    allow = {"Awakened Empower", "Awakened Enlighten", "Awakened Enhance"}
+    for cls, asc, skill, dmg in [
+        ("Witch", "Elementalist", "Arc", "lightning"),
+        ("Shadow", "Saboteur", "Fireball", "fire"),
+        ("Ranger", "Deadeye", "Tornado Shot", "physical"),
+        ("Marauder", "Juggernaut", "Earthquake", "physical"),
+    ]:
+        skeleton = generate_build(
+            _intent(
+                character_class=cls,
+                ascendancy=asc,
+                primary_skill=skill,
+                damage_type=dmg,
+                defence_archetype="life",
+                budget="endgame",
+                focus="allcontent",
+            )
+        )
+        for link in skeleton.links:
+            for s in link.supports:
+                if s.startswith("Awakened ") and s not in allow:
+                    pytest.fail(f"gem '{s}' not available in 3.28 (link {link.slot})")
