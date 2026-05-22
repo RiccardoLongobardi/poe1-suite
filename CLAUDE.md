@@ -124,6 +124,19 @@ Inside the navbar: a "Strumenti" / "Tools" section label above the 5 main routes
 
 Frontend-only, no backend change. Gate: 747 tests / 132 mypy / ruff clean. Build ~471 KB / 151 KB gzip.
 
+## Step 45a — Theorycrafter tree node budget fill (2026-05-22) ✅
+
+Prompt 032. Step 44's BFS waypoint walk produced a *connected* but *tiny* allocation (~9-20 nodes — just the path threading 2 keystones + 8 notables). A real PoE tree is ~110-123 points. Step 45a expands the allocation to a credible size in two parts, keeping the single-connected-component invariant.
+
+- **Part A — wider waypoint targets.** `_select_tree_nodes` now keeps the **top 4 keystones + top 16 notables** (was 2 + 8) as BFS waypoints, so the spine threads more high-value nodes.
+- **Part B — `_fill_to_budget` greedy boundary expansion.** New module-level `_fill_to_budget(visited, adjacency, all_nodes, dmg, defence, budget) -> list[int]`: after the waypoint walk + ascendancy-entry connection, it grows `visited` best-first along the frontier — each step picks the boundary node (adjacent to something already visited) with the highest `_score_node`, ties broken by lowest id for determinism — until `len(visited) == budget` or the boundary is empty. Returns the nodes added (in allocation order), each guaranteed adjacent to an earlier node. Helper `_is_fillable(node, nid)` excludes mastery + cluster-jewel (id ≥ 65536) nodes. The fill is appended to `path`; the result hits the `_MAX_TREE_NODES = 120` cap for a typical intent (Marauder/Juggernaut Cyclone → 120 path nodes, 92 of them travel).
+- **Output classification by node flags.** The final loop tags each id by its `TreeNode` flags (`is_keystone` → keystone, `is_notable` → notable, else travel) rather than by waypoint-target-set membership — the fill phase adds notables/keystones too, so set-membership tagging would have mislabelled them.
+- **Untouched** (per prompt): `bfs_path` and `_score_node` are unchanged; no frontend change (the existing "Albero generato con N nodi (inclusi K nodi di percorso)" caption already reads correctly with the larger N/K).
+
+Tests (`test_theory_tree_pathing.py`): `test_select_tree_nodes_connected` relaxed to "each non-ascendancy node after the first is adjacent to **some earlier** node" (the fill appends boundary nodes adjacent to *any* visited node, not strictly the previous one). New `test_select_tree_nodes_budget` (≥60 path nodes, ≤`_MAX_TREE_NODES`) + `test_fill_to_budget_unit` (line-graph: budget 8 from centre adds 7 adjacent nodes; budget 999 from an end fills the whole 10-node graph then stops on empty boundary).
+
+Gate: 749 tests (+2) / 132 mypy / ruff clean.
+
 ## Step 44 — Theorycrafter Build Generator BFS tree pathing (2026-05-20) ✅
 
 Prompt 031. Replaces `_select_tree_nodes`' flat top-scored list with a real BFS path on the vendored tree graph. Every consecutive pair of returned node IDs is now adjacent in `TreeData.adjacency` — PoB renders a single contiguous allocation instead of dropping floating points.

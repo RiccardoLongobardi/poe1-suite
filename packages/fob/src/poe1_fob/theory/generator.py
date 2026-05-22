@@ -254,6 +254,55 @@ _MAX_TREE_NODES = 120
 _CLUSTER_JEWEL_MIN_ID = 65536
 
 
+def _is_fillable(node: TreeNode | None, nid: int) -> bool:
+    """A node the fill phase may allocate — regular tree only."""
+    if node is None:
+        return False
+    if nid >= _CLUSTER_JEWEL_MIN_ID or node.is_mastery:
+        return False
+    return node.ascendancy_name is None
+
+
+def _fill_to_budget(
+    visited: set[int],
+    adjacency: dict[int, frozenset[int]],
+    all_nodes: dict[int, TreeNode],
+    dmg: str,
+    defence: str,
+    budget: int,
+) -> list[int]:
+    """Greedy best-first boundary expansion until *budget* is reached.
+
+    Step 45a: after the waypoint BFS connects the chosen targets, the
+    path is often only ~15-20 nodes — far short of an endgame ~100-point
+    allocation. This grows the allocation by repeatedly taking the
+    highest-scored *boundary* node (an unvisited regular node adjacent
+    to the already-visited set) and adding it. Every added node is, by
+    construction, adjacent to at least one already-visited node — so the
+    final allocation stays a single connected component.
+
+    Mutates ``visited`` in place; returns the nodes added, in order.
+    """
+    added: list[int] = []
+    while len(visited) < budget:
+        boundary: set[int] = set()
+        for v in visited:
+            for n in adjacency.get(v, frozenset()):
+                if n in visited:
+                    continue
+                if _is_fillable(all_nodes.get(n), n):
+                    boundary.add(n)
+        if not boundary:
+            break
+        best = max(
+            boundary,
+            key=lambda nid: (_score_node(all_nodes[nid], dmg, defence), -nid),
+        )
+        visited.add(best)
+        added.append(best)
+    return added
+
+
 def _select_tree_nodes(intent: TheoryIntent) -> tuple[TreeNodeRef, ...]:
     """BFS path from the class start through the best-scored notables.
 
@@ -278,10 +327,10 @@ def _select_tree_nodes(intent: TheoryIntent) -> tuple[TreeNodeRef, ...]:
             scored.append((s, n))
     scored.sort(key=lambda t: (-t[0], t[1].id))
 
-    target_keystones = [n for _, n in scored if n.is_keystone][:2]
-    target_notables = [n for _, n in scored if n.is_notable][:8]
-    keystone_ids = {n.id for n in target_keystones}
-    notable_ids = {n.id for n in target_notables}
+    # Step 45a: more waypoints (was 2 + 8) so the BFS covers more of the
+    # tree before the fill phase tops the allocation up to budget.
+    target_keystones = [n for _, n in scored if n.is_keystone][:4]
+    target_notables = [n for _, n in scored if n.is_notable][:16]
 
     # Greedy waypoint expansion: visit the highest-scored target first,
     # then route to the next via BFS from the current position.
@@ -322,10 +371,20 @@ def _select_tree_nodes(intent: TheoryIntent) -> tuple[TreeNodeRef, ...]:
             path.extend(cap_slice)
             visited.update(cap_slice)
 
-    deduped = path  # visit-tracking BFS guarantees no duplicates already
+    # Step 45a fill: top the allocation up to a realistic endgame budget
+    # with the best-scored reachable nodes (greedy boundary expansion).
+    fill = _fill_to_budget(
+        visited,
+        td.adjacency,
+        td.nodes_by_id,
+        intent.damage_type,
+        intent.defence_archetype,
+        _MAX_TREE_NODES,
+    )
+    path.extend(fill)
 
     out: list[TreeNodeRef] = []
-    for i, nid in enumerate(deduped):
+    for i, nid in enumerate(path):
         node = td.nodes_by_id.get(nid)
         if i == 0:
             out.append(
@@ -339,13 +398,15 @@ def _select_tree_nodes(intent: TheoryIntent) -> tuple[TreeNodeRef, ...]:
             continue
         if node is None:
             continue
-        name = node.name or ("?" if nid in keystone_ids or nid in notable_ids else "")
-        if nid in keystone_ids:
-            out.append(TreeNodeRef(node_id=nid, name=name, type="keystone", stats=()))
-        elif nid in notable_ids:
-            out.append(TreeNodeRef(node_id=nid, name=name, type="notable", stats=()))
+        # Classify by the node's real flags (the fill phase pulls in
+        # notables/keystones the target lists didn't, so flags beat
+        # membership in the original target sets).
+        if node.is_keystone:
+            out.append(TreeNodeRef(node_id=nid, name=node.name or "?", type="keystone", stats=()))
+        elif node.is_notable:
+            out.append(TreeNodeRef(node_id=nid, name=node.name or "?", type="notable", stats=()))
         else:
-            out.append(TreeNodeRef(node_id=nid, name=name, type="travel", stats=()))
+            out.append(TreeNodeRef(node_id=nid, name=node.name or "", type="travel", stats=()))
 
     # Ascendancy notables — display-only, allocated via the lab.
     asc_notables = sorted(

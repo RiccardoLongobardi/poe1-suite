@@ -28,6 +28,27 @@ interface Release {
 // Prepend a new entry with user-facing (not technical) bilingual copy.
 const RELEASES: Release[] = [
   {
+    date: { it: "22 mag 2026", en: "22 May 2026" },
+    title: {
+      it: "Theorycrafter — albero passivo completo",
+      en: "Theorycrafter — full passive tree",
+    },
+    summary: {
+      it: "Il generatore alloca ora un albero di dimensione realistica (~120 nodi) invece dei pochi nodi del solo percorso.",
+      en: "The generator now allocates a realistic-sized tree (~120 nodes) instead of just the few path nodes.",
+    },
+    entries: [
+      {
+        it: "Dopo aver collegato i notable e i keystone piu rilevanti, l'albero si espande verso i nodi vicini piu utili (vita, difese, danno) fino a raggiungere un budget di passive credibile per una build di mappatura.",
+        en: "After connecting the most relevant notables and keystones, the tree expands into the most useful nearby nodes (life, defences, damage) until it reaches a credible passive budget for a mapping build.",
+      },
+      {
+        it: "L'allocazione resta un unico blocco connesso: ogni nodo aggiunto e adiacente a uno gia preso, quindi la build importata in PoB non ha punti orfani.",
+        en: "The allocation stays a single connected block: every added node is adjacent to an already-taken one, so the build imported into PoB has no orphan points.",
+      },
+    ],
+  },
+  {
     date: { it: "20 mag 2026", en: "20 May 2026" },
     title: {
       it: "Barra laterale a comparsa",
