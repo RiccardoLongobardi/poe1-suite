@@ -151,8 +151,119 @@ def _is_available_in_328(name: str) -> bool:
     return not (name.startswith("Awakened ") and name not in _AWAKENED_ALLOWLIST)
 
 
-def _select_supports_raw(skill: _Active, n: int = 5) -> tuple[_Support, ...]:
-    """Support gems whose tag requirements fit *skill*, best-priority first.
+# Real, commonly-used support gems in rough order of general usefulness.
+# This is the ONE place "which supports are good" knowledge enters the
+# generator — a single global ranking of real PoE 3.28 support gems (NOT
+# per-build curation; the data-integrity rule forbids inventing values,
+# not ranking real gems by how widely they're used). The compatibility
+# filter (PoB require/exclude semantics) decides *which* of these apply
+# to a given skill; this list decides the *order* so a melee skill gets
+# Melee Physical Damage / Brutality / Impale before niche fillers, and a
+# spell gets Spell Echo / Controlled Destruction / Elemental Focus.
+_CORE_SUPPORTS: tuple[str, ...] = (
+    # Attack / melee damage
+    "Melee Physical Damage",
+    "Brutality",
+    "Impale",
+    "Pulverise",
+    "Close Combat",
+    "Multistrike",
+    "Rage",
+    "Maim",
+    "Elemental Damage with Attacks",
+    "Faster Attacks",
+    "Melee Splash",
+    "Ancestral Call",
+    # Spell damage
+    "Spell Echo",
+    "Controlled Destruction",
+    "Elemental Focus",
+    "Concentrated Effect",
+    "Increased Area of Effect",
+    "Hypothermia",
+    "Bonechill",
+    "Combustion",
+    "Intensify",
+    "Unleash",
+    "Cruelty",
+    # Projectile / bow
+    "Greater Multiple Projectiles",
+    "Multiple Projectiles",
+    "Vicious Projectiles",
+    "Pierce",
+    "Chain",
+    "Fork",
+    "Volley",
+    "Mirage Archer",
+    "Slower Projectiles",
+    # DoT / ailment
+    "Swift Affliction",
+    "Deadly Ailments",
+    "Void Manipulation",
+    "Unbound Ailments",
+    "Efficacy",
+    "Withering Touch",
+    # Minion
+    "Minion Damage",
+    "Minion Speed",
+    "Feeding Frenzy",
+    "Meat Shield",
+    "Predator",
+    # Penetration / crit / generic damage
+    "Inspiration",
+    "Trinity",
+    "Fire Penetration",
+    "Cold Penetration",
+    "Lightning Penetration",
+    "Increased Critical Strikes",
+    "Increased Critical Damage",
+    "Added Fire Damage",
+    "Added Cold Damage",
+    "Added Lightning Damage",
+    "Added Chaos Damage",
+    # Defence / utility
+    "Fortify",
+    "Cast On Critical Strike",
+    "Hextouch",
+    "Lifetap",
+    "Cast while Channelling",
+    "Faster Casting",
+    "Awakened Empower",
+    "Awakened Enhance",
+    "Awakened Enlighten",
+)
+_CORE_SUPPORT_RANK: dict[str, int] = {name: i for i, name in enumerate(_CORE_SUPPORTS)}
+
+# Supports that lock the build to a damage type via their *stats* (not
+# tags) — Brutality forces physical-only, penetrations/Combustion are
+# element-specific. PoB's require/exclude tags don't express this (they
+# use generic "damage"/"attack"), so we gate them by the intent's damage
+# type explicitly. Keyed by gem name → the damage types it's valid for.
+_SUPPORT_DMG_LOCK: dict[str, frozenset[str]] = {
+    "Brutality": frozenset({"physical"}),
+    "Awakened Brutality": frozenset({"physical"}),
+    "Fire Penetration": frozenset({"fire"}),
+    "Awakened Fire Penetration": frozenset({"fire"}),
+    "Combustion": frozenset({"fire"}),
+    "Cold Penetration": frozenset({"cold"}),
+    "Awakened Cold Penetration": frozenset({"cold"}),
+    "Hypothermia": frozenset({"cold"}),
+    "Bonechill": frozenset({"cold"}),
+    "Lightning Penetration": frozenset({"lightning"}),
+    "Awakened Lightning Penetration": frozenset({"lightning"}),
+    "Elemental Penetration": frozenset({"fire", "cold", "lightning"}),
+    "Void Manipulation": frozenset({"chaos"}),
+}
+
+
+def _select_supports_raw(
+    skill: _Active, n: int = 5, dmg: str | None = None
+) -> tuple[_Support, ...]:
+    """Support gems compatible with *skill*, best-first.
+
+    *dmg* is the build's damage type — used to drop element/physical-
+    locking supports (Brutality on a fire spell, Fire Penetration on a
+    cold build) that the tag system can't catch.
 
     Returns the :class:`_Support` objects (no padding) so callers can
     test compatibility, not just names.
@@ -163,18 +274,37 @@ def _select_supports_raw(skill: _Active, n: int = 5) -> tuple[_Support, ...]:
     for s in supports:
         if not _is_available_in_328(s.name):
             continue
-        if not set(s.valid_gem_tags).issubset(skill_tags):
-            continue
+        # PoB applicability semantics (calcLib.canGrantedEffectSupport-
+        # ActiveSkill): reject if the skill carries any excluded type;
+        # an empty require list means "supports everything" (subject to
+        # exclude); otherwise the skill must carry AT LEAST ONE of the
+        # required types (any-of, NOT subset — a support requiring
+        # {Spell, Attack} supports both spells and attacks).
         if any(t in skill_tags for t in s.exclude_tags):
             continue
+        if s.valid_gem_tags and not any(t in skill_tags for t in s.valid_gem_tags):
+            continue
+        lock = _SUPPORT_DMG_LOCK.get(s.name)
+        if lock is not None and dmg is not None and dmg not in lock:
+            continue
         fits.append(s)
-    fits.sort(key=lambda s: s.priority, reverse=True)
+
+    # Order: core (commonly-used) supports first, in their curated order;
+    # then any other compatible support, "specific" ones (requiring a tag
+    # the skill has) ahead of universal fillers, by static priority. Fully
+    # deterministic.
+    def _key(s: _Support) -> tuple[int, int, int, str]:
+        core_idx = _CORE_SUPPORT_RANK.get(s.name, len(_CORE_SUPPORTS))
+        specific = 0 if (set(s.valid_gem_tags) & skill_tags) else 1
+        return (core_idx, specific, -s.priority, s.name)
+
+    fits.sort(key=_key)
     return tuple(fits[:n])
 
 
-def _select_supports(skill: _Active, n: int = 5) -> tuple[str, ...]:
+def _select_supports(skill: _Active, n: int = 5, dmg: str | None = None) -> tuple[str, ...]:
     """Names of *n* support gems that fit *skill*, padded with ``(open)``."""
-    picked = [s.name for s in _select_supports_raw(skill, n)]
+    picked = [s.name for s in _select_supports_raw(skill, n, dmg)]
     while len(picked) < n:
         picked.append("(open)")
     return tuple(picked)
@@ -947,13 +1077,21 @@ _SLOT_NAME_TO_ENUM: dict[str, ItemSlot] = {
 }
 
 
+def _gem_level(name: str) -> int:
+    """Max level for a gem. Awakened Empower/Enhance/Enlighten cap at 5
+    (level 4 + 1 from corruption); every other gem goes to 20."""
+    return 5 if name.startswith("Awakened ") else 20
+
+
 def _to_pob_gems(links: tuple[GemLink, ...]) -> StageGemLinks:
     """Map theory `GemLink`s to encoder `PobGemLink`s — one per slot."""
     pob_links: list[PobGemLink] = []
     for link in links:
-        gems = [GemSpec(name=link.skill, level=20, quality=20, is_support=False)]
+        gems = [
+            GemSpec(name=link.skill, level=_gem_level(link.skill), quality=20, is_support=False)
+        ]
         gems.extend(
-            GemSpec(name=s, level=20, quality=20, is_support=True)
+            GemSpec(name=s, level=_gem_level(s), quality=20, is_support=True)
             for s in link.supports
             if s != "(open)"
         )
@@ -1002,7 +1140,9 @@ def _pick_supports(prefer: tuple[str, ...], n: int) -> tuple[str, ...]:
     return tuple(picked)
 
 
-def _pick_supports_for(skill: _Active, prefer: tuple[str, ...], n: int) -> tuple[str, ...]:
+def _pick_supports_for(
+    skill: _Active, prefer: tuple[str, ...], n: int, dmg: str | None = None
+) -> tuple[str, ...]:
     """Pick *n* supports from *prefer* that are **compatible** with *skill*,
     then fill from the rest of the compatible pool, padded with ``(open)``.
 
@@ -1010,7 +1150,7 @@ def _pick_supports_for(skill: _Active, prefer: tuple[str, ...], n: int) -> tuple
     enforces tag compatibility — so e.g. ``Faster Casting`` is never
     attached to an attack-tagged movement skill.
     """
-    compatible = _select_supports_raw(skill, n=99)
+    compatible = _select_supports_raw(skill, n=99, dmg=dmg)
     compatible_names = [s.name for s in compatible]
     compatible_set = set(compatible_names)
     picked: list[str] = [s for s in prefer if s in compatible_set][:n]
@@ -1074,11 +1214,12 @@ def _build_gem_layout(
 
     # Helmet 4L: a *secondary* skill, distinct from the primary, with
     # supports that actually fit it.
+    dmg = intent.damage_type
     secondary = _pick_secondary(skill, primary_name)
     secondary_active = _find_active(secondary)
     helmet_link = GemLink(
         skill=secondary,
-        supports=_select_supports(secondary_active, 3),
+        supports=_select_supports(secondary_active, 3, dmg=dmg),
         slot="Helmet",
         label="Secondary 4L",
     )
@@ -1095,6 +1236,7 @@ def _build_gem_layout(
             aura_active,
             ("Generosity", "Increased Duration", "Arcane Surge", "Inspiration"),
             3,
+            dmg=dmg,
         ),
         slot="Gloves",
         label="Utility 4L",
@@ -1117,6 +1259,7 @@ def _build_gem_layout(
             movement_active,
             ("Second Wind", "Fortify", "Lifetap", "Faster Attacks", "Faster Casting"),
             3,
+            dmg=dmg,
         ),
         slot="Boots",
         label="Movement 4L",
@@ -1131,6 +1274,7 @@ def _build_gem_layout(
             warcry_active,
             ("Second Wind", "Increased Duration", "Infusion", "Lifetap"),
             3,
+            dmg=dmg,
         ),
         slot="Weapon",
         label="Warcry 4L",
@@ -1140,8 +1284,14 @@ def _build_gem_layout(
 
 
 def _to_pob_tree(intent: TheoryIntent, nodes: tuple[TreeNodeRef, ...]) -> StageTree:
-    # Skip the synthetic "start" entry — its node_id may be a placeholder.
-    real_ids = tuple(n.node_id for n in nodes if n.type != "start" and n.node_id > 0)
+    # Encode ONLY the regular tree path. The "start" node is auto-allocated
+    # by PoB, and ascendancy notables must NOT go into the main `nodes`
+    # list — they're allocated via the lab and have no connecting path on
+    # the main tree, so PoB would render them as disconnected floating
+    # points. They stay in `ascendancy_nodes` for display only.
+    real_ids = tuple(
+        n.node_id for n in nodes if n.type not in ("start", "ascendancy") and n.node_id > 0
+    )
     return StageTree(
         stage_key="theory_v2",
         node_ids=real_ids,
@@ -1219,7 +1369,7 @@ def generate_build(intent: TheoryIntent) -> BuildSkeleton:
     if any generated reference is not in the vendored data.
     """
     skill = _find_active(intent.primary_skill)
-    supports = _select_supports(skill)
+    supports = _select_supports(skill, dmg=intent.damage_type)
     primary_link = GemLink(
         skill=skill.name,
         supports=supports,

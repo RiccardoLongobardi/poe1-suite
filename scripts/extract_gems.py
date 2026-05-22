@@ -38,52 +38,53 @@ MIN_ACTIVES = 100
 MIN_SUPPORTS = 40
 
 # PoB SkillType.X identifier → our normalised tag.
-# Anything not in the map is dropped (PoB has many internal/meta flags
-# like Trappable, Totemable, CanRapidFire that are wiring details, not
-# build-relevant tags).
-_SKILLTYPE_MAP: dict[str, str] = {
-    "Spell": "spell",
-    "Attack": "attack",
-    "Projectile": "projectile",
-    "AreaOfEffect": "aoe",
-    "Aoe": "aoe",
-    "Melee": "melee",
-    "Fire": "fire",
-    "Cold": "cold",
-    "Lightning": "lightning",
-    "Chaos": "chaos",
-    "Physical": "physical",
-    "Channelled": "channelling",
-    "Channel": "channelling",
-    "Duration": "duration",
-    "DamageOverTime": "dot",
-    "Bow": "bow",
-    "Wand": "wand",
-    "Minion": "minion",
-    "Totem": "totem",
-    "Trap": "trap",
-    "Mine": "mine",
-    "Curse": "curse",
-    "Hex": "curse",
-    "Mark": "curse",
-    "Aura": "aura",
-    "Movement": "movement",
-    "Vaal": "vaal",
-    "Brand": "brand",
-    "Triggered": "triggered",
-    "Warcry": "warcry",
-    "Slam": "slam",
-    "Banner": "banner",
-    "Chaining": "chaining",
-    "Chains": "chaining",
-    "Herald": "herald",
-    "Guard": "guard",
-    "Stance": "stance",
-    "Travel": "movement",
-    "Link": "link",
+#
+# IMPORTANT (2026-05-22 fix): we no longer DROP unrecognised SkillTypes.
+# The previous curated map silently discarded the discriminating types a
+# support gem's `requireSkillTypes` relies on — e.g. Advanced Traps
+# requires `Trapped`, Ancestral Call/Melee Splash require
+# `MeleeSingleTarget` (the "strike" flag), Multistrike requires
+# `Multistrikeable`. Dropping those made the require list EMPTY, which
+# PoB treats as "supports every skill" — so Cyclone got Advanced Traps,
+# Ancestral Call, etc. We now keep EVERY SkillType (lowercased), so the
+# real applicability constraints survive and the support-compatibility
+# filter actually discriminates. Only the boolean combinators
+# (`AND`/`OR`/`NOT`) PoB uses inside require/exclude expressions are
+# skipped — replicating that mini expression language is overkill; the
+# any-of-require + exclude check is "good enough" and far better than the
+# old accept-everything behaviour.
+#
+# A few PoB names denote the same concept under different spellings; the
+# alias map collapses those so an active's tag and a support's
+# requirement use the same string. Everything else is passed through
+# verbatim, lowercased.
+_ALIAS: dict[str, str] = {
+    "areaofeffect": "aoe",
+    "aoe": "aoe",
+    "channelled": "channelling",
+    "channel": "channelling",
+    "hex": "curse",
+    "mark": "curse",
+    "chains": "chaining",
+    "travel": "movement",
 }
+_LOGIC_OPS = {"not", "and", "or"}
 _ELEMENTAL = {"fire", "cold", "lightning"}
 _DAMAGE_TYPES = {"fire", "cold", "lightning", "chaos", "physical"}
+
+
+def _norm_skilltype(name: str) -> str | None:
+    """Normalise a PoB ``SkillType.X`` identifier to our tag vocabulary.
+
+    Returns ``None`` for the boolean combinators (``AND``/``OR``/``NOT``)
+    PoB uses inside require/exclude expressions — those are operators, not
+    real types. Every other type is kept (aliased or lowercased).
+    """
+    low = name.lower()
+    if low in _LOGIC_OPS:
+        return None
+    return _ALIAS.get(low, low)
+
 
 # Files that exclusively define supports. Anything else in src/Data/Skills/
 # is treated as an active-skill file.
@@ -153,13 +154,13 @@ def _name(body: str) -> str | None:
     return m.group(1) if m else None
 
 
-def _is_support(body: str, file_name: str) -> bool:
-    if _has_top_level_field(body, "support", "true"):
-        return True
-    # Some support files mark via `support = true` while a few list
-    # transfigured / awakened entries without the field — use the file
-    # location as the secondary signal.
-    return file_name in _SUPPORT_FILES
+def _is_support(body: str) -> bool:
+    # Strict: a real support gem ALWAYS carries `support = true`. The
+    # support files (sup_*.lua) also contain non-support entries —
+    # Tinctures like "Avenging Flame" / "Bursting Toad" — that lack the
+    # flag; the old file-location fallback wrongly classified those as
+    # supports, so they leaked into gem links. Require the flag.
+    return _has_top_level_field(body, "support", "true")
 
 
 def _is_playable(body: str) -> bool:
@@ -179,11 +180,12 @@ def _extract_skill_types(body: str) -> set[str]:
     m = re.search(r"skillTypes\s*=\s*\{([^}]*)\}", body, flags=re.DOTALL)
     if not m:
         return set()
-    return {
-        _SKILLTYPE_MAP[name]
-        for name in re.findall(r"SkillType\.(\w+)", m.group(1))
-        if name in _SKILLTYPE_MAP
-    }
+    out: set[str] = set()
+    for name in re.findall(r"SkillType\.(\w+)", m.group(1)):
+        norm = _norm_skilltype(name)
+        if norm:
+            out.add(norm)
+    return out
 
 
 def _extract_list(body: str, field: str) -> set[str]:
@@ -191,11 +193,12 @@ def _extract_list(body: str, field: str) -> set[str]:
     m = re.search(rf"{field}\s*=\s*\{{([^}}]*)\}}", body, flags=re.DOTALL)
     if not m:
         return set()
-    return {
-        _SKILLTYPE_MAP[name]
-        for name in re.findall(r"SkillType\.(\w+)", m.group(1))
-        if name in _SKILLTYPE_MAP
-    }
+    out: set[str] = set()
+    for name in re.findall(r"SkillType\.(\w+)", m.group(1)):
+        norm = _norm_skilltype(name)
+        if norm:
+            out.add(norm)
+    return out
 
 
 def _normalise_active_tags(tags: set[str]) -> tuple[list[str], list[str]]:
@@ -234,7 +237,13 @@ def main() -> int:
             name = _name(body)
             if not name:
                 continue
-            if _is_support(body, fname):
+            is_sup = _is_support(body)
+            # A non-support entry living in a support file (sup_*.lua) is a
+            # Tincture or other stray — skip it entirely so it pollutes
+            # neither the supports nor the actives list.
+            if fname in _SUPPORT_FILES and not is_sup:
+                continue
+            if is_sup:
                 if name in seen_supports:
                     continue
                 seen_supports.add(name)

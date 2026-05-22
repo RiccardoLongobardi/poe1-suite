@@ -51,12 +51,18 @@ def test_gem_links_only_valid_supports() -> None:
     _, supports = gen._gem_catalogue()
     by_name = {s.name: s for s in supports}
     primary = sk.links[0]
-    skill_tags = {"spell", "fire", "projectile", "aoe", "elemental"}
+    skill = gen._find_active(primary.skill)
+    skill_tags = set(skill.tags)
     for sname in primary.supports:
         if sname == "(open)":
             continue
         assert sname in by_name, f"{sname} not in gems_3_28.json"
-        assert set(by_name[sname].valid_gem_tags).issubset(skill_tags)
+        s = by_name[sname]
+        # PoB semantics: no excluded tag present; require empty OR shares
+        # at least one tag with the skill (any-of, not subset).
+        assert not (set(s.exclude_tags) & skill_tags), f"{sname} excluded for {primary.skill}"
+        if s.valid_gem_tags:
+            assert set(s.valid_gem_tags) & skill_tags, f"{sname} requires unmet tag"
 
 
 def test_tree_nodes_are_real() -> None:

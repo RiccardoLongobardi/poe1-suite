@@ -30,6 +30,35 @@ const RELEASES: Release[] = [
   {
     date: { it: "22 mag 2026", en: "22 May 2026" },
     title: {
+      it: "Theorycrafter — gemme corrette e sensate",
+      en: "Theorycrafter — correct, sensible gem links",
+    },
+    summary: {
+      it: "I supporti generati ora sono compatibili con la skill e adatti al tipo di danno; le gemme Awakened hanno il livello giusto.",
+      en: "Generated supports are now compatible with the skill and matched to its damage type; Awakened gems use the right level.",
+    },
+    entries: [
+      {
+        it: "Niente piu supporti che non funzionano (es. Advanced Traps o Ancestral Call su Cyclone): ogni supporto rispetta i requisiti reali della gemma di PoE.",
+        en: "No more supports that don't work (e.g. Advanced Traps or Ancestral Call on Cyclone): every support respects PoE's real gem requirements.",
+      },
+      {
+        it: "I supporti che bloccano il tipo di danno (Brutalita, Penetrazione Fuoco/Gelo/Fulmine, ecc.) ora compaiono solo sulle build giuste, e i link mostrano i supporti meta piu usati.",
+        en: "Damage-locking supports (Brutality, Fire/Cold/Lightning Penetration, etc.) now appear only on the right builds, and links surface the most-used meta supports.",
+      },
+      {
+        it: "Le gemme Awakened Empower/Enhance/Enlighten usano il livello massimo corretto (5, non 20).",
+        en: "Awakened Empower/Enhance/Enlighten now use the correct max level (5, not 20).",
+      },
+      {
+        it: "I notable di ascendancy non finiscono piu come punti scollegati nell'albero passivo importato.",
+        en: "Ascendancy notables no longer end up as disconnected points in the imported passive tree.",
+      },
+    ],
+  },
+  {
+    date: { it: "22 mag 2026", en: "22 May 2026" },
+    title: {
       it: "Input piu diretti su Finder, Analyze e Planner",
       en: "More direct inputs on Finder, Analyze and Planner",
     },

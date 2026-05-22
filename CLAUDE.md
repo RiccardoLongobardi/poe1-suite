@@ -124,6 +124,24 @@ Inside the navbar: a "Strumenti" / "Tools" section label above the 5 main routes
 
 Frontend-only, no backend change. Gate: 747 tests / 132 mypy / ruff clean. Build ~471 KB / 151 KB gzip.
 
+## Bug — Theorycrafter gem links: incompatible supports + Awakened level + tree ascendancy float (2026-05-22) ✅
+
+QA (Riccardo) on a Marauder/Juggernaut Cyclone export: Cyclone was linked to **Advanced Traps** (not a trap) and **Ancestral Call** (not a strike); Awakened gems showed **level 20** (their cap is 4–5); ascendancy notables floated disconnected in the tree.
+
+**Root cause (supports) — the data extraction silently dropped the discriminating SkillTypes.** `scripts/extract_gems.py`'s curated `_SKILLTYPE_MAP` mapped only a hand-picked subset of PoB `SkillType.X` names; everything else was dropped. But the types that *gate* a support's applicability live exactly in that dropped set: Advanced Traps requires `SkillType.Trapped`, Ancestral Call / Melee Splash require `SkillType.MeleeSingleTarget` (the "strike" flag), Multistrike requires `SkillType.Multistrikeable`. With those dropped, each support's `requireSkillTypes` became **empty** — and PoB treats an empty require list as "supports everything" — so they attached to Cyclone. Compounding it, `_select_supports_raw` used `issubset` (AND/subset) instead of PoB's real **any-of** semantics.
+
+Fixes:
+- **`extract_gems.py`** — `_norm_skilltype` keeps **every** SkillType (lowercased, with a small alias map for spelling variants), dropping only the boolean combinators `AND`/`OR`/`NOT`. Applied to both active `skillTypes` and support `require`/`exclude`. Regenerated `gems_3_28.json` (555 actives / 268 supports).
+- **`_is_support` made strict** (`support = true` only). The file-location fallback was misclassifying **Tinctures** ("Avenging Flame", "Bursting Toad") in `sup_*.lua` as supports; they now skip entirely (268 supports, was 278).
+- **`_select_supports_raw`** — PoB applicability semantics: reject if the skill has any excluded type; empty require = supports everything; else require **any-of**. Plus a `_SUPPORT_DMG_LOCK` map gating element/physical-locking supports (Brutality→physical, Fire/Cold/Lightning Penetration, Combustion, Hypothermia/Bonechill, Void Manipulation→chaos) by the intent's damage type — threaded as `dmg` through `_select_supports` / `_pick_supports_for` / `_build_gem_layout` / `generate_build`.
+- **`_CORE_SUPPORTS`** — a single global ranking of the real, commonly-used 3.28 support gems decides the *order* (the compatibility filter decides *which* apply), so Cyclone gets Melee Physical Damage / Brutality / Impale / Pulverise and Fireball gets Spell Echo / Controlled Destruction / Elemental Focus instead of reverse-alphabetical noise. This is a global usefulness ranking of real gems, not per-build curation.
+- **`_to_pob_gems`** — `_gem_level` caps Awakened Empower/Enhance/Enlighten at level 5; every other gem stays at 20.
+- **`_to_pob_tree`** — ascendancy notables are excluded from the encoded `<Spec nodes>` (they have no connecting path on the main tree → floated). They stay in `ascendancy_nodes` for display only. The regular allocation is verified one connected component from the class start (119 nodes, 0 islands, classId/ascendClassId correct).
+
+Test: `test_gem_links_only_valid_supports` rewritten to PoB any-of semantics. Gate: 753 tests / 132 mypy / ruff clean.
+
+**Still open (reported, not yet fixed — needs follow-up):** (1) the tree allocation can *sprawl* toward far high-scoring nodes (the greedy score-only pathing isn't locality-aware, so a Marauder build may path toward the Ranger side — "Pathfinder nodes"); a possible cause of a node-count/connectivity mismatch in PoB is a tree-data-version drift between `tree/3_28.json` and the user's PoB. (2) Generated rare items still use *simulated* affix values rather than real RePoE mod tiers — the user wants real mods, which requires vendoring the RePoE mods file (a separate step).
+
 ## UX — direct inputs on Finder / Analyze / Planner (2026-05-22) ✅
 
 QA feedback: (1) the Finder needed two clicks — "Consulta l'Oracolo" (extract intent) *then* "Trova build" (recommend); (2) all three input panels collapsed the input to a `<Code>` chip after submit, requiring a "modifica" / "edit" click to change the query. Frontend-only.
