@@ -9,7 +9,7 @@ This file's only job is to keep the two tools in sync — what each is responsib
 
 ## 1. Where the project actually stands (read first)
 
-Don't trust earlier versions of this file — the section below is the authoritative snapshot. As of **2026-05-20**:
+Don't trust earlier versions of this file — the section below is the authoritative snapshot. As of **2026-05-22**:
 
 - **FOB is live in production**, free tier:
   - Frontend: <https://fob-ten.vercel.app> (Vercel, auto-deploy from `main`).
@@ -119,7 +119,7 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 
 ## 5. Open questions for Perplexity
 
-*(none as of 2026-05-20)*
+*(none as of 2026-05-22)*
 
 ---
 
@@ -127,7 +127,7 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 
 ### IN PROGRESS
 
-*(none as of 2026-05-20 — Steps 43+44 shipped)*
+- **Step 45a — Build Generator: tree node budget reale (~100 nodi)** (Prompt 032) — Fix `_select_tree_nodes` per produrre ~100 nodi allocabili invece degli attuali ~9. Doppio problema: troppo pochi target (10 waypoints) + nessuna logica di fill tra i waypoints. Soluzione: espandere i target a 20+ nodi (top-16 notables + top-4 keystones) + aggiungere un passo di "fill" BFS che aggiunge i nodi meglio-scored raggiungibili dall'albero già costruito finché `_MAX_TREE_NODES` non è saturo.
 
 ### CANDIDATE FUTURE WORK
 
@@ -166,6 +166,7 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 
 Reverse-chronological.
 
+- **2026-05-22** — *Step 45a scoped (research by Perplexity 2026-05-22).* Il budget reale di nodi allocabili dovrebbe essere ~100 (su `_MAX_TREE_NODES = 120`). Il problema attuale: `_select_tree_nodes` usa solo 10 target (8 notable + 2 keystone) come waypoints BFS. Se questi 10 sono geograficamente vicini sull'albero, il path totale rimane 15-20 nodi. Soluzione a due livelli: (A) espandere i target a ~20 nodi (top-16 notable + top-4 keystone) per forzare BFS su più territorio; (B) aggiungere un passo di "fill" che satura il budget con i nodi meglio-scored raggiungibili dall'albero già costruito, via iterazione BFS sul boundary. Il fill opera sul grafo già connesso (non spawna isole), garantisce adiacenza, e si ferma quando `_MAX_TREE_NODES` è raggiunto o il boundary è esaurito.
 - **2026-05-20** — *Steps 43+44 shipped.* Step 43 ships exactly the 6 checks Perplexity scoped (errors block, warnings inform); no scope creep. Step 44 implementation note: the **first** working draft used a `dict.fromkeys` dedup at the end of the waypoint walk and broke adjacency on the Marauder/Juggernaut integration test (when target N+1 was reached via a path that revisited an earlier-visited node, the dedup silently dropped a step). Fix: `bfs_path` now accepts a `forbidden: set[int]` argument; the waypoint loop passes `visited - {current}` so each segment routes strictly through unvisited nodes. No final-pass dedup. Bug + fix is the kind of thing the integration test (`test_select_tree_nodes_connected`) catches before any user sees it.
 - **2026-05-20** — *Steps 43+44 architecture decided (research by Perplexity 2026-05-20).* The Build Generator currently produces builds that are technically non-crashing but not viable — nodes are scored by keyword but float unconnected, defence constraints are unchecked, and gem attribute requirements are ignored. Two-step fix:
   - **Step 43** adds a `ViabilityReport` + validation pass **after** generation, surfaced to the user as warnings/errors in the UI. This catches and communicates known deficiencies without breaking the current generation pipeline. No tree rewrite.
@@ -199,7 +200,113 @@ Reusable templates. Self-contained — runnable today without past-chat context.
 
 ---
 
-*(no open prompts as of 2026-05-20 — Prompts 030+031 shipped, see §9)*
+### Prompt 032 — Step 45a: tree node budget reale (~100 nodi)
+
+```
+## Step 45a — Build Generator: tree node budget reale
+
+### Contesto
+File: `packages/fob/src/poe1_fob/theory/generator.py`
+Funzione: `_select_tree_nodes`
+
+Il BFS funziona e produce un path connesso (Step 44), ma il numero di nodi allocati
+è ridicolmente basso (~9-20) perché la selezione dei target è troppo ristretta:
+solo top-8 notables + top-2 keystones. Con 10 waypoints sparsi sull'albero 3.28
+il BFS percorre poca strada prima di raggiungere `_MAX_TREE_NODES = 120`.
+
+### Problema esatto
+`targets` è una lista di **10 nodi** (8 notable + 2 keystone). Il BFS connette
+questi 10 waypoints con travel nodes, MA se i waypoints sono vicini fra loro o
+isolati in una zona dell'albero, il path totale rimane 15-20 nodi invece di ~100.
+
+Il problema è **doppio**:
+1. Troppo pochi target → troppo poco BFS
+2. Nessuna logica per "riempire" lo spazio tra i target con nodi utili aggiuntivi
+
+### Fix richiesto
+
+**Parte A — Più target waypoints**
+
+Espandi i target da 10 a ~20 nodi:
+- Top-16 notables (era top-8) per `_score_node`
+- Top-4 keystones (era top-2)
+- Mantieni i top-4 ascendancy notables come ora (questi vengono appesi dopo)
+
+Il greedy BFS esistente visita questi ~20 waypoints in ordine di score, producendo
+un path connesso più lungo.
+
+**Parte B — Fill phase dopo il path principale**
+
+Dopo che il greedy waypoint-BFS ha terminato, aggiungi un passo di "fill":
+
+```python
+def _fill_to_budget(
+    visited: set[int],
+    adjacency: dict[int, frozenset[int]],
+    all_nodes: dict[int, TreeNode],
+    budget: int,
+) -> list[int]:
+    """
+    Aggiunge nodi al path esistente fino a saturare il budget.
+    Opera su boundary: i nodi non-ancora-visitati adiacenti all'insieme visitato.
+    Ad ogni step prende il nodo boundary con score più alto (greedy best-first).
+    Garantisce adiacenza perché per definizione ogni boundary node è adiacente
+    ad almeno un nodo già in `visited`.
+    """
+```
+
+Il fill NON è BFS puro — è un greedy best-first expansion:
+1. Calcola il boundary = `{n for v in visited for n in adjacency[v] if n not in visited}`
+2. Filtra il boundary: solo nodi regolari (no mastery, no cluster ≥65536, no ascendancy)
+3. Prendi il nodo con `_score_node` più alto dal boundary
+4. Aggiungilo a `visited` + alla lista di output come `type="travel"` (o `type` corretto)
+5. Ripeti finché `len(visited) >= budget` oppure boundary è vuoto
+
+### Invarianti da preservare
+- Adiacenza: ogni nodo nella lista finale deve essere adiacente al precedente
+  **OPPURE** il fill può interrompere la stretta sequenza — ma `test_select_tree_nodes_connected`
+  testa solo il path pre-fill. Il test deve essere aggiornato per verificare che
+  ogni nodo fill sia adiacente ad **almeno un** nodo già visitato (non necessariamente
+  il precedente nella lista).
+- `_MAX_TREE_NODES = 120` rimane il cap massimo.
+- Il codice ascendancy tail (`td.ascendancy_starts`) viene appeso dopo il fill, invariato.
+- `_assert_valid` non cambia.
+
+### Test da aggiornare / aggiungere
+In `packages/fob/tests/test_theory_tree_pathing.py`:
+
+1. **`test_select_tree_nodes_connected`** (esistente) — aggiorna l'asserzione:
+   - I nodi "path" (pre-fill) devono ancora essere consecutivamente adiacenti.
+   - I nodi fill devono essere adiacenti ad almeno un nodo nel set visitato.
+   - Separa i due controlli chiaramente.
+
+2. **`test_select_tree_nodes_budget`** (nuovo) — verifica che su un intent reale
+   (es. Marauder/Juggernaut) il numero di nodi returned (escluso il tail ascendancy)
+   sia ≥ 60. Prima del fix era ~9-20; dopo il fix deve essere ≥ 60 con `_MAX_TREE_NODES = 120`.
+
+3. **`test_fill_to_budget_unit`** (nuovo, opzionale ma consigliato) — testa
+   `_fill_to_budget` in isolamento su un piccolo grafo di 20 nodi (costruito a mano):
+   - Partendo da un visited={nodo_centro}, dopo fill con budget=15, tutti i nodi
+     aggiunti devono essere adiacenti ad almeno un nodo precedentemente visitato.
+   - Il fill si ferma quando boundary è vuoto anche se budget non è raggiunto.
+
+### Gate
+```bash
+uv run ruff check .
+uv run ruff format --check .
+uv run mypy .
+uv run pytest
+```
+Tutti verdi. Baseline attuale: **747 tests / 132 mypy**.
+
+### Note
+- Non toccare `bfs_path` — funziona correttamente.
+- Non toccare `_score_node` — funziona correttamente.
+- Non toccare il frontend — il caption "N nodi (K path nodes)" va aggiornato
+  solo se vuoi, ma non è bloccante per il gate.
+- `_fill_to_budget` può stare come funzione module-level in `generator.py`
+  accanto a `bfs_path` (stessa convenzione).
+```
 
 ---
 
