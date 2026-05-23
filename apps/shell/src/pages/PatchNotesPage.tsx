@@ -30,6 +30,27 @@ const RELEASES: Release[] = [
   {
     date: { it: "22 mag 2026", en: "22 May 2026" },
     title: {
+      it: "Theorycrafter — albero ottimizzato (valore per punto)",
+      en: "Theorycrafter — value-per-point tree optimisation",
+    },
+    summary: {
+      it: "L'albero ora spende i punti dove rendono di piu, invece di riempire con nodi di poco conto.",
+      en: "The tree now spends points where they pay off most, instead of filling with low-value nodes.",
+    },
+    entries: [
+      {
+        it: "Nuova allocazione \"valore per punto\": prende i notable piu utili tenendo conto di quanti punti costa raggiungerli — quindi piu notable significativi e meno nodi di passaggio inutili.",
+        en: "New \"value-per-point\" allocation: it picks the most useful notables weighing how many points it costs to reach them — so more meaningful notables and fewer filler travel nodes.",
+      },
+      {
+        it: "Le resistenze e la sopravvivenza ora contano nella scelta: preferisce un notable \"+2% a tutte le res massime\" (1 punto) invece di due nodi di resistenza singola (2 punti).",
+        en: "Resistances and survivability now count in the choice: it prefers a \"+2% to all max resistances\" notable (1 point) over two single-resistance nodes (2 points).",
+      },
+    ],
+  },
+  {
+    date: { it: "22 mag 2026", en: "22 May 2026" },
+    title: {
       it: "Theorycrafter — maestrie e albero piu pulito",
       en: "Theorycrafter — masteries and a cleaner tree",
     },

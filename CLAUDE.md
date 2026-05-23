@@ -124,6 +124,16 @@ Inside the navbar: a "Strumenti" / "Tools" section label above the 5 main routes
 
 Frontend-only, no backend change. Gate: 747 tests / 132 mypy / ruff clean. Build ~471 KB / 151 KB gzip.
 
+## Step 49 — Theorycrafter notable-efficiency tree allocation (2026-05-22) ✅
+
+QA: the old allocation threaded ~16 top-scored notable "waypoints" then filled the remaining ~90 points with greedy-adjacent nodes (mostly junk), and the scorer didn't value resistances/survivability at all — so it grabbed two single-res nodes where a one-point "+2% all max res" notable existed.
+
+- **Value-per-point greedy (`_grow_to_value`).** Replaces the waypoint-walk + boundary-fill. Each step runs a multi-source BFS from the whole allocated set (distance = new points to reach a node), then allocates the unallocated notable/keystone with the best `score / cost` ratio plus its connecting travel. This is a greedy Steiner heuristic: travel cost is baked into the metric (so it stays local AND efficient), and a premium one-point notable beats two scattered single-stat nodes. Candidate scores are precomputed once (the per-iteration re-score over 3000+ nodes was the hot spot — generation went 67 s → ~1 s/build). A small `_fill_to_budget` top-up uses any leftover points on the best adjacent small nodes.
+- **Survivability scoring (`_SURVIVAL_WEIGHTS`).** `_score_text`/`_score_node` now add a universal survivability term on top of the build's damage/defence keywords: `+all maximum elemental resistance` (6), per-element max res (4), `all elemental resistances` (4), spell suppression (3), all-attributes / block / max life / max ES (2), generic resistance / regen / leech (1). So defensive notables are valued for *every* build, and the premium ones (max-all-res) outrank filler.
+- Result: a Marauder/Juggernaut Cyclone now allocates **~28 notables + 7 keystones + 8 masteries** (was ~16 notables + ~76 junk travel) — real defensive notables like Anointed Flesh (+1% max all ele res), Diamond Skin, Soul of Steel, Purity of Flesh. Still one connected component (0 islands), localised, weapon-correct.
+
+`bfs_path` is retained (still unit-tested + public). Tests: existing tree-pathing suite (connectivity / budget ≥ 60 / localised / no weapon-mismatch / masteries) all pass on the new allocator. Gate: 756 tests / 132 mypy / ruff clean.
+
 ## Step 48 — Theorycrafter tree masteries + cleaner nodes + honest estimates (2026-05-22) ✅
 
 QA follow-up on the tree + the stat panel.

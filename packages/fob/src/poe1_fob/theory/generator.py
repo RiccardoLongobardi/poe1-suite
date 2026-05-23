@@ -333,6 +333,30 @@ _DEFENCE_KEYWORDS: dict[str, tuple[str, ...]] = {
     "hybrid_life_es": ("maximum life", "energy shield"),
 }
 
+# Universal survivability value — every build wants these, so they're
+# scored on top of the build-specific damage/defence keywords. The
+# weights make a *premium* notable rank above filler: a single
+# "+2% to all maximum Elemental Resistances" node (one point, three
+# resistances) outscores two separate "+1% maximum Fire/Cold Resistance"
+# nodes (two points), so the value-per-point greedy prefers it.
+_SURVIVAL_WEIGHTS: tuple[tuple[str, int], ...] = (
+    ("all maximum elemental resistance", 6),
+    ("maximum fire resistance", 4),
+    ("maximum cold resistance", 4),
+    ("maximum lightning resistance", 4),
+    ("maximum chaos resistance", 4),
+    ("all elemental resistances", 4),
+    ("spell suppression", 3),
+    ("suppress spell", 3),
+    ("to all attributes", 2),
+    ("chance to block", 2),
+    ("maximum life", 2),
+    ("maximum energy shield", 2),
+    ("resistance", 1),
+    ("life regenerat", 1),
+    ("leech", 1),
+)
+
 # Mirror of `pob.encode._CLASS_ID` — duplicated here to avoid importing
 # a private helper. PoB's class enum is stable across leagues.
 _CLASS_ID: dict[str, int] = {
@@ -347,7 +371,13 @@ _CLASS_ID: dict[str, int] = {
 
 
 def _score_text(text: str, dmg: str, defence: str) -> int:
-    """Keyword relevance of an arbitrary stat text to the build."""
+    """Keyword relevance of an arbitrary stat text to the build.
+
+    Sums build-specific damage (x3) + defence (x3) + universal
+    survivability (weighted) so that defensively-premium notables (max
+    resistances, suppression, all-attributes) are valued for every build,
+    not just the build's own damage type.
+    """
     low = text.lower()
     score = 0
     for kw in _DAMAGE_KEYWORDS.get(dmg, ()):
@@ -355,7 +385,10 @@ def _score_text(text: str, dmg: str, defence: str) -> int:
             score += 3
     for kw in _DEFENCE_KEYWORDS.get(defence, ()):
         if kw in low:
-            score += 2
+            score += 3
+    for kw, weight in _SURVIVAL_WEIGHTS:
+        if kw in low:
+            score += weight
     return score
 
 
@@ -562,6 +595,83 @@ def _fill_to_budget(
     return added
 
 
+def _grow_to_value(
+    visited: set[int],
+    adjacency: dict[int, frozenset[int]],
+    all_nodes: dict[int, TreeNode],
+    dmg: str,
+    defence: str,
+    excluded: frozenset[int],
+    budget: int,
+) -> list[int]:
+    """Value-per-point greedy notable/keystone allocation (Step 49).
+
+    Repeatedly take the unallocated notable/keystone with the best
+    ``score / path-cost`` ratio — where *cost* is the number of NEW points
+    needed to reach it from the current allocation — and allocate it plus
+    its connecting travel. This is a greedy Steiner-style heuristic: it
+    prefers high-value nodes that are cheap to reach, so a premium notable
+    (e.g. "+2% to all max Elemental Res", one point) beats two separate
+    single-resistance nodes, and far low-value nodes are never taken.
+
+    Mutates ``visited``; returns the nodes added, in allocation order
+    (each adjacent to an earlier node).
+    """
+    # Precompute the value of every candidate notable/keystone once — the
+    # score is static, so re-scoring 3000+ nodes every iteration is the
+    # hot spot. Only positive-value, non-excluded targets survive.
+    targets: dict[int, int] = {}
+    for nid, n in all_nodes.items():
+        if nid in excluded or not (n.is_notable or n.is_keystone):
+            continue
+        s = _score_node(n, dmg, defence)
+        if s > 0:
+            targets[nid] = s
+
+    added: list[int] = []
+    while len(visited) < budget:
+        # Multi-source BFS from the whole allocated set over allowed
+        # regular nodes — distance = new points to reach each node.
+        dist: dict[int, int] = dict.fromkeys(visited, 0)
+        parent: dict[int, int] = {}
+        queue: deque[int] = deque(visited)
+        while queue:
+            x = queue.popleft()
+            for nb in adjacency.get(x, frozenset()):
+                if nb in dist or nb in excluded or not _is_fillable(all_nodes.get(nb), nb):
+                    continue
+                dist[nb] = dist[x] + 1
+                parent[nb] = x
+                queue.append(nb)
+
+        best_nid: int | None = None
+        best_eff = 0.0
+        remaining = budget - len(visited)
+        for nid, s in targets.items():
+            if nid in visited:
+                continue
+            cost = dist.get(nid, 0)
+            if cost == 0 or cost > remaining:
+                continue
+            eff = s / cost
+            if eff > best_eff or (eff == best_eff and (best_nid is None or nid < best_nid)):
+                best_eff = eff
+                best_nid = nid
+        if best_nid is None:
+            break
+
+        chain: list[int] = []
+        cur = best_nid
+        while cur not in visited:
+            chain.append(cur)
+            cur = parent[cur]
+        chain.reverse()
+        for nid in chain:
+            visited.add(nid)
+            added.append(nid)
+    return added
+
+
 def _select_masteries(
     visited: set[int], td: TreeData, dmg: str, defence: str
 ) -> list[tuple[int, int, str, tuple[str, ...]]]:
@@ -605,99 +715,51 @@ def _select_tree_nodes(intent: TheoryIntent) -> tuple[TreeNodeRef, ...]:
     class_idx = _CLASS_ID.get(intent.character_class, 0)
     start_id = td.class_starts.get(class_idx, 0)
 
-    # Travel cost from the class start to every reachable regular node.
+    # Travel cost from the class start to every reachable regular node
+    # (used by the top-up fill's locality tiebreak).
     dist = _regular_distances(td.adjacency, start_id, td.nodes_by_id)
 
     # Nodes that boost a weapon class this build doesn't use are dead —
-    # exclude them from waypoints and fill (Step 48).
+    # exclude them everywhere (Step 48).
     excluded = _excluded_weapon_ids(intent, td)
 
-    # Score regular (non-ascendancy, non-mastery, non-cluster) nodes, then
-    # rank by a *locality-aware* value: a node's keyword score minus a
-    # per-hop travel penalty (Step 46). This keeps the chosen waypoints
-    # close to the class start — a Marauder no longer threads a tendril to
-    # a high-scoring notable over on the Ranger side just because it
-    # scores well. Unreachable nodes (not in `dist`) are skipped.
-    def _value(n: TreeNode) -> float:
-        s = _score_node(n, intent.damage_type, intent.defence_archetype)
-        return s - _LOCALITY_ALPHA * dist[n.id]
-
-    scored: list[tuple[float, TreeNode]] = []
-    for n in td.nodes_by_id.values():
-        if n.id >= _CLUSTER_JEWEL_MIN_ID or n.is_mastery or n.id not in dist:
-            continue
-        if n.id in excluded:
-            continue
-        if _score_node(n, intent.damage_type, intent.defence_archetype) <= 0:
-            continue
-        scored.append((_value(n), n))
-    scored.sort(key=lambda t: (-t[0], t[1].id))
-
-    # More waypoints (Step 45a: 4 + 16) so the BFS covers a meaningful
-    # spine before the fill tops the allocation up to budget.
-    target_keystones = [n for _, n in scored if n.is_keystone][:4]
-    target_notables = [n for _, n in scored if n.is_notable][:16]
-
-    # Greedy waypoint expansion: visit the highest-value target first,
-    # then route to the next via BFS from the current position.
-    targets: list[TreeNode] = sorted(
-        target_keystones + target_notables,
-        key=lambda n: -_value(n),
-    )
-
-    # Non-regular nodes (mastery, cluster-jewel, ascendancy) must never
-    # appear ON the path — `bfs_path` would otherwise happily route a
-    # waypoint segment *through* a mastery node, leaking it into the
-    # exported tree. Forbid them all (the regular waypoint targets are
-    # never in this set, so dst is always reachable).
-    non_regular = frozenset(nid for nid, n in td.nodes_by_id.items() if not _is_fillable(n, nid))
-    # Travel must also avoid weapon-mismatched nodes (don't route a path
-    # *through* an axe notable on a sword build).
-    avoid = non_regular | excluded
-
-    # Visit-tracking BFS: each new segment forbids already-visited nodes
-    # (except the current src) plus all non-regular / mismatched nodes, so
-    # the final path is contiguous, regular-only, with NO repeats — a
-    # simple `dict.fromkeys` dedup at the end would silently drop steps and
-    # break adjacency between consecutive list entries.
+    # Step 49: value-per-point greedy. Repeatedly allocate the unallocated
+    # notable/keystone with the best score / new-points-to-reach ratio,
+    # plus its connecting travel. This replaces the old "pick top-N
+    # waypoints then BFS-connect them" walk: it accounts for travel cost
+    # directly (so it stays local AND efficient) and prefers premium
+    # notables (a one-point "+2% all max res" beats two single-res nodes).
+    # Reserve room for the masteries (each costs a point).
+    budget = _MAX_TREE_NODES - _MAX_MASTERIES
     path: list[int] = [start_id]
     visited: set[int] = {start_id}
-    current = start_id
-    for target in targets:
-        if target.id in visited:
-            current = target.id
-            continue
-        forbidden = (visited - {current}) | avoid
-        segment = bfs_path(td.adjacency, current, target.id, forbidden=forbidden)
-        if segment is None:
-            continue
-        if len(path) + len(segment) - 1 > _MAX_TREE_NODES:
-            break
-        path.extend(segment[1:])
-        visited.update(segment)
-        current = target.id
-
-    # (The old "connect to the ascendancy entry node" step was removed in
-    # Step 46: the ascendancy is allocated via `ascendClassId` in the PoB
-    # export, not by threading the main tree to the ascendancy gate — and
-    # that step pulled the non-regular ascendancy-start node onto the
-    # path.)
-
-    # Step 45a fill: top the allocation up to a realistic endgame budget
-    # with the best-scored reachable nodes (greedy boundary expansion).
-    # Leave room for the mastery effects (each costs a point), and skip
-    # weapon-mismatched nodes.
-    fill = _fill_to_budget(
-        visited,
-        td.adjacency,
-        td.nodes_by_id,
-        intent.damage_type,
-        intent.defence_archetype,
-        _MAX_TREE_NODES - _MAX_MASTERIES,
-        dist=dist,
-        exclude=excluded,
+    path.extend(
+        _grow_to_value(
+            visited,
+            td.adjacency,
+            td.nodes_by_id,
+            intent.damage_type,
+            intent.defence_archetype,
+            excluded,
+            budget,
+        )
     )
-    path.extend(fill)
+
+    # Top up any leftover points (when nearby positive-value notables are
+    # exhausted) with the best-scored adjacent small nodes — broadened
+    # scoring means these are life/res travel, not junk.
+    path.extend(
+        _fill_to_budget(
+            visited,
+            td.adjacency,
+            td.nodes_by_id,
+            intent.damage_type,
+            intent.defence_archetype,
+            budget,
+            dist=dist,
+            exclude=excluded,
+        )
+    )
 
     # Step 48: allocate mastery effects on the wheels we've taken.
     masteries = _select_masteries(visited, td, intent.damage_type, intent.defence_archetype)
