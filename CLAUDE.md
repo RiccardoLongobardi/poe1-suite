@@ -124,6 +124,25 @@ Inside the navbar: a "Strumenti" / "Tools" section label above the 5 main routes
 
 Frontend-only, no backend change. Gate: 747 tests / 132 mypy / ruff clean. Build ~471 KB / 151 KB gzip.
 
+## Step 51 — PoB-exact build optimiser (2026-05-24) 🔬
+
+Built on the Step 50 evaluator: a **local search optimiser** that improves a generated build by scoring every candidate with PoB's real calc. Local/offline tool — `scripts/optimize_build.py`. **No package/app change, no Patch Notes** (the live generator is unchanged; the user-facing win comes when we precompute + serve optimised builds).
+
+- **Fitness** = real DPS (`FullDPS`) scaled by a **viability penalty**: each uncapped resistance and a sub-floor life/ES pool multiply the score down, so the optimum is *viable* damage, not a glass cannon.
+- **`_Encoder`** reuses the build's fixed gear (and, for the tree pass, fixed gems) and only re-encodes the varying part → one PoB eval per candidate (~280 ms).
+- **Two passes** (both decided by exact PoB fitness, proposed by the cheap heuristic):
+  - **6L support forward-selection** (`optimize_links`): greedily fills the body 6L's 5 supports from the top compatible pool, maximising fitness.
+  - **Tree local search** (`optimize_tree`): connectivity-preserving swaps (drop a low-value allocated node, take a high-value frontier node; BFS-verified connected), keep the best-improving, stop at a local optimum.
+
+**Findings (honest, on the Marauder/Juggernaut Cyclone):**
+- Support opt is a real win: `FullDPS 7274 → 8140 (+12 %)`, `TotalDPS 3329 → 5490 (+65 %)`, EHP/res unchanged — it swapped Impale+Pulverise for Faster Attacks+Concentrated Effect, which PoB confirms is better for this gear.
+- The **tree is already near-optimal** — the greedy value-per-point allocation (Step 49) hits a PoB-fitness local optimum immediately (no 1-swap improves it). Our heuristic supports were also already PoB-optimal-ish.
+- The real DPS ceiling is **GEAR**: the generated rares are generic and, critically, our gear recommendations omit **flat added-damage mods** (`Adds # to # Physical/Elemental Damage` — the #1 weapon DPS source) and crit. That's why a 7k-DPS endgame Cyclone looks weak. **The next high-value lever is gear, not the tree.**
+
+Gate: 756 tests / 137 mypy / ruff clean.
+
+**Next:** Step 52 — expand gear damage mods (flat added damage, crit) so generated builds have realistic DPS, then co-optimise gear with the same `PobEvaluator`; then the precompute pipeline (vendored per-archetype optima) + live serving.
+
 ## Step 50 — PoB-exact build evaluation: spike + foundation (2026-05-24) 🔬
 
 Goal (per Riccardo): the Theorycrafter must generate *viable and broken* builds from scratch, so the optimiser needs a **real** fitness function — exact stats, not a keyword proxy. Decision: hybrid objective (calc + ladder prior) but **as exact as PoB**. The only way to be *exactly* PoB is to run PoB's own calc engine. This step is the de-risking spike + the evaluator foundation. **Local/offline tool only — the deployed app is untouched.**
