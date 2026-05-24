@@ -124,6 +124,28 @@ Inside the navbar: a "Strumenti" / "Tools" section label above the 5 main routes
 
 Frontend-only, no backend change. Gate: 747 tests / 132 mypy / ruff clean. Build ~471 KB / 151 KB gzip.
 
+## Step 50 — PoB-exact build evaluation: spike + foundation (2026-05-24) 🔬
+
+Goal (per Riccardo): the Theorycrafter must generate *viable and broken* builds from scratch, so the optimiser needs a **real** fitness function — exact stats, not a keyword proxy. Decision: hybrid objective (calc + ladder prior) but **as exact as PoB**. The only way to be *exactly* PoB is to run PoB's own calc engine. This step is the de-risking spike + the evaluator foundation. **Local/offline tool only — the deployed app is untouched.**
+
+**Spike findings (3 approaches tried):**
+- ❌ **lupa** (LuaJIT embedded in Python): crashes. PoB's native modules (`lua-utf8.dll`, `lzip.dll`, …) bind to PoB's *own* `lua51.dll`; lupa's statically-embedded LuaJIT is a different runtime → C-API/ABI clash → segfault.
+- ❌ **Docker / WSL**: not installed on the dev machine; heavier setup.
+- ✅ **ctypes on PoB's bundled `lua51.dll`**: works, **zero extra installs**. PoB ships a complete Windows runtime (`runtime/lua51.dll` = its LuaJIT 2.1 + all native module DLLs). Driving *that* dll via `ctypes` means every module binds to one runtime — native modules load cleanly. Needs `arg = {}` set, `CI=true` (skip ModCache), `package.path`/`cpath` pointed at `runtime/lua` + `runtime/?.dll`, and CWD = `src/` (PoB uses relative `dofile`).
+
+**Measured:** PoB headless computes exact stats for a build *we* generate (feed our `encode_pob_code` XML via `loadBuildFromXML`, read `build.calcsTab.mainOutput`). A Marauder/Juggernaut Cyclone → Life **5548** (our estimate ~5272), EHP 14953, res 82/80/80/-52, **FullDPS 7274** (the old `dps_index` was meaningless). **~280 ms per evaluation** (re-import + full recalc, one live state reused) → ~2-9 min for a 500-2000-eval optimisation = fine for offline precompute.
+
+**Shipped this step (foundation, no optimiser yet):**
+- `scripts/setup_pob.py` — shallow-clones PathOfBuilding into `.pob_runtime/` (gitignored, ~800 MB Windows DLL runtime; never committed). Re-run per league.
+- `scripts/pob_eval.py` — `PobEvaluator`: holds one live PoB Lua state; `evaluate(pob_code) -> dict[str, float]` returns PoB-exact stats. Each candidate's load+calc is wrapped in Lua `pcall` so a bad build can't kill the state. `POB_ROOT` env overrides the runtime path.
+- `.gitignore`: `.pob_runtime/` + the eval temp file.
+
+**Deploy stays $0/Render:** the optimiser runs **locally on Windows** (PoB's DLL runtime), per the chosen architecture (a) offline precompute + (c) local tool. It produces small vendored JSON skeletons; the live app only serves those + the existing greedy fallback. Render never runs PoB.
+
+**No Patch Notes entry** — this is internal tooling with zero user-facing change yet. The user-facing entry lands when the optimiser actually improves generated builds (a later step).
+
+**Next (Phase 2):** the optimiser — local-search/annealing that mutates a candidate (tree/gear/supports), scores it via `PobEvaluator`, keeps the best (seeded by the ladder prior), maximising DPS subject to viability gates. Then Phase 3 (precompute pipeline) + Phase 4 (live serves vendored optima).
+
 ## Step 49 — Theorycrafter notable-efficiency tree allocation (2026-05-22) ✅
 
 QA: the old allocation threaded ~16 top-scored notable "waypoints" then filled the remaining ~90 points with greedy-adjacent nodes (mostly junk), and the scorer didn't value resistances/survivability at all — so it grabbed two single-res nodes where a one-point "+2% all max res" notable existed.

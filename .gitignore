@@ -103,3 +103,10 @@ Thumbs.db
 # Project-specific: PoB cached decode artifacts
 tmp/
 scratch/
+
+# Path of Building runtime for the local/offline tree optimiser (Steps 50+).
+# Fetched by `scripts/setup_pob.py` (a shallow clone of PathOfBuilding) —
+# ~800 MB, Windows DLL runtime, never committed. Only the optimiser's
+# vendored JSON *results* go in the repo.
+.pob_runtime/
+*.pob_eval_tmp.xml
