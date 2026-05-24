@@ -57,11 +57,51 @@ _BUDGET_ILVL: dict[BudgetTier, int] = {"starter": 50, "mid": 73, "endgame": 86}
 
 
 @lru_cache(maxsize=1)
-def _load() -> tuple[dict[str, Any], dict[str, list[dict[str, Any]]]]:
+def _load() -> tuple[dict[str, Any], dict[str, list[dict[str, Any]]], dict[str, Any]]:
     if not _MODS_PATH.exists():  # pragma: no cover - deployment guard
-        return {}, {}
+        return {}, {}, {}
     raw = json.loads(_MODS_PATH.read_text(encoding="utf-8"))
-    return raw.get("render", {}), raw.get("tiers", {})
+    return raw.get("render", {}), raw.get("tiers", {}), raw.get("added", {})
+
+
+# "Adds # to # Damage" stems → candidate added-damage groups (tried in
+# order; the first that can roll on the slot wins). Weapon-local + spell
+# variants for the weapon, attack variants for jewellery/gloves.
+_STEM_TO_ADDED: dict[str, tuple[str, ...]] = {
+    "Adds Physical Damage": ("local_physical", "attack_physical"),
+    "Adds Fire Damage": ("local_fire", "attack_fire"),
+    "Adds Cold Damage": ("local_cold", "attack_cold"),
+    "Adds Lightning Damage": ("local_lightning", "attack_lightning"),
+    "Adds Chaos Damage": ("local_chaos", "attack_chaos"),
+    "Adds Fire Damage to Spells": ("spell_fire",),
+    "Adds Cold Damage to Spells": ("spell_cold",),
+    "Adds Lightning Damage to Spells": ("spell_lightning",),
+    "Adds Chaos Damage to Spells": ("spell_chaos",),
+}
+
+
+def _added_line(stem: str, item_tags: frozenset[str], cap: int) -> str | None:
+    keys = _STEM_TO_ADDED.get(stem)
+    if not keys:
+        return None
+    _, _, added = _load()
+    for key in keys:
+        group = added.get(key)
+        if not group:
+            continue
+        cands = [
+            t
+            for t in group.get("tiers", [])
+            if isinstance(t.get("ilvl"), int)
+            and t["ilvl"] <= cap
+            and t.get("vmax") is not None
+            and can_spawn(t.get("weights", []), item_tags)
+        ]
+        if cands:
+            best = max(cands, key=lambda t: (t["ilvl"], t["vmax"]))
+            string = str(group.get("string", ""))
+            return string.replace("{0}", str(best["vmin"])).replace("{1}", str(best["vmax"]))
+    return None
 
 
 def can_spawn(weights: list[list[Any]], item_tags: frozenset[str]) -> bool:
@@ -78,7 +118,7 @@ def can_spawn(weights: list[list[Any]], item_tags: frozenset[str]) -> bool:
 
 
 def _render(stat_id: str, value: object) -> str | None:
-    render, _ = _load()
+    render, _, _ = _load()
     tpl = render.get(stat_id) or _FALLBACK_RENDER.get(stat_id)
     if not tpl:
         return None
@@ -94,11 +134,14 @@ def real_affix_line(stem: str, item_tags: frozenset[str], budget: BudgetTier) ->
     with *item_tags* within *budget*. ``None`` if the stem has no real mod
     mapping or no tier can spawn on this slot.
     """
+    cap = _BUDGET_ILVL[budget]
+    # "Adds # to #" damage mods (2-stat) are handled separately.
+    if stem in _STEM_TO_ADDED:
+        return _added_line(stem, item_tags, cap)
     stat_ids = _STEM_TO_STAT.get(stem)
     if not stat_ids:
         return None
-    _, tiers = _load()
-    cap = _BUDGET_ILVL[budget]
+    _, tiers, _ = _load()
     # Try each candidate stat id; use the first that has a tier able to
     # roll on this slot (e.g. flat ES on jewellery vs % ES on armour).
     for stat_id in stat_ids:

@@ -863,26 +863,49 @@ def _stat_priorities(slot_name: str, intent: TheoryIntent) -> tuple[str, ...]:
     speed = "increased Cast Speed" if is_spell else "increased Attack Speed"
     main_dmg = "increased Spell Damage" if is_spell else "increased Physical Damage"
 
+    # Flat added damage — the dominant DPS source (Step 52). For a spell
+    # build it's "Adds X to Y <element> Damage to Spells" on the weapon; for
+    # a physical attack build it's "Adds X to Y Physical Damage" on the
+    # weapon AND on jewellery / gloves (the attack-tagged variant).
+    elem = {"fire": "Fire", "cold": "Cold", "lightning": "Lightning", "chaos": "Chaos"}
+    weapon_added = (
+        f"Adds {elem[intent.damage_type]} Damage to Spells" if is_spell else "Adds Physical Damage"
+    )
+    jewel_added = None if is_spell else "Adds Physical Damage"
+
     slot_map: dict[str, tuple[str, ...]] = {
         "Helmet": (primary_def, main_res, sec_res, main_dmg),
         "Body Armour": (primary_def, main_res, sec_res, "to Lightning Resistance"),
-        "Gloves": (primary_def, main_res, speed, main_dmg),
+        "Gloves": (
+            (primary_def, main_res, speed, jewel_added)
+            if jewel_added
+            else (primary_def, main_res, speed, main_dmg)
+        ),
         "Boots": (primary_def, "Movement Speed", main_res, speed),
         "Belt": (primary_def, main_res, sec_res, "increased Flask Life Recovery"),
         "Amulet": (
             primary_def,
-            main_dmg,
+            jewel_added if jewel_added else main_dmg,
             "Critical Strike Multiplier" if is_crit else "to all Attributes",
             main_res,
         ),
-        "Ring": (primary_def, main_res, sec_res, "to Mana", "to all Attributes"),
-        "Wand": ("increased Spell Damage", "increased Cast Speed", "critical strike", main_res),
-        "Bow": ("increased Physical Damage", "increased Attack Speed", "critical strike", main_res),
+        "Ring": (
+            (primary_def, main_res, sec_res, "to Mana", jewel_added)
+            if jewel_added
+            else (primary_def, main_res, sec_res, "to Mana", "to all Attributes")
+        ),
+        "Wand": (weapon_added, "increased Spell Damage", "increased Cast Speed", "critical strike"),
+        "Bow": (
+            weapon_added,
+            "increased Physical Damage",
+            "increased Attack Speed",
+            "critical strike",
+        ),
         "Weapon": (
+            weapon_added,
             "increased Physical Damage",
             "increased Attack Speed",
             "Accuracy",
-            main_res,
         ),
         "Off-hand": (primary_def, main_res, sec_res, "Chance to Block"),
         "Shield": (primary_def, main_res, sec_res, "Chance to Block"),

@@ -453,3 +453,38 @@ def test_items_use_real_mod_tiers() -> None:
     )
     xml = _decode_pob_xml(sk.pob_code)
     assert "to maximum Life" in xml
+
+
+def test_weapon_has_flat_added_damage() -> None:
+    """Step 52: attack builds get 'Adds X to Y Physical Damage' on the
+    weapon (the #1 DPS mod); spell builds get '... to Spells' on the wand.
+    Both resolve to real RePoE tiers."""
+    from poe1_core.models.enums import ItemSlot
+    from poe1_fob.gear.base_items import bases_for_slot
+    from poe1_fob.theory.realmods import real_affix_line
+
+    # Attack weapon (2H sword) → flat physical.
+    weapons = bases_for_slot(ItemSlot.WEAPON_MAIN)
+    sword = next(b for b in weapons if b.item_class == "Two Hand Sword")
+    line = real_affix_line("Adds Physical Damage", frozenset(sword.tags), "endgame")
+    assert line is not None and line.startswith("Adds ") and "Physical Damage" in line
+
+    # Spell weapon (wand) → flat element to spells.
+    wand = next(b for b in weapons if b.item_class == "Wand")
+    spell_line = real_affix_line("Adds Fire Damage to Spells", frozenset(wand.tags), "endgame")
+    assert spell_line is not None and "to Spells" in spell_line
+
+    # The generated attack build's weapon body carries the flat damage line.
+    sk = generate_build(
+        _intent(
+            character_class="Marauder",
+            ascendancy="Juggernaut",
+            primary_skill="Cyclone",
+            damage_type="physical",
+            defence_archetype="life",
+            budget="endgame",
+            focus="allcontent",
+        )
+    )
+    weapon = next(g for g in sk.gear_slots if g.slot in ("Weapon", "Bow"))
+    assert "Adds Physical Damage" in weapon.stat_priorities

@@ -124,6 +124,19 @@ Inside the navbar: a "Strumenti" / "Tools" section label above the 5 main routes
 
 Frontend-only, no backend change. Gate: 747 tests / 132 mypy / ruff clean. Build ~471 KB / 151 KB gzip.
 
+## Step 52 — Theorycrafter flat added-damage gear mods (2026-05-24) ✅
+
+The Step 51 optimiser pinpointed the real DPS bottleneck: generated gear omitted **flat added-damage mods** (`Adds # to # Damage` — the #1 weapon/jewellery DPS source). Fixed it; **user-facing** (generated build DPS roughly doubles).
+
+- **New `added` section in `mods_3_28.json`.** `scripts/extract_mods.py` now also keeps the **2-stat** added-damage mods (`*_minimum_added_*` + `*_maximum_added_*`), grouped by `<prefix>_<element>` (`local_physical`, `attack_fire`, `spell_lightning`, …) — 15 groups / 341 tiers, with the 2-value render template (`Adds {0} to {1} …`). File 44 KB → 78 KB.
+- **`realmods._added_line`** resolves the new stems ("Adds Physical Damage", "Adds Fire Damage to Spells", …) → real tier on a slot that can roll it, rendered `Adds <vmin> to <vmax> …`. `_STEM_TO_ADDED` tries weapon-local → attack (jewellery) → spell variants; spawn-gated.
+- **`_stat_priorities`** now puts the flat-added stem **first** on the weapon (the biggest mod): physical-attack weapon → `Adds Physical Damage`; spell wand → `Adds <element> Damage to Spells`; attack jewellery/gloves → `Adds Physical Damage to Attacks`. Spell jewellery/gloves keep their existing stats (flat-added-to-spells is weapon-only).
+- **Measured via PoB-headless** (Marauder/Juggernaut Cyclone, endgame): `FullDPS 7274 → 16283 (+124 %)`, `TotalDPS 3329 → 9151 (+175 %)`. Weapon shows `Adds 47 to 84 Physical Damage` + `179% increased Physical Damage` + attack speed + accuracy.
+
+Test: `test_weapon_has_flat_added_damage` (weapon flat phys + wand flat-to-spells resolve to real tiers; the generated weapon carries the stem). Gate: 757 tests / 137 mypy / ruff clean.
+
+**Next:** gear *co-optimisation* (let the Step 51 optimiser also tune gear mods/bases against PoB), then the precompute pipeline + live serving of optimised builds.
+
 ## Step 51 — PoB-exact build optimiser (2026-05-24) 🔬
 
 Built on the Step 50 evaluator: a **local search optimiser** that improves a generated build by scoring every candidate with PoB's real calc. Local/offline tool — `scripts/optimize_build.py`. **No package/app change, no Patch Notes** (the live generator is unchanged; the user-facing win comes when we precompute + serve optimised builds).

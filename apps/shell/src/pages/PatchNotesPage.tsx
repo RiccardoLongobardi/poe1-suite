@@ -28,6 +28,27 @@ interface Release {
 // Prepend a new entry with user-facing (not technical) bilingual copy.
 const RELEASES: Release[] = [
   {
+    date: { it: "24 mag 2026", en: "24 May 2026" },
+    title: {
+      it: "Theorycrafter — danno reale sugli oggetti (DPS molto piu alto)",
+      en: "Theorycrafter — real weapon damage (much higher DPS)",
+    },
+    summary: {
+      it: "Gli oggetti generati ora includono il danno aggiunto piatto — la fonte di DPS numero uno — quindi le build hanno un danno realistico.",
+      en: "Generated items now include flat added damage — the #1 DPS source — so builds have realistic damage.",
+    },
+    entries: [
+      {
+        it: "Le armi ora consigliano \"Aggiunge X-Y danno\" (fisico per gli attacchi, elementale agli incantesimi per i caster); anelli, amuleto e guanti aggiungono danno agli attacchi. Su una build di prova il DPS e piu che raddoppiato.",
+        en: "Weapons now recommend \"Adds X-Y Damage\" (physical for attacks, elemental-to-spells for casters); rings, amulet and gloves add attack damage. On a test build the DPS more than doubled.",
+      },
+      {
+        it: "Verificato col motore di calcolo reale di PoB: i valori dei mod sono tier reali che possono davvero comparire su quello slot.",
+        en: "Verified against PoB's real calc engine: the mod values are real tiers that can actually roll on that slot.",
+      },
+    ],
+  },
+  {
     date: { it: "22 mag 2026", en: "22 May 2026" },
     title: {
       it: "Theorycrafter — albero ottimizzato (valore per punto)",

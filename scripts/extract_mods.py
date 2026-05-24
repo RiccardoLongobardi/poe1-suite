@@ -30,6 +30,7 @@ Re-run after every PoE league:
 from __future__ import annotations
 
 import json
+import re
 import sys
 import urllib.request
 from pathlib import Path
@@ -133,6 +134,80 @@ def _build_tiers(mods: dict[str, Any]) -> dict[str, list[dict[str, object]]]:
     return tiers
 
 
+# "Adds # to # X Damage" mods are TWO stats (minimum + maximum). They're
+# the dominant weapon/jewellery DPS source, so we keep them in a separate
+# "added" section keyed by "<prefix>_<element>" (e.g. local_physical,
+# attack_fire, spell_lightning).
+_ADDED_RE = re.compile(
+    r"^(local|attack|spell)_(minimum|maximum)_added_(physical|fire|cold|lightning|chaos)_damage$"
+)
+
+
+def _added_key(stat_id: str) -> tuple[str, str, str] | None:
+    m = _ADDED_RE.fullmatch(stat_id)
+    return (m.group(1), m.group(3), m.group(2)) if m else None  # (prefix, element, min/max)
+
+
+def _build_added(
+    mods: dict[str, Any], translations: list[dict[str, Any]]
+) -> dict[str, dict[str, object]]:
+    # render template per (prefix, element) from the 2-id translation.
+    render: dict[str, str] = {}
+    for entry in translations:
+        ids = entry.get("ids", [])
+        if not isinstance(ids, list) or len(ids) != 2:
+            continue
+        k0, k1 = _added_key(ids[0]), _added_key(ids[1])
+        if not k0 or not k1 or k0[:2] != k1[:2]:
+            continue
+        english = entry.get("English", [])
+        if not english or not isinstance(english[0].get("string"), str):
+            continue
+        render[f"{k0[0]}_{k0[1]}"] = english[0]["string"]
+
+    added: dict[str, dict[str, object]] = {}
+    for v in mods.values():
+        if v.get("domain") != "item" or v.get("generation_type") not in ("prefix", "suffix"):
+            continue
+        stats = v.get("stats", [])
+        if not isinstance(stats, list) or len(stats) != 2:
+            continue
+        keys = [_added_key(s.get("id", "")) for s in stats]
+        if not all(keys) or keys[0][:2] != keys[1][:2]:  # type: ignore[index]
+            continue
+        prefix, element = keys[0][0], keys[0][1]  # type: ignore[index]
+        key = f"{prefix}_{element}"
+        if key not in render:
+            continue
+        smin = next((s for s in stats if "minimum" in s.get("id", "")), None)
+        smax = next((s for s in stats if "maximum" in s.get("id", "")), None)
+        if smin is None or smax is None:
+            continue
+        weights = [
+            [w.get("tag"), w.get("weight", 0)]
+            for w in v.get("spawn_weights", [])
+            if isinstance(w, dict)
+        ]
+        added.setdefault(
+            key, {"string": render[key], "affix": v.get("generation_type"), "tiers": []}
+        )
+        tiers = added[key]["tiers"]
+        assert isinstance(tiers, list)
+        tiers.append(
+            {
+                "ilvl": int(v.get("required_level", 1)),
+                "vmin": smin.get("max"),
+                "vmax": smax.get("max"),
+                "weights": weights,
+            }
+        )
+    for d in added.values():
+        tiers = d["tiers"]
+        assert isinstance(tiers, list)
+        tiers.sort(key=lambda t: (t["ilvl"], t["vmax"] if t["vmax"] is not None else 0))
+    return added
+
+
 def main() -> int:
     OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     print(f"Fetching {BASE}mods.json + stat_translations.json ...")
@@ -143,6 +218,7 @@ def main() -> int:
         return 1
 
     render = _build_render(translations)
+    added = _build_added(mods, translations)
     tiers = _build_tiers(mods)
 
     missing = TARGET_STATS - set(tiers)
@@ -153,12 +229,14 @@ def main() -> int:
         sys.stderr.write(f"extract_mods: WARN no render template for {sorted(no_render)}\n")
 
     total_tiers = sum(len(v) for v in tiers.values())
+    added_tiers = sum(len(t) for d in added.values() if isinstance((t := d["tiers"]), list))
     print(f"  stats with tiers: {len(tiers)} / {len(TARGET_STATS)}  ({total_tiers} tiers)")
+    print(f"  added-damage groups: {len(added)}  ({added_tiers} tiers)")
     if total_tiers < 80:
         sys.stderr.write(f"extract_mods: FAIL — only {total_tiers} tiers parsed. Honest stop.\n")
         return 1
 
-    payload = {"render": render, "tiers": tiers}
+    payload = {"render": render, "tiers": tiers, "added": added}
     OUT_PATH.write_text(
         json.dumps(payload, indent=None, separators=(",", ":"), ensure_ascii=False, sort_keys=True),
         encoding="utf-8",
