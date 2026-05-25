@@ -124,6 +124,16 @@ Inside the navbar: a "Strumenti" / "Tools" section label above the 5 main routes
 
 Frontend-only, no backend change. Gate: 747 tests / 132 mypy / ruff clean. Build ~471 KB / 151 KB gzip.
 
+## Step 62 — Mirror-tier initiative: unblock Timeless Jewel eval (2026-05-25) 🔬
+
+Phase 4 prerequisite: headless PoB couldn't load the Timeless Jewel LUTs, so any build with a timeless jewel (e.g. the 84M-DPS ladder Cyclone) **crashed** the evaluator (`attempt to index local 'o'` — `build.calcsTab.mainOutput` was nil because the jewel data failed to load). Fixed. **Internal tooling only — no user-facing change, no Patch Notes** (like the Step 50 evaluator foundation).
+
+- **Root cause (three stubs in PoB's `HeadlessWrapper.lua`):** `Inflate(data)` returns `""` (can't decompress the `.zip` LUTs), `NewFileSearch()` returns nil (never finds the `.bin` cache), `GetScriptPath()` returns `""` (so `io.open("/Data/TimelessJewelData/X.zip")` resolves to a bogus absolute path). The loader (`DataLegionLookUpTableHelper.lua`) therefore failed both the `.bin` and `.zip` paths → empty jewel data → calc produced no output.
+- **Fix (no Inflate needed at runtime).** `scripts/pob_eval.py` `ensure_timeless_jewel_bins()` pre-inflates the LUTs **offline** with Python's `zlib` (the `.zip` is a raw zlib stream; `GloriousVanity` is reassembled from its `.zip.part*` split) → writes `<JewelType>.bin`. The init harness then overrides `GetScriptPath()` → `"."` (cwd is `src/`) and `NewFileSearch()` → a minimal handle that reports the `.bin` with a huge modified-time, so PoB's loader treats the `.bin` as up-to-date and reads it directly via `io.open`. The override is scoped to `*.bin` patterns (returns nil otherwise — preserving the stub everywhere else).
+- **Verified:** the ladder Cyclone that previously crashed now evaluates to **CombinedDPS ≈ 109M** (`scripts/compare_ladder.py Juggernaut Cyclone`). Normal (non-jewel) evals are unaffected; the gate's 772 tests stay green (pob_eval is local-only, not imported by the app/tests).
+
+This is the **prerequisite** for adding timeless jewels to the optimiser's search space (the next, larger step) — by itself it doesn't change our generated builds, but it unblocks evaluating + eventually generating timeless-jewel builds (the single biggest remaining lever on physical archetypes). Gate: 772 tests / 145 mypy / ruff clean.
+
 ## Step 61 — Mirror-tier initiative: DoT-multiplier gear (2026-05-25) ✅
 
 Phase 3 (DoT): the ladder comparison showed our gear damage is **flat-added (hit) only**, which does ~0 for a damage-over-time build — Vortex/Essence Drain/poison scale on **DoT multipliers**. Fixed the gear recommendations for DoT builds. **User-facing for live-generated DoT builds** (the precomputed builds are unchanged — see below).

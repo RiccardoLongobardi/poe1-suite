@@ -56,6 +56,33 @@ arg = { [0] = "HeadlessWrapper.lua" }
 package.path = package.path .. ";../runtime/lua/?.lua;../runtime/lua/?/init.lua"
 package.cpath = package.cpath .. ";../runtime/?.dll"
 dofile("HeadlessWrapper.lua")
+
+-- Timeless-jewel support (Step 62). HeadlessWrapper stubs GetScriptPath()
+-- ("") and NewFileSearch() (nil) and Inflate() (""), so PoB can't find or
+-- decompress the Timeless Jewel LUTs. We pre-inflate them to `.bin` offline
+-- (ensure_timeless_jewel_bins) and override these two stubs so PoB's loader
+-- finds the `.bin` and treats it as up-to-date (mtime huge) — reading it
+-- directly via io.open, no runtime Inflate needed. cwd is `src/`, so a "."
+-- script path resolves "./Data/TimelessJewelData/<X>.bin" correctly.
+function GetScriptPath() return "." end
+do
+  local _real_open = io.open
+  function NewFileSearch(pattern)
+    -- Only the jewel loader relies on this in our flow; answer for a `.bin`
+    -- that exists and stay nil (the old stub) for everything else.
+    if type(pattern) ~= "string" or not pattern:match("%.bin$") then return nil end
+    local f = _real_open(pattern, "rb")
+    if not f then return nil end
+    f:close()
+    local name = pattern:match("([^/\\]+)$") or pattern
+    return {
+      GetFileName = function() return name end,
+      GetFileModifiedTime = function() return 2 ^ 40 end,  -- always "newer" than the .zip
+      GetFileSize = function() return 0 end,
+      NextFile = function() return false end,
+    }
+  end
+end
 return "ok"
 """
 
@@ -89,6 +116,42 @@ def decode_pob_code(code: str) -> str:
     return zlib.decompress(base64.urlsafe_b64decode(padded.encode())).decode("utf-8")
 
 
+def ensure_timeless_jewel_bins(pob_root: Path) -> int:
+    """Pre-decompress the Timeless Jewel LUTs (`.zip` / split `.zip.part*`)
+    to the `.bin` form PoB's loader reads directly.
+
+    Headless PoB stubs `Inflate` (returns ""), so it can't decompress the
+    `.zip` LUTs at runtime → timeless-jewel builds fail to calc. We do the
+    inflate offline with Python's zlib (the data is a raw zlib stream) and
+    write `<JewelType>.bin`; the init harness then points the loader at the
+    `.bin` (see `_INIT_HARNESS`). Idempotent — skips an up-to-date `.bin`.
+    Returns the number of `.bin` files written.
+    """
+    data_dir = pob_root / "src" / "Data" / "TimelessJewelData"
+    if not data_dir.is_dir():
+        return 0
+    # Jewel type -> the compressed source (single .zip, or split parts).
+    written = 0
+    singles = sorted(data_dir.glob("*.zip"))
+    split_stems = {p.name.split(".zip.part")[0] for p in data_dir.glob("*.zip.part*")}
+    jobs: list[tuple[Path, list[Path]]] = [(p, [p]) for p in singles]
+    for stem in sorted(split_stems):
+        parts = sorted(data_dir.glob(f"{stem}.zip.part*"))
+        jobs.append((data_dir / f"{stem}.zip", parts))
+    for zip_path, parts in jobs:
+        bin_path = zip_path.with_suffix(".bin")
+        if bin_path.exists() and bin_path.stat().st_mtime >= max(p.stat().st_mtime for p in parts):
+            continue
+        compressed = b"".join(p.read_bytes() for p in parts)
+        try:
+            raw = zlib.decompress(compressed)
+        except zlib.error:
+            continue
+        bin_path.write_bytes(raw)
+        written += 1
+    return written
+
+
 class PobEvaluator:
     """Holds a live PoB Lua state; ``evaluate`` returns exact stats.
 
@@ -106,6 +169,9 @@ class PobEvaluator:
         self._tmp_xml = runtime / ".pob_eval_tmp.xml"
         os.environ["POB_EVAL_XML"] = str(self._tmp_xml)
         os.environ["CI"] = "true"  # skip ModCache (avoids needing Inflate at startup)
+        # Step 62: pre-inflate the Timeless Jewel LUTs to `.bin` so PoB can
+        # load them (its headless Inflate stub can't decompress the `.zip`).
+        ensure_timeless_jewel_bins(pob_root)
 
         add_dll = getattr(os, "add_dll_directory", None)
         if add_dll is not None:
