@@ -30,6 +30,27 @@ const RELEASES: Release[] = [
   {
     date: { it: "25 mag 2026", en: "25 May 2026" },
     title: {
+      it: "Theorycrafter — build a Scudo Energetico piu robuste",
+      en: "Theorycrafter — sturdier Energy Shield builds",
+    },
+    summary: {
+      it: "Le build a Scudo Energetico ora hanno un pool molto piu alto e tutte le resistenze al cap.",
+      en: "Energy Shield builds now have a much higher pool and all resistances capped.",
+    },
+    entries: [
+      {
+        it: "Le build ES sceglievano basi sbagliate su cui lo scudo energetico non poteva comparire, quindi elmo, guanti e stivali restavano senza ES e il totale era basso (~3000). Ora usano basi ES pure e lo scudo compare su tutti i pezzi: il pool sale di circa il 50%.",
+        en: "ES builds were picking the wrong bases — ones where energy shield can't roll — so helmet, gloves and boots had no ES and the total stayed low (~3,000). They now use pure ES bases and shield shows on every piece: the pool rises by about 50%.",
+      },
+      {
+        it: "Le resistenze sono distribuite meglio sugli oggetti: prima la resistenza al fulmine compariva su un solo slot e restava sotto il cap; ora tutte e tre le resistenze elementali arrivano al massimo.",
+        en: "Resistances are spread better across items: lightning resistance used to appear on a single slot and stayed under the cap; now all three elemental resistances reach the maximum.",
+      },
+    ],
+  },
+  {
+    date: { it: "25 mag 2026", en: "25 May 2026" },
+    title: {
       it: "Theorycrafter — attacchi elementali corretti",
       en: "Theorycrafter — elemental attacks fixed",
     },

@@ -854,9 +854,16 @@ _BUDGET_DROP_CAP: dict[BudgetTier, int] = {
     "endgame": 86,  # effectively no cap; top-tier bases sit around 80-86
 }
 
+# Base-item tag the gear picker prefers per defence archetype. Step 54:
+# `es` must target `int_armour` — the tag PURE energy-shield armour bases
+# carry AND the only tag `local_energy_shield_+%` can spawn on. The old
+# `"energy_shield"` value matched NO base in the catalogue, so the picker
+# silently fell back to the highest-drop-level base (a dex/str hybrid on
+# which ES can't roll) and ES vanished from helmet/gloves/boots → ~3k
+# pool. `hybrid_life_es` keeps generic `armour` (it wants ar/es bases).
 _DEFENCE_TAG: dict[str, str] = {
     "life": "armour",
-    "es": "energy_shield",
+    "es": "int_armour",
     "ward": "ward",
     "hybrid_life_es": "armour",
 }
@@ -896,8 +903,15 @@ def _stat_priorities(slot_name: str, intent: TheoryIntent, skill: _Active) -> tu
     dmg = intent.damage_type
 
     primary_def = "to maximum Energy Shield" if is_es else "to maximum Life"
-    main_res = "to Fire Resistance"
-    sec_res = "to Cold Resistance"
+    # Step 54: spread the three elemental resistances across slots. The old
+    # map put Fire on 7 slots, Cold on 4 and Lightning on just 1 → lightning
+    # under-capped (~64). Now each element appears on ~4-5 slots so all
+    # three cap. `main_res`/`sec_res` are kept for the off-hand/shield only.
+    res_f = "to Fire Resistance"
+    res_c = "to Cold Resistance"
+    res_l = "to Lightning Resistance"
+    main_res = res_f
+    sec_res = res_c
     speed = "increased Cast Speed" if is_spell else "increased Attack Speed"
 
     # Flat added damage — the dominant DPS source (Step 52). For a spell
@@ -942,25 +956,25 @@ def _stat_priorities(slot_name: str, intent: TheoryIntent, skill: _Active) -> tu
         )
 
     slot_map: dict[str, tuple[str | None, ...]] = {
-        "Helmet": (primary_def, main_res, sec_res, main_dmg),
-        "Body Armour": (primary_def, main_res, sec_res, "to Lightning Resistance"),
+        "Helmet": (primary_def, res_l, res_c, main_dmg),
+        "Body Armour": (primary_def, res_f, res_l, res_c),
         "Gloves": (
-            (primary_def, main_res, speed, jewel_added)
+            (primary_def, res_l, speed, jewel_added)
             if jewel_added
-            else (primary_def, main_res, speed, main_dmg)
+            else (primary_def, res_l, speed, main_dmg)
         ),
-        "Boots": (primary_def, "Movement Speed", main_res, speed),
-        "Belt": (primary_def, main_res, sec_res, "increased Flask Life Recovery"),
+        "Boots": (primary_def, "Movement Speed", res_c, speed),
+        "Belt": (primary_def, res_f, res_l, "increased Flask Life Recovery"),
         "Amulet": (
             primary_def,
             jewel_added if jewel_added else main_dmg,
             "Critical Strike Multiplier" if is_crit else "to all Attributes",
-            main_res,
+            res_f,
         ),
         "Ring": (
-            (primary_def, main_res, sec_res, "to Mana", jewel_added)
+            (primary_def, res_f, res_c, res_l, "to Mana", jewel_added)
             if jewel_added
-            else (primary_def, main_res, sec_res, "to Mana", "to all Attributes")
+            else (primary_def, res_f, res_c, res_l, "to Mana", "to all Attributes")
         ),
         "Wand": weapon_entry,
         "Bow": weapon_entry,

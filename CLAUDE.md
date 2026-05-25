@@ -124,6 +124,18 @@ Inside the navbar: a "Strumenti" / "Tools" section label above the 5 main routes
 
 Frontend-only, no backend change. Gate: 747 tests / 132 mypy / ruff clean. Build ~471 KB / 151 KB gzip.
 
+## Step 54 — Theorycrafter ES pool + resistance spread (2026-05-25) ✅
+
+The QA sweep's two remaining defensive clusters: **ES builds sat at ~3k pool** (LOW_POOL) and **one elemental resistance under-capped** (LOW_RES, usually lightning ~64). Both were concrete gear bugs, not open design. **User-facing** (ES/chaos builds are now viable).
+
+- **ES base selection was dead.** `_pick_base` for the ES archetype preferred the `_DEFENCE_TAG["es"]` tag — but that was `"energy_shield"`, a tag **no base in the catalogue carries** (verified: 0 matches). So the picker silently fell back to the highest-drop-level base, which for the upper slots is a dex/str **hybrid** (`dex_int_armour` / `str_dex_armour`). The only armour-ES mod, `local_energy_shield_+%`, spawns **only** on `int_armour` (weight 1000 on `int_armour`, 0 on `default`) — so on those hybrid bases ES couldn't roll and `_rollable_priorities` dropped it from helmet/gloves/boots. Only the body + shield (which happened to be `int_armour`) carried ES → ~3k pool. **Fix:** `_DEFENCE_TAG["es"] = "int_armour"`, so the picker chooses pure-ES bases (Lich's Circlet, Warlock Gloves/Boots, …) on which `local_energy_shield_+%` rolls. ES now appears on all four armour slots.
+- **Resistances were Fire-skewed.** The old `slot_map` put Fire on 7 slots, Cold on 4 and Lightning on just 1 → lightning under-capped (~64). Rebalanced so each of the three elemental resistances appears on ~4-5 slots (`res_f`/`res_c`/`res_l` distributed; Body carries all three, Ring carries all three, the rest spread). `main_res`/`sec_res` are kept only for the off-hand/shield entries.
+- **Untouched:** the ES tree allocation (the gear fix was the dominant lever) and weapon/damage stats (Step 53). Pure `int_armour` bases trade away the hybrids' incidental armour/evasion, so PoB's physical-hit EHP drops a little while raw ES rises — the right trade for an ES build.
+
+**Measured (PoB-exact sweep, endgame):** the six in-scope ES casters (Vortex, Frostbolt, Fireball, Bane, Essence Drain, Soulrend) jumped from ~3.0-3.1k to **~4.4-4.7k ES** and now cap all three elemental resistances (lightning 64 → 75-80). **Sweep: OK 16 → 23, LOW_RES 3 → 0, LOW_POOL 6 → 2.** The two remaining LOW_POOL are out-of-scope and pre-existing (unchanged by this step): Frost Blades (a *life* build on Shadow with 744 life — a life-pool issue, not ES) and Lightning Trap (Saboteur reports ES 0 / Life 2311 — a separate calc quirk). Chaos-bypasses-ES survivability (a chaos+ES build with 1 life has tiny chaos EHP without Chaos Inoculation) is a deeper item, not addressed here.
+
+Test: `test_es_build_rolls_es_on_armour_and_spreads_resistances` (ES build's helmet/gloves/boots/body carry an ES roll; each elemental res appears on ≥3 slots). Gate: 759 tests / 138 mypy / ruff clean.
+
 ## Step 53 — Theorycrafter elemental-attack classification (2026-05-25) ✅
 
 The QA sweep (`scripts/qa_sweep.py`) found a confirmed bug: **elemental attacks were classified as spells.** `_stat_priorities` decided attack-vs-spell with `is_spell = intent.damage_type in (fire, cold, lightning, chaos)` — so Lightning Strike / Molten Strike / Frost Blades / Ice Shot (elemental *attacks*) got caster stats (cast speed, "Adds X Damage to Spells", increased Spell Damage) and Ice Shot got a Wand instead of a Bow. **User-facing** (elemental-attack builds now generate correctly).

@@ -491,6 +491,35 @@ def test_weapon_has_flat_added_damage() -> None:
     assert "Adds Physical Damage" in weapon.stat_priorities
 
 
+def test_es_build_rolls_es_on_armour_and_spreads_resistances() -> None:
+    """Step 54: an ES build must pick pure ES (int_armour) bases so the
+    `local_energy_shield_+%` mod actually rolls on every armour slot — the
+    old `energy_shield` base tag matched nothing, so helmet/gloves/boots
+    showed no ES and the pool sat at ~3k. Resistances must also spread
+    across slots so lightning (previously on a single slot) caps too."""
+    es = generate_build(
+        _intent(
+            character_class="Witch",
+            ascendancy="Occultist",
+            primary_skill="Vortex",
+            damage_type="cold",
+            defence_archetype="es",
+            budget="endgame",
+            focus="allcontent",
+        )
+    )
+    by_slot = {g.slot: g for g in es.gear_slots}
+    # ES now resolves on the armour slots (real `local_energy_shield_+%`).
+    for slot in ("Helmet", "Body Armour", "Gloves", "Boots"):
+        assert "to maximum Energy Shield" in by_slot[slot].stat_priorities, (
+            f"{slot} should carry an ES roll, got {by_slot[slot].stat_priorities}"
+        )
+    # All three elemental resistances are spread over multiple slots.
+    for res in ("to Fire Resistance", "to Cold Resistance", "to Lightning Resistance"):
+        slots_with = sum(1 for g in es.gear_slots if res in g.stat_priorities)
+        assert slots_with >= 3, f"{res} only on {slots_with} slot(s) — under-spread"
+
+
 def test_elemental_attack_uses_attack_stats_and_bow() -> None:
     """Step 53: an elemental *attack* (Ranger Lightning Strike, lightning)
     is classified by tags as an attack — not a spell. Its weapon carries
