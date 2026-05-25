@@ -637,6 +637,9 @@ export interface StatEstimate {
   dps_index: number;
   resistance_warning: string | null;
   estimated: boolean;
+  /** PoB-exact numbers — populated only for precomputed/optimised builds. */
+  full_dps: number;
+  total_ehp: number;
 }
 
 export interface ViabilityIssue {
@@ -662,6 +665,8 @@ export interface BuildSkeleton {
   rationale_en: string;
   pob_code: string;
   viability: ViabilityReport;
+  /** True when served as a precomputed, PoB-optimised build (Step 56). */
+  optimised?: boolean;
 }
 
 export interface SkillEntry {

@@ -124,6 +124,19 @@ Inside the navbar: a "Strumenti" / "Tools" section label above the 5 main routes
 
 Frontend-only, no backend change. Gate: 747 tests / 132 mypy / ruff clean. Build ~471 KB / 151 KB gzip.
 
+## Step 56 — Theorycrafter precomputed PoB-optimised builds (2026-05-25) ✅
+
+The payoff of the PoB-exact-optimiser initiative (Steps 50-52): for popular archetypes the Theorycrafter now serves a **precomputed, PoB-optimised** build with **real** DPS/EHP, instead of the live heuristic estimate. Full pipeline: gear co-optimisation → offline precompute → live serving. **Deploy stays $0 — Render never runs PoB, it only serves a vendored JSON.**
+
+- **Gear co-optimisation (`scripts/optimize_build.py`).** Added `optimize_weapon`: the weapon is the #1 DPS lever, so the optimiser now tries the top-N weapon bases of the build's resolved class (bow / 2H sword / wand) and keeps the PoB-fitness best. `_Encoder` gained `gear_with_weapon(base)` + a `gear=` override threaded through `code()` and `optimize_tree()`. So the optimiser now tunes **supports + weapon base + tree**, all decided by PoB's real calc.
+- **Precompute pipeline (`scripts/precompute_builds.py`).** Runs `optimize_links` → `optimize_weapon` → `optimize_tree` over a curated 5-archetype matrix (Marauder/Jugg Cyclone, Duelist/Glad Lacerate, Witch/Occ Vortex, Templar/Inq Arc, Ranger/Deadeye Ice Shot — all endgame/allcontent), captures the optimised links/tree/gear + PoB-exact stats, and writes `packages/fob/data/theory/precomputed_3_28.json` (~166 KB, 5 serialised `BuildSkeleton`s, `optimised=True`, `estimated=False`). Re-run per league. **Path gotcha:** `PobEvaluator` chdir's into PoB's `src/` (relative `dofile`s), so the output path is anchored at the repo root via `__file__`, not cwd — a relative path silently writes under `.pob_runtime/src/`.
+- **Live serving (`poe1_fob.theory.precomputed`).** `lookup(intent)` returns the matching precomputed `BuildSkeleton` (exact match on all 7 intent fields) or `None`. `POST /fob/theory/generate` prefers it; on a miss it falls back to live `generate_build`. The vendored JSON is the only thing Render serves.
+- **Models + UI.** `StatEstimate` gained `full_dps` + `total_ehp` (PoB-exact, 0 on a live estimate); `BuildSkeleton` gained `optimised: bool`. The Theorycrafter stat card shows a green "Ottimizzato con PoB" badge + real DPS/EHP (no `~`) when `optimised`, else the existing `~ stimato` estimates.
+
+**Measured (PoB-exact, the optimiser improves on the Step 52-55 generator):** Cyclone 16.8k → **22.6k** FullDPS, Lacerate **26.3k**, Vortex 92.8k → **124.7k**, Arc 25.9k → **26.8k**, Ice Shot 8.5k → **10.8k** — each with resistances capped and the pool floor cleared (viability penalty in the fitness). The weapon co-opt is a real lever (e.g. Cyclone → Lion Sword).
+
+Tests: `test_theory_precomputed.py` (file non-empty; a matrix archetype resolves to an optimised build with real stats; a non-matrix archetype misses → live fallback) + `test_post_theory_generate_serves_precomputed` (e2e). Gate: 765 tests / 141 mypy / ruff clean. Build ~487 KB / 156 KB gzip.
+
 ## Step 55 — Theorycrafter minion DPS (2026-05-25) ✅
 
 The QA sweep's last DPS cluster: the two minion builds calc'd ~0 FullDPS (Raise Spectre 0, Summon Skeletons 515). Two real bugs + one PoB-headless limitation. **User-facing** (self-attacking minion builds now do real DPS).

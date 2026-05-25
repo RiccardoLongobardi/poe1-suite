@@ -707,6 +707,33 @@ def test_post_theory_generate_v2_200(settings: Settings) -> None:
         assert sk["stats"]["estimated"] is True
 
 
+def test_post_theory_generate_serves_precomputed(settings: Settings) -> None:
+    """Step 56: a precomputed archetype is served as a PoB-optimised build
+    (real stats, optimised=True) rather than the live estimate."""
+
+    app = create_app(settings)
+    with TestClient(app) as client:
+        r = client.post(
+            "/fob/theory/generate",
+            json={
+                "intent": {
+                    "character_class": "Marauder",
+                    "ascendancy": "Juggernaut",
+                    "primary_skill": "Cyclone",
+                    "damage_type": "physical",
+                    "defence_archetype": "life",
+                    "budget": "endgame",
+                    "focus": "allcontent",
+                }
+            },
+        )
+        assert r.status_code == 200, r.text
+        sk = r.json()
+        assert sk["optimised"] is True
+        assert sk["stats"]["estimated"] is False
+        assert sk["stats"]["full_dps"] > 0
+
+
 def test_post_theory_generate_v2_422_missing_field(settings: Settings) -> None:
     """A malformed intent (missing required field) fails validation."""
 

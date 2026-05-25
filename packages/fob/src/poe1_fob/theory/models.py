@@ -83,10 +83,12 @@ class GearSlot(BaseModel):
 
 
 class StatEstimate(BaseModel):
-    """Rough stat estimates derived from tree + gear weights.
+    """Stats for a generated build.
 
-    The ``estimated`` flag is always True — these are not real PoB
-    numbers. The UI labels them clearly as estimates.
+    For an on-the-fly generated build these are rough estimates derived
+    from tree + gear weights and ``estimated`` is True. For a
+    PoB-optimised precomputed build (Step 56) ``estimated`` is False and
+    ``full_dps`` / ``total_ehp`` carry PoB's real calc output.
     """
 
     model_config = ConfigDict(frozen=True)
@@ -96,6 +98,10 @@ class StatEstimate(BaseModel):
     dps_index: int = Field(default=0, ge=0)
     resistance_warning: str | None = None
     estimated: bool = True
+    # PoB-exact numbers — populated only for precomputed/optimised builds
+    # (Step 56). 0 on a freshly-generated estimate.
+    full_dps: float = Field(default=0.0, ge=0)
+    total_ehp: int = Field(default=0, ge=0)
 
 
 class BuildSkeleton(BaseModel):
@@ -112,6 +118,9 @@ class BuildSkeleton(BaseModel):
     rationale_en: str
     pob_code: str = Field(description="Base64+zlib PoB import code.")
     viability: ViabilityReport = Field(default_factory=ViabilityReport)
+    # Step 56: True when this skeleton is a precomputed, PoB-exact-optimised
+    # build served from the vendored optima rather than generated live.
+    optimised: bool = False
 
 
 class SkillEntry(BaseModel):

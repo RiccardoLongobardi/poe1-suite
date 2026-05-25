@@ -30,6 +30,27 @@ const RELEASES: Release[] = [
   {
     date: { it: "25 mag 2026", en: "25 May 2026" },
     title: {
+      it: "Theorycrafter — build ottimizzate con numeri reali di PoB",
+      en: "Theorycrafter — builds optimised with real PoB numbers",
+    },
+    summary: {
+      it: "Per gli archetipi piu popolari il Theorycrafter ora serve una versione ottimizzata col motore di calcolo reale di Path of Building, con DPS ed EHP veri (non piu stime).",
+      en: "For the most popular archetypes the Theorycrafter now serves a version optimised with Path of Building's real calc engine, with true DPS and EHP (no longer estimates).",
+    },
+    entries: [
+      {
+        it: "Dietro le quinte un ottimizzatore prova migliaia di varianti (supporti, arma, albero) misurandole col calcolo esatto di PoB e tiene la migliore che mantiene resistenze e vita/ES validi. Il risultato e una build con statistiche reali, segnalata dal badge verde \"Ottimizzato con PoB\".",
+        en: "Behind the scenes an optimiser tries thousands of variants (supports, weapon, tree), scoring each with PoB's exact calc, and keeps the best one that still has capped resistances and a viable life/ES pool. The result is a build with real stats, marked by the green \"PoB-optimised\" badge.",
+      },
+      {
+        it: "Esempi misurati: Cyclone ~22.600 DPS, Vortex ~124.700 DPS, Lacerate ~26.300, Arc ~26.800, Ice Shot ~10.800 — tutte con resistenze al cap. Gli altri archetipi continuano a essere generati al volo come prima.",
+        en: "Measured examples: Cyclone ~22,600 DPS, Vortex ~124,700 DPS, Lacerate ~26,300, Arc ~26,800, Ice Shot ~10,800 — all with capped resistances. Other archetypes are still generated on the fly as before.",
+      },
+    ],
+  },
+  {
+    date: { it: "25 mag 2026", en: "25 May 2026" },
+    title: {
       it: "Theorycrafter — build da minion con danno reale",
       en: "Theorycrafter — minion builds with real damage",
     },

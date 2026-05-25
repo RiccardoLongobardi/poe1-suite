@@ -65,6 +65,7 @@ from .theory import (
     TheoryIntent,
     generate_build,
     list_active_skills,
+    lookup_precomputed,
 )
 from .trade_stats import resolve_mods
 from .tree import (
@@ -540,7 +541,22 @@ def make_router(settings: Settings) -> APIRouter:
         `base_items.json` (slot + tag + budget filtering). No ladder,
         no LLM. Runtime assertions guarantee every referenced base,
         node and support exists in the vendored data.
+
+        Step 56: for popular archetypes we serve a *precomputed*,
+        PoB-exact-optimised build (real DPS/EHP, ``optimised = True``)
+        from the vendored optima; otherwise we fall back to live
+        generation. Render never runs PoB — it only serves the file.
         """
+        precomputed = lookup_precomputed(payload.intent)
+        if precomputed is not None:
+            log.info(
+                "fob_theory_generate_precomputed",
+                class_name=precomputed.intent.character_class,
+                ascendancy=precomputed.intent.ascendancy,
+                primary_skill=precomputed.intent.primary_skill,
+            )
+            return precomputed
+
         try:
             skeleton = generate_build(payload.intent)
         except FileNotFoundError as exc:

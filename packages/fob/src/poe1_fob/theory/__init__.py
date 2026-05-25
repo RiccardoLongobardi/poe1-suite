@@ -20,6 +20,8 @@ from .models import (
     TheoryIntent,
     TreeNodeRef,
 )
+from .precomputed import available_count as precomputed_count
+from .precomputed import lookup as lookup_precomputed
 from .viability import ViabilityIssue, ViabilityReport, validate_build
 
 __all__ = [
@@ -41,5 +43,7 @@ __all__ = [
     "ViabilityReport",
     "generate_build",
     "list_active_skills",
+    "lookup_precomputed",
+    "precomputed_count",
     "validate_build",
 ]

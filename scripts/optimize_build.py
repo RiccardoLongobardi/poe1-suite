@@ -26,10 +26,12 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from pob_eval import PobEvaluator  # type: ignore[import-not-found]  # sibling script
 
+from poe1_core.models.enums import ItemSlot
+from poe1_fob.gear.base_items import get_base_catalogue
 from poe1_fob.pob.encode import encode_pob_code
 from poe1_fob.theory import TheoryIntent, generate_build
 from poe1_fob.theory import generator as gen
-from poe1_fob.theory.models import GemLink, TreeNodeRef
+from poe1_fob.theory.models import GearSlot, GemLink, TreeNodeRef
 from poe1_fob.tree.tree_data import TreeData, get_tree_data
 
 _EHP_FLOOR = {"starter": 2500, "mid": 4000, "endgame": 5000}
@@ -73,7 +75,7 @@ class _Encoder:
         self.intent = intent
         self.td = td
         self.start = td.class_starts[gen._CLASS_ID[intent.character_class]]
-        gear = gen._select_gear(intent)
+        self.gear = gen._select_gear(intent)
         self.skill = gen._find_active(intent.primary_skill)
         primary = GemLink(
             skill=self.skill.name,
@@ -82,7 +84,7 @@ class _Encoder:
             label="Primary 6L",
         )
         self.base_links = gen._build_gem_layout(intent, primary, self.skill)
-        self._pob_gear = gen._to_pob_gear(gear)
+        self._pob_gear = gen._to_pob_gear(self.gear)
         # Ascendancy notables (display-only, fixed).
         self._asc = tuple(
             TreeNodeRef(node_id=n.id, name=n.name or "?", type="ascendancy")
@@ -95,6 +97,28 @@ class _Encoder:
                 key=lambda n: n.id,
             )[:4]
         )
+
+    def gear_with_weapon(self, base_name: str) -> tuple[GearSlot, ...]:
+        """The build's gear with the weapon slot's base swapped to *base_name*
+        (priorities re-filtered for the new base)."""
+        out: list[GearSlot] = []
+        for g in self.gear:
+            if g.slot in ("Weapon", "Bow", "Wand"):
+                out.append(
+                    GearSlot(
+                        slot=g.slot,
+                        base_name=base_name,
+                        stat_priorities=gen._rollable_priorities(
+                            gen._stat_priorities(g.slot, self.intent, self.skill),
+                            base_name,
+                            self.intent.budget,
+                        ),
+                        budget_tier=g.budget_tier,
+                    )
+                )
+            else:
+                out.append(g)
+        return tuple(out)
 
     def _nodes(self, visited: set[int]) -> tuple[TreeNodeRef, ...]:
         td, it = self.td, self.intent
@@ -118,13 +142,19 @@ class _Encoder:
         out.extend(self._asc)
         return tuple(out)
 
-    def code(self, visited: set[int], links: tuple[GemLink, ...] | None = None) -> str:
+    def code(
+        self,
+        visited: set[int],
+        links: tuple[GemLink, ...] | None = None,
+        gear: tuple[GearSlot, ...] | None = None,
+    ) -> str:
         tree = gen._to_pob_tree(self.intent, self._nodes(visited))
+        pob_gear = gen._to_pob_gear(gear) if gear is not None else self._pob_gear
         return encode_pob_code(
             character_class=self.intent.character_class,
             ascendancy=self.intent.ascendancy,
             tree=tree,
-            gear=self._pob_gear,
+            gear=pob_gear,
             gems=gen._to_pob_gems(links if links is not None else self.base_links),
             level=90,
         )
@@ -238,11 +268,68 @@ def optimize_links(
     return enc.with_primary_supports(supports), cur_fit
 
 
+def _weapon_candidates(intent: TheoryIntent, enc: _Encoder, n: int) -> list[str]:
+    """Top-*n* weapon bases of the build's resolved weapon class.
+
+    Mirrors `_select_gear`'s weapon-class choice (bow / melee 2H sword /
+    wand), then returns the highest-drop-level bases of that class within
+    the budget cap — the generator picks #1; the optimiser tries the rest.
+    """
+    skill = enc.skill
+    if "bow" in skill.tags or gen._is_bow_skill(skill):
+        weapon_class = "Bow"
+    elif "melee" in skill.tags or ("attack" in skill.tags and "wandattack" not in skill.tags):
+        weapon_class = "Two Hand Sword"
+    else:
+        weapon_class = "Wand"
+    cap = gen._BUDGET_DROP_CAP[intent.budget]
+    pool = [
+        b
+        for b in get_base_catalogue()
+        if b.slot in (ItemSlot.WEAPON_MAIN,)
+        and b.item_class == weapon_class
+        and (b.drop_level or 0) <= cap
+    ]
+    pool.sort(key=lambda b: (b.drop_level or 0, b.name), reverse=True)
+    return [b.name for b in pool[:n]]
+
+
+def optimize_weapon(
+    intent: TheoryIntent,
+    ev: PobEvaluator,
+    enc: _Encoder,
+    visited: set[int],
+    links: tuple[GemLink, ...],
+    *,
+    n_candidates: int = 4,
+) -> tuple[tuple[GearSlot, ...], float]:
+    """Pick the weapon base (among the top candidates of the right class)
+    that maximises PoB-exact fitness. The weapon is the #1 DPS lever, so
+    this is the highest-value gear co-optimisation. Returns (best gear
+    tuple, best fitness)."""
+    candidates = _weapon_candidates(intent, enc, n_candidates)
+    best_gear = enc.gear
+    best_fit = -1.0
+    best_base = None
+    for base in candidates:
+        gear = enc.gear_with_weapon(base)
+        try:
+            stats = ev.evaluate(enc.code(visited, links, gear))
+        except Exception:
+            continue
+        fit = fitness(stats, intent.budget)
+        if fit > best_fit:
+            best_fit, best_gear, best_base = fit, gear, base
+    print(f"[opt] best weapon base: {best_base} | fit={best_fit:.0f}")
+    return best_gear, best_fit
+
+
 def optimize_tree(
     intent: TheoryIntent,
     ev: PobEvaluator,
     *,
     links: tuple[GemLink, ...] | None = None,
+    gear: tuple[GearSlot, ...] | None = None,
     max_iters: int = 25,
     swaps_per_iter: int = 8,
 ) -> tuple[set[int], dict[str, float], dict[str, float]]:
@@ -256,7 +343,7 @@ def optimize_tree(
     visited: set[int] = {start} | {
         n.node_id for n in base.tree_nodes if n.type in ("keystone", "notable", "travel")
     }
-    base_stats = ev.evaluate(enc.code(visited, links))
+    base_stats = ev.evaluate(enc.code(visited, links, gear))
     best_fit = fitness(base_stats, intent.budget)
     best_stats = base_stats
     print(
@@ -278,7 +365,7 @@ def optimize_tree(
         for r, a in swaps:
             cand = (visited - {r}) | {a}
             try:
-                stats = ev.evaluate(enc.code(cand, links))
+                stats = ev.evaluate(enc.code(cand, links, gear))
             except Exception:
                 continue
             fit = fitness(stats, intent.budget)

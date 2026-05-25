@@ -333,65 +333,103 @@ function SkeletonResult({ skeleton }: { skeleton: BuildSkeleton }) {
       {/* Viability report (Step 43) */}
       <ViabilityPanel report={skeleton.viability} />
 
-      {/* Stat estimates */}
-      <Card withBorder padding="md">
-        <Group justify="space-between" mb={4}>
-          <Text size="xs" tt="uppercase" fw={700} c="dimmed">
-            {t({ it: "Stime", en: "Estimates" })}
-          </Text>
-          <Tooltip
-            label={t({
-              it: "Valori stimati — importa in PoB per calcoli precisi",
-              en: "Estimated values — import into PoB for precise math",
-            })}
-          >
-            <Badge size="xs" variant="outline" color="yellow">
-              {t({ it: "~ stimato", en: "~ estimated" })}
-            </Badge>
-          </Tooltip>
-        </Group>
-        <Group gap="xl" wrap="wrap">
-          <Stack gap={0}>
-            <Text size="xs" c="dimmed">
-              {t({ it: "Vita", en: "Life" })}
+      {/* Stat estimates — or PoB-exact numbers for a precomputed optimum */}
+      {(() => {
+        const opt = skeleton.optimised && !skeleton.stats.estimated;
+        const sig = opt ? "" : "~";
+        return (
+          <Card withBorder padding="md">
+            <Group justify="space-between" mb={4}>
+              <Text size="xs" tt="uppercase" fw={700} c="dimmed">
+                {opt
+                  ? t({ it: "Statistiche reali", en: "Real stats" })
+                  : t({ it: "Stime", en: "Estimates" })}
+              </Text>
+              {opt ? (
+                <Tooltip
+                  label={t({
+                    it: "Build ottimizzata col motore di calcolo reale di PoB",
+                    en: "Build optimised with PoB's real calc engine",
+                  })}
+                >
+                  <Badge size="xs" variant="filled" color="teal">
+                    {t({ it: "Ottimizzato con PoB", en: "PoB-optimised" })}
+                  </Badge>
+                </Tooltip>
+              ) : (
+                <Tooltip
+                  label={t({
+                    it: "Valori stimati — importa in PoB per calcoli precisi",
+                    en: "Estimated values — import into PoB for precise math",
+                  })}
+                >
+                  <Badge size="xs" variant="outline" color="yellow">
+                    {t({ it: "~ stimato", en: "~ estimated" })}
+                  </Badge>
+                </Tooltip>
+              )}
+            </Group>
+            <Group gap="xl" wrap="wrap">
+              <Stack gap={0}>
+                <Text size="xs" c="dimmed">
+                  {t({ it: "Vita", en: "Life" })}
+                </Text>
+                <Text className="mono" size="lg" fw={700}>
+                  {sig}
+                  {skeleton.stats.life_estimate.toLocaleString()}
+                </Text>
+              </Stack>
+              {skeleton.stats.es_estimate > 0 && (
+                <Stack gap={0}>
+                  <Text size="xs" c="dimmed">
+                    {t({ it: "Energy shield", en: "Energy shield" })}
+                  </Text>
+                  <Text className="mono" size="lg" fw={700}>
+                    {sig}
+                    {skeleton.stats.es_estimate.toLocaleString()}
+                  </Text>
+                </Stack>
+              )}
+              {opt && skeleton.stats.full_dps > 0 && (
+                <Stack gap={0}>
+                  <Text size="xs" c="dimmed">
+                    DPS
+                  </Text>
+                  <Text className="mono" size="lg" fw={700}>
+                    {Math.round(skeleton.stats.full_dps).toLocaleString()}
+                  </Text>
+                </Stack>
+              )}
+              {opt && skeleton.stats.total_ehp > 0 && (
+                <Stack gap={0}>
+                  <Text size="xs" c="dimmed">
+                    EHP
+                  </Text>
+                  <Text className="mono" size="lg" fw={700}>
+                    {skeleton.stats.total_ehp.toLocaleString()}
+                  </Text>
+                </Stack>
+              )}
+            </Group>
+            <Text size="xs" c="dimmed" mt={4}>
+              {opt
+                ? t({
+                    it: "Versione ottimizzata: supporti, arma e albero scelti massimizzando il DPS reale di PoB mantenendo le resistenze al cap.",
+                    en: "Optimised version: supports, weapon and tree chosen to maximise PoB's real DPS while keeping resistances capped.",
+                  })
+                : t({
+                    it: "Il DPS reale dipende da gemme, link e item: importa in PoB per il calcolo preciso.",
+                    en: "Real DPS depends on gems, links and items: import into PoB for the precise number.",
+                  })}
             </Text>
-            <Text className="mono" size="lg" fw={700}>
-              ~{skeleton.stats.life_estimate.toLocaleString()}
-            </Text>
-          </Stack>
-          {skeleton.stats.es_estimate > 0 && (
-            <Stack gap={0}>
-              <Text size="xs" c="dimmed">
-                {t({ it: "Energy shield", en: "Energy shield" })}
-              </Text>
-              <Text className="mono" size="lg" fw={700}>
-                ~{skeleton.stats.es_estimate.toLocaleString()}
-              </Text>
-            </Stack>
-          )}
-          {skeleton.stats.dps_index > 0 && (
-            <Stack gap={0}>
-              <Text size="xs" c="dimmed">
-                DPS index
-              </Text>
-              <Text className="mono" size="lg" fw={700}>
-                ~{skeleton.stats.dps_index.toLocaleString()}
-              </Text>
-            </Stack>
-          )}
-        </Group>
-        <Text size="xs" c="dimmed" mt={4}>
-          {t({
-            it: "Il DPS reale dipende da gemme, link e item: importa in PoB per il calcolo preciso.",
-            en: "Real DPS depends on gems, links and items: import into PoB for the precise number.",
-          })}
-        </Text>
-        {skeleton.stats.resistance_warning && (
-          <Alert mt="xs" color="yellow" variant="light">
-            {skeleton.stats.resistance_warning}
-          </Alert>
-        )}
-      </Card>
+            {skeleton.stats.resistance_warning && (
+              <Alert mt="xs" color="yellow" variant="light">
+                {skeleton.stats.resistance_warning}
+              </Alert>
+            )}
+          </Card>
+        );
+      })()}
 
       {/* Two-column on md+: gems + tree on the left, gear grid on the right. */}
       <Grid gutter="md">
