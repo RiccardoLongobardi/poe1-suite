@@ -124,6 +124,16 @@ Inside the navbar: a "Strumenti" / "Tools" section label above the 5 main routes
 
 Frontend-only, no backend change. Gate: 747 tests / 132 mypy / ruff clean. Build ~471 KB / 151 KB gzip.
 
+## Step 58 — Mirror-tier initiative: unique-item DB (2026-05-25) 🔬
+
+First slice of the **mirror-tier build initiative** (goal: generate complete mirror-tier builds from scratch, like the 84M-DPS ladder Cyclone). A `scripts/compare_ladder.py` comparison (Vortex Occultist, both via PoB-exact calc) quantified the gap: our build is **19% of the ladder's DPS, 12% of its EHP** — root causes are no uniques, no DoT modelling, no defensive layering. The biggest lever is **uniques**, so this step vendors them. **Internal foundation — no user-facing change yet, no Patch Notes** (like the Step 50/51 tooling); wiring uniques into the optimiser is the next step.
+
+- **`scripts/extract_uniques.py`** parses PoB's `Data/Uniques/*.lua` text blocks → `packages/fob/data/uniques/uniques_3_28.json` (~573 KB, **1254 uniques**). Per unique: name, base type, slot (file-stem → our vocabulary; weapons collapse to `weapon`), drop level, and the **current-variant** mod lines (highest declared `Variant:` index; `{variant:N}` tags filtered, value ranges kept as text). Aborts under 800 parsed (no hand-authored fallback, §4.7). Verified the chase uniques parse with their build-defining mods: Rime Gaze → "+50% to Cold Damage over Time Multiplier", Mageblood, Aegis Aurora, Kaom's Heart → "+1000 to maximum Life".
+- **`poe1_fob.gear.uniques`** — `UniqueItem` (slotted wrapper) + `get_uniques()` / `uniques_for_slot(slot)` / `unique_by_name(name)`, all `lru_cache`d. The mod text will feed the PoB item body so PoB recognises the unique and applies its real stats.
+- **`scripts/compare_ladder.py`** (local tool) — fetches the top poe.ninja ladder build for an ascendancy+skill, evaluates its PoB export with the real calc, and prints a side-by-side gap vs our build (DoT-aware: uses `CombinedDPS`, since `FullDPS` is 0 for DoT skills). The ladder is a *structure/popularity signal* only — not a build source.
+
+Test: `test_uniques_db.py` (catalogue ≥800 + all major slots; Rime Gaze/Mageblood/Kaom's parse with the right slot+mods; `uniques_for_slot` consistency). Gate: 770 tests / 145 mypy / ruff clean.
+
 ## Step 57 — Theorycrafter: no auto-allocated keystones (2026-05-25) ✅
 
 The sweep's remaining defensive failures (Frost Blades 1 life, Lightning Trap 0 ES, Summon Skeletons low pool) all traced to **one root cause**: the keyword tree scorer was auto-allocating **keystones**. Keystones are binary, build-defining switches the scorer can't reason about — it picked **Chaos Inoculation** on a *life* build (→ Life 1), ES-rework keystones (The Agnostic / Eternal Youth) + **Avatar of Fire** on a *lightning* ES trapper (→ ES 0, wrong element), Vaal Pact, Resolute Technique (kills crit), etc. **User-facing** (many builds were silently broken or crippled).
