@@ -124,6 +124,18 @@ Inside the navbar: a "Strumenti" / "Tools" section label above the 5 main routes
 
 Frontend-only, no backend change. Gate: 747 tests / 132 mypy / ruff clean. Build ~471 KB / 151 KB gzip.
 
+## Step 61 — Mirror-tier initiative: DoT-multiplier gear (2026-05-25) ✅
+
+Phase 3 (DoT): the ladder comparison showed our gear damage is **flat-added (hit) only**, which does ~0 for a damage-over-time build — Vortex/Essence Drain/poison scale on **DoT multipliers**. Fixed the gear recommendations for DoT builds. **User-facing for live-generated DoT builds** (the precomputed builds are unchanged — see below).
+
+- **`extract_mods.py`** gained the DoT-multiplier stat ids (`dot_multiplier_+`, `chaos_/cold_/fire_dot_multiplier_+`, `bleeding_dot_multiplier_+`). Probing RePoE showed only the **generic** `dot_multiplier_+` rolls as a normal affix (weight on bow/1H-weapon/amulet); the element-specific DoT multis have empty spawn weights (they come from essences/influence/uniques — e.g. Rime Gaze's "+50% Cold DoT Multiplier", which the optimiser's uniques pass already covers). `mods_3_28.json` → 25 stats / 415 tiers.
+- **`realmods._STEM_TO_STAT`** maps "Damage over Time Multiplier" (+ element variants) → the stat ids.
+- **`_stat_priorities`** classifies DoT builds (`is_dot = "damageovertime" in tags or "chillingarea" in tags` — covers ED/Soulrend/Bane *and* Vortex/Cold Snap cold-degen) and leads the **weapon + amulet** with "Damage over Time Multiplier", dropping the dead flat-added-to-spells from the DoT weapon (DoT doesn't hit). Spell damage / cast speed stay (they scale spell DoT).
+
+**Honest scope:** the precomputed builds are byte-identical after this — Vortex's amulet + weapon become *uniques* in the optimiser pass (so the rare DoT mods are overwritten), and its `FullDPS` (152k) already captures the DoT (FullDPS > CombinedDPS for our config). The win is for the **live generator**: any DoT archetype (Vortex, Essence Drain, Soulrend, Caustic Arrow, poison) now recommends DoT multipliers on its rares instead of useless flat-added — correct, importable mod priorities. The element-specific DoT scaling still flows through uniques.
+
+Test: `test_dot_build_uses_damage_over_time_multiplier` (Vortex weapon + amulet carry "Damage over Time Multiplier"; the weapon drops "… to Spells"). Gate: 772 tests / 145 mypy / ruff clean.
+
 ## Step 60 — Mirror-tier initiative: layered-EHP fitness (2026-05-25) ✅
 
 Phase 2: the optimiser now **rewards layered EHP**, so it picks defensive layers (block shields, Aegis Aurora, defensive nodes/CI) instead of stopping at the bare pool floor. **User-facing** — precomputed builds are now both high-DPS *and* tanky.

@@ -44,6 +44,11 @@ _STEM_TO_STAT: dict[str, tuple[str, ...]] = {
     "Movement Speed": ("base_movement_velocity_+%",),
     "Chance to Block": ("local_additional_block_chance_%",),
     "increased Flask Life Recovery": ("flask_life_recovery_rate_+%",),
+    # Step 61 — DoT multipliers (damage-over-time builds).
+    "Damage over Time Multiplier": ("dot_multiplier_+",),
+    "Chaos Damage over Time Multiplier": ("chaos_dot_multiplier_+",),
+    "Cold Damage over Time Multiplier": ("cold_dot_multiplier_+",),
+    "Fire Damage over Time Multiplier": ("fire_dot_multiplier_+",),
 }
 
 # Render templates for stat ids whose translation didn't survive the

@@ -64,6 +64,14 @@ TARGET_STATS: frozenset[str] = frozenset(
         "base_movement_velocity_+%",
         "local_additional_block_chance_%",
         "flask_life_recovery_rate_+%",
+        # Step 61 — DoT multipliers (the #1 lever for damage-over-time
+        # builds: Vortex, Essence Drain, poison/bleed). Flat added damage
+        # does ~0 for a DoT skill; these multipliers are what scale it.
+        "dot_multiplier_+",
+        "chaos_dot_multiplier_+",
+        "cold_dot_multiplier_+",
+        "fire_dot_multiplier_+",
+        "bleeding_dot_multiplier_+",
     }
 )
 

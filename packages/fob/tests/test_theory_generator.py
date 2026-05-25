@@ -548,6 +548,28 @@ def test_generator_never_auto_allocates_keystones() -> None:
         assert "Chaos Inoculation" not in names
 
 
+def test_dot_build_uses_damage_over_time_multiplier() -> None:
+    """Step 61: a damage-over-time build (Vortex — cold degen) scales on DoT
+    multipliers, not flat added (hit) damage. Its weapon + amulet must carry
+    'Damage over Time Multiplier' and the weapon must drop flat-to-spells."""
+    sk = generate_build(
+        _intent(
+            character_class="Witch",
+            ascendancy="Occultist",
+            primary_skill="Vortex",
+            damage_type="cold",
+            defence_archetype="es",
+            budget="endgame",
+            focus="allcontent",
+        )
+    )
+    by_slot = {g.slot: g for g in sk.gear_slots}
+    weapon = next(g for g in sk.gear_slots if g.slot in ("Wand", "Weapon", "Bow"))
+    assert "Damage over Time Multiplier" in weapon.stat_priorities
+    assert not any("to Spells" in p for p in weapon.stat_priorities)
+    assert "Damage over Time Multiplier" in by_slot["Amulet"].stat_priorities
+
+
 def test_minion_build_gets_minion_supports_and_tree() -> None:
     """Step 55: a minion skill must be supported by the `createsminion`
     supports (Minion Damage, Feeding Frenzy, …) — NOT caster supports like

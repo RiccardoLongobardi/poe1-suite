@@ -30,6 +30,23 @@ const RELEASES: Release[] = [
   {
     date: { it: "25 mag 2026", en: "25 May 2026" },
     title: {
+      it: "Theorycrafter — gear corretto per le build a danno nel tempo",
+      en: "Theorycrafter — correct gear for damage-over-time builds",
+    },
+    summary: {
+      it: "Le build a danno nel tempo (Vortex, Essence Drain, veleno) ora consigliano i moltiplicatori di danno-nel-tempo invece del danno a colpo, che per loro è inutile.",
+      en: "Damage-over-time builds (Vortex, Essence Drain, poison) now recommend damage-over-time multipliers instead of flat hit damage, which is useless for them.",
+    },
+    entries: [
+      {
+        it: "Prima il gear consigliato spingeva il danno \"a colpo\" anche sulle build che fanno danno nel tempo, dove non serve a niente. Ora arma e amuleto di queste build consigliano il \"Moltiplicatore di Danno nel Tempo\", la statistica che le fa davvero scalare.",
+        en: "Previously the recommended gear pushed \"on-hit\" damage even on builds that deal damage over time, where it does nothing. Now the weapon and amulet of those builds recommend \"Damage over Time Multiplier\", the stat that actually scales them.",
+      },
+    ],
+  },
+  {
+    date: { it: "25 mag 2026", en: "25 May 2026" },
+    title: {
       it: "Theorycrafter — build ottimizzate piu resistenti (difese a strati)",
       en: "Theorycrafter — tankier optimised builds (layered defences)",
     },

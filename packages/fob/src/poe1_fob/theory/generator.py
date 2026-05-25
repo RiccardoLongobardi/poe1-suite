@@ -965,6 +965,14 @@ def _stat_priorities(slot_name: str, intent: TheoryIntent, skill: _Active) -> tu
     is_spell = "spell" in skill.tags and not is_attack
     is_crit = intent.budget in ("mid", "endgame")
     dmg = intent.damage_type
+    # Step 61: a damage-over-time build (Essence Drain, Soulrend, Bane —
+    # tagged `damageovertime`; Vortex / Cold Snap — `chillingarea` cold
+    # degen) scales on DoT *multipliers*, not flat added (hit) damage. The
+    # generic "Damage over Time Multiplier" rolls on amulet + weapon (the
+    # element-specific ones come from uniques like Rime Gaze — handled by
+    # the optimiser's uniques pass).
+    is_dot = "damageovertime" in skill.tags or "chillingarea" in skill.tags
+    dot_multi = "Damage over Time Multiplier"
 
     primary_def = "to maximum Energy Shield" if is_es else "to maximum Life"
     # Step 54: spread the three elemental resistances across slots. The old
@@ -990,13 +998,23 @@ def _stat_priorities(slot_name: str, intent: TheoryIntent, skill: _Active) -> tu
             f"Adds {elem[dmg]} Damage to Spells" if dmg in elem else "increased Spell Damage"
         )
         jewel_added: str | None = None
-        # Caster weapon: flat-to-spells + spell damage + cast speed + crit.
-        weapon_entry: tuple[str | None, ...] = (
-            weapon_added,
-            "increased Spell Damage",
-            "increased Cast Speed",
-            "critical strike",
-        )
+        if is_dot:
+            # DoT weapon: the multiplier leads; flat-added-to-spells is dead
+            # weight (DoT doesn't hit). Spell damage still scales spell DoT.
+            weapon_entry: tuple[str | None, ...] = (
+                dot_multi,
+                "increased Spell Damage",
+                "increased Cast Speed",
+                "critical strike",
+            )
+        else:
+            # Caster weapon: flat-to-spells + spell damage + cast speed + crit.
+            weapon_entry = (
+                weapon_added,
+                "increased Spell Damage",
+                "increased Cast Speed",
+                "critical strike",
+            )
     elif dmg == "physical":
         main_dmg = "increased Physical Damage"
         weapon_added = "Adds Physical Damage"
@@ -1030,10 +1048,14 @@ def _stat_priorities(slot_name: str, intent: TheoryIntent, skill: _Active) -> tu
         "Boots": (primary_def, "Movement Speed", res_c, speed),
         "Belt": (primary_def, res_f, res_l, "increased Flask Life Recovery"),
         "Amulet": (
-            primary_def,
-            jewel_added if jewel_added else main_dmg,
-            "Critical Strike Multiplier" if is_crit else "to all Attributes",
-            res_f,
+            (primary_def, dot_multi, "Critical Strike Multiplier" if is_crit else main_dmg, res_f)
+            if is_dot
+            else (
+                primary_def,
+                jewel_added if jewel_added else main_dmg,
+                "Critical Strike Multiplier" if is_crit else "to all Attributes",
+                res_f,
+            )
         ),
         "Ring": (
             (primary_def, res_f, res_c, res_l, "to Mana", jewel_added)
