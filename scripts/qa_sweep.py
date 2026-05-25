@@ -21,6 +21,7 @@ from pob_eval import PobEvalError, PobEvaluator  # type: ignore[import-not-found
 
 from poe1_fob.theory import TheoryIntent, generate_build
 from poe1_fob.theory import generator as gen
+from poe1_fob.theory.models import GearSlot
 
 # (class, ascendancy, skill, damage_type, defence) — representative of the
 # main playstyles. Damage type follows our convention (fire/cold/lightning/
@@ -67,7 +68,13 @@ _DPS_FLOOR = 1500.0
 _POOL_FLOOR = {"life": 3500.0, "es": 3500.0, "ward": 2000.0, "hybrid_life_es": 3500.0}
 
 
-def _verdict(skill: gen._Active, dmg: str, defence: str, stats: dict[str, float]) -> str:
+def _verdict(
+    skill: gen._Active,
+    dmg: str,
+    defence: str,
+    stats: dict[str, float],
+    gear: tuple[GearSlot, ...],
+) -> str:
     dps = stats.get("FullDPS", 0.0)
     pool = max(stats.get("Life", 0.0), stats.get("EnergyShield", 0.0))
     min_res = min(
@@ -75,8 +82,16 @@ def _verdict(skill: gen._Active, dmg: str, defence: str, stats: dict[str, float]
         stats.get("ColdResist", 0.0),
         stats.get("LightningResist", 0.0),
     )
-    if "attack" in skill.tags and dmg in ("fire", "cold", "lightning"):
-        return "WRONG_WEAPON"  # elemental attack treated as spell -> wand
+    # Real wrong-weapon detection (Step 53): instead of a static "elemental
+    # attack => wand" assumption, inspect the *generated* build. An attack
+    # build is mis-classified if its weapon is a Wand, or if its weapon's
+    # recommended stats contain a caster stat ("… Spell …").
+    if "attack" in skill.tags:
+        weapon = next((g for g in gear if g.slot in ("Weapon", "Wand", "Bow")), None)
+        if weapon is not None:
+            has_spell_stat = any("spell" in p.lower() for p in weapon.stat_priorities)
+            if weapon.slot == "Wand" or has_spell_stat:
+                return "WRONG_WEAPON"
     if dps < _DPS_FLOOR:
         return "LOW_DPS"
     if min_res < 70:
@@ -118,7 +133,7 @@ def main() -> int:
             counts["EVAL_ERROR"] = counts.get("EVAL_ERROR", 0) + 1
             print(f"{label:42} {weapon[:18]:18} {'ERR':>9}  {str(exc)[:30]}")
             continue
-        v = _verdict(skill, dmg, defence, stats)
+        v = _verdict(skill, dmg, defence, stats, sk.gear_slots)
         counts[v] = counts.get(v, 0) + 1
         dps = stats.get("FullDPS", 0.0)
         pool = max(stats.get("Life", 0.0), stats.get("EnergyShield", 0.0))

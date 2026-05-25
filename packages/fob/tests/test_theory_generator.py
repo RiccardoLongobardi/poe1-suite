@@ -406,6 +406,7 @@ def test_stat_priorities_are_slot_aware() -> None:
     weapon = next(g for g in attack.gear_slots if g.slot in ("Weapon", "Bow", "Wand"))
     assert "increased Attack Speed" in weapon.stat_priorities
     assert "Accuracy" in weapon.stat_priorities
+    assert weapon.slot != "Wand"
 
     # No item carries the old "Theorycrafted" placeholder name.
     assert "Theorycrafted" not in _decode_pob_xml(spell.pob_code)
@@ -488,3 +489,44 @@ def test_weapon_has_flat_added_damage() -> None:
     )
     weapon = next(g for g in sk.gear_slots if g.slot in ("Weapon", "Bow"))
     assert "Adds Physical Damage" in weapon.stat_priorities
+
+
+def test_elemental_attack_uses_attack_stats_and_bow() -> None:
+    """Step 53: an elemental *attack* (Ranger Lightning Strike, lightning)
+    is classified by tags as an attack — not a spell. Its weapon carries
+    'Adds Lightning Damage' (attack flat), never the spell variant or
+    'increased Spell Damage', and the weapon slot is not a Wand."""
+    sk = generate_build(
+        _intent(
+            character_class="Ranger",
+            ascendancy="Raider",
+            primary_skill="Lightning Strike",
+            damage_type="lightning",
+            defence_archetype="life",
+            budget="endgame",
+            focus="allcontent",
+        )
+    )
+    weapon = next(g for g in sk.gear_slots if g.slot in ("Weapon", "Bow", "Wand"))
+    assert weapon.slot != "Wand"
+    assert "Adds Lightning Damage" in weapon.stat_priorities
+    assert "Adds Lightning Damage to Spells" not in weapon.stat_priorities
+    assert "increased Spell Damage" not in weapon.stat_priorities
+    assert "increased Attack Speed" in weapon.stat_priorities
+
+    # Ice Shot is a bow attack whose PoB data lacks a "bow" tag — Step 53's
+    # tag heuristic must still route it to a Bow, not a Wand.
+    ice = generate_build(
+        _intent(
+            character_class="Ranger",
+            ascendancy="Deadeye",
+            primary_skill="Ice Shot",
+            damage_type="cold",
+            defence_archetype="life",
+            budget="endgame",
+            focus="allcontent",
+        )
+    )
+    ice_weapon = next(g for g in ice.gear_slots if g.slot in ("Weapon", "Bow", "Wand"))
+    assert ice_weapon.slot == "Bow"
+    assert "Adds Cold Damage" in ice_weapon.stat_priorities

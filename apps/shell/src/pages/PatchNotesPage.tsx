@@ -28,6 +28,27 @@ interface Release {
 // Prepend a new entry with user-facing (not technical) bilingual copy.
 const RELEASES: Release[] = [
   {
+    date: { it: "25 mag 2026", en: "25 May 2026" },
+    title: {
+      it: "Theorycrafter — attacchi elementali corretti",
+      en: "Theorycrafter — elemental attacks fixed",
+    },
+    summary: {
+      it: "Le build con attacchi elementali (Lightning Strike, Molten Strike, Frost Blades, Ice Shot) ora ricevono l'arma giusta e le statistiche da attacco corrette.",
+      en: "Elemental attack builds (Lightning Strike, Molten Strike, Frost Blades, Ice Shot) now get the right weapon and proper attack stats.",
+    },
+    entries: [
+      {
+        it: "Prima questi attacchi venivano scambiati per incantesimi (perche infliggono danno elementale): ricevevano stat da caster e l'arma sbagliata. Ora vengono riconosciuti come attacchi e consigliano velocita d'attacco + \"Aggiunge danno <elemento>\" sull'arma.",
+        en: "These attacks used to be mistaken for spells (because they deal elemental damage): they got caster stats and the wrong weapon. They're now recognised as attacks and recommend attack speed + \"Adds <element> Damage\" on the weapon.",
+      },
+      {
+        it: "Ice Shot ora prende correttamente un Arco invece di una bacchetta; le build melee elementali tengono l'arma da mischia. Verificato col motore di calcolo reale di PoB: tutte le build con attacchi elementali ora hanno DPS reale e nessuna statistica da incantesimo fuori posto.",
+        en: "Ice Shot now correctly gets a Bow instead of a wand; elemental melee builds keep their melee weapon. Verified against PoB's real calc engine: every elemental-attack build now has real DPS and no misplaced spell stats.",
+      },
+    ],
+  },
+  {
     date: { it: "24 mag 2026", en: "24 May 2026" },
     title: {
       it: "Theorycrafter — danno reale sugli oggetti (DPS molto piu alto)",

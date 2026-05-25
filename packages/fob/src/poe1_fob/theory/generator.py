@@ -424,13 +424,40 @@ _WEAPON_KW: dict[str, tuple[str, ...]] = {
 _ALL_WEAPON_KW: frozenset[str] = frozenset(kw for kws in _WEAPON_KW.values() for kw in kws)
 
 
+def _is_bow_skill(skill: _Active) -> bool:
+    """True for a ranged bow attack.
+
+    PoB's skill data tags bow attacks with neither a ``bow`` SkillType nor
+    a weapon restriction we extract, so the catalogue carries no ``"bow"``
+    tag (verified 2026-05-24: Ice Shot / Tornado Shot / Caustic Arrow all
+    lack it). The reliable signal is ``miragearchercanuse`` — Mirage Archer
+    is a bow-only support, so PoB only flags bow attacks with it — combined
+    with ``rangedattack`` and the absence of ``melee`` / ``wandattack`` /
+    ``spell``. This distinguishes a real bow skill (Ice Shot) from a melee
+    elemental attack (Lightning/Molten/Frost Strike — they carry ``melee``)
+    and from wand / melee-weapon ranged attacks (Power Siphon has
+    ``wandattack``; Spectral Throw lacks ``miragearchercanuse``).
+
+    Documented fallback (Step 53): the cleaner long-term fix is to extract
+    PoB's per-skill ``weaponTypes`` restriction in ``extract_gems.py``, but
+    that requires re-vendoring the whole catalogue; this tag heuristic
+    covers every bow archetype in the QA sweep without a data refresh.
+    """
+    tags = set(skill.tags)
+    if "melee" in tags or "wandattack" in tags or "spell" in tags:
+        return False
+    return "miragearchercanuse" in tags and "rangedattack" in tags
+
+
 def _build_weapon_group(intent: TheoryIntent) -> str:
     """The weapon family the generator recommends for this build —
     mirrors the choice in `_select_gear` (bow / wand / sword)."""
     skill = _find_active(intent.primary_skill)
-    if "bow" in skill.tags:
+    if "bow" in skill.tags or _is_bow_skill(skill):
         return "bow"
     if "melee" in skill.tags:
+        return "sword"
+    if "attack" in skill.tags and "wandattack" not in skill.tags:
         return "sword"
     return "wand"
 
@@ -845,35 +872,76 @@ _SLOTS: tuple[tuple[ItemSlot, str], ...] = (
 )
 
 
-def _stat_priorities(slot_name: str, intent: TheoryIntent) -> tuple[str, ...]:
+def _stat_priorities(slot_name: str, intent: TheoryIntent, skill: _Active) -> tuple[str, ...]:
     """Per-slot stat priorities — English PoE mod stems, ordered by real
     crafting/buying priority (the first entry is the most important).
 
     Stems map (via :mod:`poe1_fob.theory.realmods`) to real PoE stat ids,
     so the same list drives the UI badges, Trade links and the real PoB
     affix lines.
+
+    Step 53: attack-vs-spell is decided by the skill's **tags**, not the
+    damage type — an elemental *attack* (Lightning Strike, Ice Shot) was
+    previously mis-classified as a spell (because its damage is
+    fire/cold/lightning) and got caster stats (cast speed, "… to Spells",
+    increased Spell Damage). Now `is_attack = "attack" in skill.tags`, so
+    physical AND elemental attacks use attack stats (attack speed + flat
+    "Adds <element/Physical> Damage" on the weapon/jewellery), and only
+    real spells keep the caster stats.
     """
     is_es = intent.defence_archetype == "es"
-    is_spell = intent.damage_type in ("fire", "cold", "lightning", "chaos")
+    is_attack = "attack" in skill.tags
+    is_spell = "spell" in skill.tags and not is_attack
     is_crit = intent.budget in ("mid", "endgame")
+    dmg = intent.damage_type
 
     primary_def = "to maximum Energy Shield" if is_es else "to maximum Life"
     main_res = "to Fire Resistance"
     sec_res = "to Cold Resistance"
     speed = "increased Cast Speed" if is_spell else "increased Attack Speed"
-    main_dmg = "increased Spell Damage" if is_spell else "increased Physical Damage"
 
     # Flat added damage — the dominant DPS source (Step 52). For a spell
-    # build it's "Adds X to Y <element> Damage to Spells" on the weapon; for
-    # a physical attack build it's "Adds X to Y Physical Damage" on the
-    # weapon AND on jewellery / gloves (the attack-tagged variant).
+    # build it's "Adds X to Y <element> Damage to Spells" on the weapon. For
+    # an attack build (physical OR elemental) it's "Adds X to Y <Physical/
+    # element> Damage" on the weapon AND on jewellery / gloves (the
+    # attack-tagged variant — never the spell variant).
     elem = {"fire": "Fire", "cold": "Cold", "lightning": "Lightning", "chaos": "Chaos"}
-    weapon_added = (
-        f"Adds {elem[intent.damage_type]} Damage to Spells" if is_spell else "Adds Physical Damage"
-    )
-    jewel_added = None if is_spell else "Adds Physical Damage"
+    if is_spell:
+        main_dmg: str | None = "increased Spell Damage"
+        weapon_added = (
+            f"Adds {elem[dmg]} Damage to Spells" if dmg in elem else "increased Spell Damage"
+        )
+        jewel_added: str | None = None
+        # Caster weapon: flat-to-spells + spell damage + cast speed + crit.
+        weapon_entry: tuple[str | None, ...] = (
+            weapon_added,
+            "increased Spell Damage",
+            "increased Cast Speed",
+            "critical strike",
+        )
+    elif dmg == "physical":
+        main_dmg = "increased Physical Damage"
+        weapon_added = "Adds Physical Damage"
+        jewel_added = "Adds Physical Damage"
+        weapon_entry = (
+            weapon_added,
+            "increased Physical Damage",
+            "increased Attack Speed",
+            "Accuracy",
+            "critical strike",
+        )
+    else:  # elemental (or chaos) attack
+        main_dmg = None  # "increased Physical Damage" is dead weight here
+        weapon_added = f"Adds {elem[dmg]} Damage"
+        jewel_added = f"Adds {elem[dmg]} Damage"
+        weapon_entry = (
+            weapon_added,
+            "increased Attack Speed",
+            "critical strike",
+            "Accuracy",
+        )
 
-    slot_map: dict[str, tuple[str, ...]] = {
+    slot_map: dict[str, tuple[str | None, ...]] = {
         "Helmet": (primary_def, main_res, sec_res, main_dmg),
         "Body Armour": (primary_def, main_res, sec_res, "to Lightning Resistance"),
         "Gloves": (
@@ -894,23 +962,15 @@ def _stat_priorities(slot_name: str, intent: TheoryIntent) -> tuple[str, ...]:
             if jewel_added
             else (primary_def, main_res, sec_res, "to Mana", "to all Attributes")
         ),
-        "Wand": (weapon_added, "increased Spell Damage", "increased Cast Speed", "critical strike"),
-        "Bow": (
-            weapon_added,
-            "increased Physical Damage",
-            "increased Attack Speed",
-            "critical strike",
-        ),
-        "Weapon": (
-            weapon_added,
-            "increased Physical Damage",
-            "increased Attack Speed",
-            "Accuracy",
-        ),
+        "Wand": weapon_entry,
+        "Bow": weapon_entry,
+        "Weapon": weapon_entry,
         "Off-hand": (primary_def, main_res, sec_res, "Chance to Block"),
         "Shield": (primary_def, main_res, sec_res, "Chance to Block"),
     }
-    return slot_map.get(slot_name, (primary_def, main_res, "increased damage"))
+    raw = slot_map.get(slot_name, (primary_def, main_res, "increased damage"))
+    # Drop any None entries (e.g. main_dmg is None for elemental attacks).
+    return tuple(s for s in raw if s is not None)
 
 
 # Flask suffix per base — a real PoE utility/defence suffix so the
@@ -999,6 +1059,7 @@ def _rollable_priorities(
 
 
 def _select_gear(intent: TheoryIntent) -> tuple[GearSlot, ...]:
+    skill = _find_active(intent.primary_skill)
     out: list[GearSlot] = []
     for slot_enum, slot_name in _SLOTS:
         base_name = _pick_base(slot_enum, intent)
@@ -1007,16 +1068,24 @@ def _select_gear(intent: TheoryIntent) -> tuple[GearSlot, ...]:
                 slot=slot_name,
                 base_name=base_name,
                 stat_priorities=_rollable_priorities(
-                    _stat_priorities(slot_name, intent), base_name, intent.budget
+                    _stat_priorities(slot_name, intent, skill), base_name, intent.budget
                 ),
                 budget_tier=intent.budget,
             ),
         )
-    # Weapon by archetype: spell → Wand, attack-bow → Bow, melee → Two Hand Sword.
-    skill = _find_active(intent.primary_skill)
-    if "bow" in skill.tags:
+    # Weapon by archetype: bow attack → Bow, melee → Two Hand Sword,
+    # else (caster / wand) → Wand. Bow detection uses tags, not damage type
+    # (Step 53), so an elemental bow attack like Ice Shot — which carries no
+    # "bow" tag in PoB's data — still resolves to a Bow rather than a Wand.
+    if "bow" in skill.tags or _is_bow_skill(skill):
         weapon_class, weapon_slot, weapon_label = "Bow", ItemSlot.WEAPON_MAIN, "Bow"
     elif "melee" in skill.tags:
+        weapon_class, weapon_slot, weapon_label = "Two Hand Sword", ItemSlot.WEAPON_MAIN, "Weapon"
+    elif "attack" in skill.tags and "wandattack" not in skill.tags:
+        # A ranged attack that is neither a bow skill nor wand-compatible
+        # (e.g. Spectral Throw) is a melee-weapon attack — a Wand would be
+        # wrong. Default to a melee weapon. Wand-attacks (Power Siphon,
+        # Kinetic Blast) keep the Wand via the else branch.
         weapon_class, weapon_slot, weapon_label = "Two Hand Sword", ItemSlot.WEAPON_MAIN, "Weapon"
     else:
         weapon_class, weapon_slot, weapon_label = "Wand", ItemSlot.WEAPON_MAIN, "Wand"
@@ -1034,7 +1103,9 @@ def _select_gear(intent: TheoryIntent) -> tuple[GearSlot, ...]:
                 slot=weapon_label,
                 base_name=weapon_pool[0].name,
                 stat_priorities=_rollable_priorities(
-                    _stat_priorities(weapon_label, intent), weapon_pool[0].name, intent.budget
+                    _stat_priorities(weapon_label, intent, skill),
+                    weapon_pool[0].name,
+                    intent.budget,
                 ),
                 budget_tier=intent.budget,
             ),
@@ -1053,7 +1124,9 @@ def _select_gear(intent: TheoryIntent) -> tuple[GearSlot, ...]:
                     slot="Shield",
                     base_name=shield_pool[0].name,
                     stat_priorities=_rollable_priorities(
-                        _stat_priorities("Off-hand", intent), shield_pool[0].name, intent.budget
+                        _stat_priorities("Off-hand", intent, skill),
+                        shield_pool[0].name,
+                        intent.budget,
                     ),
                     budget_tier=intent.budget,
                 ),
