@@ -19,7 +19,7 @@
             "Concentrated Effect",
             "Melee Physical Damage",
             "Close Combat",
-            "Pulverise"
+            "Faster Attacks"
           ],
           "slot": "Body Armour",
           "label": "Primary 6L"
@@ -81,15 +81,15 @@
           "effect_id": null
         },
         {
-          "node_id": 33287,
-          "name": "Juggernaut",
-          "type": "notable",
+          "node_id": 27140,
+          "name": "Two Handed Melee Damage and Leech",
+          "type": "travel",
           "stats": [],
           "effect_id": null
         },
         {
-          "node_id": 49416,
-          "name": "Adamant",
+          "node_id": 33287,
+          "name": "Juggernaut",
           "type": "notable",
           "stats": [],
           "effect_id": null
@@ -125,13 +125,6 @@
         {
           "node_id": 21262,
           "name": "Elemental Damage",
-          "type": "travel",
-          "stats": [],
-          "effect_id": null
-        },
-        {
-          "node_id": 24083,
-          "name": "Strength",
           "type": "travel",
           "stats": [],
           "effect_id": null
@@ -189,13 +182,6 @@
           "node_id": 48929,
           "name": "Maximum Fire Resistance",
           "type": "travel",
-          "stats": [],
-          "effect_id": null
-        },
-        {
-          "node_id": 39713,
-          "name": "Glancing Blows",
-          "type": "keystone",
           "stats": [],
           "effect_id": null
         },
@@ -266,6 +252,13 @@
           "node_id": 36915,
           "name": "Sacrifice",
           "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 64816,
+          "name": "Two Handed Melee Damage and Leech",
+          "type": "travel",
           "stats": [],
           "effect_id": null
         },
@@ -389,8 +382,8 @@
           "effect_id": null
         },
         {
-          "node_id": 10073,
-          "name": "Armour and Guard Skill Cooldown Recovery",
+          "node_id": 58453,
+          "name": "Elemental Damage",
           "type": "travel",
           "stats": [],
           "effect_id": null
@@ -424,7 +417,7 @@
           "effect_id": null
         },
         {
-          "node_id": 8544,
+          "node_id": 31080,
           "name": "Dexterity",
           "type": "travel",
           "stats": [],
@@ -473,16 +466,16 @@
           "effect_id": null
         },
         {
-          "node_id": 12926,
-          "name": "Iron Grip",
-          "type": "keystone",
+          "node_id": 18302,
+          "name": "Life",
+          "type": "travel",
           "stats": [],
           "effect_id": null
         },
         {
-          "node_id": 18302,
-          "name": "Life",
-          "type": "travel",
+          "node_id": 60031,
+          "name": "Prismatic Skin",
+          "type": "notable",
           "stats": [],
           "effect_id": null
         },
@@ -529,16 +522,16 @@
           "effect_id": null
         },
         {
-          "node_id": 24720,
-          "name": "Imbalanced Guard",
-          "type": "keystone",
+          "node_id": 65167,
+          "name": "Life",
+          "type": "travel",
           "stats": [],
           "effect_id": null
         },
         {
-          "node_id": 21650,
-          "name": "Eternal Youth",
-          "type": "keystone",
+          "node_id": 13714,
+          "name": "Life",
+          "type": "travel",
           "stats": [],
           "effect_id": null
         },
@@ -546,13 +539,6 @@
           "node_id": 10904,
           "name": "Minion Life",
           "type": "travel",
-          "stats": [],
-          "effect_id": null
-        },
-        {
-          "node_id": 17818,
-          "name": "Crimson Dance",
-          "type": "keystone",
           "stats": [],
           "effect_id": null
         },
@@ -578,9 +564,23 @@
           "effect_id": null
         },
         {
-          "node_id": 16544,
-          "name": "Dexterity",
+          "node_id": 12702,
+          "name": "Path of the Warrior",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 50340,
+          "name": "Elemental Resistances",
           "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 27301,
+          "name": "Martial Experience",
+          "type": "notable",
           "stats": [],
           "effect_id": null
         },
@@ -588,13 +588,6 @@
           "node_id": 21413,
           "name": "Combat Stamina",
           "type": "notable",
-          "stats": [],
-          "effect_id": null
-        },
-        {
-          "node_id": 10661,
-          "name": "Iron Reflexes",
-          "type": "keystone",
           "stats": [],
           "effect_id": null
         },
@@ -669,6 +662,13 @@
           "effect_id": null
         },
         {
+          "node_id": 55485,
+          "name": "Constitution",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
           "node_id": 9149,
           "name": "Chill and Freeze Resistance",
           "type": "travel",
@@ -679,6 +679,13 @@
           "node_id": 19144,
           "name": "Sentinel",
           "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 5065,
+          "name": "Maximum Lightning Resistance",
+          "type": "travel",
           "stats": [],
           "effect_id": null
         },
@@ -746,6 +753,20 @@
           "effect_id": null
         },
         {
+          "node_id": 19939,
+          "name": "Life",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 30693,
+          "name": "Divine Fervour",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
           "node_id": 487,
           "name": "Strength",
           "type": "travel",
@@ -788,13 +809,6 @@
           "effect_id": null
         },
         {
-          "node_id": 31471,
-          "name": "Life",
-          "type": "travel",
-          "stats": [],
-          "effect_id": null
-        },
-        {
           "node_id": 26866,
           "name": "Sanctity",
           "type": "notable",
@@ -816,22 +830,8 @@
           "effect_id": null
         },
         {
-          "node_id": 50679,
-          "name": "Versatile Combatant",
-          "type": "keystone",
-          "stats": [],
-          "effect_id": null
-        },
-        {
           "node_id": 7162,
           "name": "Armour and Elemental Resistances",
-          "type": "travel",
-          "stats": [],
-          "effect_id": null
-        },
-        {
-          "node_id": 49147,
-          "name": "Armour and Guard Skill Cooldown Recovery",
           "type": "travel",
           "stats": [],
           "effect_id": null
@@ -849,15 +849,6 @@
           "type": "travel",
           "stats": [],
           "effect_id": null
-        },
-        {
-          "node_id": 45358,
-          "name": "Armour Mastery",
-          "type": "mastery",
-          "stats": [
-            "+1% to all maximum Elemental Resistances if Equipped Helmet, Body Armour, Gloves, and Boots all have Armour"
-          ],
-          "effect_id": 7137
         },
         {
           "node_id": 52462,
@@ -915,6 +906,15 @@
           "effect_id": 34242
         },
         {
+          "node_id": 12382,
+          "name": "Life Mastery",
+          "type": "mastery",
+          "stats": [
+            "15% increased maximum Life if there are no Life Modifiers on Equipped Body Armour"
+          ],
+          "effect_id": 34242
+        },
+        {
           "node_id": 32241,
           "name": "Life Mastery",
           "type": "mastery",
@@ -955,11 +955,14 @@
       "gear_slots": [
         {
           "slot": "Helmet",
-          "base_name": "Torturer's Mask",
+          "base_name": "The Bringer of Rain",
           "stat_priorities": [
-            "to maximum Life",
-            "to Lightning Resistance",
-            "to Cold Resistance"
+            "Socketed Gems are Supported by Level 30 Melee Physical Damage",
+            "Socketed Gems are Supported by Level 30 Faster Attacks",
+            "Socketed Gems are supported by Level 30 Blind",
+            "6% Chance to Block Attack Damage",
+            "Adds 20 to 30 Physical Damage to Attacks",
+            "(200-300)% increased Armour and Evasion"
           ],
           "budget_tier": "endgame"
         },
@@ -976,57 +979,62 @@
         },
         {
           "slot": "Gloves",
-          "base_name": "Wyvernscale Gauntlets",
+          "base_name": "Hand of the Fervent",
           "stat_priorities": [
-            "to maximum Life",
-            "to Lightning Resistance",
-            "increased Attack Speed",
-            "Adds Physical Damage"
+            "(70-130)% increased Armour and Energy Shield",
+            "+(50-70) to maximum Life",
+            "Gain Sacrificial Zeal when you use a Skill, dealing you 150% of the Skill's Mana Cost as Physical Damage per Second",
+            "Hits have (35-50)% chance to ignore Enemy Physical Damage Reduction while you have Sacrificial Zeal"
           ],
           "budget_tier": "endgame"
         },
         {
           "slot": "Boots",
-          "base_name": "Wyvernscale Boots",
+          "base_name": "Farrul's Chase",
           "stat_priorities": [
-            "to maximum Life",
-            "Movement Speed",
-            "to Cold Resistance"
+            "Trigger Level 20 Intimidating Cry when you lose Cat's Stealth",
+            "(110-150)% increased Evasion Rating",
+            "+(50-70) to maximum Life",
+            "20% increased Movement Speed",
+            "(40-50)% chance to Avoid Bleeding",
+            "20% increased Movement Speed while you have Cat's Stealth"
           ],
           "budget_tier": "endgame"
         },
         {
           "slot": "Belt",
-          "base_name": "Vanguard Belt",
+          "base_name": "Belt of the Deceiver",
           "stat_priorities": [
-            "to maximum Life",
-            "to Fire Resistance",
-            "to Lightning Resistance",
-            "increased Flask Life Recovery"
+            "+(25-35) to Strength",
+            "(15-25)% increased Global Physical Damage",
+            "You take 30% reduced Extra Damage from Critical Strikes",
+            "+(30-40) to maximum Life",
+            "+(10-15)% to all Elemental Resistances",
+            "Nearby Enemies are Intimidated"
           ],
           "budget_tier": "endgame"
         },
         {
           "slot": "Amulet",
-          "base_name": "Simplex Amulet",
+          "base_name": "Replica Hinekora's Sight",
           "stat_priorities": [
-            "to maximum Life",
-            "Adds Physical Damage",
-            "Critical Strike Multiplier",
-            "to Fire Resistance"
+            "+(10-16) to all Attributes",
+            "+(600-1000) to Accuracy Rating",
+            "+(600-1000) to Armour",
+            "+1% to all maximum Elemental Resistances",
+            "You cannot be Maimed"
           ],
           "budget_tier": "endgame"
         },
         {
           "slot": "Ring",
-          "base_name": "Vermillion Ring",
+          "base_name": "Le Heup of All",
           "stat_priorities": [
-            "to maximum Life",
-            "to Fire Resistance",
-            "to Cold Resistance",
-            "to Lightning Resistance",
-            "to Mana",
-            "Adds Physical Damage"
+            "Adds 1 to 4 Physical Damage to Attacks",
+            "+(10-30) to all Attributes",
+            "(10-30)% increased Damage",
+            "(10-30)% increased Rarity of Items found",
+            "+(10-30)% to all Elemental Resistances"
           ],
           "budget_tier": "endgame"
         },
@@ -1102,17 +1110,17 @@
         }
       ],
       "stats": {
-        "life_estimate": 5530,
-        "es_estimate": 584,
+        "life_estimate": 5756,
+        "es_estimate": 70,
         "dps_index": 0,
         "resistance_warning": null,
         "estimated": false,
-        "full_dps": 22631.0,
-        "total_ehp": 14891
+        "full_dps": 109966.4,
+        "total_ehp": 18476
       },
       "rationale_it": "Build Marauder/Juggernaut con Cyclone (physical). Difesa: life. Budget: endgame. Focus: tutti i contenuti. Albero e oggetti sono presi dai dati ufficiali di PoE 3.28.",
       "rationale_en": "Marauder/Juggernaut Cyclone build (physical). Defence: life. Budget: endgame. Focus: all content. Tree and items are sourced from official PoE 3.28 data.",
-      "pob_code": "eNrtWltv27gSfvevEAwszkOVRqKoW5EEsJ3Ecepc7SZtXwJGpm02ujiUZMe7OP_9fJRsR3aaS88BNmcX2wdWHA5nvrlwhlK8c86y8dmwmYtwIOLR3k7xpE0Fn50kA75b75ycn13261rG5IhnV1ymIol369aNUdcmLM7GPIlP2I9EtpPBbv00iXmFLuI1ejBmkgUZl10-5WEjz5JSx5CFqVoOWZqesgiUEzDmAy7rGksDHg9aj0vH-WjEZczyrK6FSs5u3QeWiIm4lwR3PGvLJJ_s1s26dsvigciW2rf3dvqScw0IxJT3JjxQTHs76gnbU-CaHwyHPMjS3fof1LZsT3dNy_23_odNqENWE2pRYzlxKDWc5cT0XdvQqUVsDzNiQ4Ru2ZZBMKOm5esWJVRNLEKouZjBtUBVcSzx6lrKgyQeMDlvPJrfgR-NNYcoirnw2-I5hkMBn7qOTj1Xpz7VHdvUTWDCANym7Vu6ZTpYU4hsl1o6jHB0xwUkx3UorFHGWgDv2ZTqvmET3Tepr_uW5-i-bZq67_iQZxiWqUbXwmhTokZX0R1H0X2D6qbpESglxHIw-gSjZRi-blLDdorRBSQDWk3bUdIcpdJ0XWg3Xc_0dNODA3UTAEAvHEwMGyYRw7OITkziqBHGqBG7CESAhxAPz8Q1QLc8D_wUGzC6wEOo52C1CBCxfc_XiWMTrDqe4-gEDsDoWRY4fd-Cv2Ci8hp1TeU74mH0yxGYF9EkrgWKReB2y1JI4G5DxVx5yaKeZyAZfCSV5fimrUa41HI9j-qWjwzS4QzDw-jYeIYuolOiJFDiGSqtLJfqlFICCnWQdZS6vnr21S7qq5AWSUsd28XoEUimHrXUs692-aZRjFQlhql4fGpCjm-DxzYoIRhtYENAXOSG4cG3Ze7bFiKJ0UX2lAfAth3gR9BcPHtErXoUkcKo6L6PFHRM0_cwKr85xDBd3YFTHb08NRiRD7DW8HAMv1x298ZZNkk_bW_PZrOPExSmZMgfRMg_Bkm0PUGS49xupXciDLfUmdlu4F9zdNAczI6CBg-a7uhzt9kzDs8b3-z9Q-_i88P3abtH2dXlJG3fJMFkfjjqmLMf017v_rgXhNY8mB6bd5OuCM8_sy_3UYumXW82H_7oXp7mI-L05bfzC7-RHFwdXX6fHA3vZKff-35xaR6Ovszs_uTqzL06Pv66fyWmX7-E_IC0Lr71Dn9MyfXhdztLvCjht_cTw_06OuW57_44mtNhN_O9rzcCRawV0f738dlW56LzQO72zy6uvp970bzNz4_d02TUumuzYHZ_7WQ_GN2S063p7eetOO05picBvM9uOrc3V9ObaaOdHnRm37oHfnrVfxgO2zL9Pf_dcnudweUBuT4KTvLTe7vVvfvCJx135s6Obo6bviHdcJrf3zzM4MWdbeX-nbKApqpUnk25lALFRE22VY3Ef6p-gktFIF3WUTXp8ayoPmkiszaP0uZ8_7x3KHiIonSYhyFmqkJnwRirRfHvJ621ZrBqAuk4mTXC7CJnocjmSthuPZM53xC-IoK9l08m5Vp_PlHVr9Ht1hcwgUwTZWnMRBaif-zzIcvDbMlQNI7GoyktFgZpwb-xUNBEHIToS514YdUSRshulQ11jcfsNuSDFbwwgWeayWCuNWSU5BJqgVMrkliV7NY8CIvuFKO5lT1pRVp0N4Kif1-6Y22iti-N2dRbTtthcstC82dEsnL49gaihTebMs8KNVVoFeK7gmslMZpgJlnGB2XLXnNgZVVbLr8r3hMecn4-nqciYOE-i9hoLeLFsrZc15YM7-viMEl5K4lu2bpvFVlb0t8V4XkeokaJdM2VFeKfBm67qA9_Yj054mHEs81S0uVs0gtZVHWHomkl8Z8D8DcqgJ1owsI1Fy4pf9-sB4YpTzez_ojhKjioemJJedcAtXnMZZJupE-V-r75E6cTgQaJV861JKqS_-nw_y-Z30yS7EniH6Kq832WjquOKYhaSX3X-PWKDxjXIl47miVVK8nviq8rhjxjk7VeuSS9K7DD4kNUC6OIR2uhLRa01crfN92vcWlJYs3czPiDeJBL2N6Sa0V1SdYK-j9Z_1fM-r9Cud9eflBYPqZ7O52MR8svIep5-SEkT_kiF4pcLsilxHJP5bPE86w_-WKB81H4ZfUOoAlIW3z7LWEs7dleY69-gljtIS_vWVy4VuzWaypUl1px01e4eVhBb7_M3IjysGqs8zL7paoG5iO7-zL7qt6sNngvb0CXTe-q_P5b-EklWMZbNliVDeZbNtDKBvKWDXZlwyvRPeYzHlZtNulbNlSN_lmQtxenoTwWizOxV7tkEmf4k3bZuDyoFbfm4uyXSV_ro2Lkkst_pdoJzKjh3ScUgcjST5pR-2BSqmUJ-tGDiPJIUwWu9oF6vyliV4zGWazS45KnIs0YCstqsZWEgyq9BFdBRp5HVjlftf5MhEoPZI1Qi9gmPs9_Ft-hkPxn0P433NbzuMszXrueT7mMU7x8c63N8hh1J0s3cRP_1_xqOr-pG4DkLIWmRpax4E5DReeDWmMwSDVH7TSNzfd-RS2Z06em0JdCgPqzZklJed0Ky64CPYFHIrSbBdQ3e9l-ARqKXe2KxaOcycXs7Tn7SzlBjaop5SlX0sATwC451xSip-Cd58GXxbfWE0DMH5bT171axNi0FZ04LwX5g1UaVPZeXONEVnD2MinuuHaC3iegjMtnXfLEHPd5c1RzqF1xGaGD4z23nG9YY_56NDbT4-WT63pVBScsZqW7Ci_CZ79yJLznbS07W62r7OzNEjlYN7RQSV0l3aObOmum61dzaXOZuM-e7g8OKRzYCIJcsmCuXTL1zlJTcX7cshnn1vjnsfQr9p002p1WbV9MRczLvC5TPBlCCupWMFZ6nqyvm_1EA9rxpoqLXMDZQn1MflTRGEjcEkPIfrr-mgrziYq2ZDF646P4jlRhuhPx-tJrkslP_MMi9caxknzJhzi6qPNrK68Jtp4Iboo0yrPxo-BszLV91JX1ldcEv1DEF9eMGpIjSuGOYv6GYvlUif2aEvJfKyn-w-3_NMl4uofEG_FPWn_ME5TXK1JRdDvXDs-a2pa2_MP2MLndynj8EWkT8PAjm0xqtc98rsVJpt4-oHpfpIGqdshfhkD1JV6rkdO69vi7Fx2JiDMY4-GIM5ktA3HNpBSJ1LVekoflkeA81LVl0FVqYW-ciDgrmgNPx7rWTkIe4SbVDJNkgL0TnEX0qDycMXmHOQukGIqA61pTMtVBdBznaAK9utZikg-hq5XgyqBsVkUAjImMy1qJ2gf9fJqoT4pKWBxk6IGQcZ6r0CiUCxyHTCB_lM0L2E0mbxG_NFIShkIVB107TSI2EIHW56w46yl8kIRzJGEEPykd5d-mVDkAhWGOK2kpFwVGOaCH3g73QsNJ-Ull4b6GOtw6vBhWnVdABtJa-UsczJBPX-IhIlQA0DFJs2QyUfFTk0zIBXnAY6GoO9tlouzgPXYoRssfIl0JPiuuwBs_wfoPocs1pg",
+      "pob_code": "eNrtWktT28gW3vtXdLlqahaIoPcjRVJlGwwkQAh24JIN1Uhtu4MsOXrYOFP3v9_vSLKRbAKpuxhmpiaLjvp0nz7v77SE9y94Nvk06uYyDGQ0fr9fPLG5FIuzOBDv2idnF58uh22W8WQssiuRpDKO3rWNW7XNZjzKJiKOzvi3ODmKg3ft8zgSNbqMGnR_whPuZyI5FXMRdvIsLmWMeJjScsjT9JxPQTnDxjwQSZvx1BdR0Htc-pCPxyKJeJ61WUjnvGt70GXKZTSI_XuRHSVxPnvX1trsjkeBzFbS997vDxMhGDSQczGYCZ82vd-nJ7Cn0Gt5OBoJP0vftf-wdNPWFUcznP8qf1imYaqriW2aqr2aaJ5jqYpp6JaLmW5ZhqUYlqHqmJma4SmGqZs00XTD1dczQ9dNrZrBt1Cr5lndbbNU-HEU8GTZebT_BI5UGx4hilY5rnqO4FHobzq2YrqOYnqmYluaokFDDLBCszxDMTQba6SfpdqWYjmmocAuW7Ed6GU7tgkDyX4D9niqpSueZnqKZ7i24lmapni2h_NU1cDRqmXqNDpE8VRT0TRXhyBdN2yltFvTHRWjoaoeRkfDHlO17GJ0oJIKgZpl02mOA5Gaa9B-CAW9cLHmedBWVy0Yo6uuoSu6pts0wgwawaXrukujo4JiuC52mi7MK8OiW56LE2xLx6rt2raiQxGVxuLZULHfNQxQIAs-Um3ylOrQs6a6KnlNdzF65QhtqziCGRRDh8MNgzSBo1WKPfnHMF3itTwLe2xPs2iEMw3HdU0FDlBdjLZlICCmoyumTrym7qqUWIaDPaapg2LayDvTdDx69ojL9CiMtuXg2dXpNNc06Nmj_Z6mFiOtehbolkoJYKmmrmO0oAlkw4dlrlsG4obRgdVlwluWCX9alg1tERwHFFenPa6J6GAkumtCc8vzkHB2kQ-2pnkuRtPBs65qjmLDqbZS1g1GnUZXsykxoT8sV13U4ZfL0_eTLJulb_f2FovFmxmQKR6JBxmKN3483ZshyVG4u-m9DMNdqpm9Dv51x4fdYHHsd4TfdcYfT7sDtX_RubEO-u7njw8XH_pT9-vpZHZ1NF3c7U6W0Ym2-DYfDL5_GPihsfTnHwfmbLj8fnMqF_MfB11x9tVcqsPrwXk-1u1hcnPx2etfqsHuIJ2cf7g3vn05DC5v-mefvthXw1zzz68_esHg-nBy43jh5Frc8YsP37tHseDfr_Lv0TALdq_Mg_-EsTAf3Px46YxG_VszPjkez_JD_WY4l4e9s2DW-XHfvx7efjDdKNVl5-Pnr7Mfvdndd_08-Wbnt7aXJrbQ3AQKD_ntyd3t1aKbdMfp4P7h4q7_xeX5j0_OxSg7mWiHw5t5EE6Mg9NvPP8srf7x_ZWYndjR7fxg3hm598fGYJ5f79qJd3ZhX9w-LODF_T1y_36JoClh5ae5SBIJMKHJHoEk_iMAxS6KQLoCUpoMRFagTxon2ZGYpt3lwcWgL0UIUOrnYYgZQXTmT7BaoP8w7jW6wboLpJN40QmzzzkPZbakw961syQXG4evidg-yGezcm24nBH6dU5P25Wa0IzJEhozmYVoIAdixPMwW20oOkfn0ZQeD_202L-xUNBk5IdoTCdRZdVKjZDfkQ1tJiJ-F4pgrV4YwzPdOFiyTjKN8wRioScrkpggu7f0w6I9RehuZVNak6r2pgP0v5fuaEyIfWXMptxyehTGdzzUniLqa4fvbWhUebOb5Fkhpq5ajfiqyvXiCE0wS3gmgrJnNxxYW2Wr5VfV90yEQlxMlqn0eXjAp3zciHixzFbrbLXhdV0cxqnoxdM73vQtkdmK_qoa9os7WyfLuH-f1nUsF9h65U_Tcq8Aij8RWI5FOBXZJqacCj4bhHxa9wnRWEn8txL-QUh4Mp3xsOHCFeWfm_XQYS7Szaw_5rgTBnVPrCivGqAjEYkkTjfSp0593fyJ0plEp8S7ZyOJ6uR_W_1fJfO7cZxtJX4fqC4OeDpp9EAispL6qvEbFF8yrmXUKM2Sykryq-p3Kkci47NGr1yR_gLXmx5GGY2fuN6sV_656X6NS0scMW0z4w-jIE9gey9pgOqKzAr6v1n_d8z6vwPc762-LKwe0_f7J5mYrj6J0PPqi0ieiioXilwuyOWJJU_t-8TPtz7x6QL1Ufhl_Q7AJE6rPgKXaqzs2Wtsr3-LWPPoz_NUF671duMlEdSl1rvNF3aLsKa99fzmzjQP68baz2-_JDTQHrc7z29f482awX2eAV02va_v935lv14LlvorDEaNQfsVBrPGoP8Kg1VjeCG6H8RChHWbNfNXGOpGPxXkvaoayrKoauJ965InqOG37Mv5yecvh63hRLAuYTwaYDxil2g1rXM5nmRTnmCFp76MRNbCO1AofZmlb5naKj9qAjCOihLFvgprQLpbsuLzIzNU9uS75y9zNz86PMGWPsnWDdEMWvZvrDfhwDaWxSCBtzpopUUnCFKmq7QMpg0dibqSa6jqb9RtE8FTiCoLnXF0ncM5p78wtXawhTim_EFO8ykj3G_p4PLXGozhVvCwoqEWRPpYC0GLiYjYMs5LHVs9Hv2eEW5hXaQZzCRprcMHIDQbx4lolWGtxVSvxfSyc3nYKt6ECjyvIVNruJAhhZVdijFQnDcjuqO53pYJO6b7GxH7Es6-FKlMM1J9TT-l8yIChCcWe3EY1OlbehvbuXhMXkUSZsjJvkjmaEytr4JT4peA2VRaM34aGXhgvGSDCX0wb-042-E5ooAMuJ_IEc5D4EnOYzQoApwVrUhhAZbISlrQLMisVCyWf0_ZGY847KVwpVuZNEMKl02odQy92YTPBbMaySHHESJLSk-XW_yXIsh9emuEcjIUhRLFGZvKb3vY3PZwnydJTjoj_VKUIuy6Z0V3abp2mEj6o3BVVSiTkyiTUxnwrLoNPrqq_HzJMxw6yKBHNmkVTnoMTFUnwBbifjIceoPhDLGeIvgMdxQRtJre6sxjidQGstDf15_l3HRZU8stf1nb_qJWugr3gfAFEDZpHQs-XzJa2igiwyIFB1kiojEE6FZdtfL6s4WGN1Au4_eCUTInFGzyWFHvVQaMkngKl8usYMPp8h6VsGNue3FHs4ra43iZOAwLR4DjsQjT1rngCcCSUk2KEkXXkYWnt1xib7vkUpDJnB2jL9zHCSePEhC0PkXLB1ZeJzbBxV5pBVBN5F2ekQGaWsJmx_eBif5ynR_rhRK5drS1UStrnzaOXOnzKAJc3AlUpZw-ZZKzbdKpYMcin1GgO2HYOkkoWUmVhhlFx9BIFfO5foFu8IS1TaiqYt8klkqREuXVdxTnAI0d2vRsTLcsdH_eEcr7WOuUynGwiJPgCRNNh-S5W0a2NMer67u5rDsNNC67bVnBO7ZuPhVqw62zbOR41cC37fNq9p11jk56rQM5RzYWRcDK6xe8OMh4HvkTkrO13jR7SwIukZsiPucS0ZUhAOBRRCdAqVNzENvrL4nQtkQc4WaAG93j8UUiostEzaWXTtaf8A-f0nvy-uRLMQrFA5KnsfLSwcbWwV2ZTvNs8nhwAZQA4ebKSwebP8_Y6nLcQnJMU7ijmG_ii2luYeG2EOslIfr_LaT4D--s5zFq_T0SbyzeMtysYzTKK70mCNjb_9Rlu2z1u4xRfLebiegN0sYX4Rs-m7VaH8WSAcTonRmiDySu4DPKseJqM0xwc0FOK-zxd1sK4Isn60Z1jSYv40RhgzgPy0oQAveYVawpoxTWiWIZkU59iJko7CgGugDMcRGNA_DOUILos3m44Mm9sr5uCAWvC2imyVJBFU9nkKugsSZiBFk9QFZGplLtY2OcROUFEv0B8sU8ppsMHRb5Wc7pjIt8hXqVHn0ukTZkaqX2RYJUAl74leJdtDBONDpxJAkjFHYeT3mALUPBi5JP4ZM4XCIXp3AXyaTf5W156Azq0wXq8AH3NCmKo8o_xRJ8gJVjjvtnqRAAiRToxVGaySyvbAEiIzghHVa8sFQyOgQNCkSFzRgUSES3W_S2yhNwQKv8WRpm1JaiEeJd2KFgkmbxbEbZQJNMJhU5EJEk6v5emXb70Gskx6uf5V1JsSheAzd-kPg_u6tECQ",
       "viability": {
         "passed": true,
         "issues": [
@@ -1121,6 +1129,12 @@
             "code": "res_always_gear",
             "message_it": "Le resistenze si cappano con l'equipaggiamento, non con l'albero. Punta a ~135% totale sugli oggetti per coprire la penalita di Elemental Weakness.",
             "message_en": "Resistances are capped through gear, not the tree. Aim for ~135% total on items to cover the Elemental Weakness map penalty."
+          },
+          {
+            "severity": "warning",
+            "code": "single_defence_layer",
+            "message_it": "La build ha un solo layer difensivo. In PoE endgame servono almeno 2 layer (es. life + evasion, ES + block, MoM + armour).",
+            "message_en": "The build has only one defence layer. PoE endgame requires at least 2 layers (e.g. life + evasion, ES + block, MoM + armour)."
           }
         ]
       },
@@ -1140,11 +1154,11 @@
         {
           "skill": "Lacerate",
           "supports": [
-            "Multistrike",
             "Brutality",
             "Melee Physical Damage",
-            "Faster Attacks",
-            "Close Combat"
+            "Multistrike",
+            "Close Combat",
+            "Faster Attacks"
           ],
           "slot": "Body Armour",
           "label": "Primary 6L"
@@ -1206,15 +1220,15 @@
           "effect_id": null
         },
         {
-          "node_id": 33287,
-          "name": "Juggernaut",
-          "type": "notable",
+          "node_id": 27140,
+          "name": "Two Handed Melee Damage and Leech",
+          "type": "travel",
           "stats": [],
           "effect_id": null
         },
         {
-          "node_id": 49416,
-          "name": "Adamant",
+          "node_id": 33287,
+          "name": "Juggernaut",
           "type": "notable",
           "stats": [],
           "effect_id": null
@@ -1250,13 +1264,6 @@
         {
           "node_id": 21262,
           "name": "Elemental Damage",
-          "type": "travel",
-          "stats": [],
-          "effect_id": null
-        },
-        {
-          "node_id": 24083,
-          "name": "Strength",
           "type": "travel",
           "stats": [],
           "effect_id": null
@@ -1332,13 +1339,6 @@
           "effect_id": null
         },
         {
-          "node_id": 39713,
-          "name": "Glancing Blows",
-          "type": "keystone",
-          "stats": [],
-          "effect_id": null
-        },
-        {
           "node_id": 11820,
           "name": "Anointed Flesh",
           "type": "notable",
@@ -1391,6 +1391,13 @@
           "node_id": 36915,
           "name": "Sacrifice",
           "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 64816,
+          "name": "Two Handed Melee Damage and Leech",
+          "type": "travel",
           "stats": [],
           "effect_id": null
         },
@@ -1507,8 +1514,8 @@
           "effect_id": null
         },
         {
-          "node_id": 10073,
-          "name": "Armour and Guard Skill Cooldown Recovery",
+          "node_id": 58453,
+          "name": "Elemental Damage",
           "type": "travel",
           "stats": [],
           "effect_id": null
@@ -1528,9 +1535,9 @@
           "effect_id": null
         },
         {
-          "node_id": 8544,
-          "name": "Dexterity",
-          "type": "travel",
+          "node_id": 20832,
+          "name": "Sanctuary",
+          "type": "notable",
           "stats": [],
           "effect_id": null
         },
@@ -1542,9 +1549,9 @@
           "effect_id": null
         },
         {
-          "node_id": 20832,
-          "name": "Sanctuary",
-          "type": "notable",
+          "node_id": 31080,
+          "name": "Dexterity",
+          "type": "travel",
           "stats": [],
           "effect_id": null
         },
@@ -1591,15 +1598,15 @@
           "effect_id": null
         },
         {
-          "node_id": 12926,
-          "name": "Iron Grip",
-          "type": "keystone",
+          "node_id": 53118,
+          "name": "Barbarism",
+          "type": "notable",
           "stats": [],
           "effect_id": null
         },
         {
-          "node_id": 53118,
-          "name": "Barbarism",
+          "node_id": 60031,
+          "name": "Prismatic Skin",
           "type": "notable",
           "stats": [],
           "effect_id": null
@@ -1640,16 +1647,16 @@
           "effect_id": null
         },
         {
-          "node_id": 24720,
-          "name": "Imbalanced Guard",
-          "type": "keystone",
+          "node_id": 65167,
+          "name": "Life",
+          "type": "travel",
           "stats": [],
           "effect_id": null
         },
         {
-          "node_id": 21650,
-          "name": "Eternal Youth",
-          "type": "keystone",
+          "node_id": 13714,
+          "name": "Life",
+          "type": "travel",
           "stats": [],
           "effect_id": null
         },
@@ -1657,13 +1664,6 @@
           "node_id": 10904,
           "name": "Minion Life",
           "type": "travel",
-          "stats": [],
-          "effect_id": null
-        },
-        {
-          "node_id": 17818,
-          "name": "Crimson Dance",
-          "type": "keystone",
           "stats": [],
           "effect_id": null
         },
@@ -1689,15 +1689,15 @@
           "effect_id": null
         },
         {
-          "node_id": 42911,
-          "name": "Strength",
-          "type": "travel",
+          "node_id": 12702,
+          "name": "Path of the Warrior",
+          "type": "notable",
           "stats": [],
           "effect_id": null
         },
         {
-          "node_id": 16544,
-          "name": "Dexterity",
+          "node_id": 42911,
+          "name": "Strength",
           "type": "travel",
           "stats": [],
           "effect_id": null
@@ -1710,9 +1710,16 @@
           "effect_id": null
         },
         {
-          "node_id": 10661,
-          "name": "Iron Reflexes",
-          "type": "keystone",
+          "node_id": 50340,
+          "name": "Elemental Resistances",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 27301,
+          "name": "Martial Experience",
+          "type": "notable",
           "stats": [],
           "effect_id": null
         },
@@ -1794,6 +1801,13 @@
           "effect_id": null
         },
         {
+          "node_id": 55485,
+          "name": "Constitution",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
           "node_id": 9149,
           "name": "Chill and Freeze Resistance",
           "type": "travel",
@@ -1804,6 +1818,13 @@
           "node_id": 19144,
           "name": "Sentinel",
           "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 5065,
+          "name": "Maximum Lightning Resistance",
+          "type": "travel",
           "stats": [],
           "effect_id": null
         },
@@ -1871,6 +1892,20 @@
           "effect_id": null
         },
         {
+          "node_id": 19939,
+          "name": "Life",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 30693,
+          "name": "Divine Fervour",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
           "node_id": 487,
           "name": "Strength",
           "type": "travel",
@@ -1913,13 +1948,6 @@
           "effect_id": null
         },
         {
-          "node_id": 31471,
-          "name": "Life",
-          "type": "travel",
-          "stats": [],
-          "effect_id": null
-        },
-        {
           "node_id": 26866,
           "name": "Sanctity",
           "type": "notable",
@@ -1941,22 +1969,8 @@
           "effect_id": null
         },
         {
-          "node_id": 50679,
-          "name": "Versatile Combatant",
-          "type": "keystone",
-          "stats": [],
-          "effect_id": null
-        },
-        {
           "node_id": 7162,
           "name": "Armour and Elemental Resistances",
-          "type": "travel",
-          "stats": [],
-          "effect_id": null
-        },
-        {
-          "node_id": 49147,
-          "name": "Armour and Guard Skill Cooldown Recovery",
           "type": "travel",
           "stats": [],
           "effect_id": null
@@ -1974,15 +1988,6 @@
           "type": "travel",
           "stats": [],
           "effect_id": null
-        },
-        {
-          "node_id": 45358,
-          "name": "Armour Mastery",
-          "type": "mastery",
-          "stats": [
-            "+1% to all maximum Elemental Resistances if Equipped Helmet, Body Armour, Gloves, and Boots all have Armour"
-          ],
-          "effect_id": 7137
         },
         {
           "node_id": 52462,
@@ -2040,6 +2045,15 @@
           "effect_id": 34242
         },
         {
+          "node_id": 12382,
+          "name": "Life Mastery",
+          "type": "mastery",
+          "stats": [
+            "15% increased maximum Life if there are no Life Modifiers on Equipped Body Armour"
+          ],
+          "effect_id": 34242
+        },
+        {
           "node_id": 32241,
           "name": "Life Mastery",
           "type": "mastery",
@@ -2080,11 +2094,14 @@
       "gear_slots": [
         {
           "slot": "Helmet",
-          "base_name": "Torturer's Mask",
+          "base_name": "The Bringer of Rain",
           "stat_priorities": [
-            "to maximum Life",
-            "to Lightning Resistance",
-            "to Cold Resistance"
+            "Socketed Gems are Supported by Level 30 Melee Physical Damage",
+            "Socketed Gems are Supported by Level 30 Faster Attacks",
+            "Socketed Gems are supported by Level 30 Blind",
+            "6% Chance to Block Attack Damage",
+            "Adds 20 to 30 Physical Damage to Attacks",
+            "(200-300)% increased Armour and Evasion"
           ],
           "budget_tier": "endgame"
         },
@@ -2101,69 +2118,77 @@
         },
         {
           "slot": "Gloves",
-          "base_name": "Wyvernscale Gauntlets",
+          "base_name": "Farrul's Pounce",
           "stat_priorities": [
-            "to maximum Life",
-            "to Lightning Resistance",
-            "increased Attack Speed",
-            "Adds Physical Damage"
+            "+(400-500) to Accuracy Rating",
+            "(100-140)% increased Armour and Evasion",
+            "+(50-70) to maximum Life",
+            "Attacks always inflict Bleeding while you have Cat's Stealth",
+            "(40-50)% increased Damage with Hits and Ailments against Bleeding Enemies",
+            "You have Crimson Dance while you have Cat's Stealth"
           ],
           "budget_tier": "endgame"
         },
         {
           "slot": "Boots",
-          "base_name": "Wyvernscale Boots",
+          "base_name": "Farrul's Chase",
           "stat_priorities": [
-            "to maximum Life",
-            "Movement Speed",
-            "to Cold Resistance"
+            "Trigger Level 20 Intimidating Cry when you lose Cat's Stealth",
+            "(110-150)% increased Evasion Rating",
+            "+(50-70) to maximum Life",
+            "20% increased Movement Speed",
+            "(40-50)% chance to Avoid Bleeding",
+            "20% increased Movement Speed while you have Cat's Stealth"
           ],
           "budget_tier": "endgame"
         },
         {
           "slot": "Belt",
-          "base_name": "Vanguard Belt",
+          "base_name": "Belt of the Deceiver",
           "stat_priorities": [
-            "to maximum Life",
-            "to Fire Resistance",
-            "to Lightning Resistance",
-            "increased Flask Life Recovery"
+            "+(25-35) to Strength",
+            "(15-25)% increased Global Physical Damage",
+            "You take 30% reduced Extra Damage from Critical Strikes",
+            "+(30-40) to maximum Life",
+            "+(10-15)% to all Elemental Resistances",
+            "Nearby Enemies are Intimidated"
           ],
           "budget_tier": "endgame"
         },
         {
           "slot": "Amulet",
-          "base_name": "Simplex Amulet",
+          "base_name": "Replica Hinekora's Sight",
           "stat_priorities": [
-            "to maximum Life",
-            "Adds Physical Damage",
-            "Critical Strike Multiplier",
-            "to Fire Resistance"
+            "+(10-16) to all Attributes",
+            "+(600-1000) to Accuracy Rating",
+            "+(600-1000) to Armour",
+            "+1% to all maximum Elemental Resistances",
+            "You cannot be Maimed"
           ],
           "budget_tier": "endgame"
         },
         {
           "slot": "Ring",
-          "base_name": "Vermillion Ring",
+          "base_name": "Le Heup of All",
           "stat_priorities": [
-            "to maximum Life",
-            "to Fire Resistance",
-            "to Cold Resistance",
-            "to Lightning Resistance",
-            "to Mana",
-            "Adds Physical Damage"
+            "Adds 1 to 4 Physical Damage to Attacks",
+            "+(10-30) to all Attributes",
+            "(10-30)% increased Damage",
+            "(10-30)% increased Rarity of Items found",
+            "+(10-30)% to all Elemental Resistances"
           ],
           "budget_tier": "endgame"
         },
         {
           "slot": "Weapon",
-          "base_name": "Lion Sword",
+          "base_name": "Starforge",
           "stat_priorities": [
-            "Adds Physical Damage",
-            "increased Physical Damage",
-            "increased Attack Speed",
-            "Accuracy",
-            "critical strike"
+            "Shaper Item",
+            "30% increased Global Physical Damage",
+            "(400-450)% increased Physical Damage",
+            "(5-8)% increased Attack Speed",
+            "+(90-100) to maximum Life",
+            "Your Physical Damage can Shock"
           ],
           "budget_tier": "endgame"
         },
@@ -2227,17 +2252,17 @@
         }
       ],
       "stats": {
-        "life_estimate": 5513,
-        "es_estimate": 584,
+        "life_estimate": 6037,
+        "es_estimate": 0,
         "dps_index": 0,
         "resistance_warning": null,
         "estimated": false,
-        "full_dps": 26317.6,
-        "total_ehp": 14850
+        "full_dps": 92047.8,
+        "total_ehp": 19731
       },
       "rationale_it": "Build Duelist/Gladiator con Lacerate (physical). Difesa: life. Budget: endgame. Focus: tutti i contenuti. Albero e oggetti sono presi dai dati ufficiali di PoE 3.28.",
       "rationale_en": "Duelist/Gladiator Lacerate build (physical). Defence: life. Budget: endgame. Focus: all content. Tree and items are sourced from official PoE 3.28 data.",
-      "pob_code": "eNrtWllT47gWfs-vcKVq6j60u7FleesCqpIAIZCwJQ2XfqGErSQavAQvCemp-e_3k50EJ6x9b9Vwp2t4ENaRdM53Vi2wfcay8emwmYvAF9Fod7v4UqaCz3qxz3fqnd7Z6cWgrmQsGfHskiepiKOdunGj1ZUJi7Ixj6Me-z1O2rG_Uz-JI16hi2iN7o1ZwryMJ10-5UEjz-JSxpAFqRwOWJqesBCUvZwHIs3qCks9Hvmtx5F2wHzBsjipK4HkslN3gSRkIurH3h3P2kmcT3bqel25ZZEvsqXsrd3tQcK5AvliyvsT7slJu9vyC8tToJrvD4fcy9Kd-h_UNExHtXXD_lP9wyTUIqsONai27FiUatayo7u2qanUIKaDHjHBQjVMQyPoUd1wVYMSKjsGIVRf9GBYoKqYlTh1JeVeHPksmTcete_AitqaPSSFLKwmv2ldiWBOwKe2pVLHVqlLVcvUVR2Y0AC3brqGaugWxiQi06aGCiUs1bIBybItCm2ksgbAOyalqquZRHV16qqu4Viqa7lgpWmGLlvbQGtSIltb0i1L0l2NqrruEMgjxLDQugStoWmuqlPNtIrWBhoNAnXTktwsKU23bQjWbUd3VN2B7VQdskEvbEs0E9oQzTGISnRiyRZ6yBarCFhgDiEOvomtgU4xFa0NJIQ6FuiFV4jpOq5KLJNg1HIsSyXQGq1jGJjpugaMBOWkqagNV-kucWQLnAvnEdsAxSCwsmFI6bCuJl0sLWNQx9HgexcxZFiubsoWFjRsx6Gq4SJgVBhAc9Bapvx2Co8AqEqJ5EOJoyGWiKvriCjDpiql6KG1EHCU2q78diUH6sq1RbxSy7TRAhpGHQJZ1KHASR1XrnV1rWipjAxdznSpDm6uiTmmRglBawIt3GIjOIAKlCL4TQP-RGsjfMoMME0LGsF1Nr4dIkcdCn-hlXTXRQxauu46aKUNLaLptmrBwJZapg1aRAX01xzk4beL7u44yybp162t2Wz2ZYK6FA_5gwj4Fy8OtyaIciTu5_ROBMFnmTRbDfw0R-ctf3boNbjXtEfH3WZfOzhrXJt7B8758cP3abtP2eXFJG3fxN5kfjDq6LPfp_3-_ZHvRN25__24TyeDeRgcT0Z5t3XT60V0rg1u45P8ziJ72tn5cfPgQrtiF4Z5PN_Xwm_7_sX1Qe_0m3U5yPV-_3KmXyc6HVwfNcedq9Ob79eXUUh-n7Oxmd9Hg4w3kGzGnA67mev8-0aMRrwV0sH38ennznnngdztnZ5ffj9zwnmbnx3ZJ5F1KhrH598nP1pRZAV5ck3ys3v7JiHz6cTez7PhsXl4O_emA3bTub25nN5MG-10vzO77u676eXgYThsJ-mP_Idh9zv-xT65OvR6-cm92erefeOTjj2zZ4c3R01XS-xgmt_fPMxgxe0taf7tsoKmslaeTnmSCFQT2dmSRRK_ZAHFLOmBdFlIZafPs6LipnGStXmYNud7Z_0DwQNUpYM8CNCTJTrzxhgtav8gbq3tBas9IB3Hs0aQnecsENlcMtupZ0nON5iviJjezyeTcmwwn8jy1-h26wuYQKYIvwCXiSyQOwsfsjzIlhOKnaPxqEqLBV5azN8YKGgi8oLc551oodUSRsBupQ51hUfsNuD-Cl4QwzLN2J8rjSSM8wRigVMpgljW7C7zeMIyTI2wu5W70iNtscER1P370iBrHclgqc6m5LLbDuJbFujPEcnK5FsbmBb27IEttuBE3K2hWyN_KMBmkmeFmCq8CvFjrccDzs_G81R4LNhjIRutW1EOK8txZTnhQyEfFIegRpYx7y6tgi0HlNXIh6JsBXHKW3F4y7IqxoKsLOl_GcKtojb8hbXkkAchz56UEc4m_YCFa2UENKUk_pMJv1Bl6YQTFqyZcEn5daMeGKY83Yz6Q4ZjoF-1xJLyoQ5q84gncboRPlXqx8ZPlE4Ezhe4b64FUZX8sRU-jnDHzeQRyC9v5GuFvjKqLId_3chvxnH2JPAPUNX5HkvHa7u0JCol9UP91y9eL65EtJaaJVUpyR-KryuGPGOTtb1ySfo_OIC10Ipo9MwBbDXy64b7FQ4tcaTomxG_H_l5At1byVpRXZKVgv5P1P8do_7vUO63lo8Jy890d7uT8XD5CiK_l48gecoXsVDEckEuOZZrKk8SL0995rUC-VHYZXUHUAS4dUpOJYylPltr06vPD6s15PU1iwPXarrxlgi5S61m0zdm86CC3nx9ciPMg6qy1uvTL2Q10B-n269PX9Wb1QLn9QXYZdO76nz3PfNJxVnaexYYlQX6exbQygLyngVmZcEb3j3iMx5UddbpexZUlX7OyVuLbCjTYpETu7ULliCHvyoXjYv9WnFqLnK_DPraABUjT3jyr1TpQY0a7j6B8ESWflW02iedUiWLsR89iDAPFVngap-o85skdsVonEUyPC54KtKMobCsBltx4FfpJbgKMvIyskp-1QYzEUg54DVCLWKb-Bz3RXwHIuHPQfvfcBsv4y5zvHY1n_IkSnH55kqb5RHqTpZu4ibuz9lVt36TJ4CEsxSSypcjBRWd-7WG76eKJVfq2ua9X1IXz0xPVaGvuQD1Z02TkvK2FoZZBdqDRUJsNwuo77ay-Qo0FLvaJYtGOUsWvffH7E_FBNWqqpRZLrlhjge9krkiET0Fb70Mviy-tb4AYv6w7L5t1cLHuinpxHrNyZ-MUqFy78UxTmTFzH7xwKwUj80QxpMXTfJEHftldeTmULvkSYgdHPfcsr-hjf7z3tgMj9cz13aqAnosYqW5CivCZj-TEs7LupY7W60r9ezP4sRfV7QQSW3J3aGbMmu67VZjaXOY2C9m9yeLFAZseF6eMG-uXDB5Z6lJPz8u2fRza_y8L92Kfr1Gu9Oq7YmpiHgZ12WIx0NwQd3yxlLOk_F1tZ9IwHa8KeI8FzC2CJAyjyIafoJTYgDeT8ffEqE_EdFOWIS98ZF9J5FuuhPR-tBbnMkTzv0N3NmYK3vI_rWBt9gaT9g2RRrm2fgZvmsjbzF-pYQvDhk1hEaYwhhF_x2l8qkQ8y0h5L8WUvzC2f8kzni6i7Ab8a_KYMxjFNdLUhF0O1cOTpvKZ2X5J-1hfPs549EX-MDjwRc2mdRqx3yuRHEm7x4QvSdST9Y6RC_DlXGQ4FKNiFaVo3w0wr7G8kxFGCIDI3wccpZkS0dcsSQRcaIq_TgPyoTgPFDBkoXy-ikDC2ujWERZsTXwdKwq7TjgIc5RzSCOfaydIBOxQ-XBjCV36DMvEUPhcVVpJkzuHyqSOZxArqq0WMKHkNWKcWCQOssSgIlxEpWVEpUP8vk0lg-KklnkZdgBweMsl66RKBc4DphA_EidF7CbLLmF_9JQchgKWRpU5SQOmS88ZcBZkekpbBAHcwRhCDtJGeUff2QxAIWhjwNpyRflRRqgj50d5oWEXvmgsjBfQ6a2CisGVeMVkIG0Vv4TDnqIJ1i6qAZZJiuYlNqLsSkMUL-U4mIoIWdyh4lgy36eTMVUOuaIwYdwKvfGkbjP-fZWGULbuN8OxWj530mXgs-Ko_HGf2X9B5SLOoU",
+      "pob_code": "eNrtWklz27gSvutXoFSVmkPomPuSclIlyZatxFssO57MJQWTkISIi0KCkjVT89_f16Qka_HYee8wfpOaHBCygd4bXwO0Di65Gl0M2qWMI5kO3x9UT2wqxewsi8S7Zu_s8uLquskUz4dCfRZ5IbP0XdP6qjfZhKdqJLL0jH_L8uMsetc8z1KxRpfpBj0c8ZyHSuSnYiriVqmyWseAxwVNx7woznkCymEpYlmoJuNFKNKo8zBzHPNIcpXlTRaTlHfNAJYkXKb9LBwLdZxn5eRd02iyO55GUi11778_uM6FYNAvp6I_ESEten9AT2AvYNX8aDAQoSreNf9wTNs1Nc-wvD-1PxzbsvXli2vburt8MQLP0TXbMh0fb6bjWI5mOZZu4s02rECzbNOmF8O0fHP1ZpmmbSzeEFmYtRZX02-yQoRZGvF83npwv4cw6hsBIYq5CBs9202WIp6w3_ZczfY9zQ5szXUMzYCFGOCF4QSWZhku5sg-R3cdzfFsS4NfruZ6sMv1XBsOkv8W_Al0x9QCww60wPJdLXADiNJ1C1J1xzZp9IgS6LZmGL4JHaZpuVrtsmF6OkZL1wOMnoE1tu641ejBGh26DMclaZ4HbYZv0XroA72KrhEEMNTUHfhh6r5laqZhujTCAxrBZZqmT6Ong2L78KnOhekEPnhdxwTd9V1XM2GCTmP1bOmQ6VsWKNCCwOguhUf36NnQfR1jYPo0wsJF2sAGimUivpZF2hFXnVJNMbFsn7icwMEaNzAcGhE7y_N9W4PTuo_RdSyMfpUF2zM12yQJtunrqCYzMAzUlOVhvY03jC5Kzra9gJ4DkmAHxOs6Hp5hDui-SfJ9G7bZfkBcgaFXI60JHNAdnSrA0W3TxOjANliDSNbF7ljIHkYPEagr3nFsRNVxXNiPFHmg-Cat8W3kCCPRfRu-OEGAinOrqnANI_Ax2h6eTd3wNBcBdrV642A0afQNlyoTXiAWuo-NeHN1-n6k1KR4u78_m83eTABM2UDcy1i8CbNkf4Iqx87dK8Yyjvdo0-y38K89_NSJZidhS4Rtb_jxtN3Xu5etL85h1__08f7yQzfxfzsdTT4fJ7O7vdE87Rmzb9N-__uHyE9P5-Py443_PenYxak_m_367VicqSNj_O0uOy_HrnmoX17dRCeDcd677v92bhvtk5vb9vVhfBHfeOrXw89y-qXf_TY1b7u_OSrzk-yIj5zvk1v3e3RhWM6vw3NxO_LLk7k3GHS_2lnvZDgpj8wv11N51DmLJq3fx93b668fbD8tzEHm9lqTdpKefRSD77eu-sbtvXy6N737uJeqwUfn5G4eTq_5197d18-zdt4eFv3x_eVd98bn5e8X3uVA9UbG0fWXaRSPrMPTb7z8JJ3uyfizmPTc9Ov0cNoa-OMTqz8tb_fcPDi7dC-_3s8QxYN9Cv9BDaEFgeXFVOS5BJrQyz6hJP4jBMUqykCxRFJ66QtVQW6R5epYJEV7fnjZ70oRA5W6ZRzjjTBahSPMVuB_nXU2msGqCRSjbNaK1aeSx1LNSdi7pspLsSV8RcTyfjmZ1HPX8wnBX-v0tLkwE5YxGVXGKaliai1iwMtYLRdUraP14EqHx2FRrd-aqGgyDeMyEr104dXSjJjfkQ9NJlJ-F4toZV6cITLtLJqzVp5kZQ61sJNVRUyYfcpDkXOFpSnaW92WHmiLDmcC97_XAdl4IQFLd7Y116_HcXbHY-MxorkK-f6WTYt4tvNSVWrWbVsjvqhxZyIW4nI0L2TI40Oe8OFGCKtptpxnywUvazLE4kyTy_GmqevkFzWwE2eF6GTJHVfrBlZktqS_qIXd6pzWUoqH42LdxnqCrWb-Niv3K2z4G7HkRMSJUDswIvikH_NkA0ZAYzXx3636E0FfL5nweCOES8rPW_WwYSqK7ao_4TgGRuuRWFJeNEHHIhV5VmyVzzr1ZesnLSYS5wvcNzeKaJ38sn0oS3HHVXQEiuor-UY7Wptly-mft_LbWaZ2Cr8LVBeHvBht9EAispr6ovnrV18vbmW6sTVrKqvJL2rfqRwIxScbvXJJ-j843nQwynT4yPFmNfPzlvstDi1Zyoztij9KozKH7518A1SXZFbR_636f2LV_xPgfn_5MWH5WLw_6CmRLL-C0PPyI0hZiEUtVLVckWuJNc_aJ4m_XvrI1wrsjyouqzsAk5DWqyXVZiz92d9Yvv75YcVjPs2zOHCtllvPqaAutVptP7NaxGvWO08vbiVlvO6s-_TyK0ID42G59_TyFd6sGPynGdBli_H6-uBH1ptrydJ_hMFaYzB-hMFeYzB_hMFZY3gmux_ETMTrPhv2jzCsO_1YkvcXu6HeFos98b5xxXPs4bfs5rz36eaocT0SrE0YjwaYDdgVWk3jXA5HKuE5ZngRylSoBu5AsQylKt4yvVF_xwRgHFdbFOsWWAPS3ZxVXxyZpbNH754_zL350eERtuJRtnaMZtBwX7HOiAPbmMpAAu9C0NKKVhQVzNRpGkxbNhJ1qdfS9VfUbXPBC6iqNzrj6DpHU05_VWq8xhLiSPi9TMqEEe43THCFKwuGCCt4WNVQKyJ9n4Wi2UikbJ6VtY2NDk9_UYRbmBeFgpukrXF0D4RmwywXjTqtazk113J61bo6alQ3oQrP15CpcT2TMaWVXYkhUJxvZvS14Qc7Lry2_VdE7EoE-0oUslBk-op-SvJSAoRHJjtZHK3Td-y2dmuxy_O8jH8p2GVWEs_JPMpRgLh8s2NepkBsVWzZ7dShb4Uh4hrOUb90hGsY9rNJ83Zztkg54_GMzwvwD6BJITVC0F9vkSwJUyhbIz5FiriCrX0leKxGDWdD46KOZlKN2AmMrXS3JBpLSi9UD8Wa5KNUJFIUjS8r2blMCiDnYVUsTyreiaz9RGRRdgW2IPbImFVdZTOe17kcEhLUuwnbo5cqmcioiiqdAh8Ktv5suWGJsRmDRaiXOXks4uYGwxmaIgWI4WwioiqiD1uoNc1ktIrYk5z_Zbyc3XhRCyU4VEDHQxEKIGveOBF8Omc0tVWElkMG9lUu0iEUmM66afWxZwcFKdOKjwXQ5xXLRVSGFLFqny9qZ5BnCdWBqtj61SfsAvtrN4qvDafacxyXiKO4CgQ4HjZf0TgXPAdILsqsQs9VZhHpnZC4uyG5EuQyRzWnYpzlnCJKANC4SOf3rD5GbIOKu7QKOyuXd6UiBwz98T37MFEj1mtj5dTS28edo1CGPE3RH-8EO-Myecwlb9elU8FORDmhRLfiuNHLqVjJlA03qk5hkCn2U30CXeARb61HUGGLWBtFRtRH3gHALyJxz-R0x0N_18O-4vkgQ6Np9NKByFMqpFmWR1v9fMQn2PQkaMu2vyhee3Ojb0_7G9hbt916S1OOd8r3C2HzdmSRUNYfUU80t6BccIpVfVdBsB5OCIfY3yzN1sK1sGcnUsFapM5ax71O41BOUdeVPaw-wEEHooc-NKKK2JnfjOCOBhxDt1V8KiWslDGg5EFFKwJooB-nYnf-ORXGjopjnC1wJnwQX5U0blTp5tRzks0dyf0tuytgBOhuTDwn1toR25ZFUqJF7srdmHlOsP3XZ6DF4bqxbKjV-zZO2fZOUe4qcZ5TYv7PSqr_cOc9z4AZ71F2Q_GW4WSeoeF-NtcUAcO7F222x5Y_5Rhkd3tKpG-Qg1DEb_hk0mh8FHNsA0V3bqg-lDjCT6jCqjPIdY6jBypaYx9KavUpL5UGGOT5quHd4rAgs1xj_ayM630gRKxBEk_oawvVk8ZaaSZTsqkLNSONHWfYdmgKOMhmEXgnaFfo1yXOUvkY7zzM5UCGQsN1A005n2tAvmQCvRoadC4G0NUB9ClylTY0FmZ5Wh9A0WegX0wz-n5OwtJQlZxkXJZL9FzY0eV05iJXF2a30fqQtiLBYvoP3SZc-IDrvyQw1dh5lvAI9GvBqw1fICZZPEctJggX6aRf8u1E6AzmSwDN0T0AVIpKVP2nXAIPsHK84-JWG4TDF2ntZDj7SVUufAFUITkxCasuPAsdLQIGDarizRxUONQV-RSouYgEAtCof8qGN1QnzKuwhdpQreQMVwcUFK_AICY5uErlsA8p6pf5VE7Jmw8cFYESEeEold9LcbBfF-QBLB7I4fJHfp-lmFUXzK0fN_4HFpFfYg",
       "viability": {
         "passed": true,
         "issues": [
@@ -2246,6 +2271,12 @@
             "code": "res_always_gear",
             "message_it": "Le resistenze si cappano con l'equipaggiamento, non con l'albero. Punta a ~135% totale sugli oggetti per coprire la penalita di Elemental Weakness.",
             "message_en": "Resistances are capped through gear, not the tree. Aim for ~135% total on items to cover the Elemental Weakness map penalty."
+          },
+          {
+            "severity": "warning",
+            "code": "single_defence_layer",
+            "message_it": "La build ha un solo layer difensivo. In PoE endgame servono almeno 2 layer (es. life + evasion, ES + block, MoM + armour).",
+            "message_en": "The build has only one defence layer. PoE endgame requires at least 2 layers (e.g. life + evasion, ES + block, MoM + armour)."
           }
         ]
       },
@@ -2265,10 +2296,10 @@
         {
           "skill": "Vortex",
           "supports": [
-            "Controlled Destruction",
             "Concentrated Effect",
             "Bonechill",
             "Elemental Focus",
+            "Controlled Destruction",
             "Cruelty"
           ],
           "slot": "Body Armour",
@@ -2352,13 +2383,6 @@
           "effect_id": null
         },
         {
-          "node_id": 18182,
-          "name": "Intelligence",
-          "type": "travel",
-          "stats": [],
-          "effect_id": null
-        },
-        {
           "node_id": 1031,
           "name": "Intelligence",
           "type": "travel",
@@ -2390,6 +2414,13 @@
           "node_id": 15631,
           "name": "Strength",
           "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 30225,
+          "name": "Lightning Walker",
+          "type": "notable",
           "stats": [],
           "effect_id": null
         },
@@ -2429,9 +2460,9 @@
           "effect_id": null
         },
         {
-          "node_id": 39713,
-          "name": "Glancing Blows",
-          "type": "keystone",
+          "node_id": 38176,
+          "name": "Intelligence",
+          "type": "travel",
           "stats": [],
           "effect_id": null
         },
@@ -2443,9 +2474,9 @@
           "effect_id": null
         },
         {
-          "node_id": 55332,
-          "name": "Intelligence",
-          "type": "travel",
+          "node_id": 51748,
+          "name": "Last Rites",
+          "type": "notable",
           "stats": [],
           "effect_id": null
         },
@@ -2541,6 +2572,13 @@
           "effect_id": null
         },
         {
+          "node_id": 25409,
+          "name": "Indomitable Army",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
           "node_id": 20546,
           "name": "Intelligence",
           "type": "travel",
@@ -2548,16 +2586,16 @@
           "effect_id": null
         },
         {
-          "node_id": 17735,
-          "name": "Intelligence",
-          "type": "travel",
+          "node_id": 27203,
+          "name": "Heart and Soul",
+          "type": "notable",
           "stats": [],
           "effect_id": null
         },
         {
-          "node_id": 22088,
-          "name": "Elemental Overload",
-          "type": "keystone",
+          "node_id": 17735,
+          "name": "Intelligence",
+          "type": "travel",
           "stats": [],
           "effect_id": null
         },
@@ -2625,15 +2663,15 @@
           "effect_id": null
         },
         {
-          "node_id": 2913,
-          "name": "Dexterity",
+          "node_id": 55649,
+          "name": "Strength",
           "type": "travel",
           "stats": [],
           "effect_id": null
         },
         {
-          "node_id": 55649,
-          "name": "Strength",
+          "node_id": 61283,
+          "name": "Mana on Kill against Cursed Enemies",
           "type": "travel",
           "stats": [],
           "effect_id": null
@@ -2684,13 +2722,6 @@
           "node_id": 5743,
           "name": "Life and Energy Shield",
           "type": "travel",
-          "stats": [],
-          "effect_id": null
-        },
-        {
-          "node_id": 24426,
-          "name": "Ghost Reaver",
-          "type": "keystone",
           "stats": [],
           "effect_id": null
         },
@@ -2800,9 +2831,9 @@
           "effect_id": null
         },
         {
-          "node_id": 21650,
-          "name": "Eternal Youth",
-          "type": "keystone",
+          "node_id": 64401,
+          "name": "Life and Mana on Kill against Cursed Enemies",
+          "type": "travel",
           "stats": [],
           "effect_id": null
         },
@@ -2849,6 +2880,13 @@
           "effect_id": null
         },
         {
+          "node_id": 44967,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
           "node_id": 9386,
           "name": "Life and Energy Shield",
           "type": "travel",
@@ -2858,13 +2896,6 @@
         {
           "node_id": 64426,
           "name": "Elemental Resistances with a Shield",
-          "type": "travel",
-          "stats": [],
-          "effect_id": null
-        },
-        {
-          "node_id": 50862,
-          "name": "Strength",
           "type": "travel",
           "stats": [],
           "effect_id": null
@@ -2884,13 +2915,6 @@
           "effect_id": null
         },
         {
-          "node_id": 21170,
-          "name": "Chill Effect",
-          "type": "travel",
-          "stats": [],
-          "effect_id": null
-        },
-        {
           "node_id": 18865,
           "name": "Melding",
           "type": "notable",
@@ -2898,16 +2922,16 @@
           "effect_id": null
         },
         {
-          "node_id": 32176,
-          "name": "Soul Thief",
-          "type": "notable",
+          "node_id": 21170,
+          "name": "Chill Effect",
+          "type": "travel",
           "stats": [],
           "effect_id": null
         },
         {
-          "node_id": 35255,
-          "name": "Ghost Dance",
-          "type": "keystone",
+          "node_id": 32176,
+          "name": "Soul Thief",
+          "type": "notable",
           "stats": [],
           "effect_id": null
         },
@@ -2942,6 +2966,13 @@
         {
           "node_id": 37569,
           "name": "Intelligence",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 30658,
+          "name": "Minion Life and Elemental Resistances",
           "type": "travel",
           "stats": [],
           "effect_id": null
@@ -2989,13 +3020,6 @@
           "effect_id": null
         },
         {
-          "node_id": 53456,
-          "name": "Intelligence",
-          "type": "travel",
-          "stats": [],
-          "effect_id": null
-        },
-        {
           "node_id": 13009,
           "name": "Dexterity",
           "type": "travel",
@@ -3033,6 +3057,13 @@
         {
           "node_id": 36585,
           "name": "Cold Damage",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 48362,
+          "name": "Mana and Life",
           "type": "travel",
           "stats": [],
           "effect_id": null
@@ -3080,6 +3111,13 @@
           "effect_id": null
         },
         {
+          "node_id": 29171,
+          "name": "Minion Life",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
           "node_id": 50422,
           "name": "Strength",
           "type": "travel",
@@ -3094,14 +3132,16 @@
           "effect_id": null
         },
         {
-          "node_id": 36858,
-          "name": "Intelligence",
-          "type": "travel",
-          "stats": [],
-          "effect_id": null
+          "node_id": 9083,
+          "name": "Minion Defence Mastery",
+          "type": "mastery",
+          "stats": [
+            "Minions have +8% to all maximum Elemental Resistances"
+          ],
+          "effect_id": 61283
         },
         {
-          "node_id": 9083,
+          "node_id": 41225,
           "name": "Minion Defence Mastery",
           "type": "mastery",
           "stats": [
@@ -3166,16 +3206,6 @@
           "effect_id": 4119
         },
         {
-          "node_id": 27307,
-          "name": "Energy Shield Mastery",
-          "type": "mastery",
-          "stats": [
-            "30% increased Light Radius",
-            "Light Radius is based on Energy Shield instead of Life"
-          ],
-          "effect_id": 51424
-        },
-        {
           "node_id": 25309,
           "name": "Withering Presence",
           "type": "ascendancy",
@@ -3207,11 +3237,13 @@
       "gear_slots": [
         {
           "slot": "Helmet",
-          "base_name": "Lich's Circlet",
+          "base_name": "Galesight",
           "stat_priorities": [
-            "to maximum Energy Shield",
-            "to Lightning Resistance",
-            "to Cold Resistance"
+            "(240-280)% increased Energy Shield",
+            "+(30-40)% to Cold Resistance",
+            "(30-40)% increased Elemental Damage",
+            "(25-50)% chance to inflict Brittle",
+            "Cannot inflict Freeze or Chill"
           ],
           "budget_tier": "endgame"
         },
@@ -3228,11 +3260,12 @@
         },
         {
           "slot": "Gloves",
-          "base_name": "Warlock Gloves",
+          "base_name": "Demon Stitcher",
           "stat_priorities": [
-            "to maximum Energy Shield",
-            "to Lightning Resistance",
-            "increased Cast Speed"
+            "(15-20)% increased Cast Speed",
+            "+(100-120) to maximum Energy Shield",
+            "+(100-120) to maximum Life",
+            "Sacrifice (5-25)% of Life to gain that much Energy Shield when you Cast a Spell"
           ],
           "budget_tier": "endgame"
         },
@@ -3248,57 +3281,64 @@
         },
         {
           "slot": "Belt",
-          "base_name": "Vanguard Belt",
+          "base_name": "Replica Prismweave",
           "stat_priorities": [
-            "to maximum Energy Shield",
-            "to Fire Resistance",
-            "to Lightning Resistance",
-            "increased Flask Life Recovery"
+            "(12-24)% increased Global Physical Damage",
+            "Adds (14-16) to (30-32) Fire Damage to Spells",
+            "Adds (10-12) to (24-28) Cold Damage to Spells",
+            "Adds 1 to (60-68) Lightning Damage to Spells",
+            "+(6-15)% to all Elemental Resistances",
+            "30% increased Elemental Damage during any Flask Effect"
           ],
           "budget_tier": "endgame"
         },
         {
           "slot": "Amulet",
-          "base_name": "Simplex Amulet",
+          "base_name": "The Utmost",
           "stat_priorities": [
-            "to maximum Energy Shield",
-            "increased Spell Damage",
-            "Critical Strike Multiplier",
-            "to Fire Resistance"
+            "(12-20)% increased Rarity of Items found",
+            "+(0-30)% chance to Suppress Spell Damage",
+            "+(0-5)% to all maximum Elemental Resistances",
+            "(0-40)% increased Attack and Cast Speed",
+            "Damage Penetrates (0-20)% Elemental Resistances",
+            "Corrupted"
           ],
           "budget_tier": "endgame"
         },
         {
           "slot": "Ring",
-          "base_name": "Vermillion Ring",
+          "base_name": "Mark of the Shaper",
           "stat_priorities": [
-            "to maximum Energy Shield",
-            "to Fire Resistance",
-            "to Cold Resistance",
-            "to Lightning Resistance",
-            "to Mana",
-            "to all Attributes"
+            "Shaper Item",
+            "(15-25)% increased Elemental Damage",
+            "20% chance to Trigger Level 20 Summon Volatile Anomaly on Kill",
+            "Adds (13-18) to (50-56) Lightning Damage to Spells",
+            "(6-10)% increased maximum Energy Shield",
+            "(6-10)% increased maximum Life"
           ],
           "budget_tier": "endgame"
         },
         {
           "slot": "Wand",
-          "base_name": "Convoking Wand",
+          "base_name": "Shade of Solaris",
           "stat_priorities": [
-            "Adds Cold Damage to Spells",
-            "increased Spell Damage",
-            "increased Cast Speed",
-            "critical strike"
+            "(17-21)% increased Spell Damage",
+            "Gain (10-20)% of Elemental Damage as Extra Chaos Damage",
+            "Critical Strikes deal no Damage",
+            "200% increased Spell Damage if you've dealt a Critical Strike in the past 8 seconds"
           ],
           "budget_tier": "endgame"
         },
         {
           "slot": "Shield",
-          "base_name": "Transfer-attuned Spirit Shield",
+          "base_name": "Atziri's Reflection",
           "stat_priorities": [
-            "to maximum Energy Shield",
-            "to Fire Resistance",
-            "to Cold Resistance"
+            "6% increased Movement Speed",
+            "+(40-60) to Intelligence",
+            "(180-200)% increased Evasion Rating",
+            "+(180-200) to maximum Energy Shield",
+            "+(20-30)% to all Elemental Resistances",
+            "Hex Reflection"
           ],
           "budget_tier": "endgame"
         },
@@ -3362,17 +3402,17 @@
         }
       ],
       "stats": {
-        "life_estimate": 2639,
-        "es_estimate": 4678,
+        "life_estimate": 3188,
+        "es_estimate": 4675,
         "dps_index": 0,
         "resistance_warning": null,
         "estimated": false,
-        "full_dps": 124721.7,
-        "total_ehp": 6122
+        "full_dps": 172999.2,
+        "total_ehp": 22866
       },
       "rationale_it": "Build Witch/Occultist con Vortex (cold). Difesa: es. Budget: endgame. Focus: tutti i contenuti. Albero e oggetti sono presi dai dati ufficiali di PoE 3.28.",
       "rationale_en": "Witch/Occultist Vortex build (cold). Defence: es. Budget: endgame. Focus: all content. Tree and items are sourced from official PoE 3.28 data.",
-      "pob_code": "eNrtWllz4rgWfudXuKiaug_jdLwvXUmqgIQkHbJBlu5-6RJGgDq2RcsyhJm6__1-soEYstbcqcnMVOdBkY6OdL6zSrbZuSByfD5s5iwesHS0t1P0tCmjs1M-oLv149OL8-5VXZNEjKi8oSJjPN2t29-MujYhqRxTnp6S71wc8sFu_YyntEJn6Ro9GhNBIklFh05p3MglL2UMSZyp6Zhk2RlJQLllMhrXNZJFNB20HujnUZTHkmWyrsVqj916CBwJYWmPR3dUHgqeT3brZl3rk3TA5FLy9t7OlaBUg3Q2pb0JjRTT3o7qYXkGTPOD4ZBGMtut_x4aga17phXY_9V_Ny3T1R3fdE0MLNe1MXJtw1dTvh0Yum2bVohR4Pq6azqWg77rW57umKaim7Yd-MuB5WPpgg1GBaaKSa2grmU04umAiHnjQfdjWNBYs4aiWAuLqb5d11KYEuBtz9c919QVGtOwTb3Ab7qhrZs-5szAsnQrNG3d9lyFMXB0xw4B0LEtaGZYegHe9R3YwHE83fM9R4f-tu67BprQDvTAhBmC0An0wlah6YQ66J4e-l4IuZYFwYbrQ7JpmAFaWBOtYxloPRc8AIK-bRjoFxYyHUOtcgyFHIygu55SoLCy6fsQaQZYhraQEgSeq1uGC4wWUFiqddGapm-gtTzVtw0TrecqSugGugUmtJBiqBYWsRwH-paetdwwCHXLCzxQfCzQS4dZvmOqvkJu-aEV6jZAuGhDILQtmBat44JiO7Zq_aLvwzi2E5q-bruWori-AU5XIYH9HUu1AeheoCi-C71suAl7BmaI2Ap9eMoxbOBRkAO0cArc5vjwlqnQAr1TtDC_A3CIT2gEihMqfieEXHQduDh0oYVrGJh1DQeBgB1hJVCB0LXhE7QOwsJ1LfDDJLCq66r9VVA4ugtU4Akss2gdRXFUyATICbS-h6AxbPB4pg3_esBpovVclVAhfOfZfhiqwLI85N91t7M3lnKSfdzens1mHyaoRnxI71lMP0Q82Z4gvpGwW9kdi-MtlS7bDfw1R6etwaw9bfBs__by8qjZCQ7PL_tp897pfLl0jw_ao26n2748-Prl9vP46_Sw55B-c3p_dB0MG-NvR8fTy-90fh5-OuHJSW8oT64D0WLS6XyaSTZ3slN5YPR-67fP8jt7dGVcXG51210jOuzdtD9lN83W9W2zO2ifzK9n7tXZTa93E3297bXt-efR2ZAk59--frnhQcJ98kOKtjXr9LtxMLLn_rDf3Lp3TvqjMN8PnXHM-rRD-b31XXjn3pdv3l12ePXJvc6T-eFATJwgzXqscXLZnkySZPojEuKLNe2fbPWn7rBJgjN5f9E_FNld-JvtXxpnwwurdfX1y2Br5pj97yQ_P3Bbnbsbetvxtvwpu2gMg7PP86Ppnb3lcVhxZ1uZf6esnJmqkedTKgRDHVGDbVUc8U8VTnApD2TLAqoGPSqLSptxIQ9pkjXn-xe9NqMx6lE7j2OMVGlGIcdsUfGveGvtBFhV_mzMZ41YXuYkZnKuNtutS5HTjc1XRLD38smknLuaT1Tha3Q69QVMINPYoAAnmYxxbuzTIcHBsWQoTozGgyotEkdZwb8xUdBYGsX5gB6nC62WMGLSVzrUNZqSfkwHK3gxh2WafDDXGiLhuYBY4NSKIFbV-gbA6T1KNs608ixaUhaHmoVq_6M0xtpALV6qsim1HB7GvE9i8ymitTL39gaehS1bPJWCx9hzn2ZYDzPwtIrygUFb43hv1DgWpSCSDsojfAPyalZbTr8r3iYuJNEYtCrMCvFdwR3ENIG5SNzmUZ5VEa5mtMXU-zodS2I5X_P0kvSXAdsuSsRfWFKOaJxQuVlN2jFssE-ycdUaBVErqT-Lyr82D47mE45HLZEwUgW5Rv735gMwTGm2mQ9HBPfEwZo5FpR3ddUhTangGVuvWlXqu8I7TrMJwzG5kZ1r5J_n_N8l8pucy0eBv3kG_A2qf694m3HL0rV8LKlaSX5XfB02pJJMquBWpJ_p-G7hfUvJhKeauRnhB-kgFywdtcRaEV2StYL-M-D_iQH_Tyjv28u3C8tutrdzLGmyfC2i-su3InlGF7FQxHJBLncs11TeUTzP-sTrC-RHYZfV04DGsNtxuVMJY6nP9hp79X3Eao318prFBWvFbr8mQp1KK27nFW4aV9C7LzM3kjyuKuu9zN5V1cB8YPdfZl_Vm9WC4E0LrIcF4csL8DyW3VUFmMZbFlQEmOZbFtiVBdZbFjiVBfZbFriVBa94-BOd0XhNafctC6pKP-Xn7UX-lIm0yKK9WpcIZP1HrdvoHtSKe3VRLco0qXVYNP5PprWYiBBIteNkErOIyeyjZtRMw_hFnVSCkkzVFywdzbXeWL3LrP3qBL9okmsdNhrLVMVVl2YskwQVaTXZ4vGgSi8xVgBazwOsJGbtasZiJQd7jVDEyAZO8w0420zQpyD-f_jt5_GXRaJ2S0TMo7vl8E8ysOlWF7ZIJjWcCHTwGKHzkoVRl1YAy9Hb8dlrEE6hnXoBsIDxZgO6L8BDIazdkHSUE7EYraH71TWViITcsyRP_gy3O2vqlnmtrgHgiaCfmGsK2WMlvOeVKAt0rceAnN4vh2_Xw_KqkGBc3DT3SUJGUMUuVSlPZlzymGQROj0p2B3VTtUXYYih4lljPFLEf14RdXTUbtS7kzjGNbscr-vh-H_cH5uB8nJ6-kFV0ilJSe1X01M0Avs0JCzQzyXS7ZGGwfMa3pJ0UMONasrvlLxiuKZgYzDINNdRYkK7RFy6QlEK12RImfBZh9nWM0mrHFmZ2HBka_y0s8LnVVkY_UqQNBtSsUWkzNMCDgP_cvrPK6KvpjmO9Qewp43D41btQFKRQkvlvUWu8SGsLtQPLp6YXYf7WIL5SMJlzqK7jMXI3AcBjYHAhTZmKX08_5oI65GIXh5Pxnllezmm2vksXp94bV_70b77jCTq0Wi1b5cOUT8Q0Wszr23sPNq4ybIkl-N1wPsobuszr238Qtle3G6QSahKshxuFArTcar5q0rsEzK812RYf1RG8Q8PKWccNWKvJ5GcH7WrMeWo8DdWRU5_rrXPm9qWtvwYP-T9LUnTDwiZiMYfyGRSq53QuZZyqR6SIHqfZZEquynVUEA0pCBT5UvXjtNMIr-krhIFl5qIDvM4pVmma_uUTvAUnA14omuHgkwpuCFGvc_AdENEBNsVL9YxSjlLZXE-0Wysa7ewEHiRu1oz5nygI0vTERWZ8m5b8AwSe8hKiWN0rmsXubJoMVeuv05TInOhThASQ36bMESBwt6TlMa61iSiDzdkmDvjCRmwSLuiJBpDCuD0Uj4bcjGiEHzE4zmCKYHGPF3gRknA_fKBWCBCmsd3VOjaKS1-X4VteB7DBYwOdW3jW4KuFd-wtAtBJ6R8yQN-yUWi4Xljqra5UF_Pi5rZmKggWDIptaGtXhSoMSVCFoU3jvK4YKmVvyYCG2LslqlvA6r0Q1JGUcd07YYzdfUgkdruOh0rBRvIEi6KbS8EHyrXKMMnO9tlPO3gDBmy0fLHVTeMzorr-cZPyv4HDpWCAg",
+      "pob_code": "eNrtWltz2sgSfudXTFG1tQ9RYt0lUk6quBgbry8EbLPZl9RYDCBbaBRpBCZb-9_PNyPAEjh26jysd7fih7HU09P99WW6R0KHfSpml5NWHkbjMJ5-PFRXZBGy5Tkfsw_13nn_cnBVJ4KmUyZuWJqFPP5Qt77odZLQWMwYj8_pHU-P-fhD_YLHrEQP4wo9mNGUBoKlZ2zBomYueKFjQqNMTkc0yy7oHJRRKIJZndAsYPG4_Ui_DII8EmEm6iSSMj7UG8Axp2E85ME9E8cpz5MPdaNObmk8DsVG88HHw6uUMQLt4YINExZIpo-H8grLM2BaHU0mLBDZh_qfDd23NNcwfesv7U_bME1ne2eYhqPZnuEYuDEdx8KdY-menPIsX9csyzAbuPMdT3MM27Rx7Ximq9mGIemGZflecQOnAlPJpaZfJxkLeDym6ar5aHsPHtQr3pAUc-0xeW3VSQxXArzleprrGJrUb-iWoSnEhtOwNMPDnOGbpma5jgTk25ptNYDGtkyYoZuaQup4Nsy3bVdzPdfWYKyleY6OoWH5mm_AZr9h-5pyU8OwGxrortbw3AZUmiZ06o4HpYZu-BjhOoy2qWN0HfAAA64tXce1codh63KVrUvQYATdcSV25VLD86DS8JV833cdzdQdoDOh35Sjg9EwPB2j6cprSzcwNhxfMyFTlyNMNx0bkougmU7Dx7Xru5DjgRWjCRNNzzbktcRpeg0TY8PwDM3SZRZYuguZFqDg2mgAoWXCqxhtBxTLtuToqWsPzrFsLNYsx9PB40g88Lyt_O-Dx3NgkYWoQI6v5PhGQ9ds3QIqCdzHiEBoRQ7ahu0hToZEbpuurUY43gZQzNo20Np2Q66yG46kNGC17VvwCcg2rhsOrHN0HZyObiMTcG_IRPUQT8dCZDTHMcHpOFK-TAdbc4AKdN801GhLii2TxUfqY_RcpItugUftEowW4usCrYHRdSSl4Zuaa3mNhkwsRAej6WIDXg_OPs6ESLL3BwfL5fJdgnLEJ-whjNi7gM8PEiQ4duzb7D6Mordyvxw08deanrfHy-6iybPO6NOnk9aZf3z56TZuPdiXw1br89FQH1y3jkfdyB7dPtznx_PlrT8w-ifL3uRhdab3rOxuMRx-PQ3vY28Y9X9b8pS1V8HZ5yw_65wNLo4y8-HqNrmwjxodvX8_uB6fXl_PH66PTgefu139Oj296kTnxk3wx9iP7M5nvXu3MEdd2j_9emkmHfowztqm_kcwuTCPfp-0J70LP7fM5SRj7bndv51-Yb0_Pgv37oReLriX3GfHV6fO9TQauuM0sf04G87atNdMmqP5nNK3ySoXd7SRpU6-SLxvXxfOpEX9C_HQvz3tB_z-m-X9_q0RzSyvc3eTX3y17av7Xj64cT4vUi9v3Hn23fLkS-fGn3nOxZd88Nbl8OLhgXT_YVE6M1kkLxcsTUMUEnlzIKsj_snKCS4ZgWxTQeXNkAlVajOeimM2z1qrTn_YDVmEgtTNowh3sjajkmNWlfwr3q60gG3pz2Z82YzEp5xGoVhJYR_qIs3ZjvAtEezDPEmKuatVIitf8-ysvoYJZCQcK3AiFBEaR4dNKDrHhkG1jOajKW0aBZni35lQtDAOonzMevHaqg2MiN5KG-qExfQ2YuMtvIjDMy0-XpFmOud5CrXASVQSy3J9A-DsATUbTa1oRhvKuquZKPdfC2dUbuTijSm7Wovb44jf0sh4imhu3X2wg2ftyzaP0WFESgUbF92wDLE8SzbTr4q3hd4ezEArwywRXxXcUcTmcBeNujzIszLC7QxZT7120EXKI8jssAzrkfs83on7moFUOF4XNZZEYlXBuSH9bcAOVIn4G0vKCYvmTOxWk24EH3RoNit7QxFJQf2ZX__Z3XuySjietdJ5SMsgK-T_7n4AhgXLdvfDCcU5cVxxx5ryqqE6ZjFLeRZWq1aZ-qrwenGWhGjuO7uzQv55OvmnZH6Lc7GX-Ls94B9Q_YfqdcYojCv7saCSgvyq-M7CCRM0KYPbkn5ux1dL7xGjCY-JsZvhR_E4T8N42k4rRXRDJor-M-H_jQn_byjvB5u3C5vL7ONhT7D55rWIvN68Fckzts4FlcuKXEgs1pTeUXyf9YnXF9gfyi_bpwESQlqvkFTA2NhzUGEvv4_YrjGfX7M-YG3ZrZdUyK605bZf4GZRCb3zPHNznkdlY93n2QeyGhiP7N7z7Nt6s13g_9AC83FB4_kFeB7L7ssKDP1HFpQUGMaPLLBKC8wfWWCXFlg_ssApLXghwqdsyaKK0c6PLCgb_VScD9b7p9hI6130sTagKXb9e3J90ft0fVQ7phHLwulM1IY8wlRG2mEaIIlqvXkShUEosvdEr5m-_ovsUimjmawtOI5PV2Q4k-8xa29sTApO2jwakwHEZYKiENXs6prtI2GHzumU1RxMBzPJKReH8QTqBGkBHnZzrU3jGBZvyN2UsW-M8JS05WurWmFeyTazZNugOYBl8plBVcLSnq5dLcNImgucU9Q_WjXTMJ4101dmdsOUlc3c0M-k3FhuqScmd32zh9_aj02HzbF7hkL-zMfS2hAHmpgUxWYnOhXUbZoJgobAANkwdal9Th_CeT7fNWhnVrY4aAnScBIiKKbzC-ETRZVcU5xbiJhRQeZ5MKuKIssZi8mK54VyKtU_FST7uSChKtZGNI14cL--q8ZGfyY2llOeO4eLZK5tvPCjMXD2YzBgEgIlfWyN-ZLRBasN8kyEARniuWEnDHYZRNEhSX-2yiBgm_XN8TgjhivxWGaRS8WMpCi3ZWseU1JMv4D9HR5JcP1S6u3xvTEcZTzFmfRxCz56IatZz25Tsj400nhFitJWHCz2vefue-9qxsi1mPNM1I6lFUV_ei55CwEy74ojw4TnMSJoVWqFPAylLMsKGzeeffNo6DbfnzS4WpeaQlBkHI0rO2dtfB_5qc5TGZE4n5bX5mmaJ0jifZ94-z45p-m9tE_AN8MZTbCzLxMpEV6ueqaYVY6omc6ztdSs-OcqDadTrFQ_HwE4HDaXpeQGJV6EESPNmM9pBDfH5DdZTYtk8uVax30um6r18emy8jSPKi7VLlKOHgknsn6khOOcm6GxKX8Q9CMaw9zxxg_rtnAL34k8jiHldrUG94wIUnblXpD8_SCBf8xklNZdEWURGEdIkp3kNb5nEDor6qWMC6TsbSqakaMHJBa6GeXZZkkbGFStGIo0vEfOjRluYv4Y5Zf89-uCqUWyBu9II6p8M5LIJPfXn1Bk-95o7HujKb6FafhrhqyfREy9eVb7GTW_lQf3EVK44hX3uWLsqp7TiwXAh1MmC_GOXUcLKj_2QC0Qck-8wfQzTczSX6hvJ-yhDPw6pqqAFanTztMMPNUiVFQ4GTiVT2uePU_hcProqvPmca9dOxIsjaH_nMZ0XS4hBV1Nfjf0xGzVb_sajD0Nn_IwuM_CaIF03ipojlM8lkVhzPbnX1Jh7qkY5lEyy0viZdpcLqPqxEtyrT25nZDO5QP-Vq6KygNcW5l5SbC9J7iF3pyLWRVwB3lXnXlJsPP908n6jI5Sfys3l7qtintj2PbeYWpfh_uSDvP_1aH-4VH7gqNbfRwKFIX3BA2YpytyY5b0IOu7ly3ylmw-KZnw27eCxe-QMgGL3tEkqdV-YysUHiEf9aG6E2ZBmMj8Un3yKkVtQ0Jr2MY4C8WB0OSOw14J2CSPYrRmrdRFRjS6Z6lGOowlZBRmYz7XyHGKs5QqA7HclnKBLEwD1G1cN9OAQpn68UiT7SqMJfQu0MykVogIFTh5rl9p5ITRVChsQ55HGhnJpwiUJ9S8VsT5WMNJK0ZLzGR2dFMcSDQc4AA8pymW9_PNqWOt4TqOqchT7NU2jYC2S0NkkZIvGIOCFk1vZWPA3AV66RgHwitGgxm0APAw5ssJT6cMik84Gm0HeGOYubYMtQnV9JGoEG39dM7UZ4aasgUhDNlEIzu_qGlE_ZKLcylLaPGqE_yCp3MykqdUiOnLb0hUA2gm6hC7ZpJmw1pNHSxn0nHqoSEK8kix1IqP6sCGHB2F8hcyGUVoymS11nCMCHFeh7VS3HU8kwY2sct4qsT2Uz6RwZOOnx8eFPl42ObxJJxuvjG8CdlSPaTufFn5P8YejZM",
       "viability": {
         "passed": false,
         "issues": [
@@ -3385,8 +3425,8 @@
           {
             "severity": "error",
             "code": "es_below_floor",
-            "message_it": "Energy shield stimato (4678) sotto la soglia minima per SC mapping (9000). Aggiungi nodi ES sull'albero o aumenta il budget.",
-            "message_en": "Estimated energy shield (4678) is below the SC mapping floor (9000). Add ES nodes on the tree or raise budget."
+            "message_it": "Energy shield stimato (4675) sotto la soglia minima per SC mapping (9000). Aggiungi nodi ES sull'albero o aumenta il budget.",
+            "message_en": "Estimated energy shield (4675) is below the SC mapping floor (9000). Add ES nodes on the tree or raise budget."
           },
           {
             "severity": "warning",
@@ -3413,10 +3453,10 @@
           "skill": "Arc",
           "supports": [
             "Spell Echo",
-            "Inspiration",
-            "Cruelty",
+            "Elemental Focus",
+            "Controlled Destruction",
             "Unleash",
-            "Controlled Destruction"
+            "Inspiration"
           ],
           "slot": "Body Armour",
           "label": "Primary 6L"
@@ -3562,13 +3602,6 @@
           "effect_id": null
         },
         {
-          "node_id": 39713,
-          "name": "Glancing Blows",
-          "type": "keystone",
-          "stats": [],
-          "effect_id": null
-        },
-        {
           "node_id": 24865,
           "name": "Strength",
           "type": "travel",
@@ -3635,13 +3668,6 @@
           "node_id": 36915,
           "name": "Sacrifice",
           "type": "notable",
-          "stats": [],
-          "effect_id": null
-        },
-        {
-          "node_id": 56116,
-          "name": "Magebane",
-          "type": "keystone",
           "stats": [],
           "effect_id": null
         },
@@ -3723,8 +3749,22 @@
           "effect_id": null
         },
         {
+          "node_id": 25933,
+          "name": "Life",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
           "node_id": 10575,
           "name": "Intelligence",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 14930,
+          "name": "Strength",
           "type": "travel",
           "stats": [],
           "effect_id": null
@@ -3767,6 +3807,13 @@
         {
           "node_id": 3167,
           "name": "Life Regeneration",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 34400,
+          "name": "Strength",
           "type": "travel",
           "stats": [],
           "effect_id": null
@@ -3849,9 +3896,9 @@
           "effect_id": null
         },
         {
-          "node_id": 53118,
-          "name": "Barbarism",
-          "type": "notable",
+          "node_id": 18302,
+          "name": "Life",
+          "type": "travel",
           "stats": [],
           "effect_id": null
         },
@@ -3863,9 +3910,9 @@
           "effect_id": null
         },
         {
-          "node_id": 18302,
-          "name": "Life",
-          "type": "travel",
+          "node_id": 53118,
+          "name": "Barbarism",
+          "type": "notable",
           "stats": [],
           "effect_id": null
         },
@@ -3898,23 +3945,9 @@
           "effect_id": null
         },
         {
-          "node_id": 44941,
-          "name": "Avatar of Fire",
-          "type": "keystone",
-          "stats": [],
-          "effect_id": null
-        },
-        {
-          "node_id": 24720,
-          "name": "Imbalanced Guard",
-          "type": "keystone",
-          "stats": [],
-          "effect_id": null
-        },
-        {
-          "node_id": 21650,
-          "name": "Eternal Youth",
-          "type": "keystone",
+          "node_id": 6289,
+          "name": "Bloodless",
+          "type": "notable",
           "stats": [],
           "effect_id": null
         },
@@ -3947,6 +3980,13 @@
           "effect_id": null
         },
         {
+          "node_id": 48287,
+          "name": "Life",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
           "node_id": 50340,
           "name": "Elemental Resistances",
           "type": "travel",
@@ -3964,6 +4004,13 @@
           "node_id": 7335,
           "name": "Armour and Life Regeneration",
           "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 48807,
+          "name": "Art of the Gladiator",
+          "type": "notable",
           "stats": [],
           "effect_id": null
         },
@@ -4103,13 +4150,6 @@
         {
           "node_id": 476,
           "name": "Strength",
-          "type": "travel",
-          "stats": [],
-          "effect_id": null
-        },
-        {
-          "node_id": 63965,
-          "name": "Damage and Mana",
           "type": "travel",
           "stats": [],
           "effect_id": null
@@ -4302,7 +4342,7 @@
           "effect_id": 34242
         },
         {
-          "node_id": 32241,
+          "node_id": 25011,
           "name": "Life Mastery",
           "type": "mastery",
           "stats": [
@@ -4311,7 +4351,7 @@
           "effect_id": 34242
         },
         {
-          "node_id": 41415,
+          "node_id": 32241,
           "name": "Life Mastery",
           "type": "mastery",
           "stats": [
@@ -4351,22 +4391,26 @@
       "gear_slots": [
         {
           "slot": "Helmet",
-          "base_name": "Torturer's Mask",
+          "base_name": "Fractal Thoughts",
           "stat_priorities": [
-            "to maximum Life",
-            "to Lightning Resistance",
-            "to Cold Resistance"
+            "(140-180)% increased Evasion and Energy Shield",
+            "+(25-40)% to Critical Strike Multiplier if Dexterity is higher than Intelligence",
+            "15% increased Dexterity if Strength is higher than Intelligence",
+            "1% increased Elemental Damage per 10 Dexterity",
+            "+2 to Maximum Life per 10 Intelligence"
           ],
           "budget_tier": "endgame"
         },
         {
           "slot": "Body Armour",
-          "base_name": "Twilight Regalia",
+          "base_name": "Death's Oath",
           "stat_priorities": [
-            "to maximum Life",
-            "to Fire Resistance",
-            "to Lightning Resistance",
-            "to Cold Resistance"
+            "+(8-12)% to all Elemental Resistances",
+            "Trigger Level 20 Death Aura when Equipped",
+            "+(40-50) to all Attributes",
+            "(10-15)% increased Attack Speed",
+            "(180-220)% increased Armour",
+            "+(60-70) to maximum Life"
           ],
           "budget_tier": "endgame"
         },
@@ -4382,57 +4426,64 @@
         },
         {
           "slot": "Boots",
-          "base_name": "Wyvernscale Boots",
+          "base_name": "Windshriek",
           "stat_priorities": [
-            "to maximum Life",
-            "Movement Speed",
-            "to Cold Resistance"
+            "(200-250)% increased Armour",
+            "+(10-15)% to all Elemental Resistances",
+            "25% increased Movement Speed",
+            "(10-20)% increased Elemental Damage",
+            "You can apply an additional Curse",
+            "60% increased Area of Effect of Hex Skills"
           ],
           "budget_tier": "endgame"
         },
         {
           "slot": "Belt",
-          "base_name": "Vanguard Belt",
+          "base_name": "Replica Prismweave",
           "stat_priorities": [
-            "to maximum Life",
-            "to Fire Resistance",
-            "to Lightning Resistance",
-            "increased Flask Life Recovery"
+            "(12-24)% increased Global Physical Damage",
+            "Adds (14-16) to (30-32) Fire Damage to Spells",
+            "Adds (10-12) to (24-28) Cold Damage to Spells",
+            "Adds 1 to (60-68) Lightning Damage to Spells",
+            "+(6-15)% to all Elemental Resistances",
+            "30% increased Elemental Damage during any Flask Effect"
           ],
           "budget_tier": "endgame"
         },
         {
           "slot": "Amulet",
-          "base_name": "Simplex Amulet",
+          "base_name": "Solstice Vigil",
           "stat_priorities": [
-            "to maximum Life",
-            "increased Spell Damage",
-            "Critical Strike Multiplier",
-            "to Fire Resistance"
+            "Shaper Item",
+            "+(10-16) to all Attributes",
+            "(30-40)% increased Damage",
+            "+(50-70) to maximum Life",
+            "Regenerate (8-10) Mana per second",
+            "Gain Shaper's Presence for 10 seconds when you kill a Rare or Unique Enemy"
           ],
           "budget_tier": "endgame"
         },
         {
           "slot": "Ring",
-          "base_name": "Vermillion Ring",
+          "base_name": "Mark of the Shaper",
           "stat_priorities": [
-            "to maximum Life",
-            "to Fire Resistance",
-            "to Cold Resistance",
-            "to Lightning Resistance",
-            "to Mana",
-            "to all Attributes"
+            "Shaper Item",
+            "(15-25)% increased Elemental Damage",
+            "20% chance to Trigger Level 20 Summon Volatile Anomaly on Kill",
+            "Adds (13-18) to (50-56) Lightning Damage to Spells",
+            "(6-10)% increased maximum Energy Shield",
+            "(6-10)% increased maximum Life"
           ],
           "budget_tier": "endgame"
         },
         {
           "slot": "Wand",
-          "base_name": "Convoking Wand",
+          "base_name": "Shade of Solaris",
           "stat_priorities": [
-            "Adds Lightning Damage to Spells",
-            "increased Spell Damage",
-            "increased Cast Speed",
-            "critical strike"
+            "(17-21)% increased Spell Damage",
+            "Gain (10-20)% of Elemental Damage as Extra Chaos Damage",
+            "Critical Strikes deal no Damage",
+            "200% increased Spell Damage if you've dealt a Critical Strike in the past 8 seconds"
           ],
           "budget_tier": "endgame"
         },
@@ -4506,25 +4557,31 @@
         }
       ],
       "stats": {
-        "life_estimate": 6071,
-        "es_estimate": 665,
+        "life_estimate": 5071,
+        "es_estimate": 281,
         "dps_index": 0,
         "resistance_warning": null,
         "estimated": false,
-        "full_dps": 26822.3,
-        "total_ehp": 19920
+        "full_dps": 67744.0,
+        "total_ehp": 21280
       },
       "rationale_it": "Build Templar/Inquisitor con Arc (lightning). Difesa: life. Budget: endgame. Focus: tutti i contenuti. Albero e oggetti sono presi dai dati ufficiali di PoE 3.28.",
       "rationale_en": "Templar/Inquisitor Arc build (lightning). Defence: life. Budget: endgame. Focus: all content. Tree and items are sourced from official PoE 3.28 data.",
-      "pob_code": "eNrtWllz4rgafedXuKiaug_jdGxZ3rqSVLEkZE86ZOnply5hBKjxQmwZwkzNf79HNhBDOkvPVE3u3Oo8KOjT8p1vO5INO5dMji4GzVyEfREP93aKT9pU8NlZ0ue79aOzy4ur67omWTrk8panmUji3br11ahrExbLEU_iM_YtSTtJf7d-nsS8IhfxmjwYsZQFkqenfMrDRi6TUseAhZkaDlmWnbMIkmseTUKW1jWWBTzutx5HjuL7XGRCJhgM1Ta7dR9QIibibhKMueykST7ZrZt1rcfivpBL5dt7O9cp5xoAiCnvTnigJu3tqE9YngHWfH8w4IHMdut_2IQ6RHdNy_1T_8OmFjWWHYdSw1mNGK7t6rZruBQ9alq-blFCCTomsTyy6lmEUHPVoyY17UUPrgWsimOJV9cyHiRxn6XzxqP9R_CjseYRJTEXflOf7boWw6HAT11Hp56rO7apmxax0cAC0_YtnfimpVum4-oFXNtwbBhALR2GObrjAqbjOhQW2hYa5QXLsnXPtwzdN2yi-yb1dd_yHN13fOxsGBaUGISo1qZEta6Se8RH6xtUN02PQH3hEZPYlgM8hoFRyzUxSg3bKVoXEA3oNm1H7ekolKbrQr3pWQbWelS1QEB1Ao0eWs8iOoE_LdViJjEd29AJBvGZuAbk1IV2Qj1YSmzf83XieI6jE9cEfuJZsAxe8SH3fQvOMVzVwgADrQ8taIHHIoav2iKShNqIIHEtjFoErrYspR1uNlQOKJ9Y1FM7UN_EqG3DRsv2bcx3fBV9x4cfLdfzqG75rgqK75sIm2E5qrUND62DIJTZgtYlOiVqf7TAQIlnGDq1LJfqlJqwlFIKn1Pqq7XUV3Mc28Vnj0AL9SjQAo7aAaA8BF-lhW1QQtDa0LJIaMND3MsasC1ED62L3CkLwbYpfAt7gN92TGBGuFzIPaJmFjGyPddBShW54QA5WmLAD47lIwplDaElaG3L8FCHN1eneyMpJ9nH7e3ZbPZhAmJKBvxBhPxDkETbEyQ5CncrG4sw3FI1s93AX3N40-zPDoMGD1pidiOb17POxSc5ah94n04eLo8PIu_L6Why24lmPe9q6hyeBIKK8-DINcb34vPgeO7Fbnecn9x499fd-99OxWz2-Vubnsl9c_ytl5znY4e0jcvLef_gyuhvXW0dn8z3vf2bu-b15PbCvT0-_ty-FdPfjpujo7u7A3Z5fH9BnPtg6Bvu5-E5vxt5-eHcHdxK3_vsHg62TlpNetIbnUf7Lh01ROfuxD56IOP2xafbL5deNO_03GOSx9_m_Hd2eJgMW-MO-2RPfm9NevcPh-lvZNo72TqXgxMvPjXI1P_c6GTd8cNl7-DG-3LwcO-euZm_ZYjDm6tz4ZO7w975-WxOSTo-yu9Onfjr7PDrcXOrb7nhNL__-jCDF3e2lft3SgbNFFdeTHmaCpCJ6mwrksQ_RaCYpSKQLYlUdbpcFkyUJans8ChrztuX3QPBQ5DSQR6G6CmKlsEIowX5XyettcNgdQhko2TWCOWnnIVCztVmu3WZ5nxj85UQ07v5ZFKOXc8niv0ap6f1BUwg00RJk1LIEAdImw9YHsrlhOLkaDya0mJhkBXzNwYKmYiDMO_zo3hh1RJGyHrKhrrGY9YLeX8FL0zgmWbSn2uNNEryFGqBUyuSWFF2Iw1A2jjZygOp6C6ONQKyvy_dsNZRy5ZGbOoru50w6bHQ_J6QrBy9vYFk4UXgCMP9YJRUYRVCrZS-K7qjOJuIlEkclVV8a-J3BdjCklDOq-BWoncFdhOHnGWjKrCV6H09lsQyTULs2eYZ1gebwX2coK3N-MdQbxf1_w_yxSEPIy43qeIghEvaGzEshFr7Zxj_Gur9kEc8liw8SII8q8JdjWiLoZ-08o_XATBMebZZB3cg-rUaWAjeNUAdHvM0wXPpWoyq0p_n5iv0gcdaCSy8Xz6Fb3DHalRbDv__5n0zSeSTtN9k_v8Bzu8WbynuRNxfuywWUq0Uvyu-UzHgkk2q4Fain-X4bul9x9kkiTVzM8P3436einjYStdIdCnWCvnPhP83Jvy_gd63ly8Mlh-zvZ0jyaPlmw71efmiI8_4IheKXC7E5Y7lmsprh-enfueNBOqj8MvqGUAT2G3xnreEsbRne2169RXDag15ec3ierWabr2mQp1Kq9n0ldk8rKC3X57ciPKwaqzz8vQrxQbm43T35ekrvlkt8N60gDwu8F9egKewbFxVYBpvWVBRYJpvWWBVFpC3LKCVBdZbFtiVBa9E-JjPeLhmtP2WBVWjvxfn7UX9lIW0qKK92hVLUfUftavG1X6tuFcXbFGWSe0aHJOnPP1Ppp3BjNpRNAlFIGT2UTNqv5qUajLBCfYgojzSFCXWfqXeL0p4KoYjGauEuuKZyCQDFa0GW0nYr8pLcBVk5HlklYqsXc9EqPRgryHYi23i8_xn8R2IlH8P2t_DbT2Pu2SF2t18ytM4C1jItQ7LYzCVzDZxE__H_Grav6g7Q8pZBk0tlkkNJwDvPwVIX3IseGgNXyl5HZu1pv4MdqpH_AWEN_vOfgEaSK92y-JhztJF7-2Z-EORpkbVlLJ21W6YE8CudK4pRE_BO8-DL0m41hVAzB-W3de9SpwqlPJVcZtFbAgTrNKE8tTFBU5IgYhpXZmKMdfOcOoJbM_TZ53wxAD3eQPUsVC75WmEsxtX6LK_gd_8cf9vJsTLFeh6VQVnLGbQ6igZg18aEpb3cokCe2KZ97xldyzu13BLmiZjpa_orhnW6PczrbTNdP0KtDIQSl4EJquZhv9suCzyTHmqMFYGNsLYGn0_VP7zBnVH6suh2nXK4mzA0y0mZR4XcATmL4c3Ymf7fzt2TzDioH4EedboHLVqbTEVMS-rqSysZABTwYHBSGXUk_F1nE9VmE9UfMpFMM5EiEJ9VNHop7ijhtj76fhrKsgTFd08nIzyyvZyxLWLWbg-8Nq-1ne8wyL1tLPa94oPQBdI6LWR1zamTzZuiizK5WgdcBtctj7y2sYvsPPiwoJCAhnJsvsGfn6qw3lNB_mrOop_eO44T0ARe0i6If-oXY94AkK_JRU9vbl2cNHUtrTlV-aDpLclefwBKRPw8AObTGq1Ez7X4kSq5x6obossUGyL3AV_aKg9oShC147z4RBnKculrnWTPCzznfNQ15YxxfNQrGuNOBGxLM4bno10rZOEPMKVqxkmSV9XxTtWh2Aezlg6Rp8FqRiIgOtaM2XqUNK1yzQZsFhxBo9QlEp0xaIJS6F7mUlQy6eJegui9ogDidNULc2VxxW4hfoDJpAVypYF2iZLewhLFik9-MdAUwvo50nE-uhdc1ZUMZQcJuEcCRbBC0pTK4l6TKpCh4Shj4truTv4TRQT4gxPbPkCmEzSSMOTAuxCD_cIOBYYzopfEi3zt6FKWgdhh1WvFkbBllr56x70kEhHsfpSRF1IMjX1C2eYuSG8Fbjmwp2XIskzTf10q-Khne0ya3YAdCCGyx883Qo-K-7VG7_0-i-Jn1YC",
+      "pob_code": "eNrtWltz2kgWfudXdLlqax4ix7pLpBxXcbEJ8R2wvclLqg0N6lhIWGqBman97_sdCWEBjp3ah8nO1OShI_XlnK-_c-uWObziKrgcNzMZjmQ0OTrMn9hcisV5PBIf97rnV5e9wR5TPJkIdSuSVMbRxz3rm77HZjxSgYijc_49Tjrx6OPeRRyJSr-MNvqHAU_4UInkTMxF2MhUXOgY8zCl4ZCn6QWfomcgprOQJ3uMp0MRjVrPI93oMZOpVDEGQxLzca8OKFMuo348fBCqk8TZ7OOescfueTSSqlR-cHQ4SIRgACDnoj8TQ5p0dEhPWJ4C1vJ4PBZDlX7c-8MxbdfUPMPy_qP94diWrZcvrm3r7npE9xxPczzds_FmG1Zds2zTNvFimJZvrt9MRzeM9Ztlmnb5BmoBq0Ks6e-xVAzjaMSTZeN5_13wqG8wQj3Gijd6dvZYBEKB3_ZczfY9zXUMzbBMBw12YDh1SzPrhqVZhutpOVxHdx1swLY01_TrGnbnaq4HdK7n2timY6EhKizL0fy6pWt13TG1umHXtbrlu1rdrUO8rlvQpJsmtY5tUutRv2_W0dZ1WzMM3wSGnBbDdCwXoHQdo5ZnYNTWHTdvPbSkxwA09DsuSXYJsOF5AGH4lg4Jvk0tcNiaCb0-Wt8yNdPAtqjFTBPd1Ho6emwfGy3MYIIHi1ps2HR919VMz8AuTN-CXhBUR3-d5li6Ry22oaOtQwta4LFMvU5tbkbTdhy0noVRywTrlkXawbhO7kDMWHAaSLB9kmPXDcxxHOzXcuoOVrl1w6EWnFqe79uaVa8bsKBuudQ6uo_WhSlsw_ZMzTZJMlpot00fkm3L8mzNtg3s1LZtcG7bdVrlOh5a34RMamF037aox9fxXDdIDuD48APyEEe3TROtAzwr39Z9WL8IB8eCDdF6cKMiJhzHBsPYCZDDUB56fJPm5NZxfM-FX-W-4QI5WlPH3osQQmuidSzdRxje9M6OAqVm6YeDg8Vi8X6GvBSPxZMMxfthPD2YwccRt_vpgwzDfQqZgwb-NSc3zdHi07Ahhi25uFHNwaJzea2C9ol_ffp09flk6n956D1knfCG3zfnT51v8XC2PJNdY_F93u8_fh750dlyrE779mywnF2czibZWbspzq8mS31w17_IJqY7mPUv1aTe_t2PejejT-OHseynwVXz5GRy494OMmN4cXdaD7p3nd-_3hhhcPd9yb-r7DHqXo0uDbv97zAenwV-Zhn34_HJ_pP1TU4mojW1B1-Dy_3Ol27QkJ27U6f7ZD60L69vv1750_3lKJnZfpSasnF6_XXWnkbnp2GWHAv1nddTNT7Ngc8HfH_mfbtdNJPj2fnAfLq96vSGPPv90rsaq25gHA--zEdhYLXPvvPsWjpf5o_jb42x__DJC-fZ47enBVg8PCD6D4sEmlKqvJyLJJHIJfRyQDkS_1H-xCyyQFrmUXrpC5UnojROVEdM0-ayfdU_kSJETjrJwhBvlKHVMMBonvsHcWujFqxrQBrEi0aorjMeSrUkYR_3VJKJLeHrTkzvZ7NZMQYDUvJrnJ3trWACGZNFllRShagfbTHmWajKCXnhaDxvpcXDYZrP3xrI-2Q0DLOR6EarXZUwQn5Pe9hjIuL3oRit4YUxmGnGoyVrJNM4S6AWOFnuxJSxG8kQORuFrahH-euqqpnI9Y8FDRsvtKzcxLa-4rUTxvc8NF7qNNdEH2whWbEIHGF4PAziKqy8kxW9vxTdcSimIlI8PImHWVqFuB5hq6FfirMVRyqJQ8hsixTr4UZxVIX7PIFtzPilqG-iUPA0qOJcd_1SYN0oncmEb5O40f2nATzI08GfmD4-iXAq1HbmOAnBQ3vLXHkna_96i_01A-Avk16wJFTLDT7Lrr9vHADDXKTbcXCHBLARA6uOX2qgjohEEuOWumGjau8_-fSN9IFLrgIWMSru5Fu5Yz3KyuG_r98341jtuP125v8_yPn9_JvFnYxGG2fHvJcV3b8U35kcC8VnVXDrrn_C8Ze5953gszhixraHH0ejLJHRpJVsJNGym-X9_zj8X9Hh_wrp_aD8flA-pkeHXSWm5YcPei6_e2SpWPlC7st5dyGxWFP5CvHjqS98oEB85Lys7wBMQtrqq28Bo9zPwcb06heH9Rrz9TWr49V6uvWWCqpK69n2G7NFWEHvvD65Mc3C6mbd16f3KBsYz9O916ev8816gf9TC8znBfXXF-AWlj5UFRj6zyyoKDCMn1lgVRaYP7PAriywfmaBU1nwhoU_i4UINzbt_MyC6qZfsvPBKn6KQFpF0VGtxxNE_Qd2c9G9vjmundCnRFzOBkGcTQKV1m453s6xhVp3OgvlUKr0A9Nrhq__i8pUInhKyWXO6Y8ujCNfH-NsPlmyfkCfLWvvbExUMYqMVHIIWX2VyAfBzhGZEgJFwuQYN9cnJQgIkykL5CRAtwp4xLqREmEoJwKZrGY4VZ2VNWOSKqKJCl5fvwF5fRFt8ymfCDbDGkN_Flt7ZxLwc_4kp9mUUcIv52xILZit0Gru0toWuEr9lrJL_Fdr4JYOtVch8vImq-8MMyeL00fCNb6eSGWqOHSltUFCH7wTln_rZSbBhUjWyBLOFoGI2PFjJmczAeIdvRTVUOD8PlNYv0khBvjwgaFaYIFpbpi0SHq1d14uZlphgXiMx-XiFXtnQgwDLONpMedLnDHFYWgbOFoBj9Mqz8Vf5dg4Tpi1ekkZ_OcU5aHWiRPBTpAVZziewAV3CLYqBPcaveNafh_Mq1yRe2t3y7lIohT-JliHZxHqAQRtc13f2dk7288NcAYXUhGlw2fyt7hr8VStmNsBaO96AJ1i0iCR4qHWEzLCzocEF8II7wYy03nREKT-Vd8wN_CdgwiaVFpXf835c3MNES98NguXjB5GI0kHZkxpZUkqau4WKMHJCYpTBT19Ek-sKO-7fDi7fPQE7Zizq0Sm0wWxUOtlKVIE6-MCtkWIXVVdHDXYVbBM84Sy2kFjBBcyXKLIMtmJTETpcOjJv7unqzl5WJs-a8Xh6EdzqMP1K36wM-9te1ivUs5Wp28eLVlRIwoud9lzd9nrxyFxJditnMiwdhktn1hR7DeZ6wecwo1EAbD7QkKwN0CuuHwp6HtisooyyoDnPOKVSK51cIthhTakuatEpJQb8wDH7DLC8wy1hKvlVyLOsCvBMOUmko-ZoMoxXdboFwsxJUhkDRkhnSOlRDExK5J5fomjhJ-HH0bgqpT8dlnzdlk758kDuaoKxApr7XJGRoMdfszbZljtRA4F1jAgixNlO_m5n02nQHwbI9tLZKNGFE85QqxMdoW7-bTWcV_zN2PDUKVpNovty3Ny823W6-LvUCsdYBM2SViMK0WKM0TOBxVScHscjkoeWjyKcOa4B3cqiyJIuV-uwL0iglWp3DGS_4JrB3wkyErwcYyktT5hvMPJYispGD_aUOGMZBdKUNthB585fkIB3ihKta3jScpGAi9wu7WV3-Lvt7nIF8Erdw47gEM-NyOf9cto2GWj_uO6tjLwIOFROhbJPlewQQ5EYn45vFXgnB8XuDw_Vmpb2Z_nxEr_DkacwJ9Bnjc63VatLecyEsUBqchkZD2FsjsMKLJ2xjdx7qowdlRcZ3L4kMoQVf1ZRWOEMx8urZHYHX9Lhbmjop-FsyCriCeLXS7CzYG35FovsMOndNZZy-2JcSiekHo3Rt4SbO8IbqJwZjj7bQBuo-pvjrwl2Pmx061uIrUWFVxVvG77mG3v-NiuDvctHeb_qiP_Lz06vIhRzI7gdBPxAZcXESdLdmtW9CBXnVw22T4rfxozju_3lYjew2WGInyPg0-tdiqWiHlFHzSgui3TIV1R4Lt0r0HsSUrNGvucUY6PeKY0ZKksLPxdiFBjpU1xEoo0SvY4wQoysUgDjXViZCPUx2YYxyONgvcBg80sXKAy4Z0PEzlGWddYM8GJKFlqKKXxmANBKxBTBCV19fh0xhPoLj0JasU8pspIMqKhyni-NMtvRwC3Un_CJbyC9rJCmx--eH7oyvE2eXJPOXeqsQuUqREGBoLnUQwlOWpIwuOnGCWsHU9BCCltxdN7rijm0cOx70SVDtkJIYarOMEsXFkL9Xllp2URTjEqWyHHpCm7o6MgJveRtME8QJ7nvygs5TUo5jXUg7BKe75rurMVv_LDGzytG9GfQyn7pzT1K5Kztt15KxOVge8rGWc4t-AuVaHw8KBwq0MAHctJ-cPHWykW-Y166xef_wUtVsCq",
       "viability": {
-        "passed": true,
+        "passed": false,
         "issues": [
           {
             "severity": "warning",
             "code": "res_always_gear",
             "message_it": "Le resistenze si cappano con l'equipaggiamento, non con l'albero. Punta a ~135% totale sugli oggetti per coprire la penalita di Elemental Weakness.",
             "message_en": "Resistances are capped through gear, not the tree. Aim for ~135% total on items to cover the Elemental Weakness map penalty."
+          },
+          {
+            "severity": "error",
+            "code": "life_below_floor",
+            "message_it": "Vita stimata (5071) sotto la soglia minima per SC mapping (5500). Aggiungi nodi life sull'albero o aumenta il budget.",
+            "message_en": "Estimated life (5071) is below the SC mapping floor (5500). Add life nodes on the tree or raise budget."
           },
           {
             "severity": "warning",
@@ -4798,9 +4855,9 @@
           "effect_id": null
         },
         {
-          "node_id": 56116,
-          "name": "Magebane",
-          "type": "keystone",
+          "node_id": 10031,
+          "name": "Life",
+          "type": "travel",
           "stats": [],
           "effect_id": null
         },
@@ -4808,13 +4865,6 @@
           "node_id": 48438,
           "name": "Bravery",
           "type": "notable",
-          "stats": [],
-          "effect_id": null
-        },
-        {
-          "node_id": 10808,
-          "name": "Vaal Pact",
-          "type": "keystone",
           "stats": [],
           "effect_id": null
         },
@@ -4931,6 +4981,13 @@
           "effect_id": null
         },
         {
+          "node_id": 36949,
+          "name": "Devotion",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
           "node_id": 32091,
           "name": "Evasion and Spell Suppression",
           "type": "travel",
@@ -4959,6 +5016,13 @@
           "effect_id": null
         },
         {
+          "node_id": 2913,
+          "name": "Dexterity",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
           "node_id": 63843,
           "name": "Dexterity",
           "type": "travel",
@@ -4968,6 +5032,13 @@
         {
           "node_id": 28012,
           "name": "Dexterity",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 44908,
+          "name": "Strength",
           "type": "travel",
           "stats": [],
           "effect_id": null
@@ -4987,13 +5058,6 @@
           "effect_id": null
         },
         {
-          "node_id": 34678,
-          "name": "Life and Elemental Ailment Avoidance",
-          "type": "travel",
-          "stats": [],
-          "effect_id": null
-        },
-        {
           "node_id": 53114,
           "name": "Revenge of the Hunted",
           "type": "notable",
@@ -5004,13 +5068,6 @@
           "node_id": 61306,
           "name": "Dexterity",
           "type": "travel",
-          "stats": [],
-          "effect_id": null
-        },
-        {
-          "node_id": 19069,
-          "name": "Thick Skin",
-          "type": "notable",
           "stats": [],
           "effect_id": null
         },
@@ -5043,13 +5100,6 @@
           "effect_id": null
         },
         {
-          "node_id": 63620,
-          "name": "Precise Technique",
-          "type": "keystone",
-          "stats": [],
-          "effect_id": null
-        },
-        {
           "node_id": 25989,
           "name": "Nomadic Teachings",
           "type": "notable",
@@ -5078,23 +5128,9 @@
           "effect_id": null
         },
         {
-          "node_id": 3469,
-          "name": "Dexterity",
-          "type": "travel",
-          "stats": [],
-          "effect_id": null
-        },
-        {
           "node_id": 44429,
           "name": "Life and Elemental Resistances",
           "type": "travel",
-          "stats": [],
-          "effect_id": null
-        },
-        {
-          "node_id": 24720,
-          "name": "Imbalanced Guard",
-          "type": "keystone",
           "stats": [],
           "effect_id": null
         },
@@ -5116,6 +5152,13 @@
           "node_id": 13202,
           "name": "Cold Damage and Cold Ailment Effect",
           "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 33435,
+          "name": "Holy Dominion",
+          "type": "notable",
           "stats": [],
           "effect_id": null
         },
@@ -5176,22 +5219,8 @@
           "effect_id": null
         },
         {
-          "node_id": 39085,
-          "name": "Elemental Equilibrium",
-          "type": "keystone",
-          "stats": [],
-          "effect_id": null
-        },
-        {
           "node_id": 50862,
           "name": "Strength",
-          "type": "travel",
-          "stats": [],
-          "effect_id": null
-        },
-        {
-          "node_id": 23471,
-          "name": "Dexterity",
           "type": "travel",
           "stats": [],
           "effect_id": null
@@ -5207,6 +5236,13 @@
           "node_id": 65210,
           "name": "Heart of Oak",
           "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 31931,
+          "name": "Strength",
+          "type": "travel",
           "stats": [],
           "effect_id": null
         },
@@ -5255,6 +5291,13 @@
         {
           "node_id": 59606,
           "name": "Dexterity",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 15064,
+          "name": "Strength",
           "type": "travel",
           "stats": [],
           "effect_id": null
@@ -5358,6 +5401,13 @@
           "effect_id": null
         },
         {
+          "node_id": 26866,
+          "name": "Sanctity",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
           "node_id": 37619,
           "name": "Evasion and Elemental Resistances",
           "type": "travel",
@@ -5367,6 +5417,13 @@
         {
           "node_id": 9206,
           "name": "Life",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 12536,
+          "name": "Elemental Damage",
           "type": "travel",
           "stats": [],
           "effect_id": null
@@ -5449,7 +5506,7 @@
           "effect_id": 34242
         },
         {
-          "node_id": 3042,
+          "node_id": 4139,
           "name": "Life Mastery",
           "type": "mastery",
           "stats": [
@@ -5489,54 +5546,65 @@
       "gear_slots": [
         {
           "slot": "Helmet",
-          "base_name": "Torturer's Mask",
+          "base_name": "The Tempest's Binding",
           "stat_priorities": [
-            "to maximum Life",
-            "to Lightning Resistance",
-            "to Cold Resistance"
+            "Socketed Gems are Supported by Level 18 Ice Bite",
+            "Socketed Gems are Supported by Level 18 Innervate",
+            "Grants Summon Harbinger of Storms Skill",
+            "+(100-150) to Evasion Rating",
+            "+(40-60) to maximum Energy Shield",
+            "+(60-80) to maximum Life"
           ],
           "budget_tier": "endgame"
         },
         {
           "slot": "Body Armour",
-          "base_name": "Twilight Regalia",
+          "base_name": "Death's Oath",
           "stat_priorities": [
-            "to maximum Life",
-            "to Fire Resistance",
-            "to Lightning Resistance",
-            "to Cold Resistance"
+            "+(8-12)% to all Elemental Resistances",
+            "Trigger Level 20 Death Aura when Equipped",
+            "+(40-50) to all Attributes",
+            "(10-15)% increased Attack Speed",
+            "(180-220)% increased Armour",
+            "+(60-70) to maximum Life"
           ],
           "budget_tier": "endgame"
         },
         {
           "slot": "Gloves",
-          "base_name": "Wyvernscale Gauntlets",
+          "base_name": "Southbound",
           "stat_priorities": [
-            "to maximum Life",
-            "to Lightning Resistance",
-            "increased Attack Speed",
-            "Adds Cold Damage"
+            "Adds (60-72) to (88-100) Cold Damage to Attacks",
+            "(12-16)% increased maximum Life",
+            "+(40-50)% to Cold Resistance",
+            "100% increased Freeze Duration on Enemies",
+            "Your Hits can only Kill Frozen Enemies"
           ],
           "budget_tier": "endgame"
         },
         {
           "slot": "Boots",
-          "base_name": "Wyvernscale Boots",
+          "base_name": "Annihilation's Approach",
           "stat_priorities": [
-            "to maximum Life",
-            "Movement Speed",
-            "to Cold Resistance"
+            "Grants Level 20 Approaching Flames Skill",
+            "(60-100)% increased Armour and Evasion",
+            "30% increased Movement Speed",
+            "Cannot be Chilled",
+            "Cannot be Frozen",
+            "Take 6000 Fire Damage per Second while Flame-Touched"
           ],
           "budget_tier": "endgame"
         },
         {
           "slot": "Belt",
-          "base_name": "Vanguard Belt",
+          "base_name": "Prismweave",
           "stat_priorities": [
-            "to maximum Life",
-            "to Fire Resistance",
-            "to Lightning Resistance",
-            "increased Flask Life Recovery"
+            "(12-24)% increased Global Physical Damage",
+            "Adds (14-16) to (30-32) Fire Damage to Attacks",
+            "Adds (10-12) to (24-28) Cold Damage to Attacks",
+            "Adds 1 to (60-68) Lightning Damage to Attacks",
+            "+(6-15)% to all Elemental Resistances",
+            "30% increased Elemental Damage with Attack Skills during any Flask Effect"
           ],
           "budget_tier": "endgame"
         },
@@ -5566,12 +5634,14 @@
         },
         {
           "slot": "Bow",
-          "base_name": "Imperial Bow",
+          "base_name": "Wing of the Wyvern",
           "stat_priorities": [
-            "Adds Cold Damage",
-            "increased Attack Speed",
-            "critical strike",
-            "Accuracy"
+            "(20-24)% increased Elemental Damage with Attack Skills",
+            "Trigger a Socketed Spell when a Hit from this",
+            "Weapon Freezes a Target, with a 0.25 second Cooldown",
+            "Adds (164-204) to (250-300) Cold Damage",
+            "Adds (163-199) to (241-293) Chaos Damage",
+            "(20-30)% increased Attack Speed"
           ],
           "budget_tier": "endgame"
         },
@@ -5635,25 +5705,31 @@
         }
       ],
       "stats": {
-        "life_estimate": 5721,
-        "es_estimate": 515,
+        "life_estimate": 4593,
+        "es_estimate": 164,
         "dps_index": 0,
         "resistance_warning": null,
         "estimated": false,
-        "full_dps": 10768.3,
-        "total_ehp": 18070
+        "full_dps": 32284.0,
+        "total_ehp": 14982
       },
       "rationale_it": "Build Ranger/Deadeye con Ice Shot (cold). Difesa: life. Budget: endgame. Focus: tutti i contenuti. Albero e oggetti sono presi dai dati ufficiali di PoE 3.28.",
       "rationale_en": "Ranger/Deadeye Ice Shot build (cold). Defence: life. Budget: endgame. Focus: all content. Tree and items are sourced from official PoE 3.28 data.",
-      "pob_code": "eNrtWltv4kgWfudXWEijfRinscv3VhIJSEjoTiABmmzPS6tiF1DB2LRdhiaj-e_7lQ3EkGvvSpOZ0XZLFdepU3W-c61LcnhFxaQ7amQ8DHg0Pj7Mv5QFZ8vLOGBH1fblVbc3qCqCJmMmhixJeRwdVY1vWlWZ00hMWBxd0rs4OYuDo2onjliJzqMduj-hCfUFSy7YgoX1TMSFjBENUzkc0jTt0BkoPRqNWVJVaOqzKGg-DJwwGrAVmEO5xFHVA4wZ5VE_9qdMnCVxNj-q6lXllkYBFxvBtePDQcKYAuF8wfpz5kum40P5hekpIK1ORyPmi_So-rtFTJuojm44f6i_W6ZhapuObZqavekQx3B01XI0x5R8mmM5255tWcTd9ohHVMMkJsG3oZmbDowKUCWTEreqpMyPo4Amq_qD6m1YUNsxhqSQtcXW3xFMCfTEcFUpzzRN1XQdVTeIhQY6FJJ124F421NNDxyWqQGmrdsqVENjuZpqO6YOHaUJDMNSXc_QVI9Ab8_2sJTmYgpa4qm6bnqQoNuWLuVoBK3rgsfULFvVLddwZAuxui3l6g7-oyUaWteU_K7taGgdzVB1TwMs3dOBS_ccHTyea0EbTdM1leimbsgWkAghkEIME6sRkEE3sSha1wbd0iCLWJ6kW57rqcS2CL6hk42WuPJb-o44jov1XU0nsJnkN3RDt1So4ulodR22MnTPRktcaTfN0KX1HFc1HEsz0dq6pxqeBjwGMIPuuURXwQj7IVgsA61jooWqNlqJx4RKeQtDmxCvwVs6LACfwapwBIxt2tI1ppOv45rwKpTzZOtqDlpPcnq6ljtScnpwj2ppFvCvY1FzMbcIZot4QGsZGmxuGfBb3sL1huMZiAIdPioi3bKkLhZYHdkikizLNrGyDTfIUEGsWLYBr1kesTDqSbS25mEFWzfkN9zroHUQLTYM6qEFDS3UUIsUgkPg0zxLkIZfehfHEyHm6cdabblcfpijJsUj9oOH7IMfz2pzRDny9iCd8jA8kElTq-NfY9xuBsuTrN6_bizq51Gjr7Wu6gt-0nI7d73OdatfH7qNaXZ2e02HvYV9_tnnJr8inwL3e7c571x0p2J83-137jRinxjBFWt_-6RdDq7vW-fm9C7rX3ufR1-S9uDK60yn5vcv9nCQ6X7nxvZY76Z5_bXfmthk2Pnt6zCakZjReee7TVaXtzc_NOff88FoKLzg61k6HrNTxwzING72XYuL2Yre3v1GvkcpGX2yu5_n9ZvpGb225vfNtGeTTnJn6_2LaXMxoAfdxI4Wq7Nvun9aX96ft764v7V-fHcundSO75fJFUu9A42fD0aid6qvjK9NbzImN-d0GaSacXIRBd27G2fsLNjiU8P7siDxN356cHPlhAvb_vZtDCse1qT5D4sCmspS2V2wJOGoJrJTkzUSP2T9BJf0QLqpo7LTZyIvuGmciDM2Sxurk6t-i7MQVamVhSF6skILf4LRvO4P4ubOPrCt_-kkXtZDcZ3RkIuVXOyoKpKM7S2-JYK9n83nxdhgNZflr35xUV3DBDKFBzk4wUWYbx4jmoViw5BvHPUHVZo09NOcf28gp_HID7OAtaO1VhsYIb2VOlQVFtHbkAVbeGEMyzTiYKXUk1mcJRALnEoexLJmt33Wn8QClRs7W7EngaQUtPX2RlD2vxf22OnI-Rtt9gUX3bMwvqWh_hSRbC1e24O0Nmcr3xHrQlB_mpbxFQPKduRdUZ6GbMYiQcMTOqNjtuRi8gTkLZdSsCmS76-mQSv2s2dQr4feFWcTU0KxKgPckt4VWAOnO38CWhlaifingavldeJPrCvnLJwxsV9S6rdpHGYCx8myQcrUd3UX7gMAUeRhGWBBVzYD71v7GJMXoVbCovudiF8PKJuRd0V5lbCAijgpA3yg_XPDHhgWLN0P-3OKM2FQtsWG8q5OOmMRS-KU71bOMvVd4bWjdM4Tul8tdsjvu-3EES68AlhYUNzOd3ag0qiyGf7nRn4jjsWjwG-FMMcJTSc7hUoSlYL6rv7r508ZNzzaSc2CqhTkd8V3wUdM0HkZ3Jb0Fzh_N9Fiw3ni_L0d-eeG-w1u0zgS6PsRfxoFWQLdm8lOUd2QlZz-_6j_O0b936Hc1zYvC5vP9PiwLdhs8yQivzcvIlnK1rGQx3JOLlYs5pTeJ55nfeLpAvmR22V7CVA4VmsXKxUwNvrUdtjLbxHbOeTlOesD15bdeE2E3KW23OYr3CwsobdeZq7PsrCsrP0ye09WA_2B3XmZfVtvthPclydgl02nZX7vLfyk5CztLROM0gT9LRPM0gTylglWacIr3v3Eliws66ybb5lQVvopJ9fW2VCkxTonjis9miCHPyq9eu-0kp-a89wvgr4yQMXIEpb8K1UuoUalPZuH3Oci_aholV9101REjP3oB59lM0UWuMqvpvuLJF7w8UREMjx6LOWpoCgs28FmHAZlegGuhIw8j6yUX5XBkodSDtYaoxbRfXyu9yy-Fk_YU9D-N9zG87iLHK_crBYsiVKfhkw5o1mEuiPSfdzE-zm76vYv8gSQMJpCUvHspqCis6BSD4JU0Q05lZiFAusnOlDWD3SP9TBfsj-Kz44aBeV1FQyrjPIS5pCvb2ucbzax9QI0VLrKkEbjjCbr3tsD9qcCwtTKqhQpLlcDjw-9kpUiET0Gbz8Pvqi8lT4HYvZj033dqrmDCZF0U3vOwb8ahTLFpovzGxccvlP6IuFTplxi0-MQxJJnzfFIFed5VeSuUBmyZIatWz455f09TfSf98R-aLycso5bFnBJI_o2Uz1S1H0pF5ZSL5Zw2HLdeVCyEKflihqmWxZY0b1nM1a66mFo31XNyUY9LUft-1lC_ZXSo_Ky8hi9V0J_WT9rNysnfMEjVoRrEbnxCKujFvkTucSj8V2tHknAFrsv4jrjMCUPkQkPIupBgpNfiLUfj78mQn8kop-F80lWWl5MmNJdhrsDr61LnrAOnck7xHbdHhshH1G5d0ZeW9h4tHCDp7NMTHYBn6BY7I68tvALlXl9cKggZGYp0i7vv6ECPhZivSaE_NdC8h84z3diwdJjhN2YfVQGExajZg5JSdDtSml1G8qBsvmd9Si-PRAs-oCg8Vn4gc7nlcpntlKiWMj7BEQj_XEq8NkoCyOWpqryKRuPsU3RTKjKGdJEjij1NJWHfDW390S-NLN7pir9GGN5JjAWqvKKm8rfDOH-EWFyHLIZDkGNMI4DDEIMgKtKI6Gy2qvKVRKPaCTTk81QgiRpGHNUCJokKKsq8nM2pwmk9rNkwRfIgxSdTXABDLatdBMWQz7P5-DiFaE6rannOC0wSB9MuCwWObAWl5pKJDS5hcfSmaq0I5Fx-bKoKp14RgPuKwNG8-SGoFwF5QT3-KmUcc4wL8znNePZLRWyFMx4RFUcssRG9FmIZeSzt5xAC3qXTjEHx9CJQpEWKEwSUB9bOjDBgl2Y40b-GrBD5RmyUvypDaoXgqqLsjVf5Q_9MRymyl_AwdhXMY9gFXl_V26wh8PwFOLzNwdJTA9rRdwc4qI64uPNnxwNOVvmZ9y9v7P6D4pmJwA",
+      "pob_code": "eNrtWltv2zgWfvevIAIM9qFKo_ulSAvYcW5NHDu2m0z7UtA2HWsii4pE2XEH-9_3IyU7kp02wT5MZgfbAox0eA55bvx4SPmwR8WsO23lYTQJ47tPh-qJLEK27PAJ-7h33ul1-8M9Imh6x8QNS7OQxx_3rO_6HkloLGaMxx36B09P-eTj3hWPWYUexjX6eEZTOhYsvWQLFjVzwYs5pjTKZHdEs-yKzkHp0_iOpXuEZmMWT46eOtqMTtgKzJEc4uNeADXmNIwHfHzPxGnK8-TjnrFHRjSehGI98cGnw2HKGMHk4YINEjaWTJ8O5RPEM6i0Op5O2VhkH_f-dEzbNTXPsLx_a386tmXr6xfXtnV3_WJ6lmdojqd7tuTTPcfbvLmOY_qbNzMwNcs2bRPPtmEF5QucCqUqLjX9PZKxMY8nNF01n0w_hwf1mjMkxSw9Vj7HcCW0Ny1fk_PZtq3ZvqcZlumggQ1mYFiaZbiepnSwA3A4tg41XcPVYBoax9c117MN2ChdYFmO5geWrgUm7A7cAEPpumWg9c1AMww7wAyG64BiOpYrZ9NNtL4PTlt3QHF010brW55sbfS6UgfDw3-0po7Wt6WU73o6Wk-3NCMwoJ0ReAZ6A9-BTbpuwAYDussWipmmiVlMEECxfRfPmMtDG0iKE_iBZrqOiWfXd13NhE2yNX1QVOxMz_Mxsq8bJrwjpSzDMhy0AWyEKYFsDcPTLJBctKYvn-Xs8KjkcQMb4fQc3UbrGniGzj5a3zQ0sMCLSBnHQuvZaA2piW1I3WyYpFq424YSOmJmwHZEDr5FOOBy2w4QINuVYbI9NZpvI8IwN5CtryOafiD5A0NXQZWcAUKlOboDW8q81H3IFontmAG0dSwdPncsxFC1SAPLCyxkhIEYFVnvQAwjgNWTLbLKcVzY67gIBloL8XIC0wE9kNq6egBZ17DkMwLrofWQM64lE861oLpWLCGEBdFUqwTL8Ev_8tNMiCT7cHCwXC7fJ8AkPmWPYcTej_n8IEGWY93uZ_dhFO3LRXPQxL_W3fnRZNnOm4Pr1qJ5FrcG-kmvKWbtE__64vHq-mTQvPFb9_np6Jre9Bfu2cU4tMOe-Xnix5er5Oqyey_ufrTtjnNu9oYj3hV3gTW0wt5q0j7WO4_9_c_n3v19b5DNOt91czAMk2Fy0_Vulgbr3x7PvjIRDW9vT745gvtzzmhy9eCaq87o9lH3fk-G00sR3MK1d3R11LIvRrPu_vXNt4vm_aI7-pzkVzF9YD---TG3H-5b9Ppb0p7HnYvHs_Srmfcegkx8CZ1mqpuLPx72E8-fLYLfW81O5_HxpnfaH9P8R9frPnT8ix9W2puK85lueV_6V2NhNhdfv15FMzM7G3fyie5ejfJ2Hrj-_Zkx-E7_2L_tedHCdb9_v4MXDw-k-w8LAM0kVHYXLE1DoIl8OZAYiT8SP8ElI5CtcVS-DJhQgJvxVJyyedZatXuDk5BFQKWTPIrwJhFajGfoVbg_5Ee1fWCD_9mML5uRuM5pFIqVHOzjnkhztjX4hgj2QZ4kRd9wlUj4a15e7pVqQjMSTpRyIhSR2jymNI_EmkFtHM0nU45oNM4U_1aHooXxOMon7DwurVqrEdGRtGGPsJiOIjbZqBdxeKbFJyvSTOc8TzEt9CQqiSVmn4_ZYMYFkBs7W7EngUQKWrm9mYD9h8IftRcpv7Zme-Li9TTiIxoZzxHNjccPtlQq3XmidsSmEHR8n1X1KzrIpudNtTyO2JzFgkZtOqd3bBmK2TMqb7hIwUYk39_NghM-zn-iddn1pnoeQSQSq6qCG9KbKtZCdTeegVZVrUL8y5Q7UDjxF-LKGYvmTGxDSnOU8SgXKCerDqlS3zRcOA9AiWIdVhUs6GTd8bbYx5g8CJ2kLP5Ry_iyg6x73lTLXsomVPC0quAT7Z-b9tBhwbLttD-jqAknVV-sKW8apFMWs5RnYR05q9Q3Ve88zpIwpdtoUSO_7bbDYxx4BXRhk-J0XtuBKr1k3f3PzfwW52In8U8iuKNNs1kNqCSRFNQ3jd9AXWXchnFtaRZUUpDfVL_LcMoETarKbUh_g_r7CC02nGfq703PPzfdb3GaRklgbGf8cTzJU9h-lNZAdU0miv7_rP9fzPr_Bbg_WN8srB-zT4fngs3XVyLyeX0jkmeszAWVy4pcjFjIVO4nfs76zNUF1ofyy-YQQEKMdl6MVKixtuegxl69i9jImL-WKQuuDbv10hRyl9pw2y9ws6iivfNr5uY8j6rGur9m70s0MJ7YvV-zb_BmI-D_WgC7bHZf5Q9ew29WgqW_RsCqCBivEbArAuZrBJyKwAvR_cyWLKrabNivEaga_VyQD8rVUCyLck18avRpijX8gXy5Or_-ctwYzhgZsnnCMvGvjLQApIhwA3tPxPOMdGBK43yeROE4FNkHojeKC02AxalanikjJc6ANFoRdfVIDJ_IO7cW9Hu9QIwCfgEcapymNBYZ2OZz5M4ZTUeh_GxF-JQMcBDDKAojGu8MRyeCk-MFlZ96SJ_K7bvxzlXUOX0M5_mcHGPYuxUZzOTlaeOdX-uUEC3H-U0SYTN5uiHqsyzMBAU8Zo3ClxVHmruObDMqZnBhF38azQyQGpFeJO2p-e-dYb4w2TAN76S5hWdMnaiRSTNPKVnOWEyOH_IwSRiMKeyXQzWFSMNRLiAvrUF1kDKawcXFlRwB2kPANPVanwKtxjtv1yfGb9LdpXB5xXfJ2HgGMZoVPF95TgS9Z8SGHkczyrM1ZwL1iy9uZMpTYpUvGUGULmToTjny4ASolqC8EM842Np18IDnYjbieTzBYzQJMUcBo3UHNyeYxzOlRYYOvcC6Vguk8oayYbhVR9TTwdFVhJTkU2AaGK0qc5Iy9gMHgrw41EnTkGrzEPrAMSk5gz5kTGVHtFJWQ4T_YE9sO0bbu0Y34zichZGaAsnVTJKU0_Gs0U7pHY-zMY2wzOTuUHdCuYQ2KbSWUzct8iCzXkNbRhUZQSgCV66qhlVj6MDhMmfLhDqicQxYGjHEH8PVKIW1jaHMEFdHKE7ClFUzpCzelpBkhVb7Q57LFGucouIlzUmKyiEKY1bk_Qr5NoLMfJv7kmfsWe6xVFrGcrQtsuN7Z9f3vTTM5ktGF6zRz3E0GJMBTn91R5t21TtFiUN6s1UWjjd340VKGq5UxDJrbqhkZMGk8tb0f5a2BZOkuD6y9W4mYhnSXcaXMa0e11_d55Py81R5FqDxihR7XFEv7vrSrfiy3-wfN9TljCoxi3KjMQjhRPa4ft1GyGAHj5ThpvKO_dNF_c7yldFlGI6ggQrDANiIJOyg0gsxEQPk2QWnikVlje-Y4v3cFFkKNW5YOodz1PYj37csMezd3eYnU6_p27Czpj9Fu9rp-dUJOjSmr3PVjqH-bv7fysmwCwiUCLerBUtjaR5LQ7i0xZe_WgivSKfNPkfJpkQAqCBf1fKlEkDJNOVzzB9mjbKSLFAXdQQZql_OaMXIlOjvTWe95xxxGM2XcekKXQXBqm8G5VIKVKqZgVXbwLYWR20PVeBe2-0kyBd6NVpU4FyhhtjxcFDxcKd5en7UaIcLCVcyLcoVpUocmscKqXf76y7fmQG17_YU13mIcIcRovc0xRNU7va_NIWxM8Ugj5JZXhle5kt3GdU7XhrXfMY7dC6juRm3z6bADEBXreelga2dgVuAdZQSdYXb2NjqPS8NbP8cGsqKvgEEmmfIWvW-jQ32LjbsTuK8NIn5X0-i_uCgfcVRNX5C2t2xDwTHAZ6uyI1ZmQhV-km3RfbJ-sckUz7aFyx-j6QZs-g9TZJG44KtCDZ-edDH1IAoLJMxm-ZRzLJMI59zudZjmmPFojhRPaSZZfL0rSl_z8o1pAEO0KdWAmORJu-eMokkgI0YwhzrS55UIs4n6MQ0UFwjrRT7dLrSSC_lUxrLggRVFspwkG54OCEtmqaAfg3HhHlCU8w6yNNFuMA6yPCyTi4oQ-O7bJ0WN2EiZdpswWUJJvkWDKeRdf9ZHsNFEAqlnVIPHFeoLBw0nGhEHhZSV3xOJygghqwowjCNMoC0saXeyxnOGOQiJXfGUTC2-Vx9vpMmzkdUSFwAhWqo0cR69tMIo8qPU1KeFvQuvYcMDoszVcYBqaTbBkBjqAh3duGbW4mZV1TkqXQ3dhKBBGsUP43DG3KtOx7nyUqVixxx1OQHc1nZcJTrmrpvI7c0heGnOJswVRdIYnZ4UKTT4RGPp-Hd-ieCNyFbqjPp1u8i_wPcEmxa",
       "viability": {
-        "passed": true,
+        "passed": false,
         "issues": [
           {
             "severity": "warning",
             "code": "res_always_gear",
             "message_it": "Le resistenze si cappano con l'equipaggiamento, non con l'albero. Punta a ~135% totale sugli oggetti per coprire la penalita di Elemental Weakness.",
             "message_en": "Resistances are capped through gear, not the tree. Aim for ~135% total on items to cover the Elemental Weakness map penalty."
+          },
+          {
+            "severity": "error",
+            "code": "life_below_floor",
+            "message_it": "Vita stimata (4593) sotto la soglia minima per SC mapping (5500). Aggiungi nodi life sull'albero o aumenta il budget.",
+            "message_en": "Estimated life (4593) is below the SC mapping floor (5500). Add life nodes on the tree or raise budget."
           },
           {
             "severity": "warning",

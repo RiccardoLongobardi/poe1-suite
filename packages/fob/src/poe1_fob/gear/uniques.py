@@ -19,10 +19,16 @@ encoder emits so PoB recognises the unique and applies its stats.
 from __future__ import annotations
 
 import json
+import re
 from functools import lru_cache
 from pathlib import Path
 
 _DATA_PATH = Path(__file__).parent.parent.parent.parent / "data" / "uniques" / "uniques_3_28.json"
+
+# A rolled range "(min-max)" → its max value (best-case roll). PoB parses the
+# resulting concrete line; un-parenthesised "40 to 60" ranges (flat added
+# damage) are left as-is — PoB handles those natively.
+_RANGE = re.compile(r"\((\d+(?:\.\d+)?)-(\d+(?:\.\d+)?)\)")
 
 
 class UniqueItem:
@@ -80,6 +86,23 @@ def _by_name() -> dict[str, UniqueItem]:
     return {u.name: u for u in get_uniques()}
 
 
+def unique_pob_body(u: UniqueItem) -> str:
+    """The full PoB item text for *u*, with rolled ranges taken to their max.
+
+    Passed to the encoder as a multi-line ``item_name`` (kind
+    ``rare_craft``) — the encoder emits it verbatim and PoB recognises the
+    unique by name + base and applies its modifiers.
+    """
+    lines = [
+        "Rarity: UNIQUE",
+        u.name,
+        u.base_type,
+        "Implicits: 0",
+        *[_RANGE.sub(lambda m: m.group(2), m) for m in u.mods],
+    ]
+    return "\n".join(lines)
+
+
 def uniques_for_slot(slot: str) -> tuple[UniqueItem, ...]:
     """Every unique whose slot is *slot* (``"helmet"``, ``"weapon"``, …)."""
     return _by_slot().get(slot, ())
@@ -94,5 +117,6 @@ __all__ = [
     "UniqueItem",
     "get_uniques",
     "unique_by_name",
+    "unique_pob_body",
     "uniques_for_slot",
 ]

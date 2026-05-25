@@ -25,13 +25,32 @@ from optimize_build import (  # type: ignore[import-not-found]  # sibling script
     fitness,
     optimize_links,
     optimize_tree,
+    optimize_uniques,
     optimize_weapon,
 )
 from pob_eval import PobEvaluator  # type: ignore[import-not-found]
 
+from poe1_core.models.enums import ItemSlot
 from poe1_fob.theory import TheoryIntent, generate_build, validate_build
-from poe1_fob.theory.models import BuildSkeleton, StatEstimate
+from poe1_fob.theory import generator as gen
+from poe1_fob.theory.models import BuildSkeleton, GearSlot, StatEstimate
 from poe1_fob.tree.tree_data import get_tree_data
+
+# Theory gear-slot label → ItemSlot, to reflect chosen uniques back into the
+# skeleton's display gear_slots.
+_LABEL_TO_SLOT: dict[str, ItemSlot] = {
+    "Helmet": ItemSlot.HELMET,
+    "Body Armour": ItemSlot.BODY_ARMOUR,
+    "Gloves": ItemSlot.GLOVES,
+    "Boots": ItemSlot.BOOTS,
+    "Belt": ItemSlot.BELT,
+    "Amulet": ItemSlot.AMULET,
+    "Ring": ItemSlot.RING,
+    "Wand": ItemSlot.WEAPON_MAIN,
+    "Bow": ItemSlot.WEAPON_MAIN,
+    "Weapon": ItemSlot.WEAPON_MAIN,
+    "Shield": ItemSlot.WEAPON_OFFHAND,
+}
 
 # Absolute path anchored at the repo root — PobEvaluator chdir's into PoB's
 # `src/` at construction (it uses relative `dofile`s), so a relative path
@@ -67,18 +86,35 @@ def _optimised_skeleton(
         n.node_id for n in base.tree_nodes if n.type in ("keystone", "notable", "travel")
     }
 
-    # 1) supports, 2) weapon base, 3) tree — each decided by PoB-exact fitness.
+    # 1) supports, 2) weapon base, 3) uniques per slot, 4) tree — each
+    # decided by PoB-exact fitness.
     best_links, _ = optimize_links(intent, ev, enc, visited0)
     best_gear, _ = optimize_weapon(intent, ev, enc, visited0, best_links)
+    base_pob = gen._to_pob_gear(best_gear)
+    best_pob, _, chosen = optimize_uniques(intent, ev, enc, visited0, best_links, base_pob)
     visited, _base_stats, best_stats = optimize_tree(
-        intent, ev, links=best_links, gear=best_gear, max_iters=tree_iters
+        intent, ev, links=best_links, pob_gear=best_pob, max_iters=tree_iters
     )
 
-    pob_code = enc.code(visited, best_links, best_gear)
+    pob_code = enc.code(visited, best_links, pob_gear=best_pob)
     tree_nodes = enc._nodes(visited)
-    # Map the optimiser's link/gear objects back to theory model types.
     links = best_links
-    gear = best_gear
+
+    # Display gear: the rare/weapon theory slots, with chosen uniques overlaid
+    # (name + their mod lines as priorities) so the UI shows the real items.
+    def _overlay(g: GearSlot) -> GearSlot:
+        slot_enum = _LABEL_TO_SLOT.get(g.slot)
+        u = chosen.get(slot_enum) if slot_enum is not None else None
+        if u is None:
+            return g
+        return GearSlot(
+            slot=g.slot,
+            base_name=u.name,
+            stat_priorities=tuple(u.mods[:6]),
+            budget_tier=g.budget_tier,
+        )
+
+    gear = tuple(_overlay(g) for g in best_gear)
 
     stats = StatEstimate(
         life_estimate=int(best_stats.get("Life", 0)),

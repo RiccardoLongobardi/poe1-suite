@@ -5,6 +5,7 @@ from __future__ import annotations
 from poe1_fob.gear.uniques import (
     get_uniques,
     unique_by_name,
+    unique_pob_body,
     uniques_for_slot,
 )
 
@@ -41,6 +42,22 @@ def test_uniques_for_slot_matches_catalogue() -> None:
     assert unique_by_name("Rime Gaze") in helmets
     # Unknown slot → empty.
     assert uniques_for_slot("nonexistent") == ()
+
+
+def test_unique_pob_body_is_importable_and_max_rolled() -> None:
+    """The PoB item body must be a UNIQUE block with name + base, and rolled
+    ranges taken to their max (PoB recognises the unique and applies stats)."""
+    mb = unique_by_name("Mageblood")
+    assert mb is not None
+    body = unique_pob_body(mb)
+    lines = body.split("\n")
+    assert lines[0] == "Rarity: UNIQUE"
+    assert lines[1] == "Mageblood"
+    assert lines[2] == mb.base_type
+    assert "Implicits:" in body
+    # "+(25-35) to Strength" → max "+35 to Strength"; no "(min-max)" survives.
+    assert "(25-35)" not in body
+    assert "+35 to Strength" in body
 
 
 def test_unique_fields_are_typed() -> None:

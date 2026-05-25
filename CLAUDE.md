@@ -124,6 +124,18 @@ Inside the navbar: a "Strumenti" / "Tools" section label above the 5 main routes
 
 Frontend-only, no backend change. Gate: 747 tests / 132 mypy / ruff clean. Build ~471 KB / 151 KB gzip.
 
+## Step 59 — Mirror-tier initiative: uniques in the optimiser (2026-05-25) ✅
+
+Phase 1(1b): the optimiser now tries **unique items** per slot (the Step 58 DB) and keeps the PoB-fitness best — the biggest single lever toward mirror-tier. **User-facing** — the precomputed builds got dramatically stronger.
+
+- **`unique_pob_body(u)`** (`poe1_fob.gear.uniques`) renders a unique's PoB item text with rolled `(min-max)` ranges taken to their **max** (`_RANGE` regex). The encoder already emits a multi-line `item_name` verbatim (Step 41 `kind="rare_craft"` path), so PoB recognises the unique by name+base and applies its real stats — no encoder change. Verified: dropping Rime Gaze on a Vortex applied "+50% Cold DoT Multiplier" (CombinedDPS +12% from one item).
+- **`optimize_uniques` (`scripts/optimize_build.py`)** — per gear slot, preselects the build-relevant candidate uniques (`gen._score_text` over their mods, with the build's damage/defence; weapon slot filtered to the build's weapon class via `base_for_name(...).item_class`), tries the top 8 against the current rare, and keeps whichever maximises PoB-exact fitness. Greedy + independent per slot (bounded ~72 evals). `_Encoder.code` gained a `pob_gear: StageGearSet` override threaded through `optimize_tree`. Order: supports → weapon base → **uniques** → tree.
+- **`scripts/precompute_builds.py`** runs the uniques pass and overlays the chosen uniques into the skeleton's display `gear_slots` (name + mod lines). Re-ran the 5-archetype matrix.
+
+**Measured (PoB-exact, over the Step 56 precompute):** Cyclone **22.6k → 110k** FullDPS (uniques: The Bringer of Rain, Hand of the Fervent, Belt of the Deceiver, Le Heup of All), Lacerate 26.3k → 92k (+ Starforge), Vortex 124.7k → **173k** with **EHP 6.1k → 22.9k** (Galesight, Atziri's Reflection), Arc 26.8k → 68k, Ice Shot 10.8k → 32k. The optimiser autonomously found the genuine chase uniques per archetype — validated by PoB's real calc, not curated.
+
+Tests: `test_unique_pob_body_is_importable_and_max_rolled` (Mageblood body is a UNIQUE block, `(25-35)` → `+35 to Strength`); the precomputed e2e tests still hold (optimised + real DPS). Gate: 771 tests / 145 mypy / ruff clean.
+
 ## Step 58 — Mirror-tier initiative: unique-item DB (2026-05-25) 🔬
 
 First slice of the **mirror-tier build initiative** (goal: generate complete mirror-tier builds from scratch, like the 84M-DPS ladder Cyclone). A `scripts/compare_ladder.py` comparison (Vortex Occultist, both via PoB-exact calc) quantified the gap: our build is **19% of the ladder's DPS, 12% of its EHP** — root causes are no uniques, no DoT modelling, no defensive layering. The biggest lever is **uniques**, so this step vendors them. **Internal foundation — no user-facing change yet, no Patch Notes** (like the Step 50/51 tooling); wiring uniques into the optimiser is the next step.

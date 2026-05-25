@@ -27,12 +27,27 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from pob_eval import PobEvaluator  # type: ignore[import-not-found]  # sibling script
 
 from poe1_core.models.enums import ItemSlot
-from poe1_fob.gear.base_items import get_base_catalogue
+from poe1_fob.gear.base_items import base_for_name, get_base_catalogue
+from poe1_fob.gear.models import StageGearSet, StageGearSlot
+from poe1_fob.gear.uniques import UniqueItem, unique_pob_body, uniques_for_slot
 from poe1_fob.pob.encode import encode_pob_code
 from poe1_fob.theory import TheoryIntent, generate_build
 from poe1_fob.theory import generator as gen
 from poe1_fob.theory.models import GearSlot, GemLink, TreeNodeRef
 from poe1_fob.tree.tree_data import TreeData, get_tree_data
+
+# ItemSlot → our unique-catalogue slot string.
+_UNIQUE_SLOT: dict[ItemSlot, str] = {
+    ItemSlot.HELMET: "helmet",
+    ItemSlot.BODY_ARMOUR: "body_armour",
+    ItemSlot.GLOVES: "gloves",
+    ItemSlot.BOOTS: "boots",
+    ItemSlot.BELT: "belt",
+    ItemSlot.AMULET: "amulet",
+    ItemSlot.RING: "ring",
+    ItemSlot.WEAPON_MAIN: "weapon",
+    ItemSlot.WEAPON_OFFHAND: "weapon_offhand",
+}
 
 _EHP_FLOOR = {"starter": 2500, "mid": 4000, "endgame": 5000}
 
@@ -147,14 +162,20 @@ class _Encoder:
         visited: set[int],
         links: tuple[GemLink, ...] | None = None,
         gear: tuple[GearSlot, ...] | None = None,
+        pob_gear: StageGearSet | None = None,
     ) -> str:
         tree = gen._to_pob_tree(self.intent, self._nodes(visited))
-        pob_gear = gen._to_pob_gear(gear) if gear is not None else self._pob_gear
+        if pob_gear is not None:
+            g = pob_gear
+        elif gear is not None:
+            g = gen._to_pob_gear(gear)
+        else:
+            g = self._pob_gear
         return encode_pob_code(
             character_class=self.intent.character_class,
             ascendancy=self.intent.ascendancy,
             tree=tree,
-            gear=pob_gear,
+            gear=g,
             gems=gen._to_pob_gems(links if links is not None else self.base_links),
             level=90,
         )
@@ -324,12 +345,88 @@ def optimize_weapon(
     return best_gear, best_fit
 
 
+def _weapon_class_ok(intent: TheoryIntent, enc: _Encoder, u: UniqueItem) -> bool:
+    """A weapon unique must match the build's resolved weapon class
+    (don't put a 2H sword unique on a wand caster)."""
+    want = _weapon_candidates(intent, enc, 1)
+    if not want:
+        return False
+    target = base_for_name(want[0])
+    cand = base_for_name(u.base_type)
+    return bool(target and cand and cand.item_class == target.item_class)
+
+
+def optimize_uniques(
+    intent: TheoryIntent,
+    ev: PobEvaluator,
+    enc: _Encoder,
+    visited: set[int],
+    links: tuple[GemLink, ...],
+    base_gear: StageGearSet,
+    *,
+    per_slot: int = 8,
+) -> tuple[StageGearSet, float, dict[ItemSlot, UniqueItem]]:
+    """Per slot, try the most build-relevant candidate uniques against the
+    current (rare) item and keep whichever maximises PoB-exact fitness.
+
+    Greedy + independent per slot (bounded eval budget): each accepted
+    unique is locked in before the next slot is considered. Candidates are
+    preselected by keyword relevance (`gen._score_text`) — PoB fitness makes
+    the final call. Returns (best StageGearSet, best fitness).
+    """
+    dmg, defence = intent.damage_type, intent.defence_archetype
+    skill = enc.skill
+    score_dmg = "minion" if "minion" in skill.tags else dmg
+
+    slots = list(base_gear.slots)
+    chosen: dict[ItemSlot, UniqueItem] = {}
+    cur_fit = fitness(ev.evaluate(enc.code(visited, links, pob_gear=base_gear)), intent.budget)
+
+    for i, slot in enumerate(slots):
+        uslot = _UNIQUE_SLOT.get(slot.slot)
+        if uslot is None:
+            continue
+        cands = list(uniques_for_slot(uslot))
+        if uslot == "weapon":
+            cands = [u for u in cands if _weapon_class_ok(intent, enc, u)]
+        # Preselect by relevance to the build's damage + defence.
+        cands.sort(
+            key=lambda u: gen._score_text(" ".join(u.mods), score_dmg, defence), reverse=True
+        )
+        best_slot_fit = cur_fit
+        best_slot = slot
+        best_u: UniqueItem | None = None
+        for u in cands[:per_slot]:
+            trial = list(slots)
+            trial[i] = StageGearSlot(
+                slot=slot.slot, item_name=unique_pob_body(u), kind="rare_craft", notes=u.name
+            )
+            try:
+                stats = ev.evaluate(
+                    enc.code(
+                        visited, links, pob_gear=StageGearSet(stage_key="opt", slots=tuple(trial))
+                    )
+                )
+            except Exception:
+                continue
+            fit = fitness(stats, intent.budget)
+            if fit > best_slot_fit * 1.001:
+                best_slot_fit, best_slot, best_u = fit, trial[i], u
+        if best_u is not None:
+            slots[i] = best_slot
+            cur_fit = best_slot_fit
+            chosen[slot.slot] = best_u
+            print(f"[opt] {slot.slot.value}: unique {best_u.name} | fit={cur_fit:.0f}")
+    return StageGearSet(stage_key="opt", slots=tuple(slots)), cur_fit, chosen
+
+
 def optimize_tree(
     intent: TheoryIntent,
     ev: PobEvaluator,
     *,
     links: tuple[GemLink, ...] | None = None,
     gear: tuple[GearSlot, ...] | None = None,
+    pob_gear: StageGearSet | None = None,
     max_iters: int = 25,
     swaps_per_iter: int = 8,
 ) -> tuple[set[int], dict[str, float], dict[str, float]]:
@@ -343,7 +440,7 @@ def optimize_tree(
     visited: set[int] = {start} | {
         n.node_id for n in base.tree_nodes if n.type in ("keystone", "notable", "travel")
     }
-    base_stats = ev.evaluate(enc.code(visited, links, gear))
+    base_stats = ev.evaluate(enc.code(visited, links, gear, pob_gear))
     best_fit = fitness(base_stats, intent.budget)
     best_stats = base_stats
     print(
@@ -365,7 +462,7 @@ def optimize_tree(
         for r, a in swaps:
             cand = (visited - {r}) | {a}
             try:
-                stats = ev.evaluate(enc.code(cand, links, gear))
+                stats = ev.evaluate(enc.code(cand, links, gear, pob_gear))
             except Exception:
                 continue
             fit = fitness(stats, intent.budget)

@@ -30,6 +30,27 @@ const RELEASES: Release[] = [
   {
     date: { it: "25 mag 2026", en: "25 May 2026" },
     title: {
+      it: "Theorycrafter — gli oggetti unici nelle build ottimizzate",
+      en: "Theorycrafter — unique items in the optimised builds",
+    },
+    summary: {
+      it: "Le build ottimizzate ora montano i veri oggetti unici chiave dell'archetipo, scelti provandoli col calcolo reale di PoB. Danno ed EHP fanno un salto enorme.",
+      en: "Optimised builds now equip the real chase unique items for the archetype, chosen by testing them with PoB's real calc. Damage and EHP jump massively.",
+    },
+    entries: [
+      {
+        it: "L'ottimizzatore prova gli unici piu rilevanti su ogni slot e tiene quelli che migliorano davvero le statistiche reali. Trova da solo i pezzi giusti — The Bringer of Rain, Starforge, Mark of the Shaper, Galesight — senza liste scritte a mano.",
+        en: "The optimiser tries the most relevant uniques in each slot and keeps the ones that actually improve the real stats. It finds the right pieces on its own — The Bringer of Rain, Starforge, Mark of the Shaper, Galesight — with no hand-written lists.",
+      },
+      {
+        it: "Risultato misurato col calcolo reale di PoB: Cyclone da ~22.600 a ~110.000 DPS, Vortex a ~173.000 DPS con EHP da ~6.000 a ~22.900, Lacerate ~92.000, Arc ~68.000. Un grande passo verso build complete di alto livello.",
+        en: "Measured with PoB's real calc: Cyclone from ~22,600 to ~110,000 DPS, Vortex to ~173,000 DPS with EHP from ~6,000 to ~22,900, Lacerate ~92,000, Arc ~68,000. A big step toward complete high-end builds.",
+      },
+    ],
+  },
+  {
+    date: { it: "25 mag 2026", en: "25 May 2026" },
+    title: {
       it: "Theorycrafter — niente piu keystone che rompono la build",
       en: "Theorycrafter — no more build-breaking keystones",
     },
