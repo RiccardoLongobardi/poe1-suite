@@ -50,6 +50,9 @@ _UNIQUE_SLOT: dict[ItemSlot, str] = {
 }
 
 _EHP_FLOOR = {"starter": 2500, "mid": 4000, "endgame": 5000}
+# Step 60: EHP we reward up to (TotalEHP, PoB-exact). Above this, the EHP
+# bonus saturates so the optimiser stops trading DPS for more defence.
+_EHP_TARGET = {"starter": 12000, "mid": 25000, "endgame": 40000}
 
 
 # ---------------------------------------------------------------------------
@@ -58,11 +61,14 @@ _EHP_FLOOR = {"starter": 2500, "mid": 4000, "endgame": 5000}
 
 
 def fitness(stats: dict[str, float], budget: str) -> float:
-    """Real DPS scaled by a viability penalty.
+    """Real DPS scaled by a viability penalty and a layered-EHP reward.
 
-    Rewards damage, but a build that can't cap resistances or clears no
-    EHP floor is heavily penalised — so the optimum is *viable* DPS, not a
-    glass cannon.
+    Rewards damage, but: (a) a build that can't cap resistances or clears
+    no pool floor is heavily penalised, and (b) — Step 60 — a *layered*-EHP
+    bonus rewards real TotalEHP (sublinear, saturating at ``_EHP_TARGET``)
+    so the optimiser actually picks defensive uniques / nodes / CI instead
+    of stopping at the bare pool floor. DPS still scales linearly, so it
+    leads among similarly-tanky builds; a glass cannon is cut to ~0.4x.
     """
     dps = stats.get("FullDPS") or stats.get("CombinedDPS") or stats.get("TotalDPS") or 0.0
     pen = 1.0
@@ -74,7 +80,10 @@ def fitness(stats: dict[str, float], budget: str) -> float:
     floor = _EHP_FLOOR.get(budget, 4000)
     if pool < floor:
         pen *= max(0.1, pool / floor)
-    return dps * pen
+    ehp = max(stats.get("TotalEHP", 0.0), 1.0)
+    target = _EHP_TARGET.get(budget, 25000)
+    ehp_factor = 0.4 + 0.6 * min(ehp / target, 1.0) ** 0.5
+    return float(dps * pen * ehp_factor)
 
 
 # ---------------------------------------------------------------------------

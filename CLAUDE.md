@@ -124,6 +124,17 @@ Inside the navbar: a "Strumenti" / "Tools" section label above the 5 main routes
 
 Frontend-only, no backend change. Gate: 747 tests / 132 mypy / ruff clean. Build ~471 KB / 151 KB gzip.
 
+## Step 60 — Mirror-tier initiative: layered-EHP fitness (2026-05-25) ✅
+
+Phase 2: the optimiser now **rewards layered EHP**, so it picks defensive layers (block shields, Aegis Aurora, defensive nodes/CI) instead of stopping at the bare pool floor. **User-facing** — precomputed builds are now both high-DPS *and* tanky.
+
+- **Root cause.** The Step 51 `fitness = DPS × viability_penalty` only *gated* on capped res + a pool floor; it never *rewarded* EHP. So the optimiser maximised DPS at the minimum survivability — our builds had ~1.3× EHP-over-pool vs the ladder's ~10×. The defensive layers (block/suppression/MoM/CI, defensive uniques) were already in the search space (`optimize_uniques` + tree swaps); they just weren't incentivised.
+- **Fix.** Added an EHP reward to `fitness`: `ehp_factor = 0.4 + 0.6·min(TotalEHP / target, 1)^0.5` (`_EHP_TARGET` = 12k/25k/40k per budget). Sublinear + saturating, so DPS still scales linearly and leads among similarly-tanky builds, but a glass cannon is cut to ~0.4×. Shared by all three optimiser passes (`optimize_links` / `optimize_uniques` / `optimize_tree`).
+
+**Measured (PoB-exact, over the Step 59 precompute):** the optimiser traded marginal DPS for large EHP gains — **Arc EHP 21.3k → 40.0k (+88%)** for −3% DPS (picked Dawnbreaker, a block shield); **Vortex EHP 22.9k → 26.9k** for −12% DPS (picked Aegis Aurora over Atziri's Reflection); Ice Shot 15.0k → 18.4k. Cyclone (18.5k) and Lacerate (19.7k) were already tanky → unchanged. Final precompute: Cyclone 110k DPS / 18.5k EHP, Vortex 152k / 26.9k, Lacerate 92k / 19.7k, Arc 65k / 40k, Ice Shot 34.5k / 18.4k — all viable, layered.
+
+Gate: 771 tests / 145 mypy / ruff clean.
+
 ## Step 59 — Mirror-tier initiative: uniques in the optimiser (2026-05-25) ✅
 
 Phase 1(1b): the optimiser now tries **unique items** per slot (the Step 58 DB) and keeps the PoB-fitness best — the biggest single lever toward mirror-tier. **User-facing** — the precomputed builds got dramatically stronger.

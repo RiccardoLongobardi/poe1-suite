@@ -30,6 +30,27 @@ const RELEASES: Release[] = [
   {
     date: { it: "25 mag 2026", en: "25 May 2026" },
     title: {
+      it: "Theorycrafter — build ottimizzate piu resistenti (difese a strati)",
+      en: "Theorycrafter — tankier optimised builds (layered defences)",
+    },
+    summary: {
+      it: "L'ottimizzatore ora premia anche la sopravvivenza reale (EHP), non solo il danno: aggiunge layer difensivi quando convengono, sacrificando pochissimo DPS.",
+      en: "The optimiser now also rewards real survivability (EHP), not just damage: it adds defensive layers when they pay off, sacrificing very little DPS.",
+    },
+    entries: [
+      {
+        it: "Prima le build venivano spinte al massimo DPS restando al minimo della sopravvivenza. Ora l'ottimizzatore preferisce, a parità di danno, le versioni più resistenti — montando scudi con block, Aegis Aurora e nodi difensivi quando alzano davvero l'EHP.",
+        en: "Builds used to be pushed to max DPS while sitting at minimum survivability. Now, at equal damage, the optimiser prefers the tankier version — equipping block shields, Aegis Aurora and defensive nodes when they genuinely raise EHP.",
+      },
+      {
+        it: "Risultato misurato col calcolo reale di PoB: Arc da ~21.000 a ~40.000 EHP (+88%) perdendo solo il 3% di danno; Vortex EHP +18%. Le build già robuste (Cyclone, Lacerate) restano invariate. Più vicine a build complete di alto livello.",
+        en: "Measured with PoB's real calc: Arc from ~21,000 to ~40,000 EHP (+88%) losing only 3% damage; Vortex EHP +18%. Already-tanky builds (Cyclone, Lacerate) stay unchanged. Closer to complete high-end builds.",
+      },
+    ],
+  },
+  {
+    date: { it: "25 mag 2026", en: "25 May 2026" },
+    title: {
       it: "Theorycrafter — gli oggetti unici nelle build ottimizzate",
       en: "Theorycrafter — unique items in the optimised builds",
     },
