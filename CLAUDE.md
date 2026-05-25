@@ -124,6 +124,18 @@ Inside the navbar: a "Strumenti" / "Tools" section label above the 5 main routes
 
 Frontend-only, no backend change. Gate: 747 tests / 132 mypy / ruff clean. Build ~471 KB / 151 KB gzip.
 
+## Step 55 — Theorycrafter minion DPS (2026-05-25) ✅
+
+The QA sweep's last DPS cluster: the two minion builds calc'd ~0 FullDPS (Raise Spectre 0, Summon Skeletons 515). Two real bugs + one PoB-headless limitation. **User-facing** (self-attacking minion builds now do real DPS).
+
+- **Minion supports were caster supports.** A minion-summon gem (Summon Skeletons, Raise Spectre/Zombie) carries `spell` + `multicastable` + `area`/`minionscanexplode`, so caster supports (Spell Echo, Concentrated Effect, Unleash, Efficacy) are *socketable* — and `_CORE_SUPPORTS` ranked them first — yet they do **nothing** for the minion's damage. Only `createsminion`-gated supports (Minion Damage, Feeding Frenzy, Predator, Elemental Army, Minion Speed, …) buff the minion. Added `_MINION_SUPPORTS` + a minion branch in `_select_supports_raw._key`: when `"minion" in skill.tags`, supports requiring `createsminion` rank first. Summon Skeletons' 6L went from `Spell Echo / Conc Effect / Increased AoE / Swift Affliction / Efficacy` to `Minion Damage / Feeding Frenzy / Predator / Elemental Army / Minion Speed`.
+- **The tree allocated zero minion nodes.** `_DAMAGE_KEYWORDS` had no minion entry, so for a `physical` minion build the scorer matched "physical damage" — which no minion notable carries ("Minions deal increased Damage" ≠ "physical damage") → 0 minion nodes taken → minion did ~0 bonus DPS. Added `_DAMAGE_KEYWORDS["minion"]` and route minion skills to it in `_select_tree_nodes` (`score_dmg = "minion" if "minion" in skill.tags else intent.damage_type`, threaded into `_grow_to_value` / `_fill_to_budget` / `_select_masteries`). The tree now allocates ~27 minion notables (Minion Damage, Minion Life and Damage, …).
+- **Raise Spectre needs a chosen spectre (PoB limitation).** Raise Spectre summons a *specific monster*; PoB (and our export) reports 0 DPS until the user picks a spectre from the gem dropdown. We can't pick one without vendored monster data (not a current data source). Added a `spectre_needs_selection` viability **warning** explaining the one manual step. The supports + tree are now correct, so the moment the user selects a spectre in PoB the scaling applies.
+
+**Measured (PoB-exact sweep, endgame):** Summon Skeletons **515 → 4327 FullDPS** (above the 1500 floor). Raise Spectre stays 0 (spectre limitation, now flagged). **LOW_DPS 2 → 1.** Summon Skeletons now trips LOW_POOL (~1900 ES) — but its pool was already ~2031 *before* (masked by the LOW_DPS verdict, which is checked first), i.e. not a regression: minion builds have a low *character* pool by design (the minions are the defensive layer). That character-pool concern joins the other defensive edge cases (Frost Blades life, Saboteur ES-0) as separate follow-ups.
+
+Test: `test_minion_build_gets_minion_supports_and_tree` (Summon Skeletons 6L carries Minion Damage, not Spell Echo/Unleash/Conc Effect; ≥5 minion tree nodes) + `test_spectre_build_warns_to_select_spectre`. Gate: 761 tests / 138 mypy / ruff clean.
+
 ## Step 54 — Theorycrafter ES pool + resistance spread (2026-05-25) ✅
 
 The QA sweep's two remaining defensive clusters: **ES builds sat at ~3k pool** (LOW_POOL) and **one elemental resistance under-capped** (LOW_RES, usually lightning ~64). Both were concrete gear bugs, not open design. **User-facing** (ES/chaos builds are now viable).

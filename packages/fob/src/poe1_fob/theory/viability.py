@@ -188,6 +188,33 @@ def _check_movement_skill(skeleton: BuildSkeleton) -> ViabilityIssue | None:
     )
 
 
+def _check_spectre_selection(skeleton: BuildSkeleton) -> ViabilityIssue | None:
+    """Spectre builds need a specific spectre monster selected in PoB.
+
+    Step 55: Raise Spectre summons a *chosen monster*, so PoB (and our
+    generated export) reports 0 DPS until the user picks a spectre from
+    PoB's dropdown — we can't pick one without vendored monster data. The
+    minion supports + minion tree scaling are correct; this just flags the
+    one manual step the user must take for the DPS to materialise.
+    """
+    if "spectre" not in skeleton.intent.primary_skill.lower():
+        return None
+    return ViabilityIssue(
+        severity="warning",
+        code="spectre_needs_selection",
+        message_it=(
+            "Raise Spectre evoca un mostro specifico: in PoB seleziona uno "
+            "spettro dal menu della gemma (es. uno spettro meta del momento) "
+            "perche il DPS venga calcolato — l'export parte senza spettro scelto."
+        ),
+        message_en=(
+            "Raise Spectre summons a specific monster: in PoB pick a spectre "
+            "from the gem's dropdown (e.g. a current meta spectre) for the DPS "
+            "to compute — the export ships with no spectre selected."
+        ),
+    )
+
+
 def _check_mana_sustain(skeleton: BuildSkeleton) -> ViabilityIssue | None:
     has_mana_flask = any(
         slot.slot.startswith("Flask") and "Mana" in slot.base_name for slot in skeleton.gear_slots
@@ -222,6 +249,7 @@ def validate_build(skeleton: BuildSkeleton) -> ViabilityReport:
         _check_defence_layers,
         _check_movement_skill,
         _check_mana_sustain,
+        _check_spectre_selection,
     ):
         issue = check(skeleton)
         if issue is not None:

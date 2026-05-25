@@ -30,6 +30,27 @@ const RELEASES: Release[] = [
   {
     date: { it: "25 mag 2026", en: "25 May 2026" },
     title: {
+      it: "Theorycrafter — build da minion con danno reale",
+      en: "Theorycrafter — minion builds with real damage",
+    },
+    summary: {
+      it: "Le build da evocazione ora ricevono i supporti e i nodi giusti per far danno davvero coi minion.",
+      en: "Summoner builds now get the right supports and passives so the minions actually deal damage.",
+    },
+    entries: [
+      {
+        it: "Prima le gemme di evocazione (Summon Skeletons, Raise Spectre) prendevano supporti da incantatore (Spell Echo, Concentrated Effect) che non potenziano i minion, e l'albero non allocava nessun nodo da minion. Ora usano i supporti da minion (Minion Damage, Feeding Frenzy, ecc.) e l'albero prende i talenti dei minion: su una build di prova il danno e passato da ~500 a ~4300.",
+        en: "Summon gems (Summon Skeletons, Raise Spectre) used to get caster supports (Spell Echo, Concentrated Effect) that don't buff minions, and the tree allocated no minion passives. They now use minion supports (Minion Damage, Feeding Frenzy, etc.) and the tree picks minion notables: on a test build the damage went from ~500 to ~4,300.",
+      },
+      {
+        it: "Nota su Raise Spectre: lo spettro va scelto a mano in PoB (il generatore non puo sceglierlo per te), quindi appare un avviso che ti ricorda questo unico passaggio — fatto quello, il danno viene calcolato.",
+        en: "Note on Raise Spectre: the spectre must be picked by hand in PoB (the generator can't choose it for you), so a notice now reminds you of this single step — once done, the damage is calculated.",
+      },
+    ],
+  },
+  {
+    date: { it: "25 mag 2026", en: "25 May 2026" },
+    title: {
       it: "Theorycrafter — build a Scudo Energetico piu robuste",
       en: "Theorycrafter — sturdier Energy Shield builds",
     },

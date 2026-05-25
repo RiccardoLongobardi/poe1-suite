@@ -520,6 +520,52 @@ def test_es_build_rolls_es_on_armour_and_spreads_resistances() -> None:
         assert slots_with >= 3, f"{res} only on {slots_with} slot(s) — under-spread"
 
 
+def test_minion_build_gets_minion_supports_and_tree() -> None:
+    """Step 55: a minion skill must be supported by the `createsminion`
+    supports (Minion Damage, Feeding Frenzy, …) — NOT caster supports like
+    Spell Echo, which are socketable but do nothing for the minion's DPS —
+    and the tree must allocate minion-scaling notables (which the old
+    physical/spell keyword scoring valued at 0)."""
+    sk = generate_build(
+        _intent(
+            character_class="Witch",
+            ascendancy="Necromancer",
+            primary_skill="Summon Skeletons",
+            damage_type="physical",
+            defence_archetype="es",
+            budget="endgame",
+            focus="allcontent",
+        )
+    )
+    body = next(link for link in sk.links if link.slot == "Body Armour")
+    assert body.skill == "Summon Skeletons"
+    assert "Minion Damage" in body.supports
+    # Caster supports that don't buff minions must not crowd the link.
+    for useless in ("Spell Echo", "Unleash", "Concentrated Effect"):
+        assert useless not in body.supports, f"{useless} should not support a minion skill"
+    # The tree now allocates minion-scaling nodes.
+    minion_nodes = sum(1 for n in sk.tree_nodes if "minion" in n.name.lower())
+    assert minion_nodes >= 5, f"expected minion tree nodes, got {minion_nodes}"
+
+
+def test_spectre_build_warns_to_select_spectre() -> None:
+    """Step 55: a Raise Spectre build ships with no spectre chosen (PoB
+    needs a monster pick), so viability flags the manual step."""
+    sk = generate_build(
+        _intent(
+            character_class="Witch",
+            ascendancy="Necromancer",
+            primary_skill="Raise Spectre",
+            damage_type="physical",
+            defence_archetype="es",
+            budget="endgame",
+            focus="allcontent",
+        )
+    )
+    codes = {i.code for i in sk.viability.issues}
+    assert "spectre_needs_selection" in codes
+
+
 def test_elemental_attack_uses_attack_stats_and_bow() -> None:
     """Step 53: an elemental *attack* (Ranger Lightning Strike, lightning)
     is classified by tags as an attack — not a spell. Its weapon carries

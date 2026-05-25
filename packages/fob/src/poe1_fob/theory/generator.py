@@ -235,6 +235,27 @@ _CORE_SUPPORTS: tuple[str, ...] = (
 )
 _CORE_SUPPORT_RANK: dict[str, int] = {name: i for i, name in enumerate(_CORE_SUPPORTS)}
 
+# Step 55: minion-skill support ranking. A minion-summon gem (Summon
+# Skeletons, Raise Zombie/Spectre, …) carries the `spell` + `multicastable`
+# + `area`/`minionscanexplode` tags, so caster supports (Spell Echo,
+# Concentrated Effect, Unleash, Efficacy) are *socketable* yet do NOTHING
+# for the minion's damage — only the `createsminion`-gated supports buff
+# the minion. The old `_CORE_SUPPORTS` ranking put the caster supports
+# first, so minion links got Spell Echo + Conc Effect and the minion did
+# ~0 extra DPS. For minion skills we rank the real minion supports first.
+_MINION_SUPPORTS: tuple[str, ...] = (
+    "Minion Damage",
+    "Feeding Frenzy",
+    "Predator",
+    "Elemental Army",
+    "Minion Speed",
+    "Summon Phantasm",
+    "Minion Life",
+    "Meat Shield",
+    "Infernal Legion",
+)
+_MINION_SUPPORT_RANK: dict[str, int] = {name: i for i, name in enumerate(_MINION_SUPPORTS)}
+
 # Supports that lock the build to a damage type via their *stats* (not
 # tags) — Brutality forces physical-only, penetrations/Combustion are
 # element-specific. PoB's require/exclude tags don't express this (they
@@ -290,11 +311,21 @@ def _select_supports_raw(
             continue
         fits.append(s)
 
+    # Minion builds: rank the `createsminion`-gated supports first (those
+    # are the only ones that actually buff the minion), then everything
+    # else. This keeps the useless-but-socketable caster supports out of
+    # the top picks.
+    is_minion = "minion" in skill_tags or "createsminion" in skill_tags
+
     # Order: core (commonly-used) supports first, in their curated order;
     # then any other compatible support, "specific" ones (requiring a tag
     # the skill has) ahead of universal fillers, by static priority. Fully
     # deterministic.
     def _key(s: _Support) -> tuple[int, int, int, str]:
+        if is_minion:
+            creates = 0 if "createsminion" in s.valid_gem_tags else 1
+            mrank = _MINION_SUPPORT_RANK.get(s.name, len(_MINION_SUPPORTS))
+            return (creates, mrank, _CORE_SUPPORT_RANK.get(s.name, len(_CORE_SUPPORTS)), s.name)
         core_idx = _CORE_SUPPORT_RANK.get(s.name, len(_CORE_SUPPORTS))
         specific = 0 if (set(s.valid_gem_tags) & skill_tags) else 1
         return (core_idx, specific, -s.priority, s.name)
@@ -325,6 +356,13 @@ _DAMAGE_KEYWORDS: dict[str, tuple[str, ...]] = {
     "physical": ("physical damage", "attack damage", "bleed"),
     "spell": ("spell damage", "cast speed", "increased spell"),
     "attack": ("attack damage", "attack speed", "increased attack"),
+    # Step 55: minion builds scale their DPS through minion passives, not
+    # the player's own damage stats. A minion skill (Summon Skeletons,
+    # Raise Spectre/Zombie) routes its tree scoring here so notables like
+    # "Minions deal increased Damage" / "Lord of the Dead" are valued (the
+    # old physical/spell keywords matched none, so 0 minion nodes were
+    # taken and the minion did ~0 DPS).
+    "minion": ("minion", "minions deal", "skeleton", "zombie", "spectre", "raise"),
 }
 _DEFENCE_KEYWORDS: dict[str, tuple[str, ...]] = {
     "life": ("maximum life", "life regen", "life leech", "armour", "evasion"),
@@ -742,6 +780,12 @@ def _select_tree_nodes(intent: TheoryIntent) -> tuple[TreeNodeRef, ...]:
     class_idx = _CLASS_ID.get(intent.character_class, 0)
     start_id = td.class_starts.get(class_idx, 0)
 
+    # Step 55: a minion build scales DPS through minion passives, so score
+    # tree nodes with the "minion" keyword set rather than the player's own
+    # damage type (which would value none of the minion notables).
+    skill = _find_active(intent.primary_skill)
+    score_dmg = "minion" if "minion" in skill.tags else intent.damage_type
+
     # Travel cost from the class start to every reachable regular node
     # (used by the top-up fill's locality tiebreak).
     dist = _regular_distances(td.adjacency, start_id, td.nodes_by_id)
@@ -765,7 +809,7 @@ def _select_tree_nodes(intent: TheoryIntent) -> tuple[TreeNodeRef, ...]:
             visited,
             td.adjacency,
             td.nodes_by_id,
-            intent.damage_type,
+            score_dmg,
             intent.defence_archetype,
             excluded,
             budget,
@@ -780,7 +824,7 @@ def _select_tree_nodes(intent: TheoryIntent) -> tuple[TreeNodeRef, ...]:
             visited,
             td.adjacency,
             td.nodes_by_id,
-            intent.damage_type,
+            score_dmg,
             intent.defence_archetype,
             budget,
             dist=dist,
@@ -789,7 +833,7 @@ def _select_tree_nodes(intent: TheoryIntent) -> tuple[TreeNodeRef, ...]:
     )
 
     # Step 48: allocate mastery effects on the wheels we've taken.
-    masteries = _select_masteries(visited, td, intent.damage_type, intent.defence_archetype)
+    masteries = _select_masteries(visited, td, score_dmg, intent.defence_archetype)
 
     out: list[TreeNodeRef] = []
     for i, nid in enumerate(path):
