@@ -520,6 +520,34 @@ def test_es_build_rolls_es_on_armour_and_spreads_resistances() -> None:
         assert slots_with >= 3, f"{res} only on {slots_with} slot(s) — under-spread"
 
 
+def test_generator_never_auto_allocates_keystones() -> None:
+    """Step 57: the live generator must not auto-allocate keystones — the
+    keyword scorer can't tell a build-defining keystone from a build-breaker
+    (it was picking Chaos Inoculation on a life build → Life 1, and ES-
+    killing keystones on an ES trapper → ES 0). A life build in particular
+    must never carry Chaos Inoculation."""
+    for cls, asc, skill, dmg, defence in (
+        ("Shadow", "Raider", "Frost Blades", "cold", "life"),
+        ("Shadow", "Saboteur", "Lightning Trap", "lightning", "es"),
+        ("Marauder", "Juggernaut", "Cyclone", "physical", "life"),
+    ):
+        sk = generate_build(
+            _intent(
+                character_class=cls,
+                ascendancy=asc,
+                primary_skill=skill,
+                damage_type=dmg,
+                defence_archetype=defence,
+                budget="endgame",
+                focus="allcontent",
+            )
+        )
+        keystones = [n for n in sk.tree_nodes if n.type == "keystone"]
+        assert not keystones, f"{cls}/{skill} auto-allocated keystones: {keystones}"
+        names = {n.name for n in sk.tree_nodes}
+        assert "Chaos Inoculation" not in names
+
+
 def test_minion_build_gets_minion_supports_and_tree() -> None:
     """Step 55: a minion skill must be supported by the `createsminion`
     supports (Minion Damage, Feeding Frenzy, …) — NOT caster supports like

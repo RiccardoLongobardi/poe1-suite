@@ -124,6 +124,17 @@ Inside the navbar: a "Strumenti" / "Tools" section label above the 5 main routes
 
 Frontend-only, no backend change. Gate: 747 tests / 132 mypy / ruff clean. Build ~471 KB / 151 KB gzip.
 
+## Step 57 — Theorycrafter: no auto-allocated keystones (2026-05-25) ✅
+
+The sweep's remaining defensive failures (Frost Blades 1 life, Lightning Trap 0 ES, Summon Skeletons low pool) all traced to **one root cause**: the keyword tree scorer was auto-allocating **keystones**. Keystones are binary, build-defining switches the scorer can't reason about — it picked **Chaos Inoculation** on a *life* build (→ Life 1), ES-rework keystones (The Agnostic / Eternal Youth) + **Avatar of Fire** on a *lightning* ES trapper (→ ES 0, wrong element), Vaal Pact, Resolute Technique (kills crit), etc. **User-facing** (many builds were silently broken or crippled).
+
+- **The live generator never auto-allocates keystones.** New `_keystone_ids(td)` (all `is_keystone` node ids); `_select_tree_nodes` unions them into the `excluded` set, so keystones are dropped from `_grow_to_value` targets, its travel BFS, and `_fill_to_budget`. A generated build with zero keystones is strictly safer than one with keyword-matched ones — and notables provide the actual scaling. No per-build curation (synthesis-over-curation intact).
+- **The PoB-exact optimiser (Step 56) can still add keystones.** It uses its own `excluded` (weapon-mismatch only, not keystones) and its frontier swaps are scored by PoB's *real* fitness — which rejects the build-breakers. So the **precomputed** builds keep the genuinely-good keystones (Elemental Overload, etc.); only the live-generated (non-precomputed) builds go keystone-free.
+
+**Measured (PoB-exact sweep, endgame):** **LOW_POOL 3 → 0** — Frost Blades Life 1 → 5533, Lightning Trap ES 0 → 5276, Summon Skeletons pool → 4416, all OK. The removal also *raised* DPS on builds that were grabbing harmful keystones: Cyclone 16.8k → 32.9k, Arc 25.9k → 41.3k, Lacerate → 36.1k. Two ele-spell builds lost a *good* keystone (Elemental Overload) — Vortex 92.8k → 79k, Fireball 64k → 50k — but stay strongly OK. **Sweep: OK 23 → 26, only Raise Spectre LOW_DPS** (spectre-monster limitation, already flagged in Step 55).
+
+Test: `test_generator_never_auto_allocates_keystones` (Frost Blades / Lightning Trap / Cyclone carry no keystone-type node; no Chaos Inoculation on a life build). The locality test's hop bound was raised 20 → 26 (without nearby keystones the greedy reaches a little further). Gate: 766 tests / 141 mypy / ruff clean.
+
 ## Step 56 — Theorycrafter precomputed PoB-optimised builds (2026-05-25) ✅
 
 The payoff of the PoB-exact-optimiser initiative (Steps 50-52): for popular archetypes the Theorycrafter now serves a **precomputed, PoB-optimised** build with **real** DPS/EHP, instead of the live heuristic estimate. Full pipeline: gear co-optimisation → offline precompute → live serving. **Deploy stays $0 — Render never runs PoB, it only serves a vendored JSON.**

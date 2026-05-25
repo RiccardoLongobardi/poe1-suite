@@ -231,9 +231,13 @@ def test_select_tree_nodes_localized_and_clean() -> None:
             assert td_node.ascendancy_name is None, f"ascendancy node {n.node_id} on path"
 
         # Compact: every allocated node is reachable and within a sane
-        # radius of the class start (was 30+ hops for Ranger).
+        # radius of the class start (was 30+ hops for Ranger). Step 57
+        # raised the bound from 20 to 26: excluding keystones from auto-
+        # allocation means the greedy reaches slightly further for notables
+        # that a nearby keystone used to satisfy — still well short of the
+        # original sprawl.
         dists = [dist.get(n.node_id, 999) for n in nodes]
-        assert max(dists) <= 20, f"{cls}/{skill}: max hop distance {max(dists)} — sprawling"
+        assert max(dists) <= 26, f"{cls}/{skill}: max hop distance {max(dists)} — sprawling"
 
 
 def test_masteries_allocated_and_weapon_filtered() -> None:

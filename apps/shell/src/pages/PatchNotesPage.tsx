@@ -30,6 +30,27 @@ const RELEASES: Release[] = [
   {
     date: { it: "25 mag 2026", en: "25 May 2026" },
     title: {
+      it: "Theorycrafter — niente piu keystone che rompono la build",
+      en: "Theorycrafter — no more build-breaking keystones",
+    },
+    summary: {
+      it: "Il generatore non assegna piu automaticamente i keystone: erano la causa di build con 1 sola vita o 0 scudo energetico.",
+      en: "The generator no longer auto-assigns keystones: they were the cause of builds with just 1 life or 0 energy shield.",
+    },
+    entries: [
+      {
+        it: "I keystone sono scelte estreme che cambiano tutta la build (es. Chaos Inoculation porta la vita a 1, Avatar of Fire converte tutti i danni in fuoco). Venivano scelti a caso per parola chiave, rovinando build a vita o a scudo. Ora non vengono piu assegnati in automatico — le build risultano molto piu solide.",
+        en: "Keystones are extreme choices that reshape the whole build (e.g. Chaos Inoculation sets life to 1, Avatar of Fire converts all damage to fire). They were being picked by keyword and wrecking life or ES builds. They're no longer auto-assigned — builds come out far sturdier.",
+      },
+      {
+        it: "Effetto misurato: tre build prima rotte (Frost Blades, Trappola Fulmine, Scheletri) ora hanno vita/scudo corretti, e diverse build hanno anche piu danno (Cyclone e Arc quasi raddoppiati) perche non prendono piu keystone dannosi. Le build ottimizzate con PoB mantengono i keystone buoni (validati dal calcolo reale).",
+        en: "Measured effect: three previously-broken builds (Frost Blades, Lightning Trap, Skeletons) now have correct life/shield, and several builds also gained damage (Cyclone and Arc nearly doubled) by no longer taking harmful keystones. PoB-optimised builds keep the good keystones (validated by the real calc).",
+      },
+    ],
+  },
+  {
+    date: { it: "25 mag 2026", en: "25 May 2026" },
+    title: {
       it: "Theorycrafter — build ottimizzate con numeri reali di PoB",
       en: "Theorycrafter — builds optimised with real PoB numbers",
     },

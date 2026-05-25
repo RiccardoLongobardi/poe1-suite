@@ -515,6 +515,24 @@ def _excluded_weapon_ids(intent: TheoryIntent, td: TreeData) -> frozenset[int]:
     return frozenset(excluded)
 
 
+def _keystone_ids(td: TreeData) -> frozenset[int]:
+    """All regular keystone node ids.
+
+    Step 57: the live generator must NOT auto-allocate keystones. They are
+    binary, build-defining switches (Chaos Inoculation → life 1, Eldritch
+    Battery → ES becomes mana, Avatar of Fire → all damage to fire, …) that
+    the keyword scorer can't reason about — it was picking CI on a *life*
+    build (→ Life 1) and ES-killing keystones on an ES trapper (→ ES 0).
+    Excluding every keystone from the keyword-driven allocation (targets,
+    travel and fill) removes the entire class of "wrong keystone breaks the
+    build" bugs; a generated build without keystones is strictly safer. The
+    PoB-exact optimiser (Step 56) can still add a keystone — its real-calc
+    fitness rejects the build-breakers — so precomputed builds keep the
+    genuinely-good ones.
+    """
+    return frozenset(nid for nid, n in td.nodes_by_id.items() if n.is_keystone)
+
+
 def bfs_path(
     adjacency: dict[int, frozenset[int]],
     src: int,
@@ -791,8 +809,10 @@ def _select_tree_nodes(intent: TheoryIntent) -> tuple[TreeNodeRef, ...]:
     dist = _regular_distances(td.adjacency, start_id, td.nodes_by_id)
 
     # Nodes that boost a weapon class this build doesn't use are dead —
-    # exclude them everywhere (Step 48).
-    excluded = _excluded_weapon_ids(intent, td)
+    # exclude them everywhere (Step 48). Keystones are excluded too (Step
+    # 57): the keyword scorer can't tell a build-defining keystone from a
+    # build-breaker, so the live generator never auto-allocates one.
+    excluded = _excluded_weapon_ids(intent, td) | _keystone_ids(td)
 
     # Step 49: value-per-point greedy. Repeatedly allocate the unallocated
     # notable/keystone with the best score / new-points-to-reach ratio,
