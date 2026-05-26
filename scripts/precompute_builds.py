@@ -24,6 +24,7 @@ from optimize_build import (  # type: ignore[import-not-found]  # sibling script
     _Encoder,
     fitness,
     optimize_links,
+    optimize_timeless,
     optimize_tree,
     optimize_uniques,
     optimize_weapon,
@@ -95,8 +96,12 @@ def _optimised_skeleton(
     visited, _base_stats, best_stats = optimize_tree(
         intent, ev, links=best_links, pob_gear=best_pob, max_iters=tree_iters
     )
+    # 5) timeless jewel — LUT god-seed search over the finalised tree.
+    visited, jewels, _ = optimize_timeless(intent, ev, enc, visited, best_links, best_pob)
+    if jewels:
+        best_stats = ev.evaluate(enc.code(visited, best_links, pob_gear=best_pob, jewels=jewels))
 
-    pob_code = enc.code(visited, best_links, pob_gear=best_pob)
+    pob_code = enc.code(visited, best_links, pob_gear=best_pob, jewels=jewels)
     tree_nodes = enc._nodes(visited)
     links = best_links
 
@@ -115,6 +120,22 @@ def _optimised_skeleton(
         )
 
     gear = tuple(_overlay(g) for g in best_gear)
+    # Show the timeless jewel as a display slot (name + its seed/conqueror line).
+    if jewels:
+        body_lines = jewels[0][1].split("\n")
+        gear = (
+            *gear,
+            GearSlot(
+                slot="Timeless Jewel",
+                base_name=body_lines[1] if len(body_lines) > 1 else "Lethal Pride",
+                stat_priorities=tuple(
+                    ln
+                    for ln in body_lines
+                    if ln.startswith("Commanded") or ln.startswith("Passives")
+                ),
+                budget_tier=intent.budget,
+            ),
+        )
 
     stats = StatEstimate(
         life_estimate=int(best_stats.get("Life", 0)),

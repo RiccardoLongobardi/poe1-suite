@@ -124,6 +124,18 @@ Inside the navbar: a "Strumenti" / "Tools" section label above the 5 main routes
 
 Frontend-only, no backend change. Gate: 747 tests / 132 mypy / ruff clean. Build ~471 KB / 151 KB gzip.
 
+## Step 63 — Mirror-tier initiative: Timeless Jewels in the optimiser (2026-05-25) ✅
+
+Phase 4: the optimiser now adds a **Lethal Pride timeless jewel** via a real **LUT god-seed search**, validated by PoB's exact calc — the lever that separates endgame from mirror on physical builds. **User-facing** — the precomputed builds gained 2-9% DPS.
+
+- **Headless LUT seed search.** Built on Step 62's eval unblock. `optimize_timeless` (`scripts/optimize_build.py`): (1) ranks all 60 jewel sockets by how many *allocated* notables fall in their Large radius (`tree.nodes[s].nodesInRadius[3]` — radius label "Large"); (2) BFS-paths to the best few; (3) scans the Lethal Pride seed range (10000-18000) entirely in PoB's Lua state — for each seed, `data.readLUT(seed, nodeID, 2)` → `tree.legion.additions[idx+1].sd` gives the stat each in-radius notable gains, scored by the build's damage+defence keywords; (4) full-evals the top seed across conquerors (Kaom/Rakiata/Akoya) and keeps the best, **fitness-gated** (a jewel is added only when it raises real fitness, so it can never hurt the build).
+- **Encoder.** `encode_pob_code` gained a `jewels=((socket_node, item_text), …)` param: emits the jewel `<Item>` + a `<Socket nodeId itemId/>` in the Spec's `<Sockets>`. The socket node is allocated via the tree path. PoB recognises the jewel by its text and applies the LUT transform.
+- **Pipeline + serving.** `precompute_builds.py` runs the timeless pass after the tree pass; the chosen jewel is baked into the served `pob_code` and shown as a "Timeless Jewel" display slot. Render serves the vendored JSON — PoB only ran locally during precompute.
+
+**Measured (PoB-exact, over Step 60):** Cyclone **110k → 120k** FullDPS (Lethal Pride socket 54127, seed 17479), Lacerate 92k → 99k, Vortex 152k → 158k, Arc 65k → 67k, Ice Shot 34.5k → 35.4k. The LUT search finds a genuinely good seed (not a curated one) and PoB confirms the gain.
+
+**Honest scope:** only **Lethal Pride** (additive, universally safe) is searched so far — Glorious Vanity (node *replacement*, can transform keystones) and the others are future work; and the search optimises for the in-radius notables' additions (a real god-seed search), not yet the full node-replacement / conqueror-attribute interactions. A budget caveat: the jewel's socket + path add a few points over the nominal tree budget. Test: `test_encode_emits_timeless_jewel_item_and_socket`. Gate: 773 tests / 145 mypy / ruff clean.
+
 ## Step 62 — Mirror-tier initiative: unblock Timeless Jewel eval (2026-05-25) 🔬
 
 Phase 4 prerequisite: headless PoB couldn't load the Timeless Jewel LUTs, so any build with a timeless jewel (e.g. the 84M-DPS ladder Cyclone) **crashed** the evaluator (`attempt to index local 'o'` — `build.calcsTab.mainOutput` was nil because the jewel data failed to load). Fixed. **Internal tooling only — no user-facing change, no Patch Notes** (like the Step 50 evaluator foundation).

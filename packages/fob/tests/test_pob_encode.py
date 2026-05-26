@@ -56,6 +56,31 @@ def test_encode_minimal_tree_pob_wrapper() -> None:
     assert set(snap.tree.node_ids) >= {50459, 1234}
 
 
+def test_encode_emits_timeless_jewel_item_and_socket() -> None:
+    """Step 63: a jewel (socket_node, item_text) is emitted as an <Item> plus
+    a <Socket nodeId itemId/> in the Spec's <Sockets>, so PoB applies it."""
+    tree = StageTree(stage_key="end", node_ids=(50459, 26725))
+    jewel_text = (
+        "Rarity: UNIQUE\nLethal Pride\nTimeless Jewel\nRadius: Large\nImplicits: 0\n"
+        "Commanded leadership over 17479 warriors under Kaom\n"
+        "Passives in radius are Conquered by the Karui\nHistoric"
+    )
+    code = encode_pob_code(
+        character_class="Marauder",
+        ascendancy="Juggernaut",
+        tree=tree,
+        jewels=((26725, jewel_text),),
+    )
+    raw = decode_export(code).decode("utf-8")
+    root = ET.fromstring(raw)
+    # The jewel item is present...
+    items = [i.text or "" for i in root.iter("Item")]
+    assert any("Lethal Pride" in t and "17479" in t for t in items)
+    # ...and socketed at the given node.
+    sockets = [(s.get("nodeId"), s.get("itemId")) for s in root.iter("Socket")]
+    assert any(node == "26725" for node, _ in sockets)
+
+
 # ---------------------------------------------------------------------------
 # Roundtrip via decoder
 # ---------------------------------------------------------------------------

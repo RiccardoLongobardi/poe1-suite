@@ -30,6 +30,27 @@ const RELEASES: Release[] = [
   {
     date: { it: "25 mag 2026", en: "25 May 2026" },
     title: {
+      it: "Theorycrafter — Timeless Jewel nelle build ottimizzate",
+      en: "Theorycrafter — Timeless Jewels in the optimised builds",
+    },
+    summary: {
+      it: "Le build ottimizzate ora montano un Timeless Jewel (Lethal Pride) con il seed migliore trovato cercando nei dati reali di PoB — la leva che avvicina le build endgame a quelle mirror-tier.",
+      en: "Optimised builds now equip a Timeless Jewel (Lethal Pride) with the best seed found by searching PoB's real data — the lever that brings endgame builds closer to mirror-tier.",
+    },
+    entries: [
+      {
+        it: "Il generatore sceglie la posizione migliore per il jewel (il punto dell'albero il cui raggio copre più talenti utili), poi cerca tra tutti i seed quello che potenzia di più la build, e lo conferma col calcolo reale di PoB. Il jewel viene aggiunto solo se migliora davvero — non può mai peggiorare la build.",
+        en: "The generator picks the best spot for the jewel (the tree socket whose radius covers the most useful notables), then searches every seed for the one that boosts the build most, and confirms it with PoB's real calc. The jewel is added only if it genuinely helps — it can never make the build worse.",
+      },
+      {
+        it: "Risultato misurato: Cyclone da ~110.000 a ~120.000 DPS, Vortex a ~158.000, Lacerate ~99.000. Il Timeless Jewel scelto appare tra gli oggetti della build, pronto da importare in PoB.",
+        en: "Measured: Cyclone from ~110,000 to ~120,000 DPS, Vortex to ~158,000, Lacerate ~99,000. The chosen Timeless Jewel appears among the build's items, ready to import into PoB.",
+      },
+    ],
+  },
+  {
+    date: { it: "25 mag 2026", en: "25 May 2026" },
+    title: {
       it: "Theorycrafter — gear corretto per le build a danno nel tempo",
       en: "Theorycrafter — correct gear for damage-over-time builds",
     },

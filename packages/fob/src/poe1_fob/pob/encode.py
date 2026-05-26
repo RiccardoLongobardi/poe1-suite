@@ -130,6 +130,7 @@ def encode_pob_code(
     gems: StageGemLinks | None = None,
     level: int = 90,
     passthrough_user_pob: str | None = None,
+    jewels: tuple[tuple[int, str], ...] = (),
 ) -> str:
     """Encode a stage spec into a PoB export code.
 
@@ -172,6 +173,7 @@ def encode_pob_code(
         gems=gems,
         level=level,
         passthrough_user_pob=passthrough_user_pob,
+        jewels=jewels,
     )
     raw = xml_str.encode("utf-8")
     compressed = zlib.compress(raw, level=9)
@@ -192,6 +194,7 @@ def _build_xml(
     gems: StageGemLinks | None,
     level: int,
     passthrough_user_pob: str | None = None,
+    jewels: tuple[tuple[int, str], ...] = (),
 ) -> str:
     """Assemble the PathOfBuilding XML root."""
 
@@ -403,6 +406,34 @@ def _build_xml(
                         "active": "true",
                     },
                 )
+
+    # Timeless / tree jewels (Step 63): each (socket_node_id, item_body) is
+    # emitted as an <Item> plus a <Socket nodeId itemId/> in the Spec's
+    # <Sockets>. The socket node must already be in the tree's node_ids
+    # (allocated) for PoB to apply the jewel — the caller ensures that.
+    if jewels:
+        jewel_items = root.find("Items")
+        if jewel_items is None:
+            jewel_items = ET.SubElement(
+                root, "Items", attrib={"activeItemSet": "1", "useSecondWeaponSet": "false"}
+            )
+            ET.SubElement(
+                jewel_items,
+                "ItemSet",
+                attrib={"id": "1", "useSecondWeaponSet": "false", "title": "Default"},
+            )
+        sockets_elem = spec.find("Sockets")
+        if sockets_elem is None:  # pragma: no cover - Sockets always created above
+            sockets_elem = ET.SubElement(spec, "Sockets")
+        for j, (socket_node, body) in enumerate(jewels):
+            item_id = 1000 + j
+            jewel_item = ET.SubElement(jewel_items, "Item", attrib={"id": str(item_id)})
+            jewel_item.text = "\n" + body.strip() + "\n"
+            ET.SubElement(
+                sockets_elem,
+                "Socket",
+                attrib={"nodeId": str(socket_node), "itemId": str(item_id)},
+            )
 
     # <Notes>: prepend our stage notes to the user's notes when both exist.
     user_notes = user_root.find("Notes") if user_root is not None else None

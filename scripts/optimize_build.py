@@ -20,7 +20,9 @@ Local/offline tool only — needs the PoB runtime (`scripts/setup_pob.py`).
 
 from __future__ import annotations
 
+import json
 import sys
+from functools import lru_cache
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -172,6 +174,7 @@ class _Encoder:
         links: tuple[GemLink, ...] | None = None,
         gear: tuple[GearSlot, ...] | None = None,
         pob_gear: StageGearSet | None = None,
+        jewels: tuple[tuple[int, str], ...] = (),
     ) -> str:
         tree = gen._to_pob_tree(self.intent, self._nodes(visited))
         if pob_gear is not None:
@@ -187,6 +190,7 @@ class _Encoder:
             gear=g,
             gems=gen._to_pob_gems(links if links is not None else self.base_links),
             level=90,
+            jewels=jewels,
         )
 
     def with_primary_supports(self, supports: tuple[str, ...]) -> tuple[GemLink, ...]:
@@ -488,6 +492,236 @@ def optimize_tree(
             break
 
     return visited, base_stats, best_stats
+
+
+# ---------------------------------------------------------------------------
+# Timeless Jewel — LUT god-seed search (Step 63)
+# ---------------------------------------------------------------------------
+
+# Lethal Pride (jewel type 2): conquerors + seed range. The notable additions
+# are seed-only (the conqueror grants a flat attribute on top), so we search
+# the seed via PoB's LUT and try the conquerors in the full eval.
+_LP_TYPE = 2
+_LP_SEED_MIN, _LP_SEED_MAX = 10000, 18000
+_LP_CONQUERORS = ("Kaom", "Rakiata", "Akoya")
+
+
+def _lethal_pride_text(seed: int, conqueror: str) -> str:
+    """PoB item body for a Lethal Pride with the given seed + conqueror."""
+    return "\n".join(
+        [
+            "Rarity: UNIQUE",
+            "Lethal Pride",
+            "Timeless Jewel",
+            "Radius: Large",
+            "Implicits: 0",
+            f"Commanded leadership over {seed} warriors under {conqueror}",
+            "Passives in radius are Conquered by the Karui",
+            "Historic",
+        ]
+    )
+
+
+@lru_cache(maxsize=1)
+def _jewel_socket_ids() -> frozenset[int]:
+    """Regular-tree jewel-socket node ids (from the raw vendored tree)."""
+    path = (
+        Path(__file__).resolve().parent.parent / "packages" / "fob" / "data" / "tree" / "3_28.json"
+    )
+    raw = json.loads(path.read_text(encoding="utf-8"))
+    out: set[int] = set()
+    for nid, n in raw.get("nodes", {}).items():
+        if n.get("isJewelSocket") and nid.isdigit() and int(nid) < 65536:
+            out.add(int(nid))
+    return frozenset(out)
+
+
+# Keyword sets for scoring the seed's notable additions (Lua-side, lowercased).
+_DEF_KW = ("maximum life", "energy shield", "resist", "armour", "evasion", "leech", "regenerat")
+
+
+def _search_lethal_pride_seed(
+    ev: PobEvaluator, socket: int, alloc_notables: set[int], keywords: tuple[str, ...]
+) -> tuple[int, int]:
+    """Scan the Lethal Pride LUT for the seed whose additions on the socket's
+    in-radius *allocated* notables best match *keywords*. Returns (seed, score).
+    Runs entirely in PoB's Lua state (fast — table lookups, no calc)."""
+    alloc = "".join(f"[{n}]=true," for n in alloc_notables)
+    kw = ",".join(f'"{k}"' for k in keywords)
+    chunk = _SEED_SEARCH_TMPL % {
+        "socket": socket,
+        "jtype": _LP_TYPE,
+        "alloc": alloc,
+        "kw": kw,
+        "smin": _LP_SEED_MIN,
+        "smax": _LP_SEED_MAX,
+    }
+    out = ev._run_chunk(chunk).strip()
+    if "=" not in out:
+        return (_LP_SEED_MIN, -1)
+    seed_s, _, score_s = out.partition("=")
+    try:
+        return (int(seed_s), int(score_s))
+    except ValueError:
+        return (_LP_SEED_MIN, -1)
+
+
+_SEED_SEARCH_TMPL = r"""
+local socketId, jewelType = %(socket)d, %(jtype)d
+local allocNotables = {%(alloc)s}
+local keywords = {%(kw)s}
+local seedMin, seedMax = %(smin)d, %(smax)d
+local tree = build.spec.tree
+if not tree or not tree.legion or not tree.nodes[socketId] then return "" end
+local rIdx
+for i, r in pairs(data.jewelRadius) do if r.label == "Large" then rIdx = i end end
+local socket = tree.nodes[socketId]
+if not rIdx or not socket.nodesInRadius or not socket.nodesInRadius[rIdx] then return "" end
+local add = tree.legion.additions
+local nodeIDList = data.nodeIDList
+local sizeNotable = nodeIDList["sizeNotable"]
+local targets = {}
+for nid in pairs(socket.nodesInRadius[rIdx]) do
+  local nidn = tonumber(nid) or nid
+  if allocNotables[nidn] and nodeIDList[nidn] and nodeIDList[nidn].index
+     and nodeIDList[nidn].index <= sizeNotable then
+    targets[#targets+1] = nidn
+  end
+end
+if #targets == 0 then return "" end
+local bestSeed, bestScore = seedMin, -1
+for seed = seedMin, seedMax do
+  local sc = 0
+  for _, nid in ipairs(targets) do
+    local r = data.readLUT(seed, nid, jewelType)
+    if r and r[1] then
+      local a = add[r[1] + 1]
+      if a and a.sd then
+        for _, line in ipairs(a.sd) do
+          local low = line:lower()
+          for _, w in ipairs(keywords) do if low:find(w, 1, true) then sc = sc + 1 end end
+        end
+      end
+    end
+  end
+  if sc > bestScore then bestScore = sc; bestSeed = seed end
+end
+return tostring(bestSeed) .. "=" .. tostring(bestScore)
+"""
+
+
+_SOCKET_RANK_TMPL = r"""
+local allocNotables = {%(alloc)s}
+local sockets = {%(sockets)s}
+local tree = build.spec.tree
+if not tree or not tree.legion then return "" end
+local rIdx
+for i, r in pairs(data.jewelRadius) do if r.label == "Large" then rIdx = i end end
+if not rIdx then return "" end
+local nodeIDList = data.nodeIDList
+local sizeNotable = nodeIDList["sizeNotable"]
+local out = {}
+for _, sid in ipairs(sockets) do
+  local socket = tree.nodes[sid]
+  local count = 0
+  if socket and socket.nodesInRadius and socket.nodesInRadius[rIdx] then
+    for nid in pairs(socket.nodesInRadius[rIdx]) do
+      local nidn = tonumber(nid) or nid
+      if allocNotables[nidn] and nodeIDList[nidn] and nodeIDList[nidn].index
+         and nodeIDList[nidn].index <= sizeNotable then
+        count = count + 1
+      end
+    end
+  end
+  if count > 0 then out[#out+1] = sid .. ":" .. count end
+end
+return table.concat(out, ",")
+"""
+
+
+def _rank_jewel_sockets(
+    ev: PobEvaluator, alloc_notables: set[int], socket_ids: frozenset[int]
+) -> list[tuple[int, int]]:
+    """Return [(socket, in-radius allocated-notable count)] best-first."""
+    alloc = "".join(f"[{n}]=true," for n in alloc_notables)
+    sockets = ",".join(str(s) for s in sorted(socket_ids))
+    out = ev._run_chunk(_SOCKET_RANK_TMPL % {"alloc": alloc, "sockets": sockets}).strip()
+    ranked: list[tuple[int, int]] = []
+    for pair in out.split(","):
+        if ":" in pair:
+            sid, _, cnt = pair.partition(":")
+            try:
+                ranked.append((int(sid), int(cnt)))
+            except ValueError:
+                continue
+    ranked.sort(key=lambda x: -x[1])
+    return ranked
+
+
+def optimize_timeless(
+    intent: TheoryIntent,
+    ev: PobEvaluator,
+    enc: _Encoder,
+    visited: set[int],
+    links: tuple[GemLink, ...],
+    pob_gear: StageGearSet,
+) -> tuple[set[int], tuple[tuple[int, str], ...], float]:
+    """Add a Lethal Pride timeless jewel if it improves PoB-exact fitness.
+
+    Ranks every jewel socket by how many *allocated* notables fall in its
+    Large radius, paths to the best few (BFS over the regular tree), searches
+    the LUT for the seed whose additions on those notables best match the
+    build's keywords, then full-evals the top seed across conquerors. Keeps
+    the best socket+seed+conqueror — fitness-gated, so a jewel is added only
+    when it genuinely helps.
+
+    Returns (visited, jewels, fitness). ``jewels`` is the (socket, item_text)
+    tuple to pass to ``enc.code`` / ``encode_pob_code``.
+    """
+    td = get_tree_data()
+    score_dmg = "minion" if "minion" in enc.skill.tags else intent.damage_type
+    keywords = tuple(gen._DAMAGE_KEYWORDS.get(score_dmg, ())) + _DEF_KW
+
+    # The seed search needs a build loaded (build.spec.tree). Load the base.
+    base_code = enc.code(visited, links, pob_gear=pob_gear)
+    cur_fit = fitness(ev.evaluate(base_code), intent.budget)
+
+    alloc_notables = {n for n in visited if (nd := td.nodes_by_id.get(n)) and nd.is_notable}
+    # Rank sockets by in-radius allocated-notable coverage; path to the best.
+    ranked = _rank_jewel_sockets(ev, alloc_notables, _jewel_socket_ids())
+
+    best_jewels: tuple[tuple[int, str], ...] = ()
+    best_visited = visited
+    for socket, _count in ranked[:4]:
+        # Path to the socket over the regular tree (allocate the connecting
+        # travel). bfs_path needs a connected start in `visited`.
+        path = None
+        for start in visited:
+            p = gen.bfs_path(td.adjacency, start, socket)
+            if p is not None and all(
+                n in visited or gen._is_fillable(td.nodes_by_id.get(n), n) for n in p
+            ):
+                path = p
+                break
+        if path is None:
+            continue
+        v2 = visited | set(path)
+        seed, score = _search_lethal_pride_seed(ev, socket, alloc_notables, keywords)
+        if score <= 0:
+            continue
+        for conq in _LP_CONQUERORS:
+            jewels = ((socket, _lethal_pride_text(seed, conq)),)
+            try:
+                stats = ev.evaluate(enc.code(v2, links, pob_gear=pob_gear, jewels=jewels))
+            except Exception:
+                continue
+            fit = fitness(stats, intent.budget)
+            if fit > cur_fit * 1.001:
+                cur_fit, best_jewels, best_visited = fit, jewels, v2
+    if best_jewels:
+        sk = best_jewels[0]
+        print(f"[opt] timeless: socket {sk[0]} Lethal Pride | fit={cur_fit:.0f}")
+    return best_visited, best_jewels, cur_fit
 
 
 def _demo() -> int:
