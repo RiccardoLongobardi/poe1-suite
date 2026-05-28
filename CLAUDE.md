@@ -136,6 +136,21 @@ Phase 4: the optimiser now adds a **Lethal Pride timeless jewel** via a real **L
 
 **Honest scope:** only **Lethal Pride** (additive, universally safe) is searched so far — Glorious Vanity (node *replacement*, can transform keystones) and the others are future work; and the search optimises for the in-radius notables' additions (a real god-seed search), not yet the full node-replacement / conqueror-attribute interactions. A budget caveat: the jewel's socket + path add a few points over the nominal tree budget. Test: `test_encode_emits_timeless_jewel_item_and_socket`. Gate: 773 tests / 145 mypy / ruff clean.
 
+### Mirror-tier initiative — status + next steps (2026-05-25)
+
+All four phases of the mirror-tier initiative (Steps 58-63) have shipped their first lever: precomputed builds now carry **chase uniques** (Step 59) + **layered defences** (Step 60) + **DoT-multiplier gear** for DoT archetypes (Step 61) + a **LUT-found Lethal Pride timeless jewel** (Step 63). They went from 12-19% of the top-ladder build to genuinely strong (Cyclone 120k DPS / 19.5k EHP, Vortex 158k / 29k, etc.). The PoB-exact optimiser (local; Render only serves the vendored JSON) is the engine; everything is fitness-gated so nothing can regress a build.
+
+**The full, prioritised next-step list with implementation notes lives in `CLAUDE_PERPLEXITY_WORKFLOW.md` §6 ("NEXT STEPS").** In brief, highest-impact first:
+1. **Glorious Vanity** — node-*replacement* timeless jewel (Corrupted Soul / keystone transforms); the biggest remaining physical-build lever. Extends `optimize_timeless` (jewel type 1; `readLUT` returns a replacement node id → score the replacement's full stat block via `tree.legion.nodes`).
+2. **Other timeless jewels** (Brutal Restraint / Militant Faith / Elegant Hubris) — cheap once GV's framework exists; parametrise the `_LP_*` constants per type.
+3. **Multi-mod / influenced / meta-crafted rares** — the biggest gear-quality lever for the non-unique slots (mirror rares are mod *combinations*, not one mod per priority).
+4. **Auras / flasks / Pantheon** — multiplicative buffs added to the gem layout + `<Config>`.
+5. **Honest tree point budget** when a jewel socket + path is allocated (drop lowest-value notables to keep the point count realistic).
+6. **Expand the precompute matrix** beyond the 5 archetypes.
+7. **Conqueror-attribute optimisation** (minor) and **Spectre DPS** (vendor monster data — the last sweep LOW_DPS).
+
+Process: the optimiser/precompute is local-only (`scripts/setup_pob.py` → `.pob_runtime/`); validate with `scripts/compare_ladder.py`, re-run `scripts/precompute_builds.py`, bump the Patch Notes when DPS/EHP move.
+
 ## Step 62 — Mirror-tier initiative: unblock Timeless Jewel eval (2026-05-25) 🔬
 
 Phase 4 prerequisite: headless PoB couldn't load the Timeless Jewel LUTs, so any build with a timeless jewel (e.g. the 84M-DPS ladder Cyclone) **crashed** the evaluator (`attempt to index local 'o'` — `build.calcsTab.mainOutput` was nil because the jewel data failed to load). Fixed. **Internal tooling only — no user-facing change, no Patch Notes** (like the Step 50 evaluator foundation).
