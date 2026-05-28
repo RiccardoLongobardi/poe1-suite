@@ -24,6 +24,7 @@ import json
 import sys
 from functools import lru_cache
 from pathlib import Path
+from typing import NamedTuple
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from pob_eval import PobEvaluator  # type: ignore[import-not-found]  # sibling script
@@ -498,25 +499,72 @@ def optimize_tree(
 # Timeless Jewel — LUT god-seed search (Step 63)
 # ---------------------------------------------------------------------------
 
-# Lethal Pride (jewel type 2): conquerors + seed range. The notable additions
-# are seed-only (the conqueror grants a flat attribute on top), so we search
-# the seed via PoB's LUT and try the conquerors in the full eval.
-_LP_TYPE = 2
-_LP_SEED_MIN, _LP_SEED_MAX = 10000, 18000
-_LP_CONQUERORS = ("Kaom", "Rakiata", "Akoya")
+
+# The *additive* timeless jewels (every type except Glorious Vanity, which
+# REPLACES nodes). For these `readLUT(seed, notable, type)` returns one
+# addition index → the notable gains that stat. The conqueror grants a flat
+# attribute on top; we use the first named conqueror per type (its choice
+# rarely changes DPS — the seed-driven additions dominate). Each type has its
+# own seed-bearing flavour line + radius-transform line (from PoB's data).
+# Elegant Hubris (type 5) is omitted: its readLUT divides the seed by 20, a
+# special case left for later.
+class _JewelType(NamedTuple):
+    name: str
+    seed_min: int
+    seed_max: int
+    conqueror: str
+    seed_line: str  # "{seed}" + "{conq}" placeholders
+    transform: str
 
 
-def _lethal_pride_text(seed: int, conqueror: str) -> str:
-    """PoB item body for a Lethal Pride with the given seed + conqueror."""
+_TIMELESS_TYPES: dict[int, _JewelType] = {
+    2: _JewelType(
+        "Lethal Pride",
+        10000,
+        18000,
+        "Kaom",
+        "Commanded leadership over {seed} warriors under {conq}",
+        "Passives in radius are Conquered by the Karui",
+    ),
+    3: _JewelType(
+        "Brutal Restraint",
+        500,
+        8000,
+        "Asenath",
+        "Denoted service of {seed} dekhara in the akhara of {conq}",
+        "Passives in radius are Conquered by the Maraketh",
+    ),
+    4: _JewelType(
+        "Militant Faith",
+        2000,
+        10000,
+        "Avarius",
+        "Carved to glorify {seed} new faithful converted by High Templar {conq}",
+        "Passives in radius are Conquered by the Templars",
+    ),
+    6: _JewelType(
+        "Heroic Tragedy",
+        100,
+        8000,
+        "Vorana",
+        "Remembrancing {seed} songworthy deeds by the line of {conq}",
+        "Passives in radius are Conquered by the Kalguur",
+    ),
+}
+
+
+def _timeless_jewel_text(jtype: int, seed: int, conqueror: str) -> str:
+    """PoB item body for an additive timeless jewel (type/seed/conqueror)."""
+    t = _TIMELESS_TYPES[jtype]
     return "\n".join(
         [
             "Rarity: UNIQUE",
-            "Lethal Pride",
+            t.name,
             "Timeless Jewel",
             "Radius: Large",
             "Implicits: 0",
-            f"Commanded leadership over {seed} warriors under {conqueror}",
-            "Passives in radius are Conquered by the Karui",
+            t.seed_line.format(seed=seed, conq=conqueror),
+            t.transform,
             "Historic",
         ]
     )
@@ -540,30 +588,31 @@ def _jewel_socket_ids() -> frozenset[int]:
 _DEF_KW = ("maximum life", "energy shield", "resist", "armour", "evasion", "leech", "regenerat")
 
 
-def _search_lethal_pride_seed(
-    ev: PobEvaluator, socket: int, alloc_notables: set[int], keywords: tuple[str, ...]
+def _search_seed(
+    ev: PobEvaluator, socket: int, jtype: int, alloc_notables: set[int], keywords: tuple[str, ...]
 ) -> tuple[int, int]:
-    """Scan the Lethal Pride LUT for the seed whose additions on the socket's
+    """Scan a timeless jewel's LUT for the seed whose additions on the socket's
     in-radius *allocated* notables best match *keywords*. Returns (seed, score).
     Runs entirely in PoB's Lua state (fast — table lookups, no calc)."""
+    t = _TIMELESS_TYPES[jtype]
     alloc = "".join(f"[{n}]=true," for n in alloc_notables)
     kw = ",".join(f'"{k}"' for k in keywords)
     chunk = _SEED_SEARCH_TMPL % {
         "socket": socket,
-        "jtype": _LP_TYPE,
+        "jtype": jtype,
         "alloc": alloc,
         "kw": kw,
-        "smin": _LP_SEED_MIN,
-        "smax": _LP_SEED_MAX,
+        "smin": t.seed_min,
+        "smax": t.seed_max,
     }
     out = ev._run_chunk(chunk).strip()
     if "=" not in out:
-        return (_LP_SEED_MIN, -1)
+        return (t.seed_min, -1)
     seed_s, _, score_s = out.partition("=")
     try:
         return (int(seed_s), int(score_s))
     except ValueError:
-        return (_LP_SEED_MIN, -1)
+        return (t.seed_min, -1)
 
 
 _SEED_SEARCH_TMPL = r"""
@@ -692,7 +741,8 @@ def optimize_timeless(
 
     best_jewels: tuple[tuple[int, str], ...] = ()
     best_visited = visited
-    for socket, _count in ranked[:4]:
+    best_label = ""
+    for socket, _count in ranked[:3]:
         # Path to the socket over the regular tree (allocate the connecting
         # travel). bfs_path needs a connected start in `visited`.
         path = None
@@ -706,11 +756,13 @@ def optimize_timeless(
         if path is None:
             continue
         v2 = visited | set(path)
-        seed, score = _search_lethal_pride_seed(ev, socket, alloc_notables, keywords)
-        if score <= 0:
-            continue
-        for conq in _LP_CONQUERORS:
-            jewels = ((socket, _lethal_pride_text(seed, conq)),)
+        # Try every additive jewel type at this socket — search its best seed,
+        # full-eval it, keep whichever (type/seed) maximises real fitness.
+        for jtype, t in _TIMELESS_TYPES.items():
+            seed, score = _search_seed(ev, socket, jtype, alloc_notables, keywords)
+            if score <= 0:
+                continue
+            jewels = ((socket, _timeless_jewel_text(jtype, seed, t.conqueror)),)
             try:
                 stats = ev.evaluate(enc.code(v2, links, pob_gear=pob_gear, jewels=jewels))
             except Exception:
@@ -718,9 +770,9 @@ def optimize_timeless(
             fit = fitness(stats, intent.budget)
             if fit > cur_fit * 1.001:
                 cur_fit, best_jewels, best_visited = fit, jewels, v2
+                best_label = f"{t.name} (socket {socket}, seed {seed})"
     if best_jewels:
-        sk = best_jewels[0]
-        print(f"[opt] timeless: socket {sk[0]} Lethal Pride | fit={cur_fit:.0f}")
+        print(f"[opt] timeless: {best_label} | fit={cur_fit:.0f}")
     return best_visited, best_jewels, cur_fit
 
 

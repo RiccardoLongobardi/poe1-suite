@@ -30,6 +30,27 @@ const RELEASES: Release[] = [
   {
     date: { it: "25 mag 2026", en: "25 May 2026" },
     title: {
+      it: "Theorycrafter — sceglie il miglior tipo di Timeless Jewel",
+      en: "Theorycrafter — picks the best Timeless Jewel type",
+    },
+    summary: {
+      it: "L'ottimizzatore ora prova tutti i tipi di Timeless Jewel (Lethal Pride, Brutal Restraint, Militant Faith…) e tiene quello che potenzia di più la build.",
+      en: "The optimiser now tries every Timeless Jewel type (Lethal Pride, Brutal Restraint, Militant Faith…) and keeps the one that boosts the build most.",
+    },
+    entries: [
+      {
+        it: "Per ogni posizione del jewel cerca il seed migliore di ciascun tipo e li confronta col calcolo reale di PoB. Spesso il migliore non è Lethal Pride: su molte build vince Brutal Restraint.",
+        en: "For each jewel spot it searches the best seed of every type and compares them with PoB's real calc. Often the best isn't Lethal Pride: on many builds Brutal Restraint wins.",
+      },
+      {
+        it: "Risultato misurato: Vortex da ~158.000 a ~165.000 DPS, Ice Shot +7%, Arc +3%. Il tipo di jewel scelto è quello davvero migliore per quella build, non uno fisso.",
+        en: "Measured: Vortex from ~158,000 to ~165,000 DPS, Ice Shot +7%, Arc +3%. The chosen jewel type is the one that's genuinely best for that build, not a fixed default.",
+      },
+    ],
+  },
+  {
+    date: { it: "25 mag 2026", en: "25 May 2026" },
+    title: {
       it: "Theorycrafter — Timeless Jewel nelle build ottimizzate",
       en: "Theorycrafter — Timeless Jewels in the optimised builds",
     },

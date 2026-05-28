@@ -124,6 +124,15 @@ Inside the navbar: a "Strumenti" / "Tools" section label above the 5 main routes
 
 Frontend-only, no backend change. Gate: 747 tests / 132 mypy / ruff clean. Build ~471 KB / 151 KB gzip.
 
+## Step 64 — Mirror-tier initiative: all additive timeless jewel types (2026-05-25) ✅
+
+Next-step #2 from the roadmap: generalise the Step 63 timeless search from Lethal-Pride-only to **all additive jewel types**, so the optimiser picks the best type per build. **User-facing** — 4 of 5 precomputed builds gained DPS from a better jewel.
+
+- **Parametrised `optimize_timeless`.** Replaced the Lethal-Pride-specific constants with a `_TIMELESS_TYPES` table (a `_JewelType` NamedTuple per type: name, seed range, default conqueror, the type's unique seed-bearing flavour line, the radius-transform line). Covers **Lethal Pride** (Karui, 10000-18000), **Brutal Restraint** (Maraketh, 500-8000), **Militant Faith** (Templars, 2000-10000), **Heroic Tragedy** (Kalguur, 100-8000) — every non-GV jewel is *additive* (a notable gains one `readLUT` addition). `_timeless_jewel_text(jtype, seed, conq)` + `_search_seed(ev, socket, jtype, …)` are now type-generic. For each ranked socket the search tries **every** type, full-evals its best seed, and keeps whichever maximises real fitness. Elegant Hubris (type 5, seed÷20) is deferred; Glorious Vanity (type 1, node *replacement*) is next-step #1.
+- **The optimiser autonomously prefers Brutal Restraint on most builds.** Letting PoB fitness choose, **Brutal Restraint** beat Lethal Pride on Cyclone, Vortex, Arc and Ice Shot (its Maraketh additions — attack/cast speed, crit, DoT — fit better); Lacerate kept Lethal Pride.
+
+**Measured (PoB-exact, over Step 63):** Vortex **158k → 165k** FullDPS (+5%, Brutal Restraint seed 2176), Ice Shot 35.4k → 37.8k (+7%), Arc 66.6k → 68.9k (+3%); Cyclone ~unchanged (BR vs LP tied, BR gave a little more EHP); Lacerate unchanged. Gate: 773 tests / 145 mypy / ruff clean.
+
 ## Step 63 — Mirror-tier initiative: Timeless Jewels in the optimiser (2026-05-25) ✅
 
 Phase 4: the optimiser now adds a **Lethal Pride timeless jewel** via a real **LUT god-seed search**, validated by PoB's exact calc — the lever that separates endgame from mirror on physical builds. **User-facing** — the precomputed builds gained 2-9% DPS.
@@ -142,7 +151,7 @@ All four phases of the mirror-tier initiative (Steps 58-63) have shipped their f
 
 **The full, prioritised next-step list with implementation notes lives in `CLAUDE_PERPLEXITY_WORKFLOW.md` §6 ("NEXT STEPS").** In brief, highest-impact first:
 1. **Glorious Vanity** — node-*replacement* timeless jewel (Corrupted Soul / keystone transforms); the biggest remaining physical-build lever. Extends `optimize_timeless` (jewel type 1; `readLUT` returns a replacement node id → score the replacement's full stat block via `tree.legion.nodes`).
-2. **Other timeless jewels** (Brutal Restraint / Militant Faith / Elegant Hubris) — cheap once GV's framework exists; parametrise the `_LP_*` constants per type.
+2. ~~**Other timeless jewels**~~ — DONE (Step 64): the search tries all additive types and the optimiser prefers Brutal Restraint on most builds. (Elegant Hubris still deferred for its ÷20 seed quirk.)
 3. **Multi-mod / influenced / meta-crafted rares** — the biggest gear-quality lever for the non-unique slots (mirror rares are mod *combinations*, not one mod per priority).
 4. **Auras / flasks / Pantheon** — multiplicative buffs added to the gem layout + `<Config>`.
 5. **Honest tree point budget** when a jewel socket + path is allocated (drop lowest-value notables to keep the point count realistic).
