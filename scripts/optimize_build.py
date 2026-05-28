@@ -500,29 +500,38 @@ def optimize_tree(
 # ---------------------------------------------------------------------------
 
 
-# The *additive* timeless jewels (every type except Glorious Vanity, which
-# REPLACES nodes). For these `readLUT(seed, notable, type)` returns one
-# addition index → the notable gains that stat. The conqueror grants a flat
-# attribute on top; we use the first named conqueror per type (its choice
-# rarely changes DPS — the seed-driven additions dominate). Each type has its
-# own seed-bearing flavour line + radius-transform line (from PoB's data).
-# Elegant Hubris (type 5) is omitted: its readLUT divides the seed by 20, a
-# special case left for later.
+# Timeless jewels. The *additive* types (Lethal Pride / Brutal Restraint /
+# Militant Faith / Heroic Tragedy) give an in-radius notable one `readLUT`
+# addition; Glorious Vanity (type 1) instead REPLACES in-radius nodes with
+# Vaal nodes (a `readLUT` value >= `timelessJewelAdditions` is a replacement
+# id) and its conquerors grant build-defining keystones (Corrupted Soul /
+# Divine Flesh / Immortal Ambition), so all three are tried in the eval.
+# Each type has its own seed-bearing flavour line + radius-transform line
+# (from PoB's data). Elegant Hubris (type 5) is omitted: its readLUT divides
+# the seed by 20, a special case left for later.
 class _JewelType(NamedTuple):
     name: str
     seed_min: int
     seed_max: int
-    conqueror: str
+    conquerors: tuple[str, ...]  # tried in the eval; first is the default
     seed_line: str  # "{seed}" + "{conq}" placeholders
     transform: str
 
 
 _TIMELESS_TYPES: dict[int, _JewelType] = {
+    1: _JewelType(
+        "Glorious Vanity",
+        100,
+        8000,
+        ("Doryani", "Xibaqua", "Ahuana"),
+        "Bathed in the blood of {seed} sacrificed in the name of {conq}",
+        "Passives in radius are Conquered by the Vaal",
+    ),
     2: _JewelType(
         "Lethal Pride",
         10000,
         18000,
-        "Kaom",
+        ("Kaom",),
         "Commanded leadership over {seed} warriors under {conq}",
         "Passives in radius are Conquered by the Karui",
     ),
@@ -530,7 +539,7 @@ _TIMELESS_TYPES: dict[int, _JewelType] = {
         "Brutal Restraint",
         500,
         8000,
-        "Asenath",
+        ("Asenath",),
         "Denoted service of {seed} dekhara in the akhara of {conq}",
         "Passives in radius are Conquered by the Maraketh",
     ),
@@ -538,7 +547,7 @@ _TIMELESS_TYPES: dict[int, _JewelType] = {
         "Militant Faith",
         2000,
         10000,
-        "Avarius",
+        ("Avarius",),
         "Carved to glorify {seed} new faithful converted by High Templar {conq}",
         "Passives in radius are Conquered by the Templars",
     ),
@@ -546,7 +555,7 @@ _TIMELESS_TYPES: dict[int, _JewelType] = {
         "Heroic Tragedy",
         100,
         8000,
-        "Vorana",
+        ("Vorana",),
         "Remembrancing {seed} songworthy deeds by the line of {conq}",
         "Passives in radius are Conquered by the Kalguur",
     ),
@@ -554,7 +563,7 @@ _TIMELESS_TYPES: dict[int, _JewelType] = {
 
 
 def _timeless_jewel_text(jtype: int, seed: int, conqueror: str) -> str:
-    """PoB item body for an additive timeless jewel (type/seed/conqueror)."""
+    """PoB item body for a timeless jewel (type/seed/conqueror)."""
     t = _TIMELESS_TYPES[jtype]
     return "\n".join(
         [
@@ -638,19 +647,33 @@ for nid in pairs(socket.nodesInRadius[rIdx]) do
   end
 end
 if #targets == 0 then return "" end
+local nodes = tree.legion.nodes
+local NA = data.timelessJewelAdditions
+local function scoreSd(sd)
+  local s = 0
+  for _, line in ipairs(sd) do
+    local low = line:lower()
+    for _, w in ipairs(keywords) do if low:find(w, 1, true) then s = s + 1 end end
+  end
+  return s
+end
 local bestSeed, bestScore = seedMin, -1
 for seed = seedMin, seedMax do
   local sc = 0
   for _, nid in ipairs(targets) do
     local r = data.readLUT(seed, nid, jewelType)
     if r and r[1] then
-      local a = add[r[1] + 1]
-      if a and a.sd then
-        for _, line in ipairs(a.sd) do
-          local low = line:lower()
-          for _, w in ipairs(keywords) do if low:find(w, 1, true) then sc = sc + 1 end end
-        end
+      -- Glorious Vanity (and any value >= NA) REPLACES the node with a Vaal
+      -- node; below NA it's an addition. Score whichever stat block applies.
+      local sd
+      if r[1] >= NA then
+        local n = nodes[r[1] + 1 - NA]
+        sd = n and n.sd
+      else
+        local a = add[r[1] + 1]
+        sd = a and a.sd
       end
+      if sd then sc = sc + scoreSd(sd) end
     end
   end
   if sc > bestScore then bestScore = sc; bestSeed = seed end
@@ -756,21 +779,24 @@ def optimize_timeless(
         if path is None:
             continue
         v2 = visited | set(path)
-        # Try every additive jewel type at this socket — search its best seed,
-        # full-eval it, keep whichever (type/seed) maximises real fitness.
+        # Try every jewel type at this socket — search its best seed, full-eval
+        # it across the type's conquerors, keep whichever maximises real
+        # fitness. Glorious Vanity's conquerors are build-defining keystones,
+        # so all three are tried; additive types try just their default.
         for jtype, t in _TIMELESS_TYPES.items():
             seed, score = _search_seed(ev, socket, jtype, alloc_notables, keywords)
             if score <= 0:
                 continue
-            jewels = ((socket, _timeless_jewel_text(jtype, seed, t.conqueror)),)
-            try:
-                stats = ev.evaluate(enc.code(v2, links, pob_gear=pob_gear, jewels=jewels))
-            except Exception:
-                continue
-            fit = fitness(stats, intent.budget)
-            if fit > cur_fit * 1.001:
-                cur_fit, best_jewels, best_visited = fit, jewels, v2
-                best_label = f"{t.name} (socket {socket}, seed {seed})"
+            for conq in t.conquerors:
+                jewels = ((socket, _timeless_jewel_text(jtype, seed, conq)),)
+                try:
+                    stats = ev.evaluate(enc.code(v2, links, pob_gear=pob_gear, jewels=jewels))
+                except Exception:
+                    continue
+                fit = fitness(stats, intent.budget)
+                if fit > cur_fit * 1.001:
+                    cur_fit, best_jewels, best_visited = fit, jewels, v2
+                    best_label = f"{t.name} ({conq}, socket {socket}, seed {seed})"
     if best_jewels:
         print(f"[opt] timeless: {best_label} | fit={cur_fit:.0f}")
     return best_visited, best_jewels, cur_fit

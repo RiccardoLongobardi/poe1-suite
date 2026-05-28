@@ -124,6 +124,16 @@ Inside the navbar: a "Strumenti" / "Tools" section label above the 5 main routes
 
 Frontend-only, no backend change. Gate: 747 tests / 132 mypy / ruff clean. Build ~471 KB / 151 KB gzip.
 
+## Step 65 — Mirror-tier initiative: Glorious Vanity (node-replacement jewel) (2026-05-25) ✅
+
+Next-step #1, the headline lever: add **Glorious Vanity** to the timeless search. Unlike the additive jewels, GV *replaces* in-radius nodes with Vaal nodes and its conquerors grant build-defining keystones (Corrupted Soul / Divine Flesh / Immortal Ambition). **User-facing** — the precomputed builds jumped again (Arc +20%, Ice Shot +16%).
+
+- **Replacement-aware LUT search.** `readLUT(seed, node, 1)` returns a value: `>= data.timelessJewelAdditions` (96) is a **replacement** node id → score `tree.legion.nodes[v+1-96].sd`; below 96 it's an addition → `tree.legion.additions[v+1].sd`. The Lua seed-search chunk now scores whichever applies, so it works uniformly for GV and the additive types. Verified headless: GV on notable "Steadfast" replaces it with Vaal notables (e.g. seed 8000 → "Cult of Ice: +1% max Cold Res"), seed-dependent.
+- **Conquerors as keystones.** `_JewelType.conquerors` is now a tuple; GV's three (Doryani/Xibaqua/Ahuana) are each tried in the full eval (they grant Corrupted Soul / Divine Flesh / Immortal Ambition — build-defining), additive types try just their default. Item line: `Bathed in the blood of <seed> sacrificed in the name of <conq>` + `Passives in radius are Conquered by the Vaal`.
+- **Fitness-gated, so safe.** GV can replace a good notable with a worse Vaal one (a net loss); the gate only keeps it when real fitness rises, so a bad seed/socket is simply not used.
+
+**Measured (PoB-exact, over Step 64):** Cyclone 119.5k → **128.5k** (Glorious Vanity / Doryani Corrupted Soul, socket 26725 seed 825), Lacerate 98.6k → **108.3k** (+10%, GV), Vortex 165k → **180k** (+9%, Heroic Tragedy), Arc 68.9k → **82.5k** (+20%, Heroic Tragedy), Ice Shot 37.8k → **43.7k** (+16%). The optimiser autonomously picked GV (Doryani) for the physical melee builds and Heroic Tragedy for the others — no curation. Gate: 773 tests / 145 mypy / ruff clean.
+
 ## Step 64 — Mirror-tier initiative: all additive timeless jewel types (2026-05-25) ✅
 
 Next-step #2 from the roadmap: generalise the Step 63 timeless search from Lethal-Pride-only to **all additive jewel types**, so the optimiser picks the best type per build. **User-facing** — 4 of 5 precomputed builds gained DPS from a better jewel.
@@ -150,7 +160,7 @@ Phase 4: the optimiser now adds a **Lethal Pride timeless jewel** via a real **L
 All four phases of the mirror-tier initiative (Steps 58-63) have shipped their first lever: precomputed builds now carry **chase uniques** (Step 59) + **layered defences** (Step 60) + **DoT-multiplier gear** for DoT archetypes (Step 61) + a **LUT-found Lethal Pride timeless jewel** (Step 63). They went from 12-19% of the top-ladder build to genuinely strong (Cyclone 120k DPS / 19.5k EHP, Vortex 158k / 29k, etc.). The PoB-exact optimiser (local; Render only serves the vendored JSON) is the engine; everything is fitness-gated so nothing can regress a build.
 
 **The full, prioritised next-step list with implementation notes lives in `CLAUDE_PERPLEXITY_WORKFLOW.md` §6 ("NEXT STEPS").** In brief, highest-impact first:
-1. **Glorious Vanity** — node-*replacement* timeless jewel (Corrupted Soul / keystone transforms); the biggest remaining physical-build lever. Extends `optimize_timeless` (jewel type 1; `readLUT` returns a replacement node id → score the replacement's full stat block via `tree.legion.nodes`).
+1. ~~**Glorious Vanity**~~ — DONE (Step 65): node-replacement jewel + Corrupted Soul/Divine Flesh/Immortal Ambition conquerors in the search. Cyclone/Lacerate now use GV; big DPS gains.
 2. ~~**Other timeless jewels**~~ — DONE (Step 64): the search tries all additive types and the optimiser prefers Brutal Restraint on most builds. (Elegant Hubris still deferred for its ÷20 seed quirk.)
 3. **Multi-mod / influenced / meta-crafted rares** — the biggest gear-quality lever for the non-unique slots (mirror rares are mod *combinations*, not one mod per priority).
 4. **Auras / flasks / Pantheon** — multiplicative buffs added to the gem layout + `<Config>`.

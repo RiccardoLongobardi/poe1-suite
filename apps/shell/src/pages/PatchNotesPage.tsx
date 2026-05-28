@@ -30,6 +30,27 @@ const RELEASES: Release[] = [
   {
     date: { it: "25 mag 2026", en: "25 May 2026" },
     title: {
+      it: "Theorycrafter — Glorious Vanity (Timeless Jewel a trasformazione)",
+      en: "Theorycrafter — Glorious Vanity (transforming Timeless Jewel)",
+    },
+    summary: {
+      it: "L'ottimizzatore ora prova anche Glorious Vanity — il jewel che trasforma i nodi dell'albero e concede keystone potenti (Corrupted Soul, Divine Flesh) — la leva più forte per le build di alto livello.",
+      en: "The optimiser now also tries Glorious Vanity — the jewel that transforms tree nodes and grants powerful keystones (Corrupted Soul, Divine Flesh) — the strongest lever for high-end builds.",
+    },
+    entries: [
+      {
+        it: "A differenza degli altri Timeless Jewel (che aggiungono statistiche), Glorious Vanity sostituisce i talenti nel raggio con versioni Vaal e dà un keystone a scelta. L'ottimizzatore cerca il seed migliore e lo conferma col calcolo reale di PoB, tenendolo solo se migliora davvero.",
+        en: "Unlike the other Timeless Jewels (which add stats), Glorious Vanity replaces in-radius notables with Vaal versions and grants a chosen keystone. The optimiser searches the best seed and confirms it with PoB's real calc, keeping it only if it genuinely helps.",
+      },
+      {
+        it: "Risultato misurato: Arc +20%, Ice Shot +16%, Vortex e Lacerate +~10%, Cyclone ~+8%. Per ogni build viene scelto il tipo di jewel davvero migliore (Glorious Vanity sui melee fisici, altri tipi altrove).",
+        en: "Measured: Arc +20%, Ice Shot +16%, Vortex and Lacerate +~10%, Cyclone ~+8%. Each build gets the genuinely best jewel type (Glorious Vanity on physical melee, other types elsewhere).",
+      },
+    ],
+  },
+  {
+    date: { it: "25 mag 2026", en: "25 May 2026" },
+    title: {
       it: "Theorycrafter — sceglie il miglior tipo di Timeless Jewel",
       en: "Theorycrafter — picks the best Timeless Jewel type",
     },

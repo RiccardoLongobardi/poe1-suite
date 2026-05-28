@@ -130,20 +130,6 @@
           "effect_id": null
         },
         {
-          "node_id": 24083,
-          "name": "Strength",
-          "type": "travel",
-          "stats": [],
-          "effect_id": null
-        },
-        {
-          "node_id": 59928,
-          "name": "Strength",
-          "type": "travel",
-          "stats": [],
-          "effect_id": null
-        },
-        {
           "node_id": 42009,
           "name": "Soul of Steel",
           "type": "notable",
@@ -277,13 +263,6 @@
           "effect_id": null
         },
         {
-          "node_id": 63282,
-          "name": "Strength",
-          "type": "travel",
-          "stats": [],
-          "effect_id": null
-        },
-        {
           "node_id": 48438,
           "name": "Bravery",
           "type": "notable",
@@ -314,13 +293,6 @@
         {
           "node_id": 44606,
           "name": "Intelligence",
-          "type": "travel",
-          "stats": [],
-          "effect_id": null
-        },
-        {
-          "node_id": 3644,
-          "name": "Strength",
           "type": "travel",
           "stats": [],
           "effect_id": null
@@ -375,13 +347,6 @@
           "effect_id": null
         },
         {
-          "node_id": 61262,
-          "name": "Strength",
-          "type": "travel",
-          "stats": [],
-          "effect_id": null
-        },
-        {
           "node_id": 10575,
           "name": "Intelligence",
           "type": "travel",
@@ -396,22 +361,8 @@
           "effect_id": null
         },
         {
-          "node_id": 14930,
-          "name": "Strength",
-          "type": "travel",
-          "stats": [],
-          "effect_id": null
-        },
-        {
           "node_id": 50515,
           "name": "Fortify on Melee Stun",
-          "type": "travel",
-          "stats": [],
-          "effect_id": null
-        },
-        {
-          "node_id": 24914,
-          "name": "Strength",
           "type": "travel",
           "stats": [],
           "effect_id": null
@@ -466,15 +417,15 @@
           "effect_id": null
         },
         {
-          "node_id": 34400,
-          "name": "Strength",
+          "node_id": 2913,
+          "name": "Dexterity",
           "type": "travel",
           "stats": [],
           "effect_id": null
         },
         {
-          "node_id": 2913,
-          "name": "Dexterity",
+          "node_id": 26725,
+          "name": "Basic Jewel Socket",
           "type": "travel",
           "stats": [],
           "effect_id": null
@@ -522,20 +473,6 @@
           "effect_id": null
         },
         {
-          "node_id": 54127,
-          "name": "Basic Jewel Socket",
-          "type": "travel",
-          "stats": [],
-          "effect_id": null
-        },
-        {
-          "node_id": 5233,
-          "name": "Strength",
-          "type": "travel",
-          "stats": [],
-          "effect_id": null
-        },
-        {
           "node_id": 35958,
           "name": "Faith and Steel",
           "type": "notable",
@@ -574,13 +511,6 @@
           "node_id": 25989,
           "name": "Nomadic Teachings",
           "type": "notable",
-          "stats": [],
-          "effect_id": null
-        },
-        {
-          "node_id": 50570,
-          "name": "Strength",
-          "type": "travel",
           "stats": [],
           "effect_id": null
         },
@@ -655,8 +585,8 @@
           "effect_id": null
         },
         {
-          "node_id": 16544,
-          "name": "Dexterity",
+          "node_id": 62363,
+          "name": "Strength",
           "type": "travel",
           "stats": [],
           "effect_id": null
@@ -697,13 +627,6 @@
           "effect_id": null
         },
         {
-          "node_id": 29353,
-          "name": "Strength",
-          "type": "travel",
-          "stats": [],
-          "effect_id": null
-        },
-        {
           "node_id": 9386,
           "name": "Life and Energy Shield",
           "type": "travel",
@@ -734,13 +657,6 @@
         {
           "node_id": 22703,
           "name": "Strength",
-          "type": "travel",
-          "stats": [],
-          "effect_id": null
-        },
-        {
-          "node_id": 18103,
-          "name": "Dexterity",
           "type": "travel",
           "stats": [],
           "effect_id": null
@@ -893,13 +809,6 @@
           "effect_id": null
         },
         {
-          "node_id": 63723,
-          "name": "Strength",
-          "type": "travel",
-          "stats": [],
-          "effect_id": null
-        },
-        {
           "node_id": 29933,
           "name": "Life",
           "type": "travel",
@@ -915,6 +824,13 @@
         },
         {
           "node_id": 34031,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 10221,
           "name": "Strength",
           "type": "travel",
           "stats": [],
@@ -1222,33 +1138,39 @@
         },
         {
           "slot": "Timeless Jewel",
-          "base_name": "Brutal Restraint",
+          "base_name": "Glorious Vanity",
           "stat_priorities": [
-            "Passives in radius are Conquered by the Maraketh"
+            "Passives in radius are Conquered by the Vaal"
           ],
           "budget_tier": "endgame"
         }
       ],
       "stats": {
-        "life_estimate": 6094,
-        "es_estimate": 70,
+        "life_estimate": 5486,
+        "es_estimate": 73,
         "dps_index": 0,
         "resistance_warning": null,
         "estimated": false,
-        "full_dps": 119531.3,
-        "total_ehp": 20260
+        "full_dps": 128457.6,
+        "total_ehp": 17158
       },
       "rationale_it": "Build Marauder/Juggernaut con Cyclone (physical). Difesa: life. Budget: endgame. Focus: tutti i contenuti. Albero e oggetti sono presi dai dati ufficiali di PoE 3.28.",
       "rationale_en": "Marauder/Juggernaut Cyclone build (physical). Defence: life. Budget: endgame. Focus: all content. Tree and items are sourced from official PoE 3.28 data.",
-      "pob_code": "eNrtWllz2sgWfudXdFE1NQ-WY6m1p5xUAd5IvAWIE-fF1RYNyNaCtYDJ1P3v9zuSwAg8dh5ujedOjR_a0uk--yqh_UuRTS5G7dwPhn40_rhfXLGZL-dn8VB-aHbPLi96gybLRDKW2ZVMUj-OPjT1G7XJpiLKJjKOzsRdnBzHww_N8ziSa3A_qsG9iUiEl8nkVM5k0MqzuOQxEkFK24FI03MRAnKGg_lQJk0mUk9Gw87T1qd8PJZJJPKsyQKi86HpQpZQ-FE_9u5ldpzE-fRDU2uyWxEN_WzJfe_j_iCRkkECfyb7U-nRoY_7dAX0FHItDkcj6WXph-YfJjcsrtiabv9H-cM0dENd3liGoVrLG821TVUxdG46uOOmqZuKbuoqx52h6a6iG9ygG43rDl_d6ZwbWnUH20KsNctyp8lS6cXRUCSL1pP-XRhSrVmEIFpluOo6gkUhv2FbiuHYiuEaimVqigYJsUALzXR1hbuaruiaZSs61FEKSU3VMhWT67pi2oauAG4plg0xLdsyoC-ZQ4d6rmpyxdUMV3F1x1JcU9MU13JBXlV1cFJNg9NqE8RVDUXTHA6-nOuWUppB47aKVVdVF6ut4Yyhmlax2lhdneRUwVYzLaJpmZBSs22w1xxN1bHqRAFiAF74QHNdKMFVE9py1dG5wjVu0QrtaAUu59yh1QYFCOLgpIGjWB3ozg2QU0ofctN1QM2CPbA6lqVwiKnSWlzrKnAdHXJyF_7G6sJwumq5tNp0ramOSjbmDla3XKFL5XqQAETn8JGuk2zwjUrhQjbUEWLANRyiYLomTlquZtIKs-u248Bnqqk6WC1wNzTD5orBiYLBHZUiUrdxxjA4IIaFgDUM26Vrl7AMF643LNPGtcOJmmPodO3SeVdTi5V2XRNwU6XIMVWDc6wmJMFqE8SBhctUMXX4GasNC5gGPKyUWWOaBmxumhYkhzMJy-F00jHgQawEdwxoYbpkJayIXauIJUvTXAcr-dGCjoBwVbMVC3YDBObHSd3mRbTSNfSl1dEsinroCOuoDpL8a-_04yTLpun7vb35fP5uirIXj-SjH8h3XhzuTZFBqAq76b0fBLuUkHst_LXHh-3J_MRrSa9tjz-ftvvq0WXr2uzww7Pvc8M57KSDRa_3eBQ6P04n06vjcH67O1lEXW1-N-v3Hz71vUBfeLPPfWM6WDxcn_rz2c-Dtjz7YSzUwbf-eT7m1mDav8jG7oHaGfe-Do8zdbjbTyfnn-71u6-Hw9710dnFV-tqkGve-bfP7rB_ZQyu-0eTr-HFzY_rqyjkdwsx7j2chA_B7cN08fB9kA13r4yD70EsjUcnP1nYo9HRjRF3T8bT_JBfD2aTsNP90n3k9wcXX65-XDrR3UL-FN3WtB1GZ5-DPLnm-eWDfZPwxWxqf1_MPi3c88SZzNzvreP0uPP4eXDopleDx-vkOEl_5j91u98dns-0w8H1bBhM9IPTO5F_8c2jk_srGV9b93cPo13nwlbt-cnNp7b781Tvz-6SXfPWfpip85v45uYE9t7fI0ftl4U8XV4URY3qWxFXTeZnMizKnaqqRV3fWyFczGSS-CiBJRilHf-o7IMWuTZdln-66cusqJlpnGTHMkzbi4PL_pEvA9A-yoMAd9RYMm-C3aJnDeJOrYetelc6ieetIPuSi8DPFkTsQzNLcrlBfAXE8X4-nZZ7g8WUanbr9LRZiQnJmF8W9MzPArS9AzkSeZAtDxT9rvWkSkcEXlqc39goYH7kBWin3ajSailGIG5JhyaTkbgN5HAlXhDDMu14uGCtJIzzBGwhJyuygyzfWXhB0VQj9OSyla5AVVPmcM1DaY7aDaEvldnkW94eB_GtCLTngHxl8L0NiSprtpM8K9isi7YGfFPhOnGE1p0lIpPDctKoGXBtly2331TeMxlIeTlZpL4nggMRinHN48U2W-6z5YG3NXEQp7ITh7eiblsCsyX8TSU8KibNVpYJ7z5dl7HcYKudv0zKvaJQ_IWF5UQGocw2a8qpFNN-IMJ1mxCMlcB_M-EfVAm74VQENRMuIf_cqIcMM5luRv2JwLA5XLfEEvKmDjqWkUzidCN81qFvGz9ROvXRKfHEXAuidfC_rf7vEvntOM62Av8IVV0eiHRS64EEZCX0Tf3XL96_fPOjWmqWUFaC31S-U38kMzGt9col6G8w3nSw-tH4mfFmtfPPDfdvGFriiGmbEX8YDfMEuneSWlFdglkB_zfq_x-j_v-h3O8t3ywsL9OP-91MhstXInS9fCOSp7KKhSKWC3BJscRZez_x50efeXWB_CjssnoGeHqX06zEWOqzVzu-_i5ihcNfxqkGrtVx_TUW1KVWp41XTstgTXrz5cOtMA_WlbVePt6jaqA9HbdfPr6qNysE52UEdNn0fv28-yvn-fqLt19B0NcQtF9BMNYQ-K8gmGsIr3j3k5zLYF1nzfgVhHWln3PyXpUNZVpUOfGx0RMJcvg9-3re_fL1sDGYSNamGo8GGI9YD62mce6PJ1koEuyI1PMjmTXwDBT4np-l75naKF9pomAcFymKc1WtAeh2wYrXj0xX2bPPnr-MXX_p8Axa-ixaO0AzaFi_sc5EoLaxLAYIuBWhpRSt4TBlXKVtIG3ISNAlX11Vf6Num0iRglWZ6Eyg6xzOBP0u1tjBEcIIxaMf5iGjut_gwPJWEoxhVuCwoqEWQHpZC0bziYzYIs5LGRsdEf2eUd3CvkwzqEncGoePqNBsHCeyUbp1zad8zae9Vu-wUTwJFfV8rTI1BnM_ILeynhyjiou6R3c0x91SYcdwfiPgkQ9j92TqpxmJvoKfEr2ICsIzm504GK7Dt-TWt2PxhKyKIMwQk0cymaExNX5IQYFfFsy60Jr-p56BBcYL1p_QC_PGjr3tnmNySF94iT8CPTie-Dx5gzwgWNGKFDbEFmlJG5oJnpWIxfbvKTsTkYC-5K50K5KmCOGyCTVOIDebiJlkZi04_HEEz5LQ4WILvyeHuUdPjRDOD2QhREFjU_htCxvbFj4SSZKTzAi_FKkIve5Z0V3qph0kPv2UXWUV0qQbZX7oD0VWTYNPpipfX4oMRPsZ5MgmjcJIT46p8gS1hbCfdQevIZzB1yGczzCjyGGjbq3WLPYR2qgs9FXAi5ibJqtLuWUvc9te1EqX7j6QnkSFTRonUswWjLY2kkg3ScB-lshoDAbcXBetHH-2quE1hMvEvWQUzAk5myxW5HsVAaMkDmFyPyvQQN2_RybsGNtW3NHMIvcEHiYOg8IQwHhKwrRxLkWCYkmh5suyiq48C0tvmcTaNklPksqCnaAv3MeJIItSIWhcRItHVo4Tm8XFWkqFopr4t3lGCtBPZIVDPQ810Vus4mO1UVauHW2l1FLb55UjU3oiilAubiWy0g-fU8neVulUshOZT8nRrSBodBMKVhKlpkbRMTQSxXipX6AbPKNtvVRVvq8DS6FIiHL0HcU5isYOHXrRp1saOn_eEcp5rHFK6difx8nwGRUNm_g5W0o2NNtdl3dzm9u1alx22zKDdyxuPOdq3VlH2YjxqoFv6-eu6XfWOu52Ggf-DNFYJAErxy9YsZ-JPPImxGdrv672FgcMkZssvuQ-vOsHKABPLFpDpDo1B7m9_xoLbYvFMSYDTHRP5ItARJeJ6luvUebP2EeE9Jy8otyTo0A-InhqO68R1rcIt_00zLPJE-GiUKII13deI2z8ecRWw3EDwRGmMEdxv1lfDGOrFm4zMV9jwv8HTOhn_-0uUvy0QUmLsu5jqBmgNAUyTStGPTH0c3A5pZGwzvZAopxBwhTjkI8GCBNzXbUxk9zTr_3InsLkoryjkEwRkWg-l-VXIymdSAr6RbXH8_5DLpNyZiZM-pwNc_UE00maxYnvrZQq_uFB_BwCpB-RTWP5nuFxIUb3v-Jr1gOlo4s222XLr1hG8e1uJqN3yAVPBu_EdNpofJYLBlXoRQAUO_DxXDGlxCnmtQGZBYmqsKdP6BTUZJGsuu83TC5-nCisH-dBmd5SYjhbBjClicJaUQz7SopnmU4UdhyjZKJDYbqOh8Cdoq5geMiDuUjuldUMJRU8A2FCSBYKSlM4BV8F00IiR-DVQR3OSFUqaDgYJ1E5FaPpgb-cxTSeEbHIy3JBNC7zZSmv5DgSPnKBVK3EvkyQHyiCXiV4G31ZEIwojnwqfAo7j0N4zmMDKYo6lsImcbBAgoUwF_GkTyS3LASXZjQVHj5i-PRlQar8fZlqIlAF7jFUlwKhypIACIw087O80gVtBs4JiFjxFFbxaFG9U8AqqPugKK80sqNhV5aAARrlF4K4o1yIRvB3oYeCGwTbdErRQDeZn1TgoYx8gu7vlWG3D7lG_nj5heSVL-fFs-3Gt6H_BWxeu9g",
+      "pob_code": "eNrtWllz2sgWfudXdFE1NQ9WYqm1p5xUAV5w4i0GO8m8uBrRgIIWrAVMpu5_v9-RBEbg2Hm4NZ47NXnoSKf79Nm_02pzcCWyyeWonfvB0I_GHw6KJzb35eI8Hsr3zdPzq8vrfpNlIhnL7FYmqR9H75v6ndpkMxFlExlH5-J7nJzEw_fNiziSG3Q_qtG9iUiEl8nkTM5l0MqzuJQxEkFK04FI0wsRgnKOhflQJk0mUk9Gw87j1Md8PJZJJPKsyQLa533ThS6h8KNe7E1ldpLE-ex9U2uygYiGfraSvv_hoJ9IyaCBP5e9mfRo0YcDegJ7Cr2WR6OR9LL0ffNPkxsWV2xNt_-j_GkauqGuXizDUK3Vi-bapqoYOjcdvHHT1E1FN3WV483QdFfRDW7Qi8Z1h6_fdM4NrXqDb6HWhme502Sp9OJoKJJl69H-UzhSrXmEKFrluOo5gkehv2FbiuHYiuEaimVqigYNMcAKzXR1hbuaruiahQWkpKlapmLahq7AOEuxbChn2ZYBK8kJOoxyVZMrrma4iqs7luKamqa4lotNVVXH_irnNJoGp9EmuqsaiqY5HDI51y2ldIHGbRWjrqouRlvDGkM1rWK0oZ0KsZpp0Z62DcGao9N6iAa98LbmutCZqybs4qqjc4Vr3KIRxtAILs65Q6OtgqI7DlYaDowsI8RN18EOlskxa9lwDbccy1I41FFpLJ51FVyOroMCifCXark02vSsqY5KHuQORrccoXMVWDCDonNEQNdJH3hepWQgX-mGQ7yma2KN5WomjXCsbjuOocANqoPRMnUEx7C5YnDiNbijUqbpNtYYBgfFsJCIhmG79OwSl-FSSC3TxrPDaTfH0OnZpfWuphYjzbom6KZKGWGqBucYTWgC2fBkmfymjuhhtGF1WQGmacCrpmlBW4TIBsXhtMYxECOMRHcMaG66LjLQKnLD0jTXwWjYeOaqZmPULeQaXGspZTlh5DQ6mkX5Citgv-qgPG-uzz5MsmyWvtvfXywWb2cArHgkH_xAvvXicH-G3Ec9v0mnfhC8oVLab-Ffe3zUlouu15Je2x5_Omv31OOr1jezw4_Ovz60kiNn-mXwMM1PghsxaM-t7ifv-9fOpfvxUxx8XH4dfVw6kd2b5p9unPuwY6RnzmLx9fuJPM-OtOn3QXyRTy1-qF5d3wy7o2ly2u_9cWFo7e7Nl3b_MLgMbuzs6-GtP_96E0xOv1ze_fHtNgr5JBBXH-_bJ7EU97f5fdTPhm9ujcOvQSyNByfvLu3R6PjOiE-741l-xL_15_5R53w4a_2YHn_p3300nCjlfuvT5z9mPzqzwT2_SL5b-Z3lpoklNSdZevO-uDsd3N0u2kl7nPamD1eD4xtH5D8u7atRdjrRjvrf5sNgoh-efRf5Z9887k5v5ezUiu7mh_PWyJl2f4R3w09vzIF9P1cXd_HdXRf-PNinQByUEJuuHgq4IeQpqqjJ_EyGBRCpqlog7v6a4XIuk8QHOJVkgC7-I0DGXhS6dAXM9NKTWYFmaZxkJzJM28vDq96xLwPsfZwHAd4I8jNvgtmim_TjTq27rLtKOokXrSD7nIvAz5a02ftmluRya_M1Ect7-WxWzvWXM0LT1tlZs1ITmjG_hNrMzwI0pEM5EnmQrRYUnaj1aEpHBF5arN-aKGh-5AVodKdRZdVKjUAMyIYmk5EYBHK4Vi-I4Zl2PFyyVhLGeQKx0JMV2U-e7yy9oGh3Ebpl2eTWpKpdcoTmvnRH7YXYV8Zsyy1fT4J4IALtKSJfO3x_S6PKm-0kzwoxm6ptEF9VuU4coalmicjksDwD1By4MctW06-q77kMpLyaLFPfE8GhCMW4FvFimq3m2WrB67o4iFPZicOBqPuWyGxFf1UNj4szYCvLhDdNN3UsJ9h65i_Tcr8Air8QWLoyCGW2jSlnUsx6gQg3fUI0VhL_rYR_EBKehjMR1Fy4ovxzsx46zGW6nfVdgcPkcNMTK8qrBuhERjKJ06302aS-bv5E6cxHp8S3bC2JNsn_tvq_S-a34zjbSfxjoLo8FOmk1gOJyErqq8avV9yMfPGjWmmWVFaSX1W_M38kMzGr9coV6W9wvOlg9KPxE8eb9cw_N92_4NASR0zbzvijaJgnsL2T1EB1RWYF_d-s_3_M-v8HuN9f3SysHtMPB6eZDFdXIvS8uhHJU1nlQpHLBbncseTZuJ_4-dInri5QH4Vf1t8Aj3c5zUqNlT37teWbdxFrHv48T3XgWi_XXxJBXWq92nhhtQw2tDefX9wK82DTWOv55deEBtrjcvv55Wu8WTM4zzOgy6bTzfXur6znmxdvv8KgbzBov8JgbDDwX2HYvAt8Ibof5UIGmzZrxq8wbBr9VJD3q2ooy6KqiQ-Na5Gght-xm4vTzzdHjf5EsjZhPBpgPGLXaDWNC388yUKRYEaknh_JrIFvoMD3_Cx9x9RGeaUJwDgpShTrKqwBabBkxfUj01X25LfnL3PXLx2eYEufZGsHaAYN6zfWmQhgG8tikMBbbbTSojUcpoyrNA2mLR2JupKrq-pv1G0TKVKIKgudCXSdo7mgv1g19rCEOELx4Id5yAj3Gxxc3lqDMdwKHlY01IJIl7UQtJjIiC3jvNSx0RHR7xnhFuZlmsFMktY4egBCs3GcyEYZ1o2Y8o2YXreujxrFl1CB5xvI1Ogv_IDCyq7lGCgu6hHd0xx3x4Q9w_mNiMc-nH0tUz_NSPU1_Yz2iwgQnpjsxMFwk76jt76bi13yKpIwQ04ey2SOxtT4QwpK_BIw60pr-k8jAw-Ml6w3oQvzxp69G54TCkhPeIk_wn4IPMl5jAZFQLCiFSlsiCmykiY0EzIrFYvp31N2LiIBeylc6U4mzZDCZRNqdKE3m4i5ZGYtOfxxhMiS0uFyh_9aDnOPvhqhnB_IQolij23ldz1s7Hr4WCRJTjoj_VKUIuyasqK71F3bT3z6I3NVVSiT0yjzQ38osuo0-Oiq8vpSZNi0l0GPbNIonPQYmKpOgC3E_WQ4eI3hHLEOEXyGM4ocNureas1jH6kNZKG_1z_Lue2yupY7_jJ3_UWtdBXuQ-lJIGzS6EoxXzKa2ioi3SQFe1kiozEEcHNTtfL4s4OG36BcJqaSUTInFGzyWFHvVQaMkjiEy_2sYMPu_hSVsGfsenFPM4vaE_iYOAoKR4DjsQjTxoUUCcCSUs2XJYquIwtP77jE2nXJtSSTBeuiL0zjRJBHCQgal9HygZXHiW1wsVZaAVQTf5BnZAD9iawIqOcBE73lOj_WEyVy7Wlro1bWPm0cudITUQS4GEhUpR8-ZZK9a9KZZF2ZzyjQrSBonCaUrKRKzYyiY2ikivFcv0A3eMLaOlRVsa8TS6VIifLoO4pzgMYeLXo2pjsWOj_vCOV5rHFG5dhbxMnwCRMNm-Q5O0Y2NNvd1Hd7mts1NC67bVnBexY3ngq17myybOV41cB37XM37DtvnZx2Gof-HNlYFAErj1_wYi8TeeRNSM7OfN3sHQk4RG6L-Jz7iK4fAAAeRbSGKHVqDnJ3_iUR2o6IE5wMcKJ73L5IRHSZqD710s78Cf-IkL6T1ztfy1EgH5A8tZmXNtZ3Nm77aZhnk8eNC6AECNdnXtrY-HnGVofjBpIjTOGO4n0bXwxjBwt3hZgvCeH_AyH0Z_8dfAH0J36cp-yWorhs9IFMgUzTSs61GPo5hJzRibAutS3g0CFqpHDsIIjj4oDkcJOlVf9_nKaPA5o9jJMlBDWuyh-GpDSfFDIKwMcn_30uk_LYTHy3AqeHLvAEWnprm4r_8B1-EQO_PqCYxvIdw9cCNme3fMN52OX4ss3esNWPVEbx4E0mo7coBU8Gb8Vs1mh8kksGYKZ7ABh26OOzYkZ1UxzX-glOY6hThT3-tk0BJItk3Xy_4ODix4nCenEelNUtJc5mq_ylKlFYK4r9iHQ6hpiJwk5iICYaVJscB94ZYAVnhzxYiGSqrI9QUsEnEA4IyVIBMoUzyFVwWEjkCLI6gOGMTCU8w8I4icpDMXoe5Mt5TKcz2izyslzQHlf5CskrPY6Fj1IgUyu1rxKUBzDQqxRvoy0LotGOI59wT2EXcYioeawvRQFjKXwSB0vEN4S7SCb9dnHHQ-dQnw6FRw84e_qy2Kr88zJBIlgF3nGmLhUCyJICSIo087O8sgVdBsEJaLPiI6yS0SK4UyAqqMegQFc6saNfV56gPC9_uoc3KoVohHgXdih4QbLNZpQN9JL5SUUeysgn6sF-mXYH0Gvkj1c_Xbz15aL4tN360eZ_AREjomE",
       "viability": {
-        "passed": true,
+        "passed": false,
         "issues": [
           {
             "severity": "warning",
             "code": "res_always_gear",
             "message_it": "Le resistenze si cappano con l'equipaggiamento, non con l'albero. Punta a ~135% totale sugli oggetti per coprire la penalita di Elemental Weakness.",
             "message_en": "Resistances are capped through gear, not the tree. Aim for ~135% total on items to cover the Elemental Weakness map penalty."
+          },
+          {
+            "severity": "error",
+            "code": "life_below_floor",
+            "message_it": "Vita stimata (5486) sotto la soglia minima per SC mapping (5500). Aggiungi nodi life sull'albero o aumenta il budget.",
+            "message_en": "Estimated life (5486) is below the SC mapping floor (5500). Add life nodes on the tree or raise budget."
           },
           {
             "severity": "warning",
@@ -1389,15 +1311,8 @@
           "effect_id": null
         },
         {
-          "node_id": 24083,
-          "name": "Strength",
-          "type": "travel",
-          "stats": [],
-          "effect_id": null
-        },
-        {
-          "node_id": 59928,
-          "name": "Strength",
+          "node_id": 29199,
+          "name": "Intelligence",
           "type": "travel",
           "stats": [],
           "effect_id": null
@@ -1536,13 +1451,6 @@
           "effect_id": null
         },
         {
-          "node_id": 63282,
-          "name": "Strength",
-          "type": "travel",
-          "stats": [],
-          "effect_id": null
-        },
-        {
           "node_id": 48438,
           "name": "Bravery",
           "type": "notable",
@@ -1573,13 +1481,6 @@
         {
           "node_id": 44606,
           "name": "Intelligence",
-          "type": "travel",
-          "stats": [],
-          "effect_id": null
-        },
-        {
-          "node_id": 3644,
-          "name": "Strength",
           "type": "travel",
           "stats": [],
           "effect_id": null
@@ -1627,13 +1528,6 @@
           "effect_id": null
         },
         {
-          "node_id": 61262,
-          "name": "Strength",
-          "type": "travel",
-          "stats": [],
-          "effect_id": null
-        },
-        {
           "node_id": 10575,
           "name": "Intelligence",
           "type": "travel",
@@ -1648,13 +1542,6 @@
           "effect_id": null
         },
         {
-          "node_id": 14930,
-          "name": "Strength",
-          "type": "travel",
-          "stats": [],
-          "effect_id": null
-        },
-        {
           "node_id": 50515,
           "name": "Fortify on Melee Stun",
           "type": "travel",
@@ -1662,8 +1549,8 @@
           "effect_id": null
         },
         {
-          "node_id": 24914,
-          "name": "Strength",
+          "node_id": 26196,
+          "name": "Basic Jewel Socket",
           "type": "travel",
           "stats": [],
           "effect_id": null
@@ -1718,20 +1605,6 @@
           "effect_id": null
         },
         {
-          "node_id": 34400,
-          "name": "Strength",
-          "type": "travel",
-          "stats": [],
-          "effect_id": null
-        },
-        {
-          "node_id": 2913,
-          "name": "Dexterity",
-          "type": "travel",
-          "stats": [],
-          "effect_id": null
-        },
-        {
           "node_id": 31080,
           "name": "Dexterity",
           "type": "travel",
@@ -1774,15 +1647,8 @@
           "effect_id": null
         },
         {
-          "node_id": 54127,
-          "name": "Basic Jewel Socket",
-          "type": "travel",
-          "stats": [],
-          "effect_id": null
-        },
-        {
-          "node_id": 5233,
-          "name": "Strength",
+          "node_id": 37999,
+          "name": "Intelligence",
           "type": "travel",
           "stats": [],
           "effect_id": null
@@ -1826,13 +1692,6 @@
           "node_id": 25989,
           "name": "Nomadic Teachings",
           "type": "notable",
-          "stats": [],
-          "effect_id": null
-        },
-        {
-          "node_id": 50570,
-          "name": "Strength",
-          "type": "travel",
           "stats": [],
           "effect_id": null
         },
@@ -1907,13 +1766,6 @@
           "effect_id": null
         },
         {
-          "node_id": 16544,
-          "name": "Dexterity",
-          "type": "travel",
-          "stats": [],
-          "effect_id": null
-        },
-        {
           "node_id": 40867,
           "name": "Strength",
           "type": "travel",
@@ -1956,13 +1808,6 @@
           "effect_id": null
         },
         {
-          "node_id": 29353,
-          "name": "Strength",
-          "type": "travel",
-          "stats": [],
-          "effect_id": null
-        },
-        {
           "node_id": 9386,
           "name": "Life and Energy Shield",
           "type": "travel",
@@ -1993,13 +1838,6 @@
         {
           "node_id": 22703,
           "name": "Strength",
-          "type": "travel",
-          "stats": [],
-          "effect_id": null
-        },
-        {
-          "node_id": 18103,
-          "name": "Dexterity",
           "type": "travel",
           "stats": [],
           "effect_id": null
@@ -2152,13 +1990,6 @@
           "effect_id": null
         },
         {
-          "node_id": 63723,
-          "name": "Strength",
-          "type": "travel",
-          "stats": [],
-          "effect_id": null
-        },
-        {
           "node_id": 29933,
           "name": "Life",
           "type": "travel",
@@ -2196,6 +2027,13 @@
         {
           "node_id": 50422,
           "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 12536,
+          "name": "Elemental Damage",
           "type": "travel",
           "stats": [],
           "effect_id": null
@@ -2484,26 +2322,25 @@
         },
         {
           "slot": "Timeless Jewel",
-          "base_name": "Lethal Pride",
+          "base_name": "Glorious Vanity",
           "stat_priorities": [
-            "Commanded leadership over 17479 warriors under Kaom",
-            "Passives in radius are Conquered by the Karui"
+            "Passives in radius are Conquered by the Vaal"
           ],
           "budget_tier": "endgame"
         }
       ],
       "stats": {
-        "life_estimate": 6345,
+        "life_estimate": 5671,
         "es_estimate": 0,
         "dps_index": 0,
         "resistance_warning": null,
         "estimated": false,
-        "full_dps": 98606.3,
-        "total_ehp": 20860
+        "full_dps": 108339.4,
+        "total_ehp": 18835
       },
       "rationale_it": "Build Duelist/Gladiator con Lacerate (physical). Difesa: life. Budget: endgame. Focus: tutti i contenuti. Albero e oggetti sono presi dai dati ufficiali di PoE 3.28.",
       "rationale_en": "Duelist/Gladiator Lacerate build (physical). Defence: life. Budget: endgame. Focus: all content. Tree and items are sourced from official PoE 3.28 data.",
-      "pob_code": "eNrtWllv28YWftevGAgo-hC65r4UTgBJtmUn3mIpTtyXYEyOpLG4yENSslrc_36_Q0qyFtfOBS7q2-LmYUKembOvQ-vgihejy0G7lHEk0-GHg-qJTaWYnWeReN88Pb-6vO43WcHVUBQ3QuUyS983re96k014WoxElp7z-0x1s-h98yJLxRpcphvwcMQVDwuhzsRUxK2yyGoeAx7ntB3zPL_gCSCHpYhlXjQZz0ORRp2nnW7MI8mLTDVZTFTeNwNIknCZ9rJwLIquysrJ-6bRZHc8jWSx5L3_4aCvhGDgL6eiNxEhHfpwQE9AzyHV_GgwEGGRv2_-4Zi2a2qeYXn_0v5wbMvWly-ubevu8sUIPEfXbMt0fLyZjmM5muVYuok327ACzbJNm14M0_LN1ZtlmraxeINlIdaaXU2_yXIRZmnE1bz1pP4pzKhvGIQg5sJs9Gw3WQp7Qn7bczXb9zQ7sDXXMTQDEmKBFoYTWJoZGJZmGa6nWVBHqyR1dNfRHNOyNMezLQ1wV3M9iOl6rg19yRwW1At0x9QCww60wPJdLXADUNZ1C0x0xzZp9QgS6LZmGL4JlqZpuVptAcP0dKyWrgdYPQNnbN1xq9XDGlgkog6OhuMSTdeBgIbngbPhG7qF1SIKkADwyvxGEEB-U3egqKn7lqmZhunSCsVoBa5pmj6tHiiYNg5h9aGwaYOQVjvOdAIfdFwYAavvupoJAXVaq2dLB33fgoRmACdjDWAtS3cDWj16NnRfxxqYPq2Qf-FpIANimXCJZZE8cIVO0UF2sxBRwLJ9wnUCByfdwHBohZUtz_fhIt3Rfawu-EJ8eM42bM_UbJPo2KYPCjbcaiAYLQ_nbbxhdRGrtu0F9BwQBTsgXNfx8AyhAPdNou_bkND2A8IKDL1a6UzgAO7oFDqObpsmVgeyYfUI4sPOda44FryN1YM1HBt-1uq0cRwblnccF7rApYTlm3TSt-FHrAT3bejlBGQ3rAhet4oo1zACHyt504W-gJi64WkuLAkIXIGTlmdW4UrP0JpW33Ap7KEp7KX7yPIv12cfRkUxyX_d35_NZr9MUPWygXiUsfglzJL9CVIIZWEvH8s43qOM3G_hX3v4uTOanYQtEba94aezdk8_vmrdOh3z6PzbzPaPOnl_fn39eJz4v52NJjfdZHa3N5qnp8bsftrrPXyM_PRsPi4_ffEfko6dn_mz2bf7rjgvjozx_V12UY7dL_fq9upz0MqObk6uVXQyGKvTfu-3C9ton3z52u4fxpfxF6_4dngjp99GF6PTr8e9Wy-IR1_FHb_6-NDuZoI_3JQP6adJdGlYzrfhhfg68suTuTcYHH-3s9OT4aQ8Mm_701HSOf18-miODy8_3_x25af3c_H7b3v32bAz7vJwNnH2JncP5oW6d8vvbpArVxi-GkfTj_PgQvmjafCt1c27ncdP_aMgv-k_3qquyn8vf7e83ml0MTWO-rfTKB5Zh2f3vPwsneOT8Y3Ibt3x_cNgz7_0dG928v1jO_j9zOpN79Wec-c9TPXZ9-z79xPY-2CfHHVQV_J8-VBVNSpwVVw1mSxEQq8oO3pV2PdXCJdToZREDazBqO34j-o-aJFr82X9p5eeKKpGkWeq6Iokb88Pr3rHUsSgfVzGMd6osxThCLtVy-pnnY0Wtmpd-SibteLic8ljWcyJ2PtmoUqxRXwFxPFeOZnUe_35hIp26-ysuRATkjEZVcIVsoipIYoBL-NieaBqeK0nVTo8DvPq_NZGBZNpGJcwYbrQailGzO9IhyYTKb-LRbQSL85gmXYWzVlLJVmpwBZysio7yPJnPBSKFziaoinXzfQJtujLJpzzUBtk44UILNXZ5ly_duPsjsfGc0BzZfL9LZkW9myrsqjYrMu2BnxT4c5FLMTVaJ7LkMeHPOHDDRNW22y5z5YH3lZkkMUkpuR4U9R18JsK2ImzXHSy5I4X6wJWYLaEv6mEx9V02SoKHo7zdRnrDbba-cuk3K9qw19YS05EnIhip4wIPunFPNkoI4CxGvj_VP0Hlb7TZMLjDRMuIf_cqIcMU5FvR_0Jx3wZrVtiCXlTB3VFKlSWb4XPOvRt4yfNJxLzBW7JG0G0Dn7bPpSluJkXNAJF9YeEjXa0tsuW2__cyG9nWbET-Meo6uKQ56ONHkhAVkPf1H-96pvLV5lupGYNZTX4TeU7kwNR8MlGr1yC_gfGmw5WmQ6fGW9WO__ccP-KoSVLmbEd8UdpVCro3lEbRXUJZhX8_1H_d4z6v0O5319-TFg-5h8OTguRLL-C0PPyI0iZi0UsVLFcgWuKNc7aJ4k_P_rM1wrkR2WX1R3g6fNNcyHGUp_9jePrnx9WOObLOIuBa3Xceo0FdanVafuV0yJek955-XArKeN1Zd2Xj19TNTCejnsvH1_VmxWC_zICumw-Xj8f_Mh5c_1b248gWGsIxo8g2GsI5o8gOGsIr3j3o5iJeF1nw_4RhHWln3Py_iIb6rRY5MSHxjVXyOFf2ZeL089fjhr9kWBtqvFogNmAXaPVNC7kcFQkXGGH56FMRdHAHSiWoSzyX5neqL9iomB0qxTFuUWtAehuzqovjszS2bN3zx_G3vzo8Axa_ixaO0YzaLg_sc6Io7axIgMIuAtCSylaUZQzU6dtIG3JSNAlX0vXf6JuqwTPwapOdMbRdY6mnP4W1niHI4SR8EeZlAmjut8wgRWuJBjCrMBhVUOtgPR9FoxmI5GyeVbWMjY6PP25oLqFfZEXUJO4NY4eUaHZMFOiUbt1zafmmk-vW9dHjeomVNXztcrU6M9kTG5l12KIKs43PfrO8IMdFd7Z_k8EPJYw9rXIZV6Q6Cv4GdFLqSA8s9nJ4mgdviO3tRuLx1ypMv45Z1dZSTgn80ghAHH5Zl1epqjYRb4lt1ObvhWGsGs4R_zSCNcw7Fed5u36bOFyxuMZn-fAH4BTAdcIQX9zhrMkRCFvjfgULuIFZO0VgsfFqOFscFzE0UwWI3YCYSveLYnGktILxUO-RvkoFYkUeeN2RVvJJEflPKyC5UXGO5a1X7Aswi5HCiJHxqzqKpv27Cs5pEpQZxPS4zQtZCKjyqo0BT4FbP3ZckMSY9MGC1MvffKcxc0NhHM0RTIQw2wiosqiTynUmmYyWlnsRcz_0F7Orr2ohVI5LFAdD0UoUFlV40Tw6ZzR1lYQWg4J2CuUSIdgYDrrotVjz04VJE8XfCxQfX5iSkRlSBar8nwROwOVJRQHRYXWqz5h58ivXSu-M5wq5zguEUdxZQhgPCVf3rgQXKFILsKsqp4rz8LSOyZxd01yLUhljmhOxThTnCxKBaBxmc4fWT1GbBcVdykVMkvJu7IgBeivYc_l7NNGXbHeGSullto-rxyZMuRpiv54J9g5l8lzKnm7Kp0JdiLKCTm6FceNU0XBSqJsqFF1CoNEsV_qE-gCz2hrPVMVtoC1UCREPfIOUPwiIveKT3c09Hc17BVcDTI0msZpOhAqpUCaZSra6ucjPkHSE6Et2f4keO3NRN_e9jdqb91265QmH--E7y3V5m3LwqGsN6KeaG6VcsHJVvVdBcZ6mhAOkd8szdbMtZBnx1LBmqXOW93TTuNQThHXlTysHuDAA9ZDHxpRROzsb1pwhwPG0G0Wn0sJKWWMUvLEohWhaKAfp2J3_zUWxg6LLmYLzIRP5KuQxo0q3dx6jbK5Q7m3JXdVGFF0NzZeI2vtkG3LPCnRInfpbuy8Rtj-8xloMVw3lg21et-uU7a9E5S7TJzXmJj_BSb0S4Fn6lQxoiykHww0-ihvscjzBZNrHskSHM54leXrLDtZkmDsgHyx4JFQ-Uii1pG3DM_2AjbDUCAzlTPUGwA_8SxpXNW_L6Hhh6mKdNUsOln6UApVj9rko09clbJxgmKUKRmuFKn-w-X9IkPx-4D8GYpfGa4YGSaHG3PNYiBzfNlme2z5Y5dBdrdXiPQXiBeK-Bc-mTQan8Qc-VzQxwModChxF5lQqlTDVF9hhkJqauxjSTNLystCQz3natW5v9YKaqyXlXGd0ELEGijxhD4bUWJorJVmMiWZjsFmpLFuhvqB7oaJPIuAO0HfxeBRYihUY7zzUMmBDIWGexOmCzXXUMKTCfhqmDSUGIBXBzW8IFWpMuFgptJ6kkbDBH8xzegPAUQsDYuSE42rctkGFnIccxoeSdWF2G30cARGnmgUCnmCthkudDgUA0ldQWMXWQK3hawveFW5ctgki-dIqgTmIp70Q8odC51DfIkYO3pEJ5CiIlX_TZqqIFA53nEDrQXCFElcERV5IYtyoQtqLpwTE7Hq5rbg0aIKp4FVvOmDqqAeCzVF-V9YAgZo1L8kxBviH-JVRZL6ac3kHHcgBBSvqlpMdHAnVJAPLuqVaiqnpM1HjohAiIhwlEoE7sF-HZAHkHggh8vfWN5IMatuylu_Lf03oKjS2Q",
+      "pob_code": "eNrtWllvGskWfudXlJCieUg77n2JnEiADbbjLYDtSV6scncBFXrBvYCZ0f3v9zvdgFk8dq50Nb4T3TxUuk_VqbN_p6rNwRXPR5eDZiHDQMbDzwflE5tKMTtPAvGpfnJ-ddnt11nO06HIb0SayST-VDfu1Dqb8DgfiSQ-5z-StJMEn-oXSSzW6DLeoPsjnnI_F-mZmIqwUeRJJWPAw4ymQ55lFzwC5bAQoczyOuOZL-Kg9TTTCXkgeZ6kdRbSLp_qHjSJuIx7iT8WeSdNismnulZn9zwOZL6Uvf_5oJ8KwSBfTkVvInxa9PmAnsCeQav50WAg_Dz7VP_T0k1bVxzNcP6l_GmZhqkuX2zTVO3li-Y5lqqYhm65eNMty7AUwzJUHW-mZniKYeomvWi64eqrN0PXTW3xBs9CrTW_6m6dZcJP4oCn88aT-Sdwo7rhEKLoC7fRs1lnMfwJ_U3HVkzXUUzPVGxLUzRoiAFWaJZnKIZmY470s1TbUizHNBTYZSu2A71sxzZhINlvwB5PtXTF00xP8QzXVjzbw1aqamBX1TJ1Gh2ieKqpaJqrQ4auG7ZSmazpVvnsqHg2VNXD6GhYaaqWXY4OdFIhUbNs2tNxIFNzDVoPqaCXPtY8D-rqqgVrdNU1dEXXdJtG2EEjuHRdd2l0VFBMF5ZVEdEtzwWvrXk2RkvHrO3aeIYiKo3ls6FiZ9cwQPEgDaNnwFWqTQ5THXrWVFfF6OkujdB2EUgwg2Lo8LhhkCbwtErBJy8Zpktclmdhje1pFo3wpuG4ronRgyy4QXUx2paB0S2jYzq6Yuq0j6m7KrIMamnINcMxFdPEG0YbqWiaDu1gerSD6RGvbTl4hlKguzqkmK4JDU3XIy5PU8uR1ngW6JZKmWGppq5jtKAhtIFvqyKwDEQVowM_VJVgWSb8bFk2rEDQHFBcnda4JqKGkeiuCVssz0Mm2mW22JrmuRhNB8-6qjmKDWfbSlVQGHUaXc2mjIUV8IXqokCvu2efR3k-yT7u789msw8TAFYyEI8yFB_8JNqfIPtR0XvZWIbhHhXTfgP_msOvLTE79hvCbzrDL2fNntq-anyzDtvu1y-PV6ftyP1-NprcdKLZ_d5oHp9osx_TXu_hNHDjs_m4-HLtPkQtMztzZ7Pffxya59_Nudq_7V0UQ93up9-uvnrtrhrs9bLRxenY-HF9FHS_tc8vr-2bfqH5F7dfvNHJ7eXd92830U1H3POr04dmJxH84aZ4iE-ugkvNsH4fXojbkVscz53BoH1nJifHw0lxpH_rT-VR6zyYNP4Yt2_7d6fdafxjLv74vvcjGbbGHe7PJtbe5P5Bv0h_2MWd7WWpLTQ3HQfT07l3kbqjqfd7o5N1Wo9f-kdedtN_fHDOnczbU-XxdfdCevrtsX9eXDxYrbPxteje2OMfD4M999Jt3s2_DoIve9a98zBVZ3fJ3d0x_HmwT4E4qEA2Wz6UgFPiEFVXnclcRPQKgFBLzN1fMVxORZpKwFNFBuziP4Jk7EWhy5bQTC89kZcYniVp3hFR1pwfXvXaUoTYu12EId4I9HN_hNmym_ST1kZ3WXWVbJTMGmH-teChzOe02ad6nhZia_MVEct7xWRSzfXnE8LTxtlZfaEmNGMyKJXLZR5SrxIDXoT5ckHZixpPprR46Gfl-q2JkiZjPyzgwnhh1VKNkN-TDXUmYn4fimClXpjAM80kmLNGGiVFCrHQk5XZT54_475IeY6lMfpl1eeeaIuWqSM4D5VDNl5og6U525Kr106Y3PNQe46or1y-v6XTwp_NtMhLMeu6rRHfVLlzEQpxNZpn0ufhIY_4cMOF5TRbzrPlgrdVGdvikJTK8aaq6-Q3VbAVJploJdE9z9cVLMlsSX9TDdvlwa-R59wfZ-s6VhNsNfO3ablfYsPfiCXHIoxEvgMjgk96IY82YAQ0VhH_X6q_EPSdRBMebrhwSfl1sx46TEW2nfXHHOfHYN0TS8qbBqgjYpEm2Vb6rFPfNn_ibCJxvsAFdiOJ1slv24eSGJfmnI5AQXXH32hHa7NsOf3rZn4zSfKdxG8D1cUhz0YbPZCIrKK-afx65eeQWxlvlGZFZRX5TfU7kwOR88lGr1yS_geONy2MMh4-c7xZzfy66X6LQ0sSM20744_ioEhheyvdANUlmZX0_2f9PzHr_wlwv7_8mLB8zD4fnOQiWn4FoeflR5AiE4tcKHO5JFc7VjxrnyT-eukzXytQH6VfVneAp8839YUaS3v2N5avf35Y8egv8ywOXKvlxmsiqEutVpuvrBbhmvbWy4sbURGuG2u_vLxLaKA9LXdeXr7CmxWD-zIDumw2Xl_v_cx6ff1b288wGGsM2s8wmGsM-s8wWGsMr0T3VMxEuG6zZv4Mw7rRzwV5f1ENVVksauJzrctT1PBHdn1x8vX6qNYfCdYkjEcDTAasi1ZTu5DDUR7xFDM882Us8hruQKH0ZZ59ZGqt-ooJwOiUJYp1C6wB6X7Oyi-OzFDZs3fPn-be_OjwDFv2LFszRDOo2e9Ya8SBbSxPQALvYqOlFo0gyJiu0jSYtnQk6lKuoarvqNumgmcQVRU64-g6R1NOf6aqvccS4oj4o4yKiBHu13Rw-SsNhnAreFjZUEsifZ-FoNlIxGyeFJWOtRaPf8sJtzAvshxmkrTa0SMQmg2TVNSqsK7FVF-LabfRPaqVN6ESz9eQqdafyZDCyrpiCBTnmxF9r7nejgnvTfcdEdsSzu6KTGY5qb6in9F-MQHCM5OtJAzW6Tt6G7u52OZpWoS_ZewqKYjneB6kSEBcvlmHFzEQO8-29LYq1zd8H37158hfOsLVNPPVoDm7MVuEnPFwxucZ-AeQlCM0QtCfgxEsCVUoWiM-RYh4Dl17ueBhPqpZGxIXeTST-YgdQ9lSdkOiscT0QvmQre18FItIiqz2bbV3KqMMyHlYJsuLgnc8a77gWaRdhhJEjYxZ2VU2_dlP5ZCQoKomlMdJnMtIBqVX6RT4lLDVZ8sNTbRNHyxcvYzJcx7XNxjO0RTJQQxnExGUHn0qocY0kcHKYy9y_of-snb9RS2U4DAHOh4KXwBZ09qx4NM5o6mtJDQsUrCXpyIeQoBuratWHXt2UJAinfOxAPq8Y6kICp88Vtb5IncGaRJRHuQlW6_8hJ2hvna9-F6zyprjuEQchaUjwPFUfFntQvAUILlIsxI9V5GFp3dcYu-6pCvIZI5sjsU4STl5lACgdhnPH1l1jNgGFXupFSorlfdFTgbQX8Oeq9mniQqx3msro5bWPm8cudLncYz-eC_YOZfRcyY5uyadCXYsigkFuhGGtZOUkpVU2TCj7BQaqWK-1CfQBZ6x1ngGFbaIlVKkRHXkHQD8AtrulZjuWOjuWtjLeTpI0GhqJ_FApDEl0ixJg61-PuITFD1ttKXbXySvuVno29PuBvZWbbcqaYrxTvp-I2ze9iwCynoj6on6FpQLTr6q7ipw1tMJ4RD1zeJkzV0LfXY85a156rzROWnVDuUUeV3qw6oDHGTAe-hDI8qInflND-5IwDF0W8TXQkJLGQJKnkQ0AoAG-nEsdudfE6HtiOjgbIEz4dP2ZUrjRhVvTr22s76zc29L7xIYAbobE69ta-xs25RZVKBF7u67MfPaxuZfn4EWh-vasqGW79s4ZZo7SbkrxHpNiP5fEEK_FNipYlRhKpMiYzcUw3mtD4QLRZYt5HR5IAsIOeNloa9LbXI4NED5lI69D5MkIC_blsEy7qdyIP2nabpc0Oxhks4hqHZV_ZaEDkIsLWWUjaOVxA-FSKtjN_HdcB7WjoFL0NJf2VT-h3v8RQIc_IxSGoqPDLcNbM5u9DXnYZf2ZZPtseXvWgbJ_V4u4g_IK1-EH_hkUqt9EXOUdk7fEWDYocS1ZEJVU56r-imOU6hShZ0WdHyJeZErgHaerpr4LQ5AMkkV1kuKsKptIUIFO_GIviBRjSisEScyJp3aEDNSWCcBlKDRNclx4J2gBeMMUuB8mI7xvnShgisUDhrpXAGaRxPIVXDoSMUAslqA85xMJZDCwiSNq0M1eifki2lCfxOgzWI_LzjtcVUsO8JCjzancySZulC7iXaOHMkiLKb_0EH9hQ2HYiCpQSjsIokQNZ_1BS9BLINPknCO-EZwF8mknzvueOgc6kuA59EjmoIU5VbVn6cJEMHK8Y7LaKUQDpQkFUmR5TIvFrYAfhGckDYrL3ELGQ0COwWiws0YlNjaFukUnWDhCcrz6vd-eEMpQL0SL6m1VkLOcR1CQvES4ELaB9fDFPohRL0incopWXPKkRFIEeGPYom8PdivEvIAGg_kcPlLyBspZuWleesXoP8GGYK8HA",
       "viability": {
         "passed": true,
         "issues": [
@@ -2645,6 +2482,13 @@
           "effect_id": null
         },
         {
+          "node_id": 46092,
+          "name": "Intelligence",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
           "node_id": 21262,
           "name": "Elemental Damage",
           "type": "travel",
@@ -2668,13 +2512,6 @@
         {
           "node_id": 27415,
           "name": "Intelligence",
-          "type": "travel",
-          "stats": [],
-          "effect_id": null
-        },
-        {
-          "node_id": 32024,
-          "name": "Minion Life",
           "type": "travel",
           "stats": [],
           "effect_id": null
@@ -2773,6 +2610,13 @@
         {
           "node_id": 6446,
           "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 41263,
+          "name": "Basic Jewel Socket",
           "type": "travel",
           "stats": [],
           "effect_id": null
@@ -3016,6 +2860,13 @@
           "effect_id": null
         },
         {
+          "node_id": 3452,
+          "name": "Foresight",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
           "node_id": 53118,
           "name": "Barbarism",
           "type": "notable",
@@ -3058,8 +2909,8 @@
           "effect_id": null
         },
         {
-          "node_id": 60554,
-          "name": "Minion Damage",
+          "node_id": 48778,
+          "name": "Intelligence",
           "type": "travel",
           "stats": [],
           "effect_id": null
@@ -3093,15 +2944,15 @@
           "effect_id": null
         },
         {
-          "node_id": 61834,
-          "name": "Basic Jewel Socket",
+          "node_id": 64401,
+          "name": "Life and Mana on Kill against Cursed Enemies",
           "type": "travel",
           "stats": [],
           "effect_id": null
         },
         {
-          "node_id": 64401,
-          "name": "Life and Mana on Kill against Cursed Enemies",
+          "node_id": 47251,
+          "name": "Intelligence",
           "type": "travel",
           "stats": [],
           "effect_id": null
@@ -3212,6 +3063,13 @@
           "effect_id": null
         },
         {
+          "node_id": 60090,
+          "name": "Energy Shield",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
           "node_id": 31931,
           "name": "Strength",
           "type": "travel",
@@ -3289,8 +3147,8 @@
           "effect_id": null
         },
         {
-          "node_id": 7112,
-          "name": "Dexterity",
+          "node_id": 22473,
+          "name": "Energy Shield",
           "type": "travel",
           "stats": [],
           "effect_id": null
@@ -3310,6 +3168,13 @@
           "effect_id": null
         },
         {
+          "node_id": 51923,
+          "name": "Intelligence",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
           "node_id": 61653,
           "name": "Life and Energy Shield",
           "type": "travel",
@@ -3324,8 +3189,8 @@
           "effect_id": null
         },
         {
-          "node_id": 53213,
-          "name": "Dexterity",
+          "node_id": 7388,
+          "name": "Intelligence",
           "type": "travel",
           "stats": [],
           "effect_id": null
@@ -3416,6 +3281,13 @@
         },
         {
           "node_id": 33783,
+          "name": "Intelligence",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 10490,
           "name": "Intelligence",
           "type": "travel",
           "stats": [],
@@ -3692,25 +3564,25 @@
         },
         {
           "slot": "Timeless Jewel",
-          "base_name": "Brutal Restraint",
+          "base_name": "Heroic Tragedy",
           "stat_priorities": [
-            "Passives in radius are Conquered by the Maraketh"
+            "Passives in radius are Conquered by the Kalguur"
           ],
           "budget_tier": "endgame"
         }
       ],
       "stats": {
-        "life_estimate": 3267,
-        "es_estimate": 5222,
+        "life_estimate": 3173,
+        "es_estimate": 5529,
         "dps_index": 0,
         "resistance_warning": null,
         "estimated": false,
-        "full_dps": 165186.6,
-        "total_ehp": 27191
+        "full_dps": 179894.9,
+        "total_ehp": 27870
       },
       "rationale_it": "Build Witch/Occultist con Vortex (cold). Difesa: es. Budget: endgame. Focus: tutti i contenuti. Albero e oggetti sono presi dai dati ufficiali di PoE 3.28.",
       "rationale_en": "Witch/Occultist Vortex build (cold). Defence: es. Budget: endgame. Focus: all content. Tree and items are sourced from official PoE 3.28 data.",
-      "pob_code": "eNrtWllv28YWftevGAgo-hA65iqSgWNAi2058RZLtpO8BGNqJDGmSIVDSlGL_vf7nSElk5Jr5-ICTXtRP4zJMzNn-c42pHhwxbPp5biTh9EojCeHB-qKLUKxPE9G4m3z9Pzq8nrYZBlPJyK7FakMk_ht0_qiN9mcx9lUJPE5_5qkJ8nobfMiiUWFHsY1ejDlKQ8ykZ6JhYjaeZYUMsY8kjQdcSkv-AyUuzALpk3GZSDiUfeRfhkEeZSFMmuyiHi8bfrQY8bDeJAEDyI7SZN8_rZpNNk9j0dhtpa8f3gwTIVgkB4uxGAuAlp0eEBX2C6h0-poPBZBJt82f_d1z9JahulZf2i_24ZpOps7wzQczXYNx8CN6TgW7hxLd2nKtTxdsyzD9HHnOa7mGLZp49pxzZZmGwbRDcvy3OIGoEKnCqSm12RSBEk84umq_Wj7KRDUa2gQxSwRo2uryWJACeWtlqu1HEMj-YZuGZph6pam1DYcH1cuFhieaWpWyyGtPFuzLR8q2ZYJW3RTU-o6rg0MbLultdyWrbmGYWJwLM11wM_1LU_zDFjv-banKcB8w_Y10Fua77Z8CDdNSNcdF5IN3fAwAkSMtqljbDlYA0Vwbek6rhUwhq3TLlsn9bEQdKdFVihwDdeFSMNT_D2v5Wim7kBFE_JNGh2MhuHqGM0WXVu6gdF3PM0ET51G2G86NjgX7jMd38N1y2uBj4ulGAky07UNuiY9Tdc3MfqGa2iWTvFg6S3wtKAKrg0fGlqmbtoYATBG2wHdsi0aXXXtAiLLBgvNclwdaxzSCk6wlSs8rHEd2GXBQeDmKT6e4euarVvQjdT3MMInWhGTtmG7cJlB-ttmy1Yj4LehLmZtGzrbtk-7bN8hig_bbc8CMiDbuPaBBEYHljq6jvWObiM0cG9Q-LrwrWPBSxiBpeY4JnY5DsmiKLE1Bxpi1jMNNdpEsSmGPKQFRreFKNItrGnpDmSpPMIItDAikTC2HKJ4Fs36nqm1LNf3KfbgO4xmC4l6c312OM2yuXyzv79cLl_PUbaSsfgeRuJ1kMz250gEZPaefAijaI_yar-Nv87kvDueHC_aiezdffjQ75ydHy2Wn5xOHvT7E-f06HhyfXZ9_OHo86e7j9PPi5OBze87i9OTL0ej4Xev2_eC0O9euKeu_vAt_DR_t6fPhyv5_r01kXHXPDsLlyt9eH12IW_M1lB0rj74Pefotj-4PX4nbzvdm7vO9ej4_epm6Qwvbj-efBy_E23zovPJ9aPp3dcV_5p9-2DKj_ftLDv52P9tND22lvGqNz7L_JO-uRxL0Z3ZV_eTL-L086es9bXPLxeJO3-QJ8N3zs0kGrRG6dz2YjmYdvlpe96-m80435uv8uwr92Xq5Iu5-9u3hTNuf5bH6dK0jnz54K_C4dVYfhkZ3pfPn0Z7S9u4_8rzyyOne_ZwK-7OWnuuDHP_q2t_Xfa_9G69T-mqv3iw9py--23Sbh_sk0MOiqIr1xeqBlE5Ut5ssjATM7o1dF1XNXh_s-FyIdI0RMUqyCjD-EclGrzIhXJdqulmIDJV02WSZidiJjur3tXgOBQReB_nUYQ7agJoGZhVvWWYdGu9ZtNj5DRZtqPsQ86jMFsRs7fNLM3FFvMNEcsH-XxezA1Xcyqx7bOzZqkmNGPhSCmXhVmEDtUTY44WtV6gelP70ZQujwKp1m9NKFoYB1EOCOPSqrUaEb8nG5pMxPw-EqONelECZDrJaMXa6SzJU4iFnkxlASF_C8XFdzQHdM-i660pZfs04ZhvBRi1G9q8NmVbanF7EiX3PDKeIpobuPe39Cmx7CYxWlmW8kyMirZbVbE6y9bTP1vfLE0i8OwJif1wWxJvqVwuYLUVP1XrDo4-wRS0qqYV4k9V7igSMziZR8dJkMuqhpsZVk79XNdjS5Stas5ek_4yxfZVifgLS0pfRDORbVeT4wgY9LicVtFQRFZQ_03S_9s86K_mCR7q0lnIq0rWyP-_-QAdFkJu50Of46A5qsFRUn6qq05ELNJEhvWqVaX-VPVOYzkP0dy3srNG_vd08neJ_E6SZDuBv90D_gbVf6Dem9yFcS0fCyoryD9Vv7NwLDI-ryq3If2bjj8tvO8EnycxM7Yj_Cge5WkYT7pprYiuyUzR_w34f2LA_xPK-_767cL6Uh4enGZitn4tQtfrtyK5FGUsqFhW5IJjsafyjuLPlz7x-gL5oXDZPA08vs9plmqs7dmvLa--j9jsMZ_fUx6wNsutl0RQV9qstl9YLaKK9s7zi9uzPKoa23p--TVVA-Nxufv88k292WzwfmiD-bjBf34DnsfkQ1WAof_IhooAw_iRDVZlg_kjG6ovBK0f2eBUNrzg4XdiKaKa0c6PbKga_ZSf98v8KRKpzKLDxjVPkfVv2M3F6Yebo8YJj4QMJ9OsMUgiTEnWDdMAQdQ4nc2jMAgz-YbpDdPTf6EulQouqbbgOD5ZscGU3mM2XtmYzBLWTaIRuwY7mXEUooZd37N5JOzxGZ-IhoPpYEoraXMYjyEuYx2oh2xudHkcw-I1-TgV4jfBkpR16QVQozCvYptZse26fQ3L6JlBVcJKTjeGyzAic6HnBPWP1800jGfN9JSZx2Eqqmau6WfEN6aUemJyG5sd_a1d3_TEDNkzyOj3RJE2BjjQxKwoNlveqWnd5TJjaAgCKhumTtJn_Hs4y2fbBm3NUouDlCANxyGcYjq_sGSsqLRqgnMLy6Y8Y7M8mNZZseVUxGyV5IVwTuKfcpL9nJNQFRt3PI2S4KG8q_tGf8Y3llOdOwdEFGtrFH7UB86uD9r59zCfNX5fgMzj7I2hmX90pwQFFea6hjhXSYpvNfPKew5597lJx6lOnvOYN1TQly2dcRySynzo5cUxlyUF_Byhea8woEJNiMGDdfam81xWsmWYTVk7yzi8UP6aMRcpu0qWgnKPfklv6K9NxbhcVu48EwJxOmJcKp13t-3g3drFezgV7CabJTJrnJC7io72XLgXDEid4pAxTvIYIFq16kLHp1RIWQTmugK9clRccHVcL12xweMxUORWJSvNJjdUcq1E4QoRrU5gkpGeT_PrJmmazxH2u5i4u5ic8_SB7MuAzWDKgWvjck4cUWvqyBSzCogX_KxAfMRnmIaTCXaqH5ygOACbUfG5RVPIwkiwdpzMeLSisHpP9bc9GklmeLTXaVVKX4kCQU5Iy0a9oj4d8U-vUeWo3neq3mPhmEI-ZQlOxhKtUOHB0MF4DHNHaxzKRnIP7LI8jsHlflUq9wwLVoVyx0nerpOwfiTIS2UfRSGFjncIkq3gNf7MIPRilBWzzNntvERWHX1HYFEyJXK9pQsdwgCrBlkaPiDmRgI3cfLo5Zfw-3Uh1Caq2lvcmCr4gs0pyL3y6w65i4b_RNkUE6DYztMkpeLFZ_NQRU4m1j6vgWLX1Sx6tUqw7Y6lbzL26cwqU3odQ9sl_1XrFwKwjPoO9ZrGNexawNX1jibo-YgWlaWuUGnT54qtpv5f1tJd8HDCfUTvvH1y2m0cZSKNwUVV0eI4CQ3QGukrpydm61juSjB2JHzIw-BBhhGZvRHQHqV4tovCWOzOvyTC3BExyKP5NK-wp0i6XEb1iZf4Wjt8eyGf0VuCDd9rMY7Ed7i-NvMSY3uHcSeUsxz-qincQ2TUZ15i7Pz5Eac86KP631O-qds6u1eGbe-cyHZltF6SYf7vMuizh5207qR5mXCoRGGcNYbhTETUVwtB13wU5pBypvp9TWxPoApDQSnSBZ0uATB9boTa80BfO6xrDS_uKBwlojGbNq6Kr2MkrUgVf3XK6Sbxt1ykRTmnneiS_EFgQx_JnqRhsDFK_ZOHBxdQQB4OMqTmG4aDRpKu2K1ZAQ-cji87bI-tv9YZJ_d7mYhfIw8CEb3m83mj8V6sUGAzegkCw3qhDMI5JY0qV0OCBVmqsdNY4rgeZBqhhdIRiHEexYBKq3TLOx49iFRjPSHm7C6Uo2SmsZOUoyafxhBMRzvaQAX4GsUT1-004BCmflbTqC3DDYKCXsgpSQWLUClHJWulsb7gaXFkHCR5pLE7er5CEaMTbJQkIw3PMzFavyTMj1McvDQ2QIHMcp6uSHm0gvucFNHYVb4-apXibmK4CEfQCAehCKofc6p4SlgmBKR1eHpP3RBzFzhAjMKADQUPphAJ7QdxshwnCBVo0U9wuuhB-ViJUmbCkb_KClGptwHtXKjPPjVlGPwZirHGtn541Jj6wZtdpWLOi6My1iM8ZuxOAGawuaJPbVTXa88pXteLCANYq6keMiUU1bNVFOSRWtIoPnLEMuTHXUg_JJJLIQmBGwgNZ6cQjzWwltjdxFMysI06kqSK7VWajMmT5IXZwX4RnAcI63E4WX_zeRuKpXqW3_rS9T9_JQ4g",
+      "pob_code": "eNrtWllv20i2ftevKAhozEPomPsSOAEk2bKdyLEteenOS1CmShJtLmqyaFndmP8-3ylKMim57VxcYDIzaD-UyVNVZ_nOVqR4cMHl7HzSLaN4HKXTTwfqij1GYnGWjcXH9unZxfnwqs0kz6dC3oi8iLL0Y9v6rrfZnKdyJrL0jN9n-XE2_tj-mqWiRo_SBj2c8ZyHUuQD8SjiTimzSsaExwVNx7wovvIElNtIhrM240Uo0nHvmX4ehmUso0K2WUw8PrYD6JHwKB1l4YOQx3lWzj-2jTa74-k4kmvJ-58OrnIhGKRHj2I0FyEt-nRAV9heQKfl0WQiQll8bP8Z6L6luYbpW__U_rQN03Q2d4ZpOJrtGY6BG9NxLNw5lu7RlGf5umZZhhngznc8zTFs08a145muZhsG0Q3L8r3qBqBCpxqkpt9mhQizdMzzZefZ9lMgqDfQIIq5QoyurTZLASWUt1xPcx1DI_mGbhmaYeqWptQ2nABXHhYYvmlqlu1gcB1Szbc12wqgl22ZMEg3NaWz49kAwrZdzfVcW4PZlgYrfc1zwNQLLF_zDUDgB7avKdQCww400F0t8NwAGpgmVNDtQMfoeFDC0A0fI_DEaJugG66DldAJ15au41phZNg67bV1sgQLQXdcMkjhbHgeBBu-kuL7rqOZugNFTWhh0gjjTMPwdIymS9eWbmAMHF8zTduzNBOcdRoBiOnY4F_503QCH9eu74Kbhw0YCUPTsw26Jm1NLzAxBoZnaJZOAWLpLjhbUAjXRgA9LRNYY7QdUCzbotFT1x6Asmxs1izH07HGIa3gCls5xMcaz4FdFnwFPr7i4xvA0NYtaEWK-xjhGa0KT4yuhdH24D6D9LdN11YjXGFDXayxbehswxU-jQ5RAthuu3qAXZ6JqLF9C1jZvudhTaDbmA2ADUYHtju6Dg6ObiN6cG9QhHvwvGMEpqU5FnyoOQ7AxUjSKYZszYHmoPumoUabKDZFmI_MwehBcxdu1zFaWKlSDaOFeHBhkYHRdYgS-KbmWl4QUEzCmxhNF1l8PRx8mkk5Lz7s7y8Wi_dz1LRsIp6iWLwPs2R_jixB2u8VD1Ec71HS7Xfw152e9aaL_mMnKw5vLy9PuoOzo8fFb063DE9OpoZ_-DC9vO0eyaObzjCefRP9xP82mM2L4-9HodU1Lk4Wp5On5UA_tYr7x9Ho98_RQ-qN7t0v137ei6Q9-LyQ0dIuzuSRPvrjrv-1fLCmV_rF5d6wP9Tj4eiuf3kZ96fXvw5HRXx2fv3Hzc1TPPn86-Sz6Jhfu795QTy7vV_ye_n7pVn8eteR8vjXkz_Gs761SJeHk4EMihPvZDovD037woqObwciezLvc_fc_TboPizFzenn6zLlrrj47B1ll8ls4J525p3bJOF8b74s5T0PitwpH-fe5Vn5-dx3c_fLozPpfCv6-cK0joLiIVhGV190P9gz_O_ffhvvLWzj7p6X50dOb_BwI24Hbp7nXhnce_b94uT74Y0_85yv38vhnpsB5YN9cs9BVZ-L9YUqV1S5VOS2WSRFQreGruuqXO9vNpw_ijyPUNwqMio2_lE1By9yaLGu6nQzElKV_yLL5bFIiu7y8GLUj0QM3v0yjnFH_QLdBbOqDV1lvUZb2rSjYpYtOrG8LHkcySUx-9iWeSm2mG-IWD4q5_Nq7mo5p2rcGQzaKzWhGYvGSjkZyRjN7FBMOLrZeoFqY51nU3o8Dgu1fmtC0aI0jEtAmK6sWqsR8zuyoc1Eyu9iMd6oF2dAppuNl6yTJ1mZQyz0ZConCPkbKC6e0EfQaKsGuaasOq0Jx_xegdG4oc1rU7alVrfHcXbHY-MlormBe39LnxWWvSxF15M5l2Jcdei6ivVZtp7-2frKPIvB81AU2A-3ZemWyqsFrLHip2rdxSkpnIFW17RG_KnKHcUigZN53M_CsqhruJlhq6mf63psieWy4ew16d-m2L4qEf_GknIi4kTI7WrSj4HBIS9mdTQUkVXUv5P0fzYPTpbzDM9_eRLxupIN8v9uPkCHR1Fs58MJx7Fz3IBjRfmprjoWqcizImpWrTr1p6p3mhbzCM19Kzsb5L9PJ_8pkd_NMrkT-Ns94D-g-o_UK5bbKG3kY0VlFfmn6jeIJkLyeV25DenvdPxp4X0r-DxLmbEd4UfpuMyjdNrLG0V0TWaK_nfA_zcG_H9Ded9fv11YXxafDk6lSNavReh6_VakLMQqFlQsK3LFsdpTe0fx10tfeH2B_FC4bJ4Gnt_ntFdqrO3Zbyyvv4_Y7DFf37M6YG2WW2-JoK60WW2_sVrENe2d1xd3kjKuG-u-vnxI1cB4Xu69vnxTbzYb_B_aYD5vCF7fgOex4qEuwNB_ZENNgGH8yIb6-z3zRzbYtQ3Wj2xwahve8PBnsRBxw2jnRzbUjX7Jz_ur_KkSaZVFn1pDniPrP7Drr6eX10etYx6LIprOZGuUxZgqWC_KQwRR6zSZx1EYyeID01umr_9CXSoXvKDaguP4dMlGM3qP2XpnY1JmrJfFYzYEu0JyFKKW3dyzeSQ85AmfipaD6XBGK2lzlE4gTrIu1EM2t3o8TWHxmtzPhfhDsCxnPXoB1KrMq9lm1mwbdoawjJ4ZVCWs5XTrahHFZC70nKL-8aaZhvGqmb4ysx_lom7mmj4gviml1AuT29js6G_t-uZQJMiekaSfHkXeGuFAk7Kq2Gx5p6F1jxeSoSEIqGyYOklP-FOUlMm2QVuz1OIgJcyjSQSnmM4vLJsoKq2a4tzC5IxLlpThrMmKLWYiZcusrIRzEv-Sk-zXnISq2LrleZyFD6u7pm_0V3xjOfW5M0BEsbZG4Ud94Oz6oFM-RWXS-vMRZJ7KD4Zm_rM3IyioMDc1xLmqoPhWM-_815D3Xpt0nPrkGU95SwX9qqUzjkPSKh8Oy-qYy7IKfo7QvFMYUKEmxODBJnvTeS0r2SKSM9aRksMLq18z5iJnF9lCUO7Rj-4t_b2pGK-WrXYOhECcjhkvlM6723bwdnfxvpoJdi2TrJCtY3JX1dFeC_eKAalTHTImWZkCRKtRXej4lIuiqAJzXYHeOSouuDqur1yxweM5UIqtSrYym9xQy7UVCheIaHUCKxjp-TK_Xpbn5Rxhv4uJt4vJGc8fyD4JbEYzDlxb53PiiFrTRKaaVUC84WcF4jM-V3k0nWKn-sEJigOwhIrPDZqCjGLBOmmW8HhJYfWF6m9nPC6Y4dNex62VvhUKBDkhXbSaFfXliH95jSpHzb5T9x6LJhTyOctwMi7QChUeDB2MpzB3vMZh1UjugJ0s0xRc7pYr5V5hwepQ7jjJ33US1o8FeWnVR1FIoeMtgmQreI2_Mgi9GGXFXOXsdl4iq46eEFiUTFmx3tKDDlGIVSOZRw-IubHATZo9e_kt_P7xKNQmqtpb3Jgq-ILNKcj91YcgxS4awQtlU0yBYqfMs5yKF0_mkYocKdY-b4BiN9WserVKsO2OpW8y9uXMWqX0Ooa2S_479xcCcBX1Xeo1rSHseoSrmx1N0PMRLVqVukqlTZ-rtpr6_7GW7oKHE-4zemed49Ne60iKPAUXVUWr4yQ0QGukD6JemG1iuSvB2JFwWUbhQxHFZPZGQGec49kujlKxO_-WCHNHxKiM57Oyxp4i6XwRNyfe4mvt8D2MeEJvCTZ8h2ISiye4vjHzFmN7h3E3KpIS_moofIjIaM68xdj56yPO6qCP6n9H-aZum-zeGba9cyLbleG-JcP8_8ugzx520vpE5FkUolsgusfL1lWUiJi6aiVmyMdRCRkD1e0bQofIjOQuR-JRgQ1cmxVZOl1kuZwtUX4EmgmqMiFO8Ufo36By4OBzUX0pU1AtyhV_dcbpZenvpcirYk7bvvB4WuJ8f4JMz_Io3Fik_hWfDr5maMmfRhKaf2A4ZWT5kt2YNeTAqH_eZXts_eHOJLvbkyJ9jyQIRfyez-et1hexRHWV9AYEdh1GRRjNlcZUqwBLRE1QY6dpgbN6KDWqPagboZiUcQqktFqrvOXxg8g1dijEnN1GxThLNHaccxTk0xSC6VxHG6j6DlE5cd3JQw5h6jc1jXpylJLqfWgzI6lgESnlqF4tNXYieF6dF0dZGWvslh6uUMHo-Bpn2VjDw0yKvl8Q4v0cpy6NjeAkWfJ8ScqjD9yVpIjGLsr1OWsl7jpNucT5M8YpKIbqfU7lTgmTQkBaP8urZ0uNdXl-R10Ry77iIDGmIBI8nEE6DBml2WKSIWig0EmGU8Yh7EiVVGUxfPqPokZUmm7wOxPqS1FN2QjXRmKisa0fIDWmfvhmF7mY8-rIjPWIlITdCiAONhf0yY3qfp05Re56EcEBwzXVS2YEqHrGisMyVkta1XeRWIY8uY3oB0XyLiQVAn1GQyRHeLyBtcTuOp2RgR3UkyxXbC_ybEJOJYckB_tVnB4gwCfRdP2Z6E0kFuqZfuvj2H8Bv0UcNQ",
       "viability": {
         "passed": false,
         "issues": [
@@ -3723,8 +3595,8 @@
           {
             "severity": "error",
             "code": "es_below_floor",
-            "message_it": "Energy shield stimato (5222) sotto la soglia minima per SC mapping (9000). Aggiungi nodi ES sull'albero o aumenta il budget.",
-            "message_en": "Estimated energy shield (5222) is below the SC mapping floor (9000). Add ES nodes on the tree or raise budget."
+            "message_it": "Energy shield stimato (5529) sotto la soglia minima per SC mapping (9000). Aggiungi nodi ES sull'albero o aumenta il budget.",
+            "message_en": "Estimated energy shield (5529) is below the SC mapping floor (9000). Add ES nodes on the tree or raise budget."
           },
           {
             "severity": "warning",
@@ -3858,6 +3730,20 @@
           "effect_id": null
         },
         {
+          "node_id": 24083,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 59928,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
           "node_id": 42009,
           "name": "Soul of Steel",
           "type": "notable",
@@ -3970,6 +3856,13 @@
           "effect_id": null
         },
         {
+          "node_id": 63282,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
           "node_id": 48438,
           "name": "Bravery",
           "type": "notable",
@@ -4008,6 +3901,13 @@
           "node_id": 1340,
           "name": "Rampart",
           "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 3644,
+          "name": "Strength",
+          "type": "travel",
           "stats": [],
           "effect_id": null
         },
@@ -4061,6 +3961,13 @@
           "effect_id": null
         },
         {
+          "node_id": 61262,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
           "node_id": 14930,
           "name": "Strength",
           "type": "travel",
@@ -4075,8 +3982,8 @@
           "effect_id": null
         },
         {
-          "node_id": 26196,
-          "name": "Basic Jewel Socket",
+          "node_id": 24914,
+          "name": "Strength",
           "type": "travel",
           "stats": [],
           "effect_id": null
@@ -4194,8 +4101,15 @@
           "effect_id": null
         },
         {
-          "node_id": 37999,
-          "name": "Intelligence",
+          "node_id": 54127,
+          "name": "Basic Jewel Socket",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 5233,
+          "name": "Strength",
           "type": "travel",
           "stats": [],
           "effect_id": null
@@ -4232,6 +4146,13 @@
           "node_id": 25989,
           "name": "Nomadic Teachings",
           "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 50570,
+          "name": "Strength",
+          "type": "travel",
           "stats": [],
           "effect_id": null
         },
@@ -4299,6 +4220,13 @@
           "effect_id": null
         },
         {
+          "node_id": 16544,
+          "name": "Dexterity",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
           "node_id": 50340,
           "name": "Elemental Resistances",
           "type": "travel",
@@ -4323,6 +4251,13 @@
           "node_id": 48807,
           "name": "Art of the Gladiator",
           "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 29353,
+          "name": "Strength",
+          "type": "travel",
           "stats": [],
           "effect_id": null
         },
@@ -4364,6 +4299,13 @@
         {
           "node_id": 40366,
           "name": "Intelligence",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 18103,
+          "name": "Dexterity",
           "type": "travel",
           "stats": [],
           "effect_id": null
@@ -4523,6 +4465,13 @@
           "effect_id": null
         },
         {
+          "node_id": 63723,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
           "node_id": 39916,
           "name": "Strength",
           "type": "travel",
@@ -4595,13 +4544,6 @@
         {
           "node_id": 37884,
           "name": "Elemental Resistances",
-          "type": "travel",
-          "stats": [],
-          "effect_id": null
-        },
-        {
-          "node_id": 44799,
-          "name": "Elemental Damage",
           "type": "travel",
           "stats": [],
           "effect_id": null
@@ -4878,25 +4820,25 @@
         },
         {
           "slot": "Timeless Jewel",
-          "base_name": "Brutal Restraint",
+          "base_name": "Heroic Tragedy",
           "stat_priorities": [
-            "Passives in radius are Conquered by the Maraketh"
+            "Passives in radius are Conquered by the Kalguur"
           ],
           "budget_tier": "endgame"
         }
       ],
       "stats": {
-        "life_estimate": 6577,
+        "life_estimate": 6277,
         "es_estimate": 0,
         "dps_index": 0,
         "resistance_warning": null,
         "estimated": false,
-        "full_dps": 68877.0,
-        "total_ehp": 40752
+        "full_dps": 82548.4,
+        "total_ehp": 34410
       },
       "rationale_it": "Build Templar/Inquisitor con Arc (lightning). Difesa: life. Budget: endgame. Focus: tutti i contenuti. Albero e oggetti sono presi dai dati ufficiali di PoE 3.28.",
       "rationale_en": "Templar/Inquisitor Arc build (lightning). Defence: life. Budget: endgame. Focus: all content. Tree and items are sourced from official PoE 3.28 data.",
-      "pob_code": "eNrtWllvGskWfudXlJBG85DOuPclciIBtrHjNYDtSV6ioimgh15wL2Ayuv_9fqe6wQ3YcaQrTe6Mxg9luqrOqa_O8p2qhsMbnk-vx-0iCEdBPPlwKD-xRSCWl8lIvG-eXd5c9wZNlvN0IvI7kWZBEr9vGl_VJpvzOJ-KJL7kfyRpNxm9b14lsaj1B_FWvz_lKfdzkV6IhQhbRZ6Ua4x5mNFwyLPsikfoGYhoHvK0yXjmi3jUeRo5ix-KIAvyBIMhqXnf9AAl4kHcT_yZyLtpUszfN7UmG_J4FOTrxQ8-HA5SIRgABAvRnwufJn04pE8QzwBrdTweCz_P3jf_tHTT1hVHM5z_KH9apmGq6wfbNFV7M6I6lqNYjuqYeDI1w1MMUzd1PGi64eqbJ91SNW3zZOi6uX6CaQGrZljdbbJM-Ek84umq9bT_M9hR3bII9WiV3eiz1WQxDAr8pmMrpusotqUpmqFbaLADzfIMRfc0QzE021EkXEu1LWzANBRbdz0Fu7MV2wE627FNbNMy0JApDMNSXM9QFU-1dMXTTE_xDNdWPNuDelU1sJKq69Rapk6tQ_2u7qH1VFPRNFcHBmkWTbcMG6BUFaOGo2HUVC1btg5aWkcDNPRbNmm2CbDmOAChuYYKDa5JLXCYio51XbSuoSu6hm1Ri5k6uql1VPSYLjZaukGHHQxqsWHd1jwbrWujdTTsRXcNrA4zeRj1aKahOtRiMypaD2uhBSpDVz1qpTN107LQOgZGDR22NwzCALurFBRkHwOhAw2mS3pMT8Mcy8KuDcuzIGV7mkUtLGs4rmui9YDB8DwN3lQNm1pLddHacIupmY6umDrpRwsMpu5Cv2kYjqmYpoZdm6YJ-5smFKH1SNa2HLSuDv3UIgxc06AeV8VnTyNtgOYiMihmLNXUdbQWsFXRrrqIhzJBLANeResgsMossSwTNseusAu4zkGPq9Mc6S_LdWxEmowWG_jR6irsUCYVWh2tZaguEvO2d_Fhmufz7N3BwXK5_G0OpkrG4jEIxW9-Eh3MEfXI5LfZLAjDt5REBy38tSe3bTE59VvC7wTL27w9WHavP-XToxP30_njzceTyP08682KbnjLh-3FY_dr4s9XF8GZtvxj0e8_fBy58cVqnJ_3zflgNb86n0-Ki6O2uLyZrNTBff-qmOj2YN6_zife0Tc37t2OTsezcdDPpjftk5PJrX03KDT_6v7cm57dd799udXC6f2XW37z8eFatx_8iac6v0-uxP3ULU5Xzvgu99zfndPx2_NO2zwfTq-iY8f8MgmOO2dfPqezP075p0urfTf7urodWoss5ra4-ehcJZPOrMs_WfNvnfnw4fE0_awXX20vy8fncgOLAX87d77eLdvp8fxyoD_e3XR7Pi--XTs34_xsqh0PPi9G4dQ4uviDF58C6_PiYfy1NXZnp064KB6-Pi5hzcMDcsNhSa3Z-oOkGWIcmT1NFuQikmSkqqpk2oONwPVCpGkAUiq7Qbb4R0QMXeS4bE3I9NAXuWS0LEnzroiy9uropn8SiBC6T4owxBNRfe5PMSqLyCDpbBWVTTHJpsmyFeafCh4G-YqUvW_maSF2lG86Mb1fzOflGPxOLNq6uGhWMIGMBSXd5kEeohAdiTEvwnw9QVag1tNWOjz0Mzl_Z0D2BbEfFjBhXO1qDSPkQ9pDk4mYD0Mx2sALE1imnYxWrJVGSZFiWeBkMvbJ8q3UB_mjQpaFTT5W5VGHSx5KM2w9kNh6E7vrlY_dMBnyUHuuU98Y-mAHSWVF4AjDY3-a1GHJTlb2_lR0x6GIRJzz8CTxi6wOcTPCqqGfirOTxHmahNB5JDLII4ySuA73aQLbmvFTUd_GoeDZtI5z0_VTgZ3F2TxI-a4Rt7r_MoAHkg7-Qvo4FWEk8l3mOAlhh6Mdd8lOdvTzPfb3TIC_Db1AJMxXW_Zcd_1z8wAYFiLbzYN7EMBWDlQdP9VBXRGLNMF1d8tH9d5_-fQV-sBtOQcWMSov9zvcsRll6-F_bty3kyTfC_td5v8_4Py-fPlxH8SjrbOj7GVl90_FdxGMRc7ndXCbrn_T8aeF973g8yRm2m6EH8ejIg3iSSfdItF1N5P9_wb83zHg_w70frB-f7D-mH04PMtFtH7xQZ_X7z2KTFSxIGNZdpcaS5naW4iXpz7zggL5Ie2yuQM8vbFpVjDW-znYml5_47CR0b8vUx2vNtON15agqrSZbb4yW4Q19Nb3J7eiIqxv1v7-9B6xgfY03fn-9A3fbATcHxLQnwS87wvgFpbN6gto6o8I1BbQtB8RMGoC-o8ImDUB40cErJrAKx7-KJYi3Nq09SMC9U0_5-eDKn_KRKqy6EOjx1Nk_Tt2e3X26fa4MZgK1qaqIFKWjFkPxalxFUymecRTjPDMD2KRN86ieRj4QZ69Y2qjfNUJiunKpMa8ip3QNVwx-VqSGSq7FKEQ7Ga6ygIf978jHvGJ-GHpE_kNFWvlOfdn2TNi2bNi7RDlo2H_wjpTDjZkeYIuyFaK1ihao1HGdJWGIbSDkXrX6xqq-gvV51TwDEuV1MA46tTxgtM3WI03mEISEX8MoiJiVCkaOqT8DYIJzAoZJkuw7KSXuFhoORUxWyVFibHR4fGvOTEdxnG3xzZptcbxIzidTZJUNEq31nyq13zaa_WOG_KuJCtAjcsag2UQkltZT0zA-3zbo28019vbwhvT_YU6TwIYuyeyIMsJ-qb_gvTFRCHPDHaScFTv38NtvIy75NPG_Woh0jiDWwTr8iIGx-fZLm79ZdzP4tOsujc7iDGG2ilG-wDN_WQ5KrLZUJqxcZYmFTRJ59uwBmkwoYQqg1Jj_ZyHMwJyU2Q5GJqBFM9RGIHm1eCyn4-tJ6FLGIvesFT72NbYz4tY6itzoIcCCqOupIpUjAofcy7KuOCjoMgab0ie_DflSVYzHKvOjjxesZLhyvNFmUimBAmopdhTFsn335lEUCXUi4r2HGDtO6AnyMqc3aRBFi0FX4hGDyYNfNbHLW7bCbpZN0R5XtkjI4lesyUN6GWk74Kv5ujUo7tlYL8wRxrBrQXe3rw3FH945PStwObN2JOZiW_qsJ_mVKp-2Hr2vvX6SUi2EuwumARh4zpePbLyxLDD71M-R_SSKgC213jhwDQYFjlAmlsgK1u-cfZDFWxTpTXTUBB4zBmpLr_tb3SJFsvVfs3gVJEJCrVxktLsclL2xJHyXsURqfASptzGwUMhwKkiWjXo9xNJCjshAoM4Y1OesTghy4p0IW-CLBiX-c4pHlkLRLxvNWffapc8nVFpzFEpS6yN6zk5DX542W669T037pSHbb5AVeoXUQTEd0kI6OCLVpxEPFxteKMMN5dkLft78aZtOWrtGpgsnaywG_qi8YU50n3uNpnIL7OqNWDNFZFVgiKc4SAi7cECadvjcLS2AypajIPLUEgqistiXbHCyypY3ZR7TnKfCe0pHwnyEmIcIzguEMZ78M4OKWgvbagMRvILtOylHWKmLMJ1gmt0gEGySR-ZMRPgNoEHhN3Gy6_Z79eFkEKISrajDYIy5uYUs-46G_at4T1Tp_gyHmLRGWIVfJVkGbQOkiUsWvl8u4rqz9SY5yoTZlp7B6vGW-2Vw5ZMaEF1B_ZVt1kWGGM2TpOInQINFSjYPSwLFByxxbZyLjxRU7Cet58C35m8d9p7bm7fT1J_KtklgGfhjA4MiRjl8f65bc8puLc8eeWy1T3rNI6CBY7S0roVdVO45jjY-FOikr3xbSftL6HtLfGpCFBhgxCmflqiNUpxZcepWOyPv7aEvrdEvwjn06KmnkL0ehluD7ym13jGOjyilz8bvT0xDsUjas3WyGuKzT3FbZwUiny6DfgIp6DtkdcUWy8fV6v7GzJtSIksH3ePqaa5l2H7a9ivraH_72vQ71X2-KKdFtUxBBQXxHljEES4u2VZtVB5NnzHLujOsr3skQC9AyCVWTpawMAW6GQkZvQrlTWH8fKJohElnufTxk35WyaZWKlUL-90nSRGTU_LMkGSqL7ITgic4oSUpIG_2ZP8l304vML62Qck0kS8Y7jOJqCZO71mO2g6uW6zt2z926pxMnybi_g3pIEvwt_4fN5onIsViDunV1vY11GAe--cckYeXQdkFeSowj4WVKhjXuQKSk0RljksRKiwdZz2cdJXqGLDkILCVmRThXUTlBQccsAXyQiyczA8TuVFuMTxAs_cT4MxDKjgNs6JKhWch5Ixj-VVMMLmqavHozlPsfY6O7CsWCR0vCEdsZ8XXIoW5F8CVy1_wgNEOu2lQitP0FyenCXeNk-HVDgjhV3hrDHCwEBwyUxYRKKmgFDYaYJzyFESwSC0aCeJhjwnHkMPx77TfJ1k3RBqOJymEHVWy8vjGYnFOIrmRYUckyJ2T-d5TO6jAsDyAHlZvgKo9LWIxxQU9bBudrlrbLZR_nAUT4jrs5i-GKcSntHUL6iwym7nXZDmBex9EyQIPvpVcM2EhwdlWB0C6DiYrH9LexeIpXy3svMj4v8ChrWA4Q",
+      "pob_code": "eNrtWllvGsvWfedXlJCOzkPax93VI5ETCbCNZzvgIclLVDQFtOkB9wAhV99__9auBtyAHUe60s09V8cPZbqq9q5Ve1i7quHgRuTj62GrCMJBEI8-HqhPbBbI-WUykB_qp5c3193bOstFOpL5vUyzIIk_1M1vep1NRZyPZRJfisck7SSDD_WrJJaV_iDe6PfHIhV-LtMLOZNhs8iTco2hCDMaDkWWXYkIPbcymoYirTOR-TIetJ9HTuOnIsiCPMFgSGo-1BuAEokg7iX-ROadNCmmH-pGnfVFPAjy1eL7Hw9uUykZAAQz2ZtKnyZ9PKBPEM8Aa3E0HEo_zz7U_2Vzy-Gaa5ju_2n_si3T0lcPjmXpznpEd21Xs13dtfBkGWZDMy1ucTwY3PT4-onbumGsn0zOrdUTTAtYFcNyr84y6SfxQKSL5vP-T2FHfcMi1GMs7Uaf7TqLYVDgt1xHszxXc2xDM0xuo8EODLtharxhmJppOK5mYiuawmzrjq3Z3DSxFcvUHO41NAw6muMCp-M6FjZsm2jIKKZpa17D1LWGbnOtYVgNrWF6jtZwGlhI102sqXNOrW1xal3q93gDbUO3NMPwONAoAxncNh3A03WMmq6BUUu3HdW6aGkdA_jQbzuk2SHohmMDu-G6gGJ4hm6iNXVo8yxqgcnSODB4aD2Ta9zAPqnFfI5ual1IcQvDaD3sn1sQ00pHcVjKpBaG4I7nOBp3DeyOeybwwIQN9DdMm8xJM03dpRab1NE2sC5aoDW53qBWuZtbto3WNTFqcnjHNAkPPKNT2JDdTAQXNFge6QEezLFtWMO0GzaknIZhUwuLm67nWZrZaBjwtG461Nq6h9YBKsuwXK5ZnDSjxeoW96DZMk0XPrfIYpZlwSOW1SApx3bRehw6qXXRWib1eDo-NwzSAzgeQoUiydYtztHawIPWpR6VCbqHCCmTxzbhZ7Qugs62DI5RlUe2bcH-2BV2AZeSrMdppvKd7bkO5jfIho6KJcfg0OZgR_jMddjEgfXQY7rc1Mp0RMvR2qbuIaXvuhcfx3k-zd7v78_n87-m4LhkKL8HofzLT6L9KfIFHLCXTYIw3KP022_irzW6a42bJ35T-u1gfpe3bued60_5-PDYu75pNdMjb3Lnd7_OOmdHXy_G0_tONO973Zlzcu4HVnDln7r65Cn4PDxbeLHbmxTnd97Tbe_py0Uwn39-PLQu8yNj8thProqJc_eYfrn55H0709uj7t2gk-uDve7e2fniyDu6e2jdTu-v3fu58SU1rNsvvePxXdT58fXOCMcPjwvxmBdP8emN_xTq7ufRlXwYe8XJwh3e5w3vs3sy3Dtvt6zz_vgqOnKtr6PgqH369Us6eTwRny7t1v3k26LvnvEiflzIH-K0OW1Fk2vhz58enKzr8KuULwwvXfizs73GVerEs8bnZifrTb7f9I_vvIfz75PPnTT7Ufww3d7p4GpmHN1-mQ3CsXl48SiKT4H9ZfbUuZ5-AyvOT76dtRo_LiznW_Gw56TfTmDng31y0EFJ19nqg6IuxWIUK3UW5DJSBKfrumLv_bXA9UymaQCiK7tB4PhH5A5d5NJsRfL00JO5YsksSfOOjLLW4vCmdxzIELqPizDEE5WP3B9jVBWm26S9UajWBSobJ_NmmH8qRBjkC1L2oZ6nhdxSvu7E9F4xnZZjt4spMXPz4qK-hAlkLCgpPA_yEMXtUA5FEearCaqqNZ-30hahn6n5WwOqL4j9sIAJ4-WuVjBC0ac91JmMRT-UgzW8MIFlWslgwZpplBQplgVOprKCLN9MfRQUVN2yWKrHZcnlcMlTaYaNBxJbbWJ7vfKxEyZ9ERovdfK1ofe3kCytCBxheOSPkyos1cnK3t-K7iiUkYxzER4nfpFVIa5H2HLot-JsJ3GeJiF0HsoM8gijJK7CfZ7ANmb8VtR3cShFNq7iXHf9VmCncTYNUrFtxI3u_xjAfUUH_0H6OJFhJPNt5jgOYYfDLXepTnb4-z3290yAvw29QCTMFxv2XHX97-YBMMxktp0HDyCAjRxYdvxWB3VkLNMEV-gNH1V7_-HTN-gDN_AcWOSgfGGwxR3rUbYa_t-N-1aS5Dthv838_wWc31MvVB6CeLBxdlS9rOz-rfgugqHMxbQKbt31Tzr-tvB-kGKaxMzYjvCjeFCkQTxqpxskuupmqv-fgP87Bvzfgd73V-8PVh-zjwenuYxWLz7o8-q9R5HJZSyoWFbdpcZSpvIW4vWpL7ygQH4ou6zvAM9vbOpLGKv97G9Mr75xWMvwn8ssj1fr6eZbS1BVWs-23pgtwwp6--eTm1ERVjfr_Hx6l9jAeJ7u_nz6mm_WAt4vCfBngcbPBXALyybVBQz9VwQqCxjGrwiYFQH-KwJWRcD8FQG7IvCGh8_kXIYbm7Z_RaC66Zf8vL_MnzKRlln0sdYVKbL-Pbu7Ov10d1S7HUvWoqogU5YMWRfFqXYVjMZ5JFKMiMwPYpnXTqNpGPhBnr1neq181QmK6aikxrwlO6Grv2DqtSQzdXYpQynZzXiRBT7uf4ciEiP5y9LH6lsv1sxz4U-yF8SyF8VaIcpHzfmDtccCbMjyBF2QXSpaoWgOBhnjOg1DaAsj9a7WNXX9D6rPqRQZliqpgQnUqaOZoG_Fau8whSQi8T2IiohRpahxSPlrBCOYFTJMlWDVSS9xsdB8LGO2SIoSY60t4j9zYjqM426PbdJqtaPv4HQ2SlJZK91a8Smv-LTb7B7V1F1JVYAKl9Vu50FIbmVdOQLvi02PvjO8xs4W3lneH9R5HMDYXZkFWU7Q1_0XpC8mCnlhsJ2Eg2r_Dm7zddwln9YeFjOZxhncIllHFDE4Ps-2cfPXcb-Iz7Cr3mwjxhhqpxzsArR2k-WwyCZ9ZcbaaZosoSk634R1mwYjSqgyKA3Wy0U4ISA3RZaDoRlI8RyFEWjeDC7n5dh6FrqEsegNy3Ifmxp7eRErfWUOdFFAYdSFUpHKQeFjzkUZF2IQFFntHcmT_8YiySqGY8uzo4gXrGS48nxRJpKlQAJqKfacRer9d6YQLBPqVUU7DrB3HdCVZGXBbtIgi-ZSzGStC5MGPuvhFrfpBG5VDVGeV3bISKE3HEUDvIz0bfDLOZx6uFcG9itzlBG8SuDtzHtH8YdHQd8KrN-MPZuZ-KYK-3nOUtUvW8_ZtV4vCclWkt0HoyCsXceL76w8MWzx-1hMEb2kCoCdFV44MA36RQ6Q1gbIpS3fubuhCrZZpjUzUBBELBipLn9BUOsQLZar_ZnBqTKTFGrDJKXZ5aTsmSPVvUogUuElTLmLg6dCglNltKjRbzKSFHZCBAZxxsYiY3FClpXpTN0EWTAs811QPLImiHjXau6u1S5FOqHSmKNSllhr11NyGvzwut24_TM3bpWHTb5AVeoVUQTE90kI6OCLZpxEIlyseaMMN49kbedn8WZsOGrlGpgsHS2wG_qi8ZU5yn3eJpmoL7OWa8CaCyKrBEU4w0FE2YMFyrZH4WBlB1S0GAeXvlRUFJfFeskKr6tgVVPuOMl7IbTHYiDJS4hxjOC4QBgfwDtbpGC8tqEyGMkv0LKTdoiZsghXCa7WBgbFJj1kxkSC2yQeEHZrL79lvz9nUgkhKtmWNgiqmJtSzHqrbNi1RuOFOiXmcR-LThCr4Ksky6D1NpnDokufb1ZR_kKNeakyYaa9c7Cq7RlvHLZUQkuqO7CvvsmywBizYZpE7ARoqEDB7mFZoOCIDbZVc-GJioLVvN0U-MnkndPeS3N7fpL6Y8UuATwLZ7RhSMSoiHfPbTtOwb3l2SuXzc5pu3YYzHCUVtZdUjeFa46DjT8mKtkZ33TS7hLGzhKfigAVNghh6uclmoMUV3aciuXu-FtL8J0lekU4HRcV9RSi1_Nwc-AtveYL1hERvfxZ6-3KYSi_o9ZsjLyl2NpR3MJJocjHm4APcQraHHlLsf36cXV5f0Om9SmR1eP2MdWydjJsdw3nrTX4v78G_V5lhy9OZJrgDHWbIvAHqKVBhJtbli2XKU-G79kF3Vg2F-2CJqM-3Wgo9XAPMliWxKM5rmXjBYhNokyB78nkFIBk_ntU6VjUbspfOanEStUC6k7XTmLU9LQsEyR2LsJRAeY5wQEpSQN_vSX1L_t4cJXgQPIReTSS7xluswlY5p5XTAdFx9cttsdWP7oaJv29XMZ_IQt8Gf4lptNa7VwuwNs5vdnCxg4DXHunCjGdXGGXgLhFY2cF1elYFLmGSlOEZQpLGWpsFaY9HPQ1KthBTKsfQ-FYY50EFQVnHNBFMoDsFASPQ3kRznG6wLPw02CIo5mGy7ggptRwHEqGIlY3wQibp66uiKYixdqr5MCycpbQ6YZ0xH5eCCVakHsJ3HL5YxEg0GkvS7TqAC3UwVnhbYm0T3Uz0tgVjhoDigYpFDFhEYWaIkJjJwmOIYdJBIPQou0k6oucaAw9AvtO81WOdUKoEXCaRsy5XF6dzkgsxkk0L5bIMSliD3Scx-QeCgAsD5CX5RuApb4m0ZiGmh5Wza52jc3Wyt-i4glhfRrT9-JUwTOa-hUFVtvuvA_SvIC9b4IEsUc_NK6Y8GC_DKsDAB0Go9XPc-8DOVevVrZ-l_z_RF6SYQ",
       "viability": {
         "passed": true,
         "issues": [
@@ -5227,13 +5169,6 @@
           "effect_id": null
         },
         {
-          "node_id": 60735,
-          "name": "Basic Jewel Socket",
-          "type": "travel",
-          "stats": [],
-          "effect_id": null
-        },
-        {
           "node_id": 62017,
           "name": "Life and Armour",
           "type": "travel",
@@ -5258,13 +5193,6 @@
           "node_id": 46408,
           "name": "Fangs of the Viper",
           "type": "notable",
-          "stats": [],
-          "effect_id": null
-        },
-        {
-          "node_id": 20807,
-          "name": "Dexterity",
-          "type": "travel",
           "stats": [],
           "effect_id": null
         },
@@ -5451,6 +5379,13 @@
           "effect_id": null
         },
         {
+          "node_id": 61834,
+          "name": "Basic Jewel Socket",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
           "node_id": 27788,
           "name": "Blood Drinker",
           "type": "notable",
@@ -5570,13 +5505,6 @@
           "effect_id": null
         },
         {
-          "node_id": 1461,
-          "name": "Dexterity",
-          "type": "travel",
-          "stats": [],
-          "effect_id": null
-        },
-        {
           "node_id": 65210,
           "name": "Heart of Oak",
           "type": "notable",
@@ -5605,13 +5533,6 @@
           "effect_id": null
         },
         {
-          "node_id": 36287,
-          "name": "Dexterity",
-          "type": "travel",
-          "stats": [],
-          "effect_id": null
-        },
-        {
           "node_id": 56001,
           "name": "Strength",
           "type": "travel",
@@ -5626,15 +5547,15 @@
           "effect_id": null
         },
         {
-          "node_id": 40653,
-          "name": "Strength",
+          "node_id": 7112,
+          "name": "Dexterity",
           "type": "travel",
           "stats": [],
           "effect_id": null
         },
         {
-          "node_id": 14292,
-          "name": "Dexterity",
+          "node_id": 40653,
+          "name": "Strength",
           "type": "travel",
           "stats": [],
           "effect_id": null
@@ -5663,6 +5584,13 @@
         {
           "node_id": 15837,
           "name": "Avoid Status Ailments",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 53213,
+          "name": "Dexterity",
           "type": "travel",
           "stats": [],
           "effect_id": null
@@ -6064,25 +5992,25 @@
         },
         {
           "slot": "Timeless Jewel",
-          "base_name": "Brutal Restraint",
+          "base_name": "Heroic Tragedy",
           "stat_priorities": [
-            "Passives in radius are Conquered by the Maraketh"
+            "Passives in radius are Conquered by the Kalguur"
           ],
           "budget_tier": "endgame"
         }
       ],
       "stats": {
-        "life_estimate": 5167,
-        "es_estimate": 31,
+        "life_estimate": 4852,
+        "es_estimate": 29,
         "dps_index": 0,
         "resistance_warning": null,
         "estimated": false,
-        "full_dps": 37778.8,
-        "total_ehp": 18915
+        "full_dps": 43744.3,
+        "total_ehp": 17546
       },
       "rationale_it": "Build Ranger/Deadeye con Ice Shot (cold). Difesa: life. Budget: endgame. Focus: tutti i contenuti. Albero e oggetti sono presi dai dati ufficiali di PoE 3.28.",
       "rationale_en": "Ranger/Deadeye Ice Shot build (cold). Defence: life. Budget: endgame. Focus: all content. Tree and items are sourced from official PoE 3.28 data.",
-      "pob_code": "eNrtWltv27gSfvevIAIs9qFKo_tlkRawnWubW2Mn2e5LQcu0rUYSXV3suIvz3883lOXIdpr04WCzuzgtwEjDGc59hqS1f8WLyeWoU0bxMErH7_fVE5tFYn4uh-Ldzun51eV1f4cVPBuL4lZkeSTTdzvWF32HTXlaTIRMz_lXmR3L4budC5mKBjxK1-DhhGc8LER2JmYibpeFrHiMeJzTdMzz_IIngFzzdCyyHcbzUKTD7uPEgeBDsQByTEu82wkgRsKjtCfDe1EcZ7KcvtsxdtiAp8OoqBnvvd_vZ0IwMI9mojcVISG936cnkOcQaXE4GomwyN_t_OmYtmtqnmF5_9H-dGzL1usX17Z1t34xPcszNMfTPZvwdM_xVm-u45j-6s0MTM2yTdvEs21YwfIFRoVQDZOa_g7LRSjTIc8W7UfVT2FBfc0YBDGXFls-pzAlpDctXyN-tm1rtu9phmU6GKCDYbsGpgxLswzX05QgdgA0x9Yhq2u4GvTD4Pi65nq2AUXJDpblaH5g6VpgQvnADbCerlsGRt8MNMOwA7AxXAcQ07FcYqmbGH0fmLbuAGKTSIajuzZG3_JotAFxSRLDw3-Mpo7Rt4nWdz0I7Hu6pRmBARmNwDMwG_gO1NN1Q8fo655mGtCDRghpmiY4mgAAYvsunsEROE5AECfwA810HRPPru-6mgn9aDR9QJQzTc_zsb6vGyYsRVSWYRkOxgD6Qq2ARsPwNAsgF6Pp0zNxh4kJx1UQN7DhZc_RbYyugWfI72P0TUMDIuyKSHIsjJ6N0SB5bIMktKGeGuEAG6LocKUBO8ChsDYcBCfYdgCX2S45zvbUar4Nx0PpgEayjO0HhB8YunIzYQZwnuboDjRahqvug7aKd8cMIK1j6bC_Y8GrakRgWF5gIUbgQ61KBgdkWAGoHo3wrOO40Ndx4RiMFnznBKYDeEDSuroH-7h6gBVcwyIIXO1h9BBLrkWB6FpQQKvyCy6Cf1UKIUdvrs_eT4pimv-2tzefz99OUbDkSDxEsXgbymRvihRAUu_m91Ec71JG7bXxrzM-7Y7aB2W796kza5-knZ5-dNW-M7rm4fnvD-3s0GjfnnZ-nx_37D-KzvT2-IsMp4uz6PTL59hahLOP93ru9syD86vx9_uvn4OLcmwZB9nnqyH0-Oqnnx4uDs5vRlHv0vlwoGen_avg4v7e_nZzM-xPby-927khru8OJ59FEffv7o7-cArpJ1Lw6cU311ycD-4edO_3aX90VgR3MPSYL7od--Ngcrl7MXM6t_ey2_OdPElsc_ht6l2kC_E1-vbpaNpJ7i95OM8ORfGV27uZuTB6Z_fdWZ_vXmZuOlscfzHCw_b8-8nRjf_H0cM379zLXfl9nl2JPNjVo5P-qLg-NBbW524wGZt3J3w-nC8cqy-NUv_ijb2ZmH3oBDczU36Jv-46g91y9sWGSff3yBf7VanN6wdVeKgGKTfvsKgQCb2iRuiq8u6tCC5nIssilKkKjOKLP1SYsRZ5L68LNL30RKEqeS6z4lgkeWdxcNU7ikSMtY_KOMYblf4inGBWNZS-7K41mFVjySdy3o6LTyWPo2JBi73bKbJSbCy-AgK9V06n1Vx_MaW62j4721mKCclYNFTCFVERq6404mVc1AiqI7UfVenyOMwV_saEgkVpGJcwYbrUqhYj5gPSYYeJlA9iMVyJF0tYpiOHC9bOEllmYAs5mUoAsvxpKHoTWaAloGVWzQ4gVsGWfdOEb75V9lh7Ifpam03G1etxLAc8Np4CmiuL722ItDTnkWq17aLg4X3elK-aYKuZV5XyMBaJSAseH_CEj8U8KiZPiLzCYhUaI7y_mwZHMix_IPVy6lXl7IIkLhZNAVegVxWsg21jOAGsKVoD-JcJt6fqxF9YV05EnIhis6S0B7mMywL71KZBmtBXdRcOGhCiysOmgBWc1ROvW_uEoBPWUSbS72sRv5xg9cyrSnmViSEvZNYU8BH27w17yDAT-WbYn3DsJ4dNW9SQV3XSsUhFJvNovXI2oa8q3mmaT6OMb1aLNfDrth2Z4iRdQBYxrI79ax2oMcvq6X9v5HekLLYC_yiGOQ54PlkrVARkFfRV_ddTdyR3UbqWmhWUVeBXle8sGomCT5vCrUB_g_13FyMazhP779XMvzfc73ACx5bA2Iz4w3RYZtC9m60V1RrMFPz_Uf9PjPp_Qrnfq28W6sf8_f5pIZL6SoSe6xuRMhfLWFCxrMDVihVN437ix6hPXF0gP5RdVoeAx7ucnaUYtT57a-jNu4gVjfk8zXLDtUK3XmJBXWqFbb-ALeKG9M7zyO2kjJvKus-jX1M1MB7RvefRV_VmReA_T4Aum9838YOfwTebF28_Q2A1CIyfIbAbBObPEDTvAl_w7gcxF3FTZ8P-GYKm0k85eW-ZDVVaLHPifeuaZ8jh39jNxemnm8NWfyJYh2o8GqAcsWu0mtZFNJ4UCc8ww_MwSkXROk2mcRRGRf4b01vVlSYKxrFKUeAtaw1AgwVT14_M0tm5iIVgV5NFHoWrm6Kfpl6_FXuCLH-SrBOjGbTcX1h3wlHbWCEBAu1yoVqK9nCYM1OnaRBtyEjQmq-l679Qt80Ez8GqSnTG0XUOZ5x-u2q9AQpRJPwhSsqEUd1vmaAKVxKMYVbQMNVQFZAua-nabCJStpBlJWOry9NfC6pbmBd5ATWJW-vwARWajWUmWpVbGz41t32KteRwgLrXokubpcjrLjyGFEW-tJrhMEXCLtEAVL9XRbhlmGuqL_WtdMdpa7xgvQldSbdMp4m3ZofqEiJnEz4TsPQP8a7FmE5w6EPM-IUikaBsigCofhNcX-iN4TTNSwGUiTxnaGrxKtC2TGVtm6ony2IykCUY9GQ8jMCvqs3r5lLR4pnEy4Czu0B9IlQM94fqvXGgOlAV5bXIo7wg4VvGenQdZUJ8xymjrE6KTFLIiCSCPJ8p7E4gDws5TcQL9pF2jUeZ_C4e0baUtreVbqdpNIlixeLXnLVhPMnDSesg42OYGHmAzKeW80zMIHVqOnV9Q6ejvI6bF1NmPRDOYXC6lyX3iSElQYpaN6AkwHJrkErbVp_fC-bqcMVRlInaFRQtyx3hHJSikmq3L8twglWOKQnbwwzbEdSIRu4NQJNsYp9JZOFT2CEJTb4cbJJs2d7Ztv1VFuXJXCCIW9clzhsh6-FIuW5o025ap9o3bZVRFZKGqwqYuWaGRkRWSCpuTf9HYVshEcT1Ea2o_Sm5dBtRZR3eOcLu8Sr9MZrzDb8-9yMBW_7mtTxg8HTBqsZZbUK3belu2_JakNE4siIV9zLjiOUeid-6TBcPrNrZrFv2TWUwUgBiZNGgLATppVcVvB2GyLxwgTZIJ8HGRFVC3xgr_evsftoOnylOVkF7zqPkqfDwGipdt68PW8fLEogSQexvRZbASFQI1PuGKoa91XXe2L6SUIVDo8zU8M3yU8Mfvd6c9Pwmg3Oe8mXbVAFl_7AObinqb_vujpihzBfYf9wtZiJLST10H1iyI-fPJcRPhFWrn0Vj2tJwtto3VL1BpTGFTMFGmUzAP8pby21qVX2xuWB99b2PVq3Mmf7WdJZ9CDpDaTlP6x2EXW0h1oyxTKkgUIkXWNTtZV5PridJLbcqfarIN5FVsa_kanV4gUPL060taFj4vH182m0dRDMqW6qNVpkFa_cKXqaqYm_Pr5t8iwM21pssPpUR3B3F8N4ji8eSuT3_Egtji0WvjKeTsrE8xcvlPF6feGld8wnr8IS8uVr3Woxi8YDUXZt5aWFra-EOyju2FOsCH6DBrc-8tLD949KwPC60ulmU5Iha9b5ZG-zt2rDNxHmJifk_YEIfQmzvULNyWTKxsY3SotVHhYxpB1cxuubDqASXM8rDdbYHAlUVEuYim0XY_sHEnu2yobinzx-QWMrivHqjeMwRjsWkdVV9KZMTRqaWV4eIrky_lSKrDhFEeQ46FIxJ6wR1UGZRuNJJ_cnf71-Af_4eqTQWvzGcn2S2YLdmw3hY6eiyw3ZZ_eXOSA52C5G-RSKEIn7Lp9NW66NYMGhCNyPQC5ZA6odiVMYpzKCxDyXVr5SXqELYeKkZ6JLTdYWmYmiyrAsaShzmVHYLEWt0WZeTdVEKUxBL1Ax0RrXDxyTYQHANhz7sQbKFxq4yOeKpOnEkUJlAtzIa4uyXZdgPa2iGyZRn4NorYfIZcjvHS50wEIan47wO9dtoSjQHYiZpe0l4M4HTZT1_UqYwEYgi0pPk4NmA06ZIY6dpUUYV1YVM4KOQ9UW1wQSb6ohygO3CPXE4EaCLFd2JxGb4QCbqhEAqJgNeUK0DhGto3kXN_TjGqvRrHtHzCn7J70GD0_VEbVFRfclsPXQYiAhzXsI2d9QHLnhRZmRudMcC0dyqPlLEGwL7EluH6UJthSX8qNEXBrRrk4huTV1QsjueQfFjBGN1yCJgvr9XhdM-AnEUjeuPNW8jMVeH-I0vVP8LmgLuTw",
+      "pob_code": "eNrtWltvGskSfudXtCyt9iHjeO6XyLEExmDiu3HsTV6sZmjDmLmQuUDw6vz381UPgwdw4jwcrXdXJ5HaM9VVXfeq7mb2L3k-vnhoFUE4DOLRwb58YrNAzM-Sofi40zu7vLi-2WE5T0civxVpFiTxxx3jXt1hUx7nY5HEZ_wxSbvJ8OPOeRKLGjyI1-D-mKfcz0V6KmYibBZ5UvJ44GFG0yHPsnMeAXLN45FIdxjPfBEPD58n2oIPxQLIIS3xcceDGBEP4n7iT0TeTZNi-nFH22EDHg-DvGK8d7B_kwrBwDyYif5U-IR0sE9PIM8g0uLo4UH4efZx509LN21dcTTD-Y_yp2Uaplq92Kap2tWL7hiOpliO6piEpzqWs3qzLUt3V2-6pyuGqZs6nk3N8JYvMCqEqplUd3dYJvwkHvJ00XxWvQcLqmvGIIi-tNjyOYYpIb1uuArxM01TMV1H0QzdwgAddE8zFEOzHUXKYHrAsEwVYtqarUA1DJarKrZjatBRIxOQHQzDUlzPUBVPh_Ke7WE9VTU0jK7uKZpmemCj2RYgumXYxFLVMbouME3VAsRSbROjazg0mpi1SRDNwX-MuorRNYnKtR0Vo6MaiuZpEFHzIAtG14JiqqpBEQ0K0AjBdF0HFx0AQEzXxjN4ORg9glie6ym6bel4tl3bVnToRKPuAiIdqDuOi5VdFQrrHlEZmqFZGD3oCFU8GjXNUQyAbIy6S8_EHWYlHNsz4VPHUk2MtoZnyOxidHVNAQqsiLixDIyOiVEjSUyNZDOhkhxhcxNCqHCcBt3hPtgWPoHJTdODl0ybfGU6cjXXhJuhrkejq8Klrkf4nqZKzxKmB1cplmpBl2Vwqi5oy-i2dA_SWoYKm1sGfChHxAJUNTA6HkZTg6fKBLBAjHVA4NCIALMsG1pbNlyC0YDXLE-3APdIZlv1QGtrBj1rrmEqNpzsYHQQP7ZBEWgbUEMpcwougmdl2iAvP1-fHozzfJp92Nubz-fvpyhSyYP4HoTivZ9Ee1OEPRJ5N5sEYbhLWbTXxL_WqHcoRu2i2b9qzZrHcauvdi6b-bjdca9Ovp9fdfrNW7c1KbqDK357Pet17xN_ujgNevdfQmPhz04mamb39fbZ5ehp8vjFOy9Gtt42hpeid_9JPbu5euocm5PHon_lnSyOnu5vvn66OAkvws9O_kf71up86XfGtn57_vXLbRzpjws-tr5N9DQd9L7ng-ObXITnbmFog4c_7lppr3c8mhZHjtW6nSSHfdfKosjUh9-mznm8EI_Bt6vOtBVNLrg_T49E_sjN3VRfaP3TyeHshu9epHY8W3TvNf-oOX867nx2v3a-f3POnMxOnubppci83SfP6PeG57va0c0fp8PRqd5tf_0yTFtG-zQeXjzeOSNnJmbdE3dyrPXv-ePu3aUTzmz7_n4Ea-7vkRv2y8qaVQ-yzlDJkV7dYUEuInpFSVBlod1bEVzMRJoGqEolGLUWf6gOYy1yXFbVY3rpi1wW7ixJ866IstaifdnvBCLE2p0iDPFGlT73x5iV_eMmOVzrJ6s-ko2TeTPMrwoeBvmCFvu4k6eF2Fh8BQR6v5hOy7mbxZTKaPP0dGcpJiRjwVAKlwd5KJvQAy_CvEKQDaj5rMohD_1M4m9MSFgQ-2EBE8ZLrSoxQj4gHXaYiPkgFMOVeGECy7SS4YI10ygpUrCFnEzGPlm-54v-OMnRAdAhy94GECthyzapwzffSnusvRB9pc0m4_K1GyYDHmovAfWVxfc2RFqasyM7azPPuT_J6vKVE2w186ZSHoUiEnHOwzaP-EjMg3z8gsgrLFaiMcL7u2nQSfziB1Ivp95UzkOQhPmiLuAK9KaCtbBL9MeA1UWrAf8y4fZknfgL68qxCCORb5aU5iBLwiLHtrRukDr0Td2FcwWEKPOwLmAJZ9XE29Y-IehA1UlF_LQW8csJVs28qZSXqRjyPEnrAj7D_r1hDxlmItsM-2OOreSwbosK8qZO6opYpEkWrFfOOvRNxevF2TRI-Wa1WAO_bdtJYhycc8gihuUpf60D1WZZNf3vjfxWkuRbgd8JYY42z8ZrhYqArIS-qf_68krkLojXUrOEshL8pvKdBg8i59O6cCvQ32D_fYgRDeeF_fdq5t8b7neCT7El0DYj_igeFil0P0zXimoFZhL-_6j_J0b9P6Hc71U3C9VjdrDfy0VUXYnQc3UjUmRiGQsyliW4XLGkqd1P_Bj1hasL5Ie0y-oQ8HyXs7MUo9Jnbw29fhexotF_TrPccK3QjddYUJdaYZuvYIuwJr31c-RmVIR1Ze2fo19TNdCe0Z2fo6_qzYrA_TkBumw2qeN7v4Kv1y_efoXAqBFov0JQv9rTf4XAqhG84t1PYi7Cus6a-SsEdaVfcvLeMhvKtFjmxEHjmqfI4Q_s83nv6vNR42YsWItqPBpg8sCu0Woa58FonEc8xQzP_CAWeaMXTcPAD_LsA1Mb5ZUmCkZXpijwlrUGoMGCyetHZqjsTIRCsMvxIgv81U3RL1Ov34q9QJa9SNYK0Qwa9m_scMxR21ieAATa5UKVFM3hMGO6StMg2pCRoBVfQ1V_o26bCp6BVZnojKPrHM04_VTVeAcUooj49yAqIkZ1v6GDyl9JMIJZQcNkQ5VAuqyla7OxiNkiKUoZG4c8_j2nuoV5keVQk7g1jr6jQrNRkopG6daaT_Vtn2KtZDhA3WvQpc1S5HUXdiFFni2tpllMkrALNADZ72URbmj6mupLfUvdcdoaLVh_TFfSDd2q463ZobyEyNiYzwQs_UO8azGiExz6ENN-o0gkKJsiAMqfANcXeqdZdfNSAKUiyxiaWrgKtC1TGdum6idFPh4kBRj0k3AYgF9Zm9fNJaPF0YmXBmcfAvWFUNHsH6r3zoLqQJWU1yILspyEb2jr0dVJhXjCKaMoT4osoZARUQB5vlDYHUMe5nOaCBfshHaNnTR5Es9oW0qb20o34zgYB6Fk8XvGmjBewv1xo53yEUyMPEDmU8v5ScwgdSo6eX1Dp6OsiptXU2Y9EM5gcLqXJfeJISVBjFo3oCTAcmuQUtvGDZ8IZqtwRSdIReUKipbljnAOSlFKtXuTFP4Yq3QpCZvDFNsR1Iha7g1AE21inybIwpewfRKafDnYJNmyvbVt-8s0yKK5QBA3rgucN3zWx5Fy3dC6WbdOuW_aKqMyJDVbFjB9zQy1iCyRZNzq7o_CtkQiiO0iWlH7Y3LpNqLMOrxzhN3zVfpzNGcbfv3ZjwRs-ZvX8oDB4wUrG2e5Cd22pb1ty2tBRuPIilhMkpQjlvskfuMiXnxn5c5m3bLvSoORAhAjDQZFLkgvtazgTd9H5vkLtEE6CdYmyhL6TlvpX2X3y3b4QnGyCtozHkQvhYdTU-m6eX3U6C5LIEoEsb8VaQQjUSGQ7xuqaOZW13lnulJCGQ61MlPBN8tPBX_2en3ScesMznjMl21TBpT5wzq4pai77bs7YoYyn2P_cbeYiTQm9dB9YMlWMv9ZQvxCWDVu0mBEWxrOVvuGsjfINKaQydlDmkTgH2SN5Ta1rL7YXLAb-XmPUq7Mmfpet5Z9CDpD6WQeVzsIs9xCrBljmVKeJxPPM6jbJ1k1uZ4kldyy9MkiX0eWxb6Uq9HiOQ4tL7c2r2bhs2a3d9hoBzMqW7KNlpkFa_dzXsSyYm_Pr5t8iwM21pssrooA7g5CeO-ZxXPJ3J5_jYW2xaJfhNNxUVue4uViHq5PvLau_oJ1eETeXK17LR5C8R2puzbz2sLG1sItlHdsKdYFbqPBrc-8trD549KwPC40DtMgyhC18n2zNpjbtWGbifUaE_1_wIQ-hNjK_mORJmh9N9hwiOGicYP6GNL-rWRzzYdBAR6nlIXrTK-R-tGAttDyIOrYJoN4oznOAeMFGyKHMjoNkNFl14YDbtEZULkuy49kMqQeSyUDeYg4TOJvhUjLQwSRnfBwVKDWH6MMJmngr1SSf7KD_fMEPeMAmTQSHxiOT0m6YLd6zXZYqHPRYrus-mbnIRns5iJ-jzzwRfieT6eNxolYMLQHuhiBYqi6yHxfPBRhDDso7FNB5SvmBYoQ9l1yhjWzjG4rFBlC42VZUFDhMCeTW4hQobu6jIojKmEM4gQlA41RbvAxCTYQXMGZD1uQdKGwyzR54LE8cERQmUC3STDE0S9NsR1W0AujKU_BtV-ks2CG1M7wUuULhOHxKKsi_TaYEk1bzBLaXRLeTOBwWc0fFzFMBKKA9CQ5eDrgtCdSWC_Oi6CkOk8iuAgBIsr9JdiUJ5Q2dgsT4oAIGpAooDtOsBduJ5E8IJCK0YDnVOoA4Qp6d15x74ZYlX7MI3pewi_4BDQ4XI_lDhXFl8zWR4OBiDDnBWxzR23gnOdFSuZG8OUI5kb5SSLeENcX2DlMF3InnMCPCn1gQJu2JIhhLLqfZHc8heJdDkHkloeA2f5eGU77iMOHYFR9mnkbiLk8w298j_pfB5rq1w",
       "viability": {
         "passed": false,
         "issues": [
@@ -6095,8 +6023,8 @@
           {
             "severity": "error",
             "code": "life_below_floor",
-            "message_it": "Vita stimata (5167) sotto la soglia minima per SC mapping (5500). Aggiungi nodi life sull'albero o aumenta il budget.",
-            "message_en": "Estimated life (5167) is below the SC mapping floor (5500). Add life nodes on the tree or raise budget."
+            "message_it": "Vita stimata (4852) sotto la soglia minima per SC mapping (5500). Aggiungi nodi life sull'albero o aumenta il budget.",
+            "message_en": "Estimated life (4852) is below the SC mapping floor (5500). Add life nodes on the tree or raise budget."
           },
           {
             "severity": "warning",
