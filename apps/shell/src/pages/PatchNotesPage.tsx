@@ -30,6 +30,27 @@ const RELEASES: Release[] = [
   {
     date: { it: "29 mag 2026", en: "29 May 2026" },
     title: {
+      it: "Theorycrafter — build sempre allocabili davvero (budget punti)",
+      en: "Theorycrafter — builds always actually allocatable (point budget)",
+    },
+    summary: {
+      it: "Le build ottimizzate ora rispettano sempre i punti passivi realmente disponibili a livello 100 — niente alberi 'impossibili' da allocare.",
+      en: "Optimised builds now always respect the passive points actually available at level 100 — no more 'impossible' trees you couldn't allocate.",
+    },
+    entries: [
+      {
+        it: "Aggiungendo jewel timeless e talenti per le aure, alcune build avevano accumulato più punti di quanti se ne possano davvero ottenere (una arrivava a 144, impossibile). Ora un passaggio finale taglia i nodi di collegamento meno utili finché la build rientra nei ~123 punti reali di un personaggio livello 100, e le build vengono calcolate a livello 100.",
+        en: "While adding timeless jewels and aura notables, some builds had piled up more points than you can actually get (one hit 144, impossible). A final pass now trims the least-useful travel nodes until the build fits the ~123 real points of a level-100 character, and builds are computed at level 100.",
+      },
+      {
+        it: "Effetto: ogni build servita è ora giocabile esattamente com'è. Per tre build il DPS scende un po' (−8/−11%) perché toglie punti che non esistevano davvero — è il prezzo dell'onestà; Cyclone e Lacerate restano invariate e guadagnano vita.",
+        en: "Effect: every served build is now playable exactly as-is. Three builds lose a bit of DPS (−8/−11%) because it removes points that never really existed — the honest price; Cyclone and Lacerate are unchanged and gain life.",
+      },
+    ],
+  },
+  {
+    date: { it: "29 mag 2026", en: "29 May 2026" },
+    title: {
       it: "Theorycrafter — aure multiple oneste (Determination + danno + herald)",
       en: "Theorycrafter — honest multi-aura setups (Determination + damage + herald)",
     },
@@ -43,8 +64,8 @@ const RELEASES: Release[] = [
         en: "Before, builds were 'full' on reservation with a single aura. Now the optimiser puts the auras in one group with Enlighten and, when needed, takes reservation-efficiency notables on the tree — so more auras fit honestly. Every combination is checked with PoB's real calc: no auras you couldn't actually sustain.",
       },
       {
-        it: "Risultato misurato: Cyclone 128.500 → 173.300 DPS (+35%), Lacerate → 148.300 (+37%), Vortex → 241.200 (+34%), Arc → 123.600 (+50%), Ice Shot → 51.400 (+18%). Tutte con mana sufficiente e resistenze al massimo.",
-        en: "Measured: Cyclone 128,500 → 173,300 DPS (+35%), Lacerate → 148,300 (+37%), Vortex → 241,200 (+34%), Arc → 123,600 (+50%), Ice Shot → 51,400 (+18%). All with enough mana and capped resistances.",
+        it: "Risultato misurato (valori finali serviti, dopo il taglio dei punti dello stesso giorno): Cyclone 128.500 → 173.300 DPS, Lacerate → 148.300, Vortex → 220.900, Arc → 109.900, Ice Shot → 47.300. Tutte con mana sufficiente e resistenze al massimo.",
+        en: "Measured (final served values, after the same-day point trim): Cyclone 128,500 → 173,300 DPS, Lacerate → 148,300, Vortex → 220,900, Arc → 109,900, Ice Shot → 47,300. All with enough mana and capped resistances.",
       },
     ],
   },

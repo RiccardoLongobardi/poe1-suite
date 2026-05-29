@@ -52,6 +52,18 @@ _UNIQUE_SLOT: dict[ItemSlot, str] = {
     ItemSlot.WEAPON_OFFHAND: "weapon_offhand",
 }
 
+# Encode the optimised build at a mirror-tier character level (the level a
+# "best version" actually is), so the realistic passive-point budget below is
+# the right yardstick and PoB's life/level scaling is honest.
+_CHAR_LEVEL = 100
+# Realistic regular-tree passive-point budget at level 100: 99 from levels +
+# 22 quest points + 2 from killing all bandits = 123. Masteries and a jewel
+# socket each cost one of these points; the class start is free. The
+# optimiser's timeless + aura passes can push the allocation past this, so the
+# final build is trimmed back to it (`_trim_to_budget`) — a build needing 144
+# points is not playable, and "niente fittizio" forbids serving one.
+_TREE_POINT_BUDGET = 123
+
 _EHP_FLOOR = {"starter": 2500, "mid": 4000, "endgame": 5000}
 # Step 60: EHP we reward up to (TotalEHP, PoB-exact). Above this, the EHP
 # bonus saturates so the optimiser stops trading DPS for more defence.
@@ -201,7 +213,7 @@ class _Encoder:
             tree=tree,
             gear=g,
             gems=gen._to_pob_gems(links if links is not None else self.base_links),
-            level=90,
+            level=_CHAR_LEVEL,
             jewels=jewels,
         )
 
@@ -996,6 +1008,57 @@ def optimize_timeless(
     if best_jewels:
         print(f"[opt] timeless: {best_label} | fit={cur_fit:.0f}")
     return best_visited, best_jewels, cur_fit
+
+
+# ---------------------------------------------------------------------------
+# Honest point budget (Step 68) — trim the over-allocated tree to a realistic
+# passive-point count so the served build is actually playable.
+# ---------------------------------------------------------------------------
+
+
+def _tree_points(visited: set[int], td: TreeData, dmg: str, defence: str) -> int:
+    """Passive points the allocation spends: regular nodes (minus the free
+    class start) + the masteries those nodes trigger. (Ascendancy is free via
+    the lab; the jewel socket is a regular node already counted in ``visited``.)"""
+    masteries = gen._select_masteries(visited, td, dmg, defence)
+    return (len(visited) - 1) + len(masteries)
+
+
+def trim_to_budget(
+    intent: TheoryIntent,
+    enc: _Encoder,
+    visited: set[int],
+    jewels: tuple[tuple[int, str], ...] = (),
+    *,
+    budget: int = _TREE_POINT_BUDGET,
+) -> set[int]:
+    """Drop the lowest-value removable leaves until the build fits a realistic
+    passive-point budget.
+
+    The timeless + aura passes can push the allocation past a level-100 point
+    budget (a build needing 144 points is unplayable). This trims it back:
+    connectivity-preserving (only nodes whose removal keeps the set connected
+    to the class start are dropped — i.e. leaves), protecting the start, the
+    jewel socket, and any pathed reservation-efficiency notable (dropping one
+    would break the auras' reservation). Lowest ``_score_node`` first, so the
+    filler travel goes before any real notable. Pure graph work, no PoB eval.
+    """
+    td = get_tree_data()
+    dmg = "minion" if "minion" in enc.skill.tags else intent.damage_type
+    defence = intent.defence_archetype
+    protect = {enc.start} | (set(_RES_EFF_NODES) & visited) | {sock for sock, _ in jewels}
+    v = set(visited)
+
+    def _node_score(nid: int) -> int:
+        n = td.nodes_by_id.get(nid)
+        return gen._score_node(n, dmg, defence) if n else 0
+
+    while _tree_points(v, td, dmg, defence) > budget:
+        cands = [n for n in v if n not in protect and _connected(v - {n}, enc.start, td.adjacency)]
+        if not cands:
+            break
+        v.discard(min(cands, key=_node_score))
+    return v
 
 
 def _demo() -> int:

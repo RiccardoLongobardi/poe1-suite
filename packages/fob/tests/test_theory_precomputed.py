@@ -54,3 +54,20 @@ def test_lookup_misses_unknown_archetype() -> None:
     assert lookup_precomputed(intent) is None
     # And a skill that isn't in the matrix at all.
     assert lookup_precomputed(_endgame("Witch", "Elementalist", "Fireball", "fire", "life")) is None
+
+
+def test_precomputed_builds_fit_point_budget() -> None:
+    """Step 68: every served build must be allocatable at level 100 — a build
+    needing more than the realistic ~123 passive points (99 levels + 22 quest
+    + 2 bandit) is fictional and must never be vendored. Points spent = regular
+    tree nodes (the free class start excluded) + masteries; ascendancy is free
+    via the lab."""
+    from poe1_fob.theory.precomputed import _load
+
+    for skeleton in _load().values():
+        regular = sum(1 for n in skeleton.tree_nodes if n.type in ("keystone", "notable", "travel"))
+        masteries = sum(1 for n in skeleton.tree_nodes if n.type == "mastery")
+        points = regular + masteries
+        assert points <= 123, (
+            f"{skeleton.intent.primary_skill} spends {points} passive points (> 123)"
+        )

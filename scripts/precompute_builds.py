@@ -21,6 +21,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from optimize_build import (  # type: ignore[import-not-found]  # sibling script
+    _TREE_POINT_BUDGET,
     _Encoder,
     fitness,
     optimize_auras,
@@ -29,6 +30,7 @@ from optimize_build import (  # type: ignore[import-not-found]  # sibling script
     optimize_tree,
     optimize_uniques,
     optimize_weapon,
+    trim_to_budget,
 )
 from pob_eval import PobEvaluator  # type: ignore[import-not-found]
 
@@ -103,8 +105,17 @@ def _optimised_skeleton(
     # 5) timeless jewel — LUT god-seed search over the finalised tree.
     visited, jewels, _ = optimize_timeless(intent, ev, enc, visited, best_links, best_pob)
     # 6) auras — multi-aura group + Enlighten (+ pathed reservation nodes),
-    # reservation-honest. Re-evaluate the final build with whatever it kept.
+    # reservation-honest.
     best_links, visited, _ = optimize_auras(intent, ev, enc, visited, best_links, best_pob, jewels)
+    # 7) trim to a realistic passive-point budget (the timeless + aura passes
+    # can push the allocation over a level-100 budget; an unplayable build is
+    # fictional). Drops the lowest-value filler leaves.
+    pts_before = len(visited) - 1
+    visited = trim_to_budget(intent, enc, visited, jewels)
+    print(
+        f"[opt] trim: {pts_before} -> {len(visited) - 1} regular nodes "
+        f"(budget {_TREE_POINT_BUDGET})"
+    )
     best_stats = ev.evaluate(enc.code(visited, best_links, pob_gear=best_pob, jewels=jewels))
 
     pob_code = enc.code(visited, best_links, pob_gear=best_pob, jewels=jewels)

@@ -124,6 +124,16 @@ Inside the navbar: a "Strumenti" / "Tools" section label above the 5 main routes
 
 Frontend-only, no backend change. Gate: 747 tests / 132 mypy / ruff clean. Build ~471 KB / 151 KB gzip.
 
+## Step 68 — Mirror-tier initiative: honest passive-point budget (2026-05-29) ✅
+
+NEXT STEP #5, promoted by Step 67: the timeless socket+path (Step 63) and the pathed reservation notables (Step 67) push the allocation **past a realistic passive-point budget** — Arc was at **144 points**, impossible to allocate at any level. A build needing 144 points is fictional; "niente fittizio" forbids serving one. This trims every precomputed build back to a legal level-100 allocation. **User-facing** (some served DPS drops — the honest cost of removing the impossible points; EHP rose where the level bump helped).
+
+- **Encode at level 100 (`_CHAR_LEVEL`).** Mirror-tier builds *are* level 100; the optimiser/precompute encoder now uses 100 (was 90), so PoB's life/level scaling is honest and the realistic point budget is the right yardstick. (The live generator's estimate stays at its own level.)
+- **`_TREE_POINT_BUDGET = 123`** — 99 from levels + 22 quest points + 2 from killing all bandits. Masteries and a jewel socket each cost one of these; the class start is free; ascendancy is free via the lab. Points spent = (regular nodes − start) + masteries.
+- **`trim_to_budget` (`scripts/optimize_build.py`)** — a final pass that drops the lowest-`_score_node` **removable leaves** (a node whose removal keeps the set connected to the class start) until the build fits the budget. Protects the start, the jewel socket, and any pathed reservation-efficiency notable (dropping one would break the auras' reservation). Pure graph work (no PoB eval) — the filler travel (the bulk of the over-allocation, e.g. Arc's 105 travel nodes) goes before any real notable; one final PoB eval reports the trimmed build's honest stats. Wired as pass #7 in `precompute_builds.py`, after auras.
+
+**Measured (PoB-exact, all now exactly 123 points = 115 regular + 8 masteries, reservation-positive, res capped):** Cyclone **173.3k** / 18.2k EHP (was 115 pts, unchanged + more EHP from lvl 100), Lacerate **148.3k** / 20.0k (unchanged), Vortex 127→115 regular, **220.9k** / 27.7k (−8% DPS from the trim), Arc 136→115 regular, **109.9k** / 29.5k (−11%), Ice Shot 120→115, **47.3k** / 18.9k (−8%). The over-budget builds lost some DPS — that's the honest cost of dropping points that were never allocatable. Test: `test_precomputed_builds_fit_point_budget` (every served build ≤ 123 points). Gate: 775 tests / 145 mypy / ruff clean.
+
 ## Step 67 — Mirror-tier initiative: reservation efficiency → real multi-aura (2026-05-29) ✅
 
 Step 4 (auras), part 2 — the actual multiplicative gain. Step 66 found the precomputed builds were saturated on reservation with **one** aura (and that aura was the base layout's Gloves `Hatred` + **Generosity**, which on a Brutality build buffs *nobody*), so its honesty gate correctly added 0 more. This step unlocks reservation efficiency so **2-3 real auras fit honestly**, and the precomputed builds jumped **+18% to +50% real DPS**. **User-facing.**
@@ -180,14 +190,14 @@ Phase 4: the optimiser now adds a **Lethal Pride timeless jewel** via a real **L
 
 ### Mirror-tier initiative — status + next steps (2026-05-25)
 
-All phases of the mirror-tier initiative (Steps 58-67) have shipped their levers: precomputed builds now carry **chase uniques** (Step 59) + **layered defences** (Step 60) + **DoT-multiplier gear** for DoT archetypes (Step 61) + **timeless jewels incl. Glorious Vanity** (Steps 63-65) + **reservation-honest multi-aura groups** (Step 67). They went from 12-19% of the top-ladder build to genuinely strong (Cyclone 173k DPS / 17k EHP, Lacerate 148k, Vortex 241k / 28k, Arc 124k / 35k, Ice Shot 51k). The PoB-exact optimiser (local; Render only serves the vendored JSON) is the engine; everything is fitness-gated so nothing can regress a build.
+All phases of the mirror-tier initiative (Steps 58-68) have shipped their levers: precomputed builds now carry **chase uniques** (Step 59) + **layered defences** (Step 60) + **DoT-multiplier gear** for DoT archetypes (Step 61) + **timeless jewels incl. Glorious Vanity** (Steps 63-65) + **reservation-honest multi-aura groups** (Step 67), all trimmed to a **legal level-100 passive-point budget** (Step 68). They went from 12-19% of the top-ladder build to genuinely strong AND playable (Cyclone 173k DPS / 18k EHP, Lacerate 148k / 20k, Vortex 221k / 28k, Arc 110k / 30k, Ice Shot 47k / 19k — every one exactly 123 points, reservation-positive, res-capped). The PoB-exact optimiser (local; Render only serves the vendored JSON) is the engine; everything is fitness-gated so nothing can regress a build.
 
 **The full, prioritised next-step list with implementation notes lives in `CLAUDE_PERPLEXITY_WORKFLOW.md` §6 ("NEXT STEPS").** In brief, highest-impact first:
 1. ~~**Glorious Vanity**~~ — DONE (Step 65): node-replacement jewel + Corrupted Soul/Divine Flesh/Immortal Ambition conquerors in the search. Cyclone/Lacerate now use GV; big DPS gains.
 2. ~~**Other timeless jewels**~~ — DONE (Step 64): the search tries all additive types and the optimiser prefers Brutal Restraint on most builds. (Elegant Hubris still deferred for its ÷20 seed quirk.)
 3. **Multi-mod / influenced / meta-crafted rares** — the biggest gear-quality lever for the non-unique slots (mirror rares are mod *combinations*, not one mod per priority).
 4. ~~**Auras / flasks / Pantheon**~~ — Part 1 (reservation honesty gate) DONE (Step 66); Part 2 (reservation efficiency → real multi-aura group + Enlighten + pathed reservation nodes) DONE (Step 67), +18-50% real DPS. Still open: flask effects + a Pantheon (`<Build pantheonMajorGod/minorGod>`).
-5. **Honest tree point budget** when a jewel socket + path (or a pathed reservation notable, Step 67) is allocated (drop lowest-value notables to keep the point count realistic).
+5. ~~**Honest tree point budget**~~ — DONE (Step 68): `trim_to_budget` drops lowest-value filler leaves until the build fits a level-100 budget (123 pts); builds encode at level 100. Every served build is now exactly 123 points (was up to 144 — fictional).
 6. **Expand the precompute matrix** beyond the 5 archetypes.
 7. **Conqueror-attribute optimisation** (minor) and **Spectre DPS** (vendor monster data — the last sweep LOW_DPS).
 
