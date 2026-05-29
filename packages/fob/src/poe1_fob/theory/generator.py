@@ -1039,7 +1039,17 @@ def _stat_priorities(slot_name: str, intent: TheoryIntent, skill: _Active) -> tu
 
     slot_map: dict[str, tuple[str | None, ...]] = {
         "Helmet": (primary_def, res_l, res_c, main_dmg),
-        "Body Armour": (primary_def, res_f, res_l, res_c),
+        # Step 69: the primary 6L is socketed in the Body Armour, so its
+        # signature mirror-tier mods are the gem-level influence affixes
+        # (Shaper + Elder → +1 to socketed skill & support gems) — they lead.
+        "Body Armour": (
+            "to Level of Socketed Skill Gems",
+            "to Level of Socketed Support Gems",
+            primary_def,
+            res_f,
+            res_l,
+            res_c,
+        ),
         "Gloves": (
             (primary_def, res_l, speed, jewel_added)
             if jewel_added

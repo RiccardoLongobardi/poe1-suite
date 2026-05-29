@@ -30,6 +30,27 @@ const RELEASES: Release[] = [
   {
     date: { it: "29 mag 2026", en: "29 May 2026" },
     title: {
+      it: "Theorycrafter — pettorali con +1 alle gemme socketate",
+      en: "Theorycrafter — body armour with +1 to socketed gems",
+    },
+    summary: {
+      it: "I pettorali consigliati ora portano gli affissi mirror-tier '+1 al Livello delle Gemme Abilità/Supporto Socketate', che potenziano direttamente la skill principale (socketata nel pettorale).",
+      en: "Recommended body armours now carry the mirror-tier affixes '+1 to Level of Socketed Skill/Support Gems', which directly boost the main skill (socketed in the body).",
+    },
+    entries: [
+      {
+        it: "Sono modificatori reali da influenza (Shaper/Crusader per le skill, Elder/Redeemer per i supporti) — la classica base 'Awakener's Orb'. Compaiono solo a budget endgame, dove sono ottenibili. Misurato fino a +6% sulla skill principale quando il pettorale è equipaggiato.",
+        en: "These are real influence modifiers (Shaper/Crusader for skills, Elder/Redeemer for supports) — the classic 'Awakener's Orb' body. They only appear at the endgame budget, where they're obtainable. Measured up to +6% on the main skill when the body is equipped.",
+      },
+      {
+        it: "Tra le build precomputate, Vortex sale a ~255.800 DPS (+16%). Le build che usano un elmo speciale che vieta il pettorale non ne beneficiano (un prossimo aggiornamento sposterà la skill principale nell'elmo in quei casi).",
+        en: "Among the precomputed builds, Vortex rises to ~255,800 DPS (+16%). Builds using a special helmet that forbids body armour don't benefit (an upcoming update will move the main skill into the helmet in those cases).",
+      },
+    ],
+  },
+  {
+    date: { it: "29 mag 2026", en: "29 May 2026" },
+    title: {
       it: "Theorycrafter — build sempre allocabili davvero (budget punti)",
       en: "Theorycrafter — builds always actually allocatable (point budget)",
     },

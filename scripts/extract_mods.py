@@ -72,6 +72,13 @@ TARGET_STATS: frozenset[str] = frozenset(
         "cold_dot_multiplier_+",
         "fire_dot_multiplier_+",
         "bleeding_dot_multiplier_+",
+        # Step 69 — body-armour gem-level influence affixes (mirror-tier).
+        # "+1 to Level of Socketed Skill Gems" (Shaper/Crusader) raises the
+        # main 6L's active skill; "+1 to Level of Socketed Support Gems"
+        # (Elder/Redeemer) raises every support. The biggest non-unique-slot
+        # DPS lever, since the primary 6L is socketed in the Body Armour.
+        "local_socketed_active_skill_gem_level_+",
+        "local_socketed_support_gem_level_+",
     }
 )
 

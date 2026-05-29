@@ -696,3 +696,30 @@ def test_multi_aura_group_encodes_with_enlighten() -> None:
     xml = _decode_pob_xml(code)
     for sid in ("Determination", "Pride", "HeraldofPurity", "SupportEnlighten"):
         assert f'skillId="{sid}"' in xml
+
+
+def test_body_armour_has_socketed_gem_level_mods() -> None:
+    """Step 69: the primary 6L is socketed in the Body Armour, so a generated
+    rare body leads with the gem-level influence affixes (+1 to Level of
+    Socketed Skill/Support Gems) — the biggest non-unique-slot DPS lever. They
+    must be real, resolvable mod lines on the body base."""
+    from poe1_fob.theory.realmods import real_affix_line
+
+    # The gem-level affixes are high-ilvl (80) influence mods → they resolve at
+    # the endgame budget (ilvl cap 86), not starter/mid.
+    sk = generate_build(
+        _intent(
+            character_class="Marauder",
+            ascendancy="Juggernaut",
+            primary_skill="Cyclone",
+            damage_type="physical",
+            budget="endgame",
+        )
+    )
+    body = next(g for g in sk.gear_slots if g.slot == "Body Armour")
+    assert "to Level of Socketed Skill Gems" in body.stat_priorities
+    assert "to Level of Socketed Support Gems" in body.stat_priorities
+    # Resolves to the real "+1 ..." line on the chosen body base.
+    base_tags = frozenset(next(b for b in get_base_catalogue() if b.name == body.base_name).tags)
+    line = real_affix_line("to Level of Socketed Skill Gems", base_tags, "endgame")
+    assert line == "+1 to Level of Socketed Skill Gems"

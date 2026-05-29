@@ -49,7 +49,32 @@ _STEM_TO_STAT: dict[str, tuple[str, ...]] = {
     "Chaos Damage over Time Multiplier": ("chaos_dot_multiplier_+",),
     "Cold Damage over Time Multiplier": ("cold_dot_multiplier_+",),
     "Fire Damage over Time Multiplier": ("fire_dot_multiplier_+",),
+    # Step 69 — body-armour gem-level influence affixes (mirror-tier). The
+    # primary 6L is socketed in the Body Armour, so "+1 to Level of Socketed
+    # Skill Gems" raises the main skill's level and "+1 to Level of Socketed
+    # Support Gems" raises every support — the classic Shaper+Elder
+    # (Awakener's Orb) body. Real RePoE affixes; PoB applies them.
+    "to Level of Socketed Skill Gems": ("local_socketed_active_skill_gem_level_+",),
+    "to Level of Socketed Support Gems": ("local_socketed_support_gem_level_+",),
 }
+
+# Step 69: the gem-level body affixes only spawn via *influence* spawn-weight
+# tags (Shaper / Crusader for the skill-gem mod, Elder / Redeemer for the
+# support-gem mod), never on a bare base. A mirror-tier body IS influenced, so
+# when resolving these stems we augment the base's tags with the influence
+# tags that carry them — honest (the build buys/crafts an influenced body),
+# not invented.
+_INFLUENCE_STEMS: frozenset[str] = frozenset(
+    {"to Level of Socketed Skill Gems", "to Level of Socketed Support Gems"}
+)
+_BODY_INFLUENCE_TAGS: frozenset[str] = frozenset(
+    {
+        "body_armour_shaper",
+        "body_armour_adjudicator",  # Crusader (skill-gem mod)
+        "body_armour_elder",
+        "body_armour_eyrie",  # Redeemer (support-gem mod)
+    }
+)
 
 # Render templates for stat ids whose translation didn't survive the
 # extraction (conditional / multi-line translations).
@@ -146,6 +171,9 @@ def real_affix_line(stem: str, item_tags: frozenset[str], budget: BudgetTier) ->
     stat_ids = _STEM_TO_STAT.get(stem)
     if not stat_ids:
         return None
+    # Influence-gated body affixes (Step 69) spawn only via influence tags.
+    if stem in _INFLUENCE_STEMS:
+        item_tags = item_tags | _BODY_INFLUENCE_TAGS
     _, tiers, _ = _load()
     # Try each candidate stat id; use the first that has a tier able to
     # roll on this slot (e.g. flat ES on jewellery vs % ES on armour).
