@@ -23,6 +23,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from optimize_build import (  # type: ignore[import-not-found]  # sibling script
     _TREE_POINT_BUDGET,
     _Encoder,
+    _forbids_chest,
+    _relocate_no_chest,
     fitness,
     optimize_auras,
     optimize_links,
@@ -116,6 +118,15 @@ def _optimised_skeleton(
         f"[opt] trim: {pts_before} -> {len(visited) - 1} regular nodes "
         f"(budget {_TREE_POINT_BUDGET})"
     )
+    # Step 70: final honest re-socket. A chest-forbidding helmet (The Bringer
+    # of Rain) voids the body, so socketing the primary 6L there is fictional —
+    # relocate it into the helmet (the only legal socketing; it picks up the
+    # helmet's built-in supports). Applied last, as a pure overlay on the
+    # finished build (the relocation only *adds* the helmet's supports to the
+    # existing 6L), so it isn't subject to the greedy passes' path-dependence.
+    helmet_u = chosen.get(ItemSlot.HELMET)
+    if helmet_u is not None and _forbids_chest(helmet_u):
+        best_links = _relocate_no_chest(best_links)
     best_stats = ev.evaluate(enc.code(visited, best_links, pob_gear=best_pob, jewels=jewels))
 
     pob_code = enc.code(visited, best_links, pob_gear=best_pob, jewels=jewels)
@@ -137,6 +148,12 @@ def _optimised_skeleton(
         )
 
     gear = tuple(_overlay(g) for g in best_gear)
+    # Step 70: if the chosen helmet forbids a body armour (The Bringer of Rain),
+    # drop the Body Armour from the displayed gear — it's unequippable, and the
+    # primary 6L was relocated into the helmet.
+    helmet_u = chosen.get(ItemSlot.HELMET)
+    if helmet_u is not None and _forbids_chest(helmet_u):
+        gear = tuple(g for g in gear if g.slot != "Body Armour")
     # Show the timeless jewel as a display slot (name + its seed/conqueror line).
     if jewels:
         body_lines = jewels[0][1].split("\n")

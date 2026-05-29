@@ -567,6 +567,29 @@ def optimize_weapon(
     return best_gear, best_fit
 
 
+# ---------------------------------------------------------------------------
+# Chest-forbidding helmet (The Bringer of Rain) — re-socket the 6L (Step 70)
+# ---------------------------------------------------------------------------
+
+
+def _forbids_chest(u: UniqueItem) -> bool:
+    """True if the helmet unique forbids a body armour (The Bringer of Rain's
+    "Can't use Chest armour"). PoB then voids the equipped body, so socketing
+    the main 6L there is fictional — it must go in the helmet itself."""
+    return any("Can't use Chest armour" in m for m in u.mods)
+
+
+def _relocate_no_chest(links: tuple[GemLink, ...]) -> tuple[GemLink, ...]:
+    """Re-socket for a chest-forbidding helmet: the primary 6L moves into the
+    Helmet (the only legal socketing — a body the helmet forbids was
+    fictional). In the Helmet it picks up the unique's built-in "Socketed
+    Gems are Supported by …" supports (e.g. The Bringer of Rain's free
+    level-30 Melee Physical Damage / Faster Attacks). Every other group keeps
+    its slot (changing them would only perturb the greedy passes; the one
+    fictional thing was the primary in a non-existent body)."""
+    return (links[0].model_copy(update={"slot": "Helmet"}), *links[1:])
+
+
 def _weapon_class_ok(intent: TheoryIntent, enc: _Encoder, u: UniqueItem) -> bool:
     """A weapon unique must match the build's resolved weapon class
     (don't put a 2H sword unique on a wand caster)."""
@@ -594,7 +617,13 @@ def optimize_uniques(
     Greedy + independent per slot (bounded eval budget): each accepted
     unique is locked in before the next slot is considered. Candidates are
     preselected by keyword relevance (`gen._score_text`) — PoB fitness makes
-    the final call. Returns (best StageGearSet, best fitness).
+    the final call. Returns (best StageGearSet, best fitness, chosen uniques).
+
+    Note: a chest-forbidding helmet (The Bringer of Rain) is evaluated here
+    with the body still present (the greedy per-slot stage undervalues it
+    otherwise — dropping the body's defences before the build is built up
+    looks bad). The honest re-socketing (6L → helmet) is applied as a final
+    pass on the *complete* build (`relocate_no_chest_build` in the pipeline).
     """
     dmg, defence = intent.damage_type, intent.defence_archetype
     skill = enc.skill

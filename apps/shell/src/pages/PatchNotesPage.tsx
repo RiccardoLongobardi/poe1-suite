@@ -30,6 +30,27 @@ const RELEASES: Release[] = [
   {
     date: { it: "29 mag 2026", en: "29 May 2026" },
     title: {
+      it: "Theorycrafter — gemme socketate dove servono davvero (elmi tipo Bringer of Rain)",
+      en: "Theorycrafter — gems socketed where they really go (Bringer-of-Rain helmets)",
+    },
+    summary: {
+      it: "Le build che usano un elmo come The Bringer of Rain (che vieta il pettorale) ora socketano la skill principale nell'elmo — l'unico posto legale — invece che in un pettorale che non puoi indossare.",
+      en: "Builds using a helmet like The Bringer of Rain (which forbids body armour) now socket the main skill in the helmet — the only legal place — instead of a body you can't wear.",
+    },
+    entries: [
+      {
+        it: "Prima la skill principale era 'infilata' in un pettorale che quell'elmo vieta: numeri non realizzabili in gioco. Ora la 6L sta nell'elmo e raccoglie i suoi supporti gratuiti integrati (Danno Fisico da Mischia, Attacchi più Veloci) — più onesto e più forte per le build da mischia.",
+        en: "Before, the main skill was stuffed into a body that helmet forbids — numbers you couldn't actually achieve in-game. Now the 6-link sits in the helmet and picks up its built-in free supports (Melee Physical Damage, Faster Attacks) — more honest and stronger for melee builds.",
+      },
+      {
+        it: "Misurato: Lacerate 143.600 → 177.700 DPS (+24%), Cyclone 173.300 → 179.400 (+3,5%). Vortex, Arc e Ice Shot invariati (Arc ha scelto un elmo che lascia libero il pettorale).",
+        en: "Measured: Lacerate 143,600 → 177,700 DPS (+24%), Cyclone 173,300 → 179,400 (+3.5%). Vortex, Arc and Ice Shot unchanged (Arc picked a helmet that leaves the body free).",
+      },
+    ],
+  },
+  {
+    date: { it: "29 mag 2026", en: "29 May 2026" },
+    title: {
       it: "Theorycrafter — pettorali con +1 alle gemme socketate",
       en: "Theorycrafter — body armour with +1 to socketed gems",
     },

@@ -71,3 +71,32 @@ def test_precomputed_builds_fit_point_budget() -> None:
         assert points <= 123, (
             f"{skeleton.intent.primary_skill} spends {points} passive points (> 123)"
         )
+
+
+def test_chest_forbidding_helmet_sockets_primary_in_helmet() -> None:
+    """Step 70: a helmet that forbids body armour (The Bringer of Rain) voids
+    the body, so the primary 6L must be socketed in the helmet (legal) and the
+    unequippable body must not be served. Builds with a normal helmet keep the
+    6L in the body."""
+    from poe1_fob.gear.uniques import unique_by_name
+    from poe1_fob.theory.precomputed import _load
+
+    for sk in _load().values():
+        primary = sk.links[0]
+        body_shown = any(g.slot == "Body Armour" for g in sk.gear_slots)
+        helmet = next((g for g in sk.gear_slots if g.slot == "Helmet"), None)
+        forbids = False
+        if helmet is not None:
+            u = unique_by_name(helmet.base_name)
+            forbids = u is not None and any("Can't use Chest armour" in m for m in u.mods)
+        if forbids:
+            assert primary.slot == "Helmet", (
+                f"{sk.intent.primary_skill}: 6L not in the chest-forbidding helmet"
+            )
+            assert not body_shown, (
+                f"{sk.intent.primary_skill}: unequippable body served with a no-chest helmet"
+            )
+        else:
+            assert primary.slot == "Body Armour", (
+                f"{sk.intent.primary_skill}: 6L should be in the body with a normal helmet"
+            )
