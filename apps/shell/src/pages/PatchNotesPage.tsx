@@ -28,6 +28,27 @@ interface Release {
 // Prepend a new entry with user-facing (not technical) bilingual copy.
 const RELEASES: Release[] = [
   {
+    date: { it: "29 mag 2026", en: "29 May 2026" },
+    title: {
+      it: "Theorycrafter — aure multiple oneste (Determination + danno + herald)",
+      en: "Theorycrafter — honest multi-aura setups (Determination + damage + herald)",
+    },
+    summary: {
+      it: "Le build ottimizzate ora portano 2-3 aure vere (più Enlighten ed efficienza di riserva), invece di una sola — un grande salto di DPS, e sempre con il mana che basta davvero.",
+      en: "The optimised builds now run 2-3 real auras (plus Enlighten and reservation efficiency) instead of just one — a big DPS jump, and always with the mana to actually run them.",
+    },
+    entries: [
+      {
+        it: "Prima i build erano 'pieni' di riserva con una sola aura. Ora l'ottimizzatore mette le aure in un unico gruppo con Enlighten e, se serve, prende talenti di efficienza di riserva sull'albero — così entrano onestamente più aure. Ogni combinazione è verificata col calcolo reale di PoB: niente aure che a video non saresti in grado di tenere.",
+        en: "Before, builds were 'full' on reservation with a single aura. Now the optimiser puts the auras in one group with Enlighten and, when needed, takes reservation-efficiency notables on the tree — so more auras fit honestly. Every combination is checked with PoB's real calc: no auras you couldn't actually sustain.",
+      },
+      {
+        it: "Risultato misurato: Cyclone 128.500 → 173.300 DPS (+35%), Lacerate → 148.300 (+37%), Vortex → 241.200 (+34%), Arc → 123.600 (+50%), Ice Shot → 51.400 (+18%). Tutte con mana sufficiente e resistenze al massimo.",
+        en: "Measured: Cyclone 128,500 → 173,300 DPS (+35%), Lacerate → 148,300 (+37%), Vortex → 241,200 (+34%), Arc → 123,600 (+50%), Ice Shot → 51,400 (+18%). All with enough mana and capped resistances.",
+      },
+    ],
+  },
+  {
     date: { it: "25 mag 2026", en: "25 May 2026" },
     title: {
       it: "Theorycrafter — Glorious Vanity (Timeless Jewel a trasformazione)",

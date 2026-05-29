@@ -88,11 +88,12 @@ def _optimised_skeleton(
         n.node_id for n in base.tree_nodes if n.type in ("keystone", "notable", "travel")
     }
 
-    # 1) supports, 2) auras, 3) weapon base, 4) uniques per slot, 5) tree,
-    # 6) timeless jewel — each decided by PoB-exact fitness. Auras come early
-    # so every later pass evaluates with the aura buffs + reservation applied.
+    # 1) supports, 2) weapon base, 3) uniques per slot, 4) tree, 5) timeless
+    # jewel, 6) auras — each decided by PoB-exact fitness. Auras run LAST, on
+    # the final tree + uniques + jewels, so the reservation efficiency they
+    # see (and the reservation notables they may path in) reflect the real
+    # mana pool — not a stale generic-gear estimate.
     best_links, _ = optimize_links(intent, ev, enc, visited0)
-    best_links, _ = optimize_auras(intent, ev, enc, visited0, best_links, enc._pob_gear)
     best_gear, _ = optimize_weapon(intent, ev, enc, visited0, best_links)
     base_pob = gen._to_pob_gear(best_gear)
     best_pob, _, chosen = optimize_uniques(intent, ev, enc, visited0, best_links, base_pob)
@@ -101,8 +102,10 @@ def _optimised_skeleton(
     )
     # 5) timeless jewel — LUT god-seed search over the finalised tree.
     visited, jewels, _ = optimize_timeless(intent, ev, enc, visited, best_links, best_pob)
-    if jewels:
-        best_stats = ev.evaluate(enc.code(visited, best_links, pob_gear=best_pob, jewels=jewels))
+    # 6) auras — multi-aura group + Enlighten (+ pathed reservation nodes),
+    # reservation-honest. Re-evaluate the final build with whatever it kept.
+    best_links, visited, _ = optimize_auras(intent, ev, enc, visited, best_links, best_pob, jewels)
+    best_stats = ev.evaluate(enc.code(visited, best_links, pob_gear=best_pob, jewels=jewels))
 
     pob_code = enc.code(visited, best_links, pob_gear=best_pob, jewels=jewels)
     tree_nodes = enc._nodes(visited)

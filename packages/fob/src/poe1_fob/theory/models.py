@@ -47,12 +47,20 @@ class TheoryIntent(BaseModel):
 
 
 class GemLink(BaseModel):
-    """One active skill + its support gems (up to 5 supports = a 6L)."""
+    """One active skill + its support gems (up to 5 supports = a 6L).
+
+    ``extra_actives`` lets a single socket group host *several* active gems
+    (Step 67) — used for a multi-aura group: ``skill`` + ``extra_actives``
+    are all emitted as active gems in the same PoB socket group, with
+    ``supports`` (e.g. ``Enlighten``) linked to all of them so PoB applies
+    the support's reservation-efficiency to every aura in the group.
+    """
 
     model_config = ConfigDict(frozen=True)
 
     skill: str
     supports: tuple[str, ...] = ()
+    extra_actives: tuple[str, ...] = ()
     slot: str = ""
     label: str = ""
 

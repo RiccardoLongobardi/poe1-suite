@@ -1420,17 +1420,34 @@ _SLOT_NAME_TO_ENUM: dict[str, ItemSlot] = {
 
 def _gem_level(name: str) -> int:
     """Max level for a gem. Awakened Empower/Enhance/Enlighten cap at 5
-    (level 4 + 1 from corruption); every other gem goes to 20."""
-    return 5 if name.startswith("Awakened ") else 20
+    (level 4 + 1 from corruption); the regular Empower/Enhance/Enlighten cap
+    at 4 (level 3 + 1 from corruption — their per-level tables stop there, so
+    a level-20 value would be silently clamped and the reservation-efficiency
+    misread); every other gem goes to 20."""
+    if name.startswith("Awakened "):
+        return 5
+    if name in ("Empower", "Enhance", "Enlighten"):
+        return 4
+    return 20
 
 
 def _to_pob_gems(links: tuple[GemLink, ...]) -> StageGemLinks:
-    """Map theory `GemLink`s to encoder `PobGemLink`s — one per slot."""
+    """Map theory `GemLink`s to encoder `PobGemLink`s — one per slot.
+
+    ``link.skill`` plus every name in ``link.extra_actives`` become active
+    gems in the same socket group (Step 67 multi-aura group); ``supports``
+    become support gems linked to all of them.
+    """
     pob_links: list[PobGemLink] = []
     for link in links:
         gems = [
             GemSpec(name=link.skill, level=_gem_level(link.skill), quality=20, is_support=False)
         ]
+        gems.extend(
+            GemSpec(name=a, level=_gem_level(a), quality=20, is_support=False)
+            for a in link.extra_actives
+            if a != "(open)"
+        )
         gems.extend(
             GemSpec(name=s, level=_gem_level(s), quality=20, is_support=True)
             for s in link.supports

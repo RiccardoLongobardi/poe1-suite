@@ -655,3 +655,44 @@ def test_elemental_attack_uses_attack_stats_and_bow() -> None:
     ice_weapon = next(g for g in ice.gear_slots if g.slot in ("Weapon", "Bow", "Wand"))
     assert ice_weapon.slot == "Bow"
     assert "Adds Cold Damage" in ice_weapon.stat_priorities
+
+
+def test_multi_aura_group_encodes_with_enlighten() -> None:
+    """Step 67: a GemLink with `extra_actives` + an Enlighten support encodes
+    as one PoB socket group with every aura as an *active* gem and Enlighten
+    as the only *support* — so PoB applies Enlighten's reservation efficiency
+    to all auras in the group."""
+    from poe1_fob.pob.encode import encode_pob_code
+    from poe1_fob.theory.models import GemLink, TreeNodeRef
+
+    link = GemLink(
+        skill="Determination",
+        extra_actives=("Pride", "Herald of Purity"),
+        supports=("Enlighten",),
+        slot="Helmet",
+        label="Auras",
+    )
+    pob = gen._to_pob_gems((link,))
+    assert len(pob.links) == 1
+    gems = pob.links[0].gems
+    actives = [g.name for g in gems if not g.is_support]
+    supports = [g.name for g in gems if g.is_support]
+    assert actives == ["Determination", "Pride", "Herald of Purity"]
+    assert supports == ["Enlighten"]
+    # Enlighten is a level-capped reservation support (4, not 20).
+    enl = next(g for g in gems if g.name == "Enlighten")
+    assert enl.level == 4
+
+    # And it survives the PoB round-trip: all four skillIds appear in the XML.
+    code = encode_pob_code(
+        character_class="Marauder",
+        ascendancy="Juggernaut",
+        tree=gen._to_pob_tree(
+            _intent(character_class="Marauder", ascendancy="Juggernaut"),
+            (TreeNodeRef(node_id=0, name="start", type="start"),),
+        ),
+        gems=pob,
+    )
+    xml = _decode_pob_xml(code)
+    for sid in ("Determination", "Pride", "HeraldofPurity", "SupportEnlighten"):
+        assert f'skillId="{sid}"' in xml

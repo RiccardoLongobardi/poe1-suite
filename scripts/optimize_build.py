@@ -83,12 +83,16 @@ def fitness(stats: dict[str, float], budget: str) -> float:
     floor = _EHP_FLOOR.get(budget, 4000)
     if pool < floor:
         pen *= max(0.1, pool / floor)
-    # Step 66: negative unreserved mana = the auras can't actually be reserved.
-    # PoB applies the buffs anyway, so without this penalty the optimiser would
-    # stack unrunnable auras for "free" DPS. A firm cliff (small rounding
-    # tolerance) makes any over-reserved build score ~10x lower, so the aura
-    # forward-select only keeps auras that genuinely fit the reservation.
-    if stats.get("ManaUnreserved", 0.0) < -10:
+    # Step 66/67: negative unreserved mana = the auras can't actually be
+    # reserved. PoB applies the buffs anyway, so without this penalty the
+    # optimiser would stack unrunnable auras for "free" DPS. A firm cliff makes
+    # any over-reserved build score ~10x lower, so the aura forward-select only
+    # keeps auras that genuinely fit. Step 67 tightened the threshold to a
+    # strict 0 (was -10): a served build at e.g. -2 unreserved is unrunnable,
+    # and the optimiser can always path a reservation-efficiency notable or
+    # drop an aura to land non-negative. PoB's mana is integer-grained, so 0 is
+    # the honest floor.
+    if stats.get("ManaUnreserved", 0.0) < 0:
         pen *= 0.1
     ehp = max(stats.get("TotalEHP", 0.0), 1.0)
     target = _EHP_TARGET.get(budget, 25000)
@@ -367,6 +371,54 @@ def _known_active_names() -> set[str]:
     return {a.name for a in actives}
 
 
+# Generic reservation-efficiency notables (apply to all skills, so any aura
+# benefits). Pathed into the tree on demand when an extra aura would
+# otherwise over-reserve — PoB only applies a node's stats when it's
+# *connected* to the tree, so a disconnected notable does nothing.
+#   6799  Charisma            16% increased Mana Reservation Efficiency
+#   32932 Sovereignty         12% + 10% increased effect of Non-Curse Auras
+#   33718 Champion of the Cause 8% + 12% aura AoE
+#   58851 Leader of the Pack  12% + 20% aura AoE
+_RES_EFF_NODES: tuple[int, ...] = (6799, 32932, 33718, 58851)
+
+# Labels of the base-layout single-aura group(s) we replace with one proper
+# multi-aura group (so the auras actually buff the player, not the wasteful
+# Generosity'd ally-only aura the base layout ships).
+_BASE_AURA_LABELS = frozenset({"Utility 4L", "Aura", "Auras"})
+
+
+def _aura_group_link(auras: list[str]) -> GemLink:
+    """One socket group: the auras as active gems + Enlighten linked to all
+    of them (so PoB applies Enlighten's reservation efficiency to every
+    aura). Enlighten is only added when there are >= 2 auras (it does nothing
+    for a single gem and wastes a socket otherwise)."""
+    supports = ("Enlighten",) if len(auras) >= 2 else ()
+    return GemLink(
+        skill=auras[0],
+        extra_actives=tuple(auras[1:]),
+        supports=supports,
+        slot="Helmet",
+        label="Auras",
+    )
+
+
+def _path_node_in(visited: set[int], node: int, td: TreeData) -> tuple[set[int], int]:
+    """Connect *node* to *visited* over the regular tree, returning
+    (new_visited, added_point_count). Returns (visited, -1) when no all-
+    fillable path exists. The connection is required because PoB ignores the
+    stats of a disconnected allocated node."""
+    if node in visited:
+        return visited, 0
+    for start in visited:
+        p = gen.bfs_path(td.adjacency, start, node)
+        if p is not None and all(
+            n in visited or gen._is_fillable(td.nodes_by_id.get(n), n) for n in p
+        ):
+            v2 = visited | set(p)
+            return v2, len(v2) - len(visited)
+    return visited, -1
+
+
 def optimize_auras(
     intent: TheoryIntent,
     ev: PobEvaluator,
@@ -374,41 +426,77 @@ def optimize_auras(
     visited: set[int],
     links: tuple[GemLink, ...],
     pob_gear: StageGearSet,
+    jewels: tuple[tuple[int, str], ...] = (),
     *,
     max_auras: int = 4,
-) -> tuple[tuple[GemLink, ...], float]:
-    """Forward-select auras/heralds (each its own 1-gem group) onto *links* to
-    maximise PoB-exact fitness. Reservation is enforced by PoB (over-reserving
-    drops DPS → lower fitness → the select stops). Returns (links, fitness)."""
-    pool = _aura_candidates(intent, enc.skill)
-    chosen: list[str] = []
-    cur_fit = fitness(ev.evaluate(enc.code(visited, links, pob_gear=pob_gear)), intent.budget)
+    max_res_points: int = 12,
+) -> tuple[tuple[GemLink, ...], set[int], float]:
+    """Build one multi-aura group (auras + Enlighten) and forward-select the
+    auras that genuinely raise PoB-exact fitness.
 
-    def _links_with(auras: list[str]) -> tuple[GemLink, ...]:
-        extra = tuple(GemLink(skill=a, supports=(), slot="Helmet", label="Aura") for a in auras)
-        return (*links, *extra)
+    Reservation is enforced by PoB + the fitness gate (over-reserving ->
+    ``ManaUnreserved`` negative -> 0.1x penalty), so an aura that doesn't fit
+    is never kept. When an aura *would* fit but for reservation, the search
+    tries pathing in a generic reservation-efficiency notable (bounded by
+    ``max_res_points`` to keep the point budget sane). Runs on the *final*
+    build (tree + uniques + jewels), so it sees the real mana pool.
+
+    Returns (links, visited, fitness): ``links`` has the base single-aura
+    group replaced by the multi-aura group; ``visited`` carries any pathed
+    reservation notables.
+    """
+    td = get_tree_data()
+    core = tuple(link for link in links if link.label not in _BASE_AURA_LABELS)
+    pool = _aura_candidates(intent, enc.skill)
+
+    def _code(auras: list[str], v: set[int]) -> str:
+        lk = core if not auras else (*core, _aura_group_link(auras))
+        return enc.code(v, lk, pob_gear=pob_gear, jewels=jewels)
+
+    chosen: list[str] = []
+    best_visited = set(visited)
+    cur_fit = fitness(ev.evaluate(_code(chosen, best_visited)), intent.budget)
 
     while len(chosen) < max_auras and pool:
-        best_a, best_fit = None, cur_fit
+        best_a, best_fit, best_v = None, cur_fit, best_visited
         for cand in pool:
             if cand in chosen:
                 continue
+            trial = [*chosen, cand]
             try:
-                stats = ev.evaluate(
-                    enc.code(visited, _links_with([*chosen, cand]), pob_gear=pob_gear)
-                )
+                stats = ev.evaluate(_code(trial, best_visited))
             except Exception:
                 continue
             fit = fitness(stats, intent.budget)
+            tv = best_visited
+            # Over-reserved? Try pathing a reservation-efficiency notable so
+            # the aura can fit honestly (bounded point cost).
+            if stats.get("ManaUnreserved", 0.0) < -10:
+                for rn in _RES_EFF_NODES:
+                    if rn in best_visited:
+                        continue
+                    v2, cost = _path_node_in(best_visited, rn, td)
+                    if cost < 0 or (len(v2) - len(visited)) > max_res_points:
+                        continue
+                    try:
+                        st2 = ev.evaluate(_code(trial, v2))
+                    except Exception:
+                        continue
+                    f2 = fitness(st2, intent.budget)
+                    if f2 > fit:
+                        fit, tv = f2, v2
             if fit > best_fit * 1.001:
-                best_fit, best_a = fit, cand
+                best_fit, best_a, best_v = fit, cand, tv
         if best_a is None:
             break
         chosen.append(best_a)
+        best_visited = best_v
         cur_fit = best_fit
+    final_links = core if not chosen else (*core, _aura_group_link(chosen))
     if chosen:
-        print(f"[opt] auras: {chosen} | fit={cur_fit:.0f}")
-    return _links_with(chosen), cur_fit
+        extra = len(best_visited) - len(visited)
+        print(f"[opt] auras: {chosen} (+{extra} res pts) | fit={cur_fit:.0f}")
+    return final_links, best_visited, cur_fit
 
 
 def _weapon_candidates(intent: TheoryIntent, enc: _Encoder, n: int) -> list[str]:

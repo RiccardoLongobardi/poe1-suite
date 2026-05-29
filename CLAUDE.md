@@ -124,6 +124,19 @@ Inside the navbar: a "Strumenti" / "Tools" section label above the 5 main routes
 
 Frontend-only, no backend change. Gate: 747 tests / 132 mypy / ruff clean. Build ~471 KB / 151 KB gzip.
 
+## Step 67 — Mirror-tier initiative: reservation efficiency → real multi-aura (2026-05-29) ✅
+
+Step 4 (auras), part 2 — the actual multiplicative gain. Step 66 found the precomputed builds were saturated on reservation with **one** aura (and that aura was the base layout's Gloves `Hatred` + **Generosity**, which on a Brutality build buffs *nobody*), so its honesty gate correctly added 0 more. This step unlocks reservation efficiency so **2-3 real auras fit honestly**, and the precomputed builds jumped **+18% to +50% real DPS**. **User-facing.**
+
+- **Multi-active gem group (model + encoder).** `GemLink` gained `extra_actives: tuple[str, ...]`; `_to_pob_gems` now emits `skill` + every `extra_actives` name as *active* gems in one socket group, with `supports` (e.g. `Enlighten`) linked to **all** of them — so PoB applies Enlighten's reservation efficiency to every aura in the group. `_gem_level` now caps the regular `Empower`/`Enhance`/`Enlighten` at level **4** (3+1 corrupted; their per-level tables stop there — a level-20 value was silently clamped and the reservation efficiency misread). Backward-compatible (`extra_actives` defaults empty).
+- **`optimize_auras` rewrite (`scripts/optimize_build.py`).** Replaces the base layout's wasteful single-aura group with **one proper multi-aura group** (auras + Enlighten) and forward-selects the auras that raise real fitness. The decisive empirical finding: **PoB ignores the stats of a *disconnected* allocated node** — so a reservation-efficiency notable does nothing unless it's *pathed* into the tree. When an aura would over-reserve, the search `bfs_path`s in a generic reservation-efficiency notable (`_RES_EFF_NODES`: Charisma / Sovereignty / Champion of the Cause / Leader of the Pack), bounded by `max_res_points` (12) to keep the point budget sane, and keeps it only if fitness rises. Returns `(links, visited, fitness)` — it can add tree nodes now.
+- **Pipeline (`scripts/precompute_builds.py`): auras run LAST**, after tree + uniques + timeless, on the *final* build — so the reservation efficiency they see (and the nodes they path) reflect the real mana pool, not a stale generic-gear estimate.
+- **Reservation gate tightened to a strict 0** (was `< −10`). A served build at e.g. −2 unreserved is unrunnable; PoB's mana is integer-grained so 0 is the honest floor. A first pass left Arc at −2 (passed the old −10 tolerance) → the strict gate made it path one more reservation notable to land non-negative.
+
+**Measured (PoB-exact, over Step 66), all reservation-positive + resistances capped:** Cyclone **128.5k → 173.3k** (+35%, Pride + Herald of Purity + Enlighten, +0 pts, Unres 136), Lacerate 108.3k → **148.3k** (+37%, same group, +0 pts), Vortex 179.9k → **241.2k** (+34%, Zealotry + Malevolence + Herald of Ice + Enlighten, +4 pts, Unres 17), Arc 82.5k → **123.6k** (+50%, Wrath + Zealotry + Herald of Thunder + Enlighten, +12 pts), Ice Shot 43.7k → **51.4k** (+18%, Hatred + Herald of Ice + Grace + Enlighten, +6 pts). The optimiser autonomously chose the runnable aura set per build — PoB-validated, never over-reserved.
+
+**Honest scope:** the reservation notables the aura pass paths in add a few points *over* the nominal `_MAX_TREE_NODES` budget (same caveat as the Step 63 timeless socket+path) — the honest-budget rework (drop the lowest-value notables to keep the point count level-appropriate) is the next sub-step (NEXT STEP #5). Test: `test_multi_aura_group_encodes_with_enlighten` (extra_actives → actives, Enlighten → the only support at level 4, all four skillIds survive the PoB round-trip). Gate: 774 tests / 145 mypy / ruff clean.
+
 ## Step 66 — Mirror-tier initiative: aura pass + reservation honesty (2026-05-25) 🔬
 
 Step 4 (auras), part 1: an aura forward-select + a **mana-reservation honesty gate**. **Internal — no user-facing DPS change yet, no Patch Notes** (the precomputed JSON is byte-identical; see why below).
@@ -167,14 +180,14 @@ Phase 4: the optimiser now adds a **Lethal Pride timeless jewel** via a real **L
 
 ### Mirror-tier initiative — status + next steps (2026-05-25)
 
-All four phases of the mirror-tier initiative (Steps 58-63) have shipped their first lever: precomputed builds now carry **chase uniques** (Step 59) + **layered defences** (Step 60) + **DoT-multiplier gear** for DoT archetypes (Step 61) + a **LUT-found Lethal Pride timeless jewel** (Step 63). They went from 12-19% of the top-ladder build to genuinely strong (Cyclone 120k DPS / 19.5k EHP, Vortex 158k / 29k, etc.). The PoB-exact optimiser (local; Render only serves the vendored JSON) is the engine; everything is fitness-gated so nothing can regress a build.
+All phases of the mirror-tier initiative (Steps 58-67) have shipped their levers: precomputed builds now carry **chase uniques** (Step 59) + **layered defences** (Step 60) + **DoT-multiplier gear** for DoT archetypes (Step 61) + **timeless jewels incl. Glorious Vanity** (Steps 63-65) + **reservation-honest multi-aura groups** (Step 67). They went from 12-19% of the top-ladder build to genuinely strong (Cyclone 173k DPS / 17k EHP, Lacerate 148k, Vortex 241k / 28k, Arc 124k / 35k, Ice Shot 51k). The PoB-exact optimiser (local; Render only serves the vendored JSON) is the engine; everything is fitness-gated so nothing can regress a build.
 
 **The full, prioritised next-step list with implementation notes lives in `CLAUDE_PERPLEXITY_WORKFLOW.md` §6 ("NEXT STEPS").** In brief, highest-impact first:
 1. ~~**Glorious Vanity**~~ — DONE (Step 65): node-replacement jewel + Corrupted Soul/Divine Flesh/Immortal Ambition conquerors in the search. Cyclone/Lacerate now use GV; big DPS gains.
 2. ~~**Other timeless jewels**~~ — DONE (Step 64): the search tries all additive types and the optimiser prefers Brutal Restraint on most builds. (Elegant Hubris still deferred for its ÷20 seed quirk.)
 3. **Multi-mod / influenced / meta-crafted rares** — the biggest gear-quality lever for the non-unique slots (mirror rares are mod *combinations*, not one mod per priority).
-4. **Auras / flasks / Pantheon** — multiplicative buffs added to the gem layout + `<Config>`.
-5. **Honest tree point budget** when a jewel socket + path is allocated (drop lowest-value notables to keep the point count realistic).
+4. ~~**Auras / flasks / Pantheon**~~ — Part 1 (reservation honesty gate) DONE (Step 66); Part 2 (reservation efficiency → real multi-aura group + Enlighten + pathed reservation nodes) DONE (Step 67), +18-50% real DPS. Still open: flask effects + a Pantheon (`<Build pantheonMajorGod/minorGod>`).
+5. **Honest tree point budget** when a jewel socket + path (or a pathed reservation notable, Step 67) is allocated (drop lowest-value notables to keep the point count realistic).
 6. **Expand the precompute matrix** beyond the 5 archetypes.
 7. **Conqueror-attribute optimisation** (minor) and **Spectre DPS** (vendor monster data — the last sweep LOW_DPS).
 
