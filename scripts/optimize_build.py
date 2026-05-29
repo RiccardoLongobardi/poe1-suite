@@ -83,6 +83,13 @@ def fitness(stats: dict[str, float], budget: str) -> float:
     floor = _EHP_FLOOR.get(budget, 4000)
     if pool < floor:
         pen *= max(0.1, pool / floor)
+    # Step 66: negative unreserved mana = the auras can't actually be reserved.
+    # PoB applies the buffs anyway, so without this penalty the optimiser would
+    # stack unrunnable auras for "free" DPS. A firm cliff (small rounding
+    # tolerance) makes any over-reserved build score ~10x lower, so the aura
+    # forward-select only keeps auras that genuinely fit the reservation.
+    if stats.get("ManaUnreserved", 0.0) < -10:
+        pen *= 0.1
     ehp = max(stats.get("TotalEHP", 0.0), 1.0)
     target = _EHP_TARGET.get(budget, 25000)
     ehp_factor = 0.4 + 0.6 * min(ehp / target, 1.0) ** 0.5
@@ -301,6 +308,107 @@ def optimize_links(
     supports = tuple(chosen + ["(open)"] * (5 - len(chosen)))
     print(f"[opt] best 6L supports: {chosen} | fit={cur_fit:.0f}")
     return enc.with_primary_supports(supports), cur_fit
+
+
+# ---------------------------------------------------------------------------
+# Auras (Step 66) — forward-select reservation skills, PoB-gated
+# ---------------------------------------------------------------------------
+
+_DMG_AURA: dict[str, str] = {
+    "fire": "Anger",
+    "cold": "Hatred",
+    "lightning": "Wrath",
+    "chaos": "Malevolence",
+    "physical": "Pride",
+}
+_HERALD: dict[str, str] = {
+    "fire": "Herald of Ash",
+    "cold": "Herald of Ice",
+    "lightning": "Herald of Thunder",
+    "physical": "Herald of Purity",
+}
+
+
+def _aura_candidates(intent: TheoryIntent, skill: gen._Active) -> list[str]:
+    """Build-relevant auras/heralds to try, best-first. PoB's mana-reservation
+    is the real constraint — the forward-select keeps adding only while real
+    fitness rises, so an over-reserved combo is simply not taken."""
+    dmg = intent.damage_type
+    is_attack = "attack" in skill.tags
+    is_dot = "damageovertime" in skill.tags or "chillingarea" in skill.tags
+    is_es = intent.defence_archetype == "es"
+    out: list[str] = []
+    # Primary damage aura.
+    da = _DMG_AURA.get(dmg) if (dmg != "physical" or is_attack) else None
+    if da:
+        out.append(da)
+    if is_dot and "Malevolence" not in out:
+        out.append("Malevolence")
+    # A spell-crit / generic second offensive aura.
+    if not is_attack:
+        out.append("Zealotry")
+    # Herald (extra hit/clear damage).
+    h = _HERALD.get(dmg)
+    if h:
+        out.append(h)
+    # Defensive reservation.
+    out.append("Discipline" if is_es else "Determination")
+    out.append("Grace")
+    known = _known_active_names()
+    deduped: list[str] = []
+    for a in out:
+        if a in known and a not in deduped:
+            deduped.append(a)
+    return deduped
+
+
+def _known_active_names() -> set[str]:
+    actives, _ = gen._gem_catalogue()
+    return {a.name for a in actives}
+
+
+def optimize_auras(
+    intent: TheoryIntent,
+    ev: PobEvaluator,
+    enc: _Encoder,
+    visited: set[int],
+    links: tuple[GemLink, ...],
+    pob_gear: StageGearSet,
+    *,
+    max_auras: int = 4,
+) -> tuple[tuple[GemLink, ...], float]:
+    """Forward-select auras/heralds (each its own 1-gem group) onto *links* to
+    maximise PoB-exact fitness. Reservation is enforced by PoB (over-reserving
+    drops DPS → lower fitness → the select stops). Returns (links, fitness)."""
+    pool = _aura_candidates(intent, enc.skill)
+    chosen: list[str] = []
+    cur_fit = fitness(ev.evaluate(enc.code(visited, links, pob_gear=pob_gear)), intent.budget)
+
+    def _links_with(auras: list[str]) -> tuple[GemLink, ...]:
+        extra = tuple(GemLink(skill=a, supports=(), slot="Helmet", label="Aura") for a in auras)
+        return (*links, *extra)
+
+    while len(chosen) < max_auras and pool:
+        best_a, best_fit = None, cur_fit
+        for cand in pool:
+            if cand in chosen:
+                continue
+            try:
+                stats = ev.evaluate(
+                    enc.code(visited, _links_with([*chosen, cand]), pob_gear=pob_gear)
+                )
+            except Exception:
+                continue
+            fit = fitness(stats, intent.budget)
+            if fit > best_fit * 1.001:
+                best_fit, best_a = fit, cand
+        if best_a is None:
+            break
+        chosen.append(best_a)
+        cur_fit = best_fit
+    if chosen:
+        print(f"[opt] auras: {chosen} | fit={cur_fit:.0f}")
+    return _links_with(chosen), cur_fit
 
 
 def _weapon_candidates(intent: TheoryIntent, enc: _Encoder, n: int) -> list[str]:

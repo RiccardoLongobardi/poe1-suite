@@ -124,6 +124,16 @@ Inside the navbar: a "Strumenti" / "Tools" section label above the 5 main routes
 
 Frontend-only, no backend change. Gate: 747 tests / 132 mypy / ruff clean. Build ~471 KB / 151 KB gzip.
 
+## Step 66 — Mirror-tier initiative: aura pass + reservation honesty (2026-05-25) 🔬
+
+Step 4 (auras), part 1: an aura forward-select + a **mana-reservation honesty gate**. **Internal — no user-facing DPS change yet, no Patch Notes** (the precomputed JSON is byte-identical; see why below).
+
+- **`optimize_auras` (`scripts/optimize_build.py`).** Forward-selects build-relevant auras/heralds (damage aura by element, Malevolence for DoT, Zealotry for spell crit, a herald, Determination/Discipline/Grace for defence) — each as its own 1-gem group appended to the gem layout — keeping only those that raise PoB-exact fitness.
+- **The reservation honesty gate (the real win).** A first run *without* a guard stacked 4 auras for a fake +40% DPS — but PoB applies aura buffs even when **mana is over-reserved** (`ManaUnreserved` went to −1100/−1635), which is unachievable. Added a fitness penalty: `ManaUnreserved < −10 → ×0.1`. Now the optimiser only keeps auras that genuinely fit, and **every precomputed build is reservation-positive** (unreserved +100…+159). This also protects every other pass (uniques/tree/timeless) from ever preferring an unrunnable over-reserved candidate.
+- **Honest outcome:** the precomputed builds *already* run one aura (from the base gem layout) which saturates their reservation budget, so the optimiser correctly adds **0** more — the JSON is unchanged and DPS stays at the Step 65 numbers. The big multiplicative aura gain (Determination + a damage aura + heralds) needs **reservation efficiency** (Enlighten-linked aura group + reservation nodes/items) — the clear next sub-step, now unblocked by the honest gate.
+
+Gate: 773 tests / 145 mypy / ruff clean.
+
 ## Step 65 — Mirror-tier initiative: Glorious Vanity (node-replacement jewel) (2026-05-25) ✅
 
 Next-step #1, the headline lever: add **Glorious Vanity** to the timeless search. Unlike the additive jewels, GV *replaces* in-radius nodes with Vaal nodes and its conquerors grant build-defining keystones (Corrupted Soul / Divine Flesh / Immortal Ambition). **User-facing** — the precomputed builds jumped again (Arc +20%, Ice Shot +16%).

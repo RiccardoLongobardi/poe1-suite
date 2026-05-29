@@ -23,6 +23,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from optimize_build import (  # type: ignore[import-not-found]  # sibling script
     _Encoder,
     fitness,
+    optimize_auras,
     optimize_links,
     optimize_timeless,
     optimize_tree,
@@ -87,9 +88,11 @@ def _optimised_skeleton(
         n.node_id for n in base.tree_nodes if n.type in ("keystone", "notable", "travel")
     }
 
-    # 1) supports, 2) weapon base, 3) uniques per slot, 4) tree — each
-    # decided by PoB-exact fitness.
+    # 1) supports, 2) auras, 3) weapon base, 4) uniques per slot, 5) tree,
+    # 6) timeless jewel — each decided by PoB-exact fitness. Auras come early
+    # so every later pass evaluates with the aura buffs + reservation applied.
     best_links, _ = optimize_links(intent, ev, enc, visited0)
+    best_links, _ = optimize_auras(intent, ev, enc, visited0, best_links, enc._pob_gear)
     best_gear, _ = optimize_weapon(intent, ev, enc, visited0, best_links)
     base_pob = gen._to_pob_gear(best_gear)
     best_pob, _, chosen = optimize_uniques(intent, ev, enc, visited0, best_links, base_pob)
