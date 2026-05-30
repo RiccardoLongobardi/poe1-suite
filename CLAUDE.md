@@ -124,6 +124,15 @@ Inside the navbar: a "Strumenti" / "Tools" section label above the 5 main routes
 
 Frontend-only, no backend change. Gate: 747 tests / 132 mypy / ruff clean. Build ~471 KB / 151 KB gzip.
 
+## Step 72 — QA: EHP-aware viability floor (2026-05-29) ✅
+
+A QA pass over the served builds found **4 of 8 precomputed builds failing their own viability check** (`life_below_floor` / `es_below_floor`) — Arc (life 4596), Ice Shot (4561), Spark (4315), Vortex (ES 5382). The UI would paint a **red** error panel on a build badged "Ottimizzato con PoB". Root cause: the floor checks looked at **raw life/ES** (endgame 5500 life / 9000 ES), but these are **casters with excellent layered EHP** — Arc has **28k TotalEHP** (block / suppression / armour / ES / MoM mitigation that raw life ignores). **User-facing** (no more false-alarm errors).
+
+- **`_ehp_clears_floor` (`theory/viability.py`).** When a build carries a PoB-exact `total_ehp` (precomputed/optimised builds), `_check_life_floor` / `_check_es_floor` first defer to a real-EHP floor (`_EHP_FLOOR` = 5k/8k/12k per budget) — a build clearing it is viable regardless of raw pool. Live estimates (`total_ehp == 0`) keep the raw life/ES floor unchanged, so the live generator's checks are untouched.
+- **Re-baked the served viability reports** in `precomputed_3_28.json` with the new logic (no PoB needed — `validate_build` is pure Python on the skeleton). All 8 builds now `passed=True` (warnings only). Future precompute runs bake the correct report automatically.
+
+QA verdict (this pass): gate 779 green; `qa_sweep` 26 OK / 1 LOW_DPS (Raise Spectre, blocked on monster data); **570 live-generated builds → 0 exceptions / 0 hallucinations / 0 bad imports**; all 8 served builds reservation-positive + ≤123 pts + legal socketing + importable (one cosmetic note: **Spark lightning res 74** — the optimiser's honest EHP-vs-res trade-off picking Shadowstitch, a chase ES body with a per-corrupted-item res penalty; viability-flagged, user tops up 1%). Test: `test_real_ehp_overrides_raw_life_floor`. Gate: 779 tests / 145 mypy / ruff clean.
+
 ## Step 71 — Mirror-tier initiative: expand the precompute matrix (2026-05-29) ✅
 
 NEXT STEP #6: grow the precomputed-build coverage beyond the original 5 archetypes so more `/theorycrafter` requests hit a real PoB-optimised optimum instead of the live estimate. **User-facing** (3 more popular builds are now served pre-optimised).

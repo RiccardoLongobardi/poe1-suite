@@ -27,6 +27,19 @@ if TYPE_CHECKING:
 
 _LIFE_FLOOR: dict[str, int] = {"starter": 3_000, "mid": 4_000, "endgame": 5_500}
 _ES_FLOOR: dict[str, int] = {"starter": 4_000, "mid": 6_000, "endgame": 9_000}
+# Step 72: when a build carries a PoB-exact TotalEHP (precomputed/optimised
+# builds), raw life/ES is an unreliable survivability floor — a 4.6k-life Arc
+# with 28k EHP is tanky via layered mitigation (block, suppression, armour,
+# ES, MoM). A build clearing this real-EHP floor is viable regardless of its
+# raw pool, so the life/ES-floor errors only fire when EHP is *also* low (or
+# absent, i.e. a live estimate with total_ehp == 0).
+_EHP_FLOOR: dict[str, int] = {"starter": 5_000, "mid": 8_000, "endgame": 12_000}
+
+
+def _ehp_clears_floor(skeleton: BuildSkeleton) -> bool:
+    ehp = skeleton.stats.total_ehp
+    return bool(ehp) and ehp >= _EHP_FLOOR[skeleton.intent.budget]
+
 
 _MOVEMENT_SKILLS: frozenset[str] = frozenset(
     {
@@ -118,6 +131,8 @@ def _check_resistances() -> ViabilityIssue:
 def _check_life_floor(skeleton: BuildSkeleton) -> ViabilityIssue | None:
     if skeleton.intent.defence_archetype == "es":
         return None
+    if _ehp_clears_floor(skeleton):
+        return None
     floor = _LIFE_FLOOR[skeleton.intent.budget]
     val = skeleton.stats.life_estimate
     if val >= floor:
@@ -138,6 +153,8 @@ def _check_life_floor(skeleton: BuildSkeleton) -> ViabilityIssue | None:
 
 def _check_es_floor(skeleton: BuildSkeleton) -> ViabilityIssue | None:
     if skeleton.intent.defence_archetype != "es":
+        return None
+    if _ehp_clears_floor(skeleton):
         return None
     floor = _ES_FLOOR[skeleton.intent.budget]
     val = skeleton.stats.es_estimate

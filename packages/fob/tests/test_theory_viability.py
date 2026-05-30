@@ -38,6 +38,7 @@ def _skeleton(
     intent: TheoryIntent | None = None,
     life: int = 5_000,
     es: int = 0,
+    ehp: int = 0,
     links: tuple[GemLink, ...] = (),
     gear_slots: tuple[GearSlot, ...] = (),
     tree_nodes: tuple[TreeNodeRef, ...] = (),
@@ -53,6 +54,7 @@ def _skeleton(
             dps_index=10_000,
             resistance_warning=None,
             estimated=True,
+            total_ehp=ehp,
         ),
         rationale_it="",
         rationale_en="",
@@ -202,3 +204,28 @@ def test_lifetap_satisfies_mana_check() -> None:
     )
     codes = {i.code for i in validate_build(sk).issues}
     assert "missing_mana_sustain" not in codes
+
+
+def test_real_ehp_overrides_raw_life_floor() -> None:
+    """Step 72: a build with a PoB-exact TotalEHP that clears the EHP floor is
+    not flagged for low raw life — a 4.6k-life caster with 28k EHP is tanky via
+    layered mitigation. Without an EHP value (live estimate) the raw-life floor
+    still applies."""
+    endgame = TheoryIntent(
+        character_class="Templar",
+        ascendancy="Inquisitor",
+        primary_skill="Arc",
+        damage_type="lightning",
+        defence_archetype="life",
+        budget="endgame",
+        focus="allcontent",
+    )
+    # Low raw life but high real EHP -> no life-floor error.
+    tanky = _skeleton(intent=endgame, life=4_596, ehp=28_000)
+    assert "life_below_floor" not in {i.code for i in validate_build(tanky).issues}
+    # Same low life, but no EHP (live estimate) -> the raw-life floor fires.
+    estimate = _skeleton(intent=endgame, life=4_596, ehp=0)
+    assert "life_below_floor" in {i.code for i in validate_build(estimate).issues}
+    # Low EHP too -> still flagged even with an EHP value.
+    fragile = _skeleton(intent=endgame, life=4_596, ehp=6_000)
+    assert "life_below_floor" in {i.code for i in validate_build(fragile).issues}

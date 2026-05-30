@@ -30,6 +30,23 @@ const RELEASES: Release[] = [
   {
     date: { it: "29 mag 2026", en: "29 May 2026" },
     title: {
+      it: "Theorycrafter — niente più falsi allarmi di vita bassa",
+      en: "Theorycrafter — no more false low-life warnings",
+    },
+    summary: {
+      it: "Il controllo di sopravvivenza ora guarda l'EHP reale (vita effettiva con tutte le mitigazioni), non solo la vita grezza — così i caster tanky non vengono più segnalati per errore.",
+      en: "The survivability check now looks at real EHP (effective life with all mitigation), not just raw life — so tanky casters are no longer flagged by mistake.",
+    },
+    entries: [
+      {
+        it: "Build come Arc o Vortex hanno spesso poca vita grezza (~4.500) ma EHP altissimo (~28.000) grazie a blocco, soppressione, armatura ed energy shield. Prima venivano marcate in rosso come 'vita troppo bassa'; ora il controllo usa l'EHP calcolato da PoB e le riconosce correttamente come solide.",
+        en: "Builds like Arc or Vortex often have low raw life (~4,500) but very high EHP (~28,000) from block, suppression, armour and energy shield. They used to be flagged red as 'life too low'; now the check uses PoB's computed EHP and correctly recognises them as solid.",
+      },
+    ],
+  },
+  {
+    date: { it: "29 mag 2026", en: "29 May 2026" },
+    title: {
       it: "Theorycrafter — più build pre-ottimizzate (Boneshatter, Spark, Blade Vortex)",
       en: "Theorycrafter — more pre-optimised builds (Boneshatter, Spark, Blade Vortex)",
     },
