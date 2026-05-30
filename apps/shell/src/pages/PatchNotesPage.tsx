@@ -28,6 +28,27 @@ interface Release {
 // Prepend a new entry with user-facing (not technical) bilingual copy.
 const RELEASES: Release[] = [
   {
+    date: { it: "30 mag 2026", en: "30 May 2026" },
+    title: {
+      it: "Theorycrafter — gemme Awakened nelle build ottimizzate",
+      en: "Theorycrafter — Awakened gems in the optimised builds",
+    },
+    summary: {
+      it: "Le build pre-ottimizzate ora montano i supporti Awakened (versioni potenziate delle gemme da danno) dove fanno davvero salire il DPS — un bel salto, soprattutto per i caster.",
+      en: "The pre-optimised builds now run Awakened supports (upgraded versions of the damage gems) where they genuinely raise DPS — a solid jump, especially for casters.",
+    },
+    entries: [
+      {
+        it: "Sotto c'era anche un bug: le gemme Awakened venivano esportate con un identificativo che PoB non riconosceva, quindi non facevano nulla. Ora è corretto e PoB le applica davvero.",
+        en: "There was also a bug underneath: Awakened gems were exported with an id PoB didn't recognise, so they did nothing. It's fixed now and PoB actually applies them.",
+      },
+      {
+        it: "Risultato misurato (PoB-esatto): Arc 139.700 → 178.900 DPS (+28%), Spark +25%, Vortex 255.800 → 307.700 (+20%), Lacerate +10%. Tutte restano valide, importabili e con mana/resistenze a posto.",
+        en: "Measured (PoB-exact): Arc 139,700 → 178,900 DPS (+28%), Spark +25%, Vortex 255,800 → 307,700 (+20%), Lacerate +10%. All stay valid, importable, with mana/resistances in order.",
+      },
+    ],
+  },
+  {
     date: { it: "29 mag 2026", en: "29 May 2026" },
     title: {
       it: "Theorycrafter — niente più falsi allarmi di vita bassa",

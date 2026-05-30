@@ -545,3 +545,49 @@ def test_passthrough_skills_win_over_synthesised_gems() -> None:
     assert "PlaceholderFakeGem" not in gem_names
     re_snap = parse_snapshot(decode_export(code), export_code=code)
     assert len(re_snap.skills) == len(user_snap.skills)
+
+
+def test_awakened_support_uses_plus_skill_id() -> None:
+    """Step 73: Awakened supports must encode with PoB's 'Plus' convention on
+    the base skillId ('Awakened Controlled Destruction' ->
+    'SupportControlledDestructionPlus'), NOT a literal 'SupportAwakened...'
+    which PoB won't resolve (the gem would be silently ignored)."""
+    from poe1_fob.pob.encode import _skill_id
+
+    assert (
+        _skill_id(GemSpec(name="Awakened Controlled Destruction", level=5, is_support=True))
+        == "SupportControlledDestructionPlus"
+    )
+    assert (
+        _skill_id(GemSpec(name="Awakened Elemental Focus", level=5, is_support=True))
+        == "SupportElementalFocusPlus"
+    )
+    # Regular supports are unchanged.
+    assert (
+        _skill_id(GemSpec(name="Controlled Destruction", level=20, is_support=True))
+        == "SupportControlledDestruction"
+    )
+    # And it survives a full encode round-trip: the Plus skillId is in the XML.
+    links = StageGemLinks(
+        stage_key="t",
+        links=(
+            GemLink(
+                slot=ItemSlot.BODY_ARMOUR,
+                sockets=2,
+                color_pattern="BB",
+                gems=(
+                    GemSpec(name="Vortex", level=20, is_support=False),
+                    GemSpec(name="Awakened Controlled Destruction", level=5, is_support=True),
+                ),
+            ),
+        ),
+    )
+    code = encode_pob_code(
+        character_class="Witch",
+        ascendancy="Occultist",
+        tree=StageTree(stage_key="t", node_ids=(), pob_url=None),
+        gems=links,
+    )
+    xml = zlib.decompress(base64.urlsafe_b64decode(code + "=" * (-len(code) % 4))).decode()
+    assert 'skillId="SupportControlledDestructionPlus"' in xml
+    assert "SupportAwakenedControlledDestruction" not in xml

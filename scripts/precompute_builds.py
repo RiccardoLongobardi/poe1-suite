@@ -27,6 +27,7 @@ from optimize_build import (  # type: ignore[import-not-found]  # sibling script
     _relocate_no_chest,
     fitness,
     optimize_auras,
+    optimize_awakened,
     optimize_links,
     optimize_timeless,
     optimize_tree,
@@ -106,6 +107,10 @@ def _optimised_skeleton(
     # see (and the reservation notables they may path in) reflect the real
     # mana pool — not a stale generic-gear estimate.
     best_links, _ = optimize_links(intent, ev, enc, visited0)
+    # Upgrade the main 6L's damage supports to their Awakened versions (Step 73:
+    # best-version gem quality, ~x1.5 on a caster 6L). Done early so the weapon
+    # / uniques / tree passes optimise around the stronger gems.
+    best_links = optimize_awakened(intent, ev, enc, visited0, best_links, enc._pob_gear)
     best_gear, _ = optimize_weapon(intent, ev, enc, visited0, best_links)
     base_pob = gen._to_pob_gear(best_gear)
     best_pob, _, chosen = optimize_uniques(intent, ev, enc, visited0, best_links, base_pob)

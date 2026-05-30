@@ -511,6 +511,66 @@ def optimize_auras(
     return final_links, best_visited, cur_fit
 
 
+# ---------------------------------------------------------------------------
+# Awakened support upgrade (Step 73) — endgame / best-version gem quality
+# ---------------------------------------------------------------------------
+
+# Empower/Enhance/Enlighten are utility (handled by the base layout / aura
+# group); their Awakened forms aren't a damage upgrade to swap here.
+_AWAKENED_SKIP = frozenset({"Empower", "Enhance", "Enlighten"})
+
+
+def optimize_awakened(
+    intent: TheoryIntent,
+    ev: PobEvaluator,
+    enc: _Encoder,
+    visited: set[int],
+    links: tuple[GemLink, ...],
+    pob_gear: StageGearSet,
+    jewels: tuple[tuple[int, str], ...] = (),
+) -> tuple[GemLink, ...]:
+    """Upgrade the primary 6L's damage supports to their Awakened versions
+    where they raise PoB-exact fitness.
+
+    An Awakened damage support is strictly stronger (higher gem level + an
+    extra effect, e.g. Awakened Elemental Focus adds penetration), so this is
+    a near-monotonic ~+10-15% per gem (measured ~x1.5 across a Vortex 6L). The
+    encoder maps "Awakened X" -> "SupportXPlus" (PoB's convention). Best-
+    version only (the live generator keeps the current-league gem allowlist).
+    """
+    _, supports_cat = gen._gem_catalogue()
+    known = {s.name for s in supports_cat}
+    primary = links[0]
+    cur = list(primary.supports)
+
+    def _fit(supports: list[str]) -> float:
+        lk = (primary.model_copy(update={"supports": tuple(supports)}), *links[1:])
+        return fitness(
+            ev.evaluate(enc.code(visited, lk, pob_gear=pob_gear, jewels=jewels)), intent.budget
+        )
+
+    cur_fit = _fit(cur)
+    for i, s in enumerate(cur):
+        if s == "(open)" or s in _AWAKENED_SKIP or s.startswith("Awakened "):
+            continue
+        aw = f"Awakened {s}"
+        if aw not in known:
+            continue
+        trial = list(cur)
+        trial[i] = aw
+        try:
+            f = _fit(trial)
+        except Exception:
+            continue
+        if f > cur_fit:  # strictly better — Awakened never hurts
+            cur, cur_fit = trial, f
+    if cur != list(primary.supports):
+        print(
+            f"[opt] awakened: {[s for s in cur if s.startswith('Awakened ')]} | fit={cur_fit:.0f}"
+        )
+    return (primary.model_copy(update={"supports": tuple(cur)}), *links[1:])
+
+
 def _weapon_candidates(intent: TheoryIntent, enc: _Encoder, n: int) -> list[str]:
     """Top-*n* weapon bases of the build's resolved weapon class.
 

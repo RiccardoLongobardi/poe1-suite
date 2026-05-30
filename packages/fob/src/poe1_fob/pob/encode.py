@@ -469,13 +469,21 @@ def _skill_id(gem: GemSpec) -> str:
 
     Support gems: "Support" prefix + base name (trailing " Support" stripped,
     spaces removed). E.g. "Burning Damage Support" → "SupportBurningDamage".
+    **Awakened** supports use PoB's "Plus" convention on the *base* id, NOT a
+    literal "Awakened" in the id: "Awakened Controlled Destruction" →
+    "SupportControlledDestructionPlus" (a literal "SupportAwakened…" does not
+    resolve in PoB, so the gem would be silently ignored).
     Active gems: name with spaces removed. E.g. "Righteous Fire" →
     "RighteousFire".
     """
 
     if gem.is_support:
-        base = gem.name.removesuffix(" Support").replace(" ", "")
-        return f"Support{base}"
+        name = gem.name
+        awakened = name.startswith("Awakened ")
+        if awakened:
+            name = name.removeprefix("Awakened ")
+        base = name.removesuffix(" Support").replace(" ", "")
+        return f"Support{base}{'Plus' if awakened else ''}"
     return gem.name.replace(" ", "")
 
 
