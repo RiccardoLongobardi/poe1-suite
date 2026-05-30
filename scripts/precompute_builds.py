@@ -79,6 +79,14 @@ _MATRIX: tuple[tuple[str, str, str, str, str], ...] = (
     ("Witch", "Occultist", "Vortex", "cold", "es"),
     ("Templar", "Inquisitor", "Arc", "lightning", "life"),
     ("Ranger", "Deadeye", "Ice Shot", "cold", "life"),
+    # Step 71 — matrix expansion: more popular archetypes + a new class
+    # (Shadow). Diverse playstyles: melee slam / projectile spell / chaos-
+    # poison spell. (Physical Tornado Shot was trialled but the generator
+    # optimises a physical *bow* poorly — ~15k DPS — so it's omitted until the
+    # physical-bow handling improves; elemental bows like Ice Shot are fine.)
+    ("Marauder", "Juggernaut", "Boneshatter", "physical", "life"),
+    ("Templar", "Inquisitor", "Spark", "lightning", "life"),
+    ("Shadow", "Assassin", "Blade Vortex", "chaos", "life"),
 )
 
 

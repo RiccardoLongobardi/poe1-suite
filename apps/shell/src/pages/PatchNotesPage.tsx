@@ -30,6 +30,23 @@ const RELEASES: Release[] = [
   {
     date: { it: "29 mag 2026", en: "29 May 2026" },
     title: {
+      it: "Theorycrafter — più build pre-ottimizzate (Boneshatter, Spark, Blade Vortex)",
+      en: "Theorycrafter — more pre-optimised builds (Boneshatter, Spark, Blade Vortex)",
+    },
+    summary: {
+      it: "Abbiamo aggiunto tre archetipi popolari — e una nuova classe (Shadow) — al set di build ottimizzate con PoB e servite pronte all'uso.",
+      en: "We added three popular archetypes — and a new class (Shadow) — to the set of PoB-optimised builds served ready to use.",
+    },
+    entries: [
+      {
+        it: "Nuovi: Boneshatter Juggernaut (~52.600 DPS), Spark Inquisitor (~99.700), Blade Vortex Assassin (~27.200, più alto in gioco grazie al veleno). Ora 8 archetipi su 6 classi: chiedendo una di queste build ottieni direttamente la versione ottimizzata, non una stima.",
+        en: "New: Boneshatter Juggernaut (~52,600 DPS), Spark Inquisitor (~99,700), Blade Vortex Assassin (~27,200, higher in-game thanks to poison). Now 8 archetypes across 6 classes: asking for one of these gets the optimised version directly, not an estimate.",
+      },
+    ],
+  },
+  {
+    date: { it: "29 mag 2026", en: "29 May 2026" },
+    title: {
       it: "Theorycrafter — gemme socketate dove servono davvero (elmi tipo Bringer of Rain)",
       en: "Theorycrafter — gems socketed where they really go (Bringer-of-Rain helmets)",
     },

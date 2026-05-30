@@ -124,6 +124,16 @@ Inside the navbar: a "Strumenti" / "Tools" section label above the 5 main routes
 
 Frontend-only, no backend change. Gate: 747 tests / 132 mypy / ruff clean. Build ~471 KB / 151 KB gzip.
 
+## Step 71 — Mirror-tier initiative: expand the precompute matrix (2026-05-29) ✅
+
+NEXT STEP #6: grow the precomputed-build coverage beyond the original 5 archetypes so more `/theorycrafter` requests hit a real PoB-optimised optimum instead of the live estimate. **User-facing** (3 more popular builds are now served pre-optimised).
+
+- **`_MATRIX` in `precompute_builds.py`** gained three popular, diverse archetypes — **Boneshatter Juggernaut** (Marauder, physical melee slam), **Spark Inquisitor** (Templar, lightning projectile spell) and **Blade Vortex Assassin** (**Shadow** — a new class — chaos/poison spell). The pipeline is unchanged; each new row is just an offline run through the existing optimiser (supports → weapon → uniques → tree → timeless → auras → trim → chest-forbid relocation). Render still serves only the vendored JSON.
+- **Measured (PoB-exact, all reservation-positive + 123 pts):** Boneshatter **52.6k** DPS / 19.0k EHP (Bringer, 6L relocated honestly), Spark **99.7k** / 30.1k, Blade Vortex **27.2k** / 21.2k (FullDPS hit-only — its poison adds more in-game, so this is a conservative floor). Now **8 archetypes across 6 classes** (Marauder/Duelist/Witch/Templar/Ranger/Shadow).
+- **Tornado Shot trialled + omitted (honest):** a physical Tornado Shot optimised to only ~15k DPS / 3.4k life — the generator handles a *physical bow* poorly (elemental bows like Ice Shot are fine). Rather than serve a weak "optimum", it's left out of the matrix with a comment, and physical-bow optimisation is noted as a generator-quality follow-up.
+
+Test: `test_expanded_matrix_archetypes_are_served`. Gate: 778 tests / 145 mypy / ruff clean.
+
 ## Step 70 — Mirror-tier initiative: chest-forbidding-helmet socketing (2026-05-29) ✅
 
 NEXT STEP #9, surfaced by Step 69. The optimiser picks **The Bringer of Rain** (helmet) on the melee/bow builds — its mod **"Can't use Chest armour"** makes PoB **void the equipped body**, yet the encoder socketed the primary 6L *in that non-existent body*. That's **fictional** (in-game you have no body to socket into — "niente fittizio" forbids it) and it left the Bringer's three free level-30 supports (Melee Physical Damage / Faster Attacks / Blind) unused. **User-facing** (melee DPS up + the builds are now honest).
@@ -218,7 +228,7 @@ All phases of the mirror-tier initiative (Steps 58-68) have shipped their levers
 3. **Multi-mod / influenced / meta-crafted rares** — first slice DONE (Step 69): rare-body gem-level influence affixes (+1 to Socketed Skill/Support Gems), real RePoE mods. Helps the live generator + any build whose body is equipped (Vortex +16%). **Surfaced a follow-up:** Bringer-of-Rain builds void the body ("Can't use Chest armour") → the main 6L should be socketed in the helmet to use its free supports. Still open: broader multi-mod composer for the other rare slots.
 4. ~~**Auras / flasks / Pantheon**~~ — Part 1 (reservation honesty gate) DONE (Step 66); Part 2 (reservation efficiency → real multi-aura group + Enlighten + pathed reservation nodes) DONE (Step 67), +18-50% real DPS. Still open: flask effects + a Pantheon (`<Build pantheonMajorGod/minorGod>`).
 5. ~~**Honest tree point budget**~~ — DONE (Step 68): `trim_to_budget` drops lowest-value filler leaves until the build fits a level-100 budget (123 pts); builds encode at level 100. Every served build is now exactly 123 points (was up to 144 — fictional).
-6. **Expand the precompute matrix** beyond the 5 archetypes.
+6. ~~**Expand the precompute matrix**~~ — DONE (Step 71): added Boneshatter (Marauder), Spark (Templar), Blade Vortex (Shadow — new class). Now 8 archetypes / 6 classes. (Physical Tornado Shot omitted — the generator optimises a physical bow poorly, ~15k DPS; a follow-up.)
 7. **Conqueror-attribute optimisation** (minor) and **Spectre DPS** (vendor monster data — the last sweep LOW_DPS).
 
 Process: the optimiser/precompute is local-only (`scripts/setup_pob.py` → `.pob_runtime/`); validate with `scripts/compare_ladder.py`, re-run `scripts/precompute_builds.py`, bump the Patch Notes when DPS/EHP move.

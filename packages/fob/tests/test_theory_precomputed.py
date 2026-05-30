@@ -100,3 +100,19 @@ def test_chest_forbidding_helmet_sockets_primary_in_helmet() -> None:
             assert primary.slot == "Body Armour", (
                 f"{sk.intent.primary_skill}: 6L should be in the body with a normal helmet"
             )
+
+
+def test_expanded_matrix_archetypes_are_served() -> None:
+    """Step 71: the matrix grew beyond the original 5 — the new archetypes
+    (incl. a Shadow build) resolve to optimised builds."""
+    cases = [
+        ("Marauder", "Juggernaut", "Boneshatter", "physical", "life"),
+        ("Templar", "Inquisitor", "Spark", "lightning", "life"),
+        ("Shadow", "Assassin", "Blade Vortex", "chaos", "life"),
+    ]
+    for cls, asc, skill, dmg, defence in cases:
+        sk = lookup_precomputed(_endgame(cls, asc, skill, dmg, defence))
+        assert sk is not None, f"{skill} not served"
+        assert sk.optimised is True
+        assert sk.intent.primary_skill == skill
+        assert sk.stats.full_dps > 0 or sk.stats.total_ehp > 0

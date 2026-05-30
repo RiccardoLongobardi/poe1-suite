@@ -5919,6 +5919,3554 @@
         ]
       },
       "optimised": true
+    },
+    {
+      "intent": {
+        "character_class": "Marauder",
+        "ascendancy": "Juggernaut",
+        "primary_skill": "Boneshatter",
+        "damage_type": "physical",
+        "defence_archetype": "life",
+        "budget": "endgame",
+        "focus": "allcontent"
+      },
+      "links": [
+        {
+          "skill": "Boneshatter",
+          "supports": [
+            "Melee Physical Damage",
+            "(open)",
+            "(open)",
+            "(open)",
+            "(open)"
+          ],
+          "extra_actives": [],
+          "slot": "Helmet",
+          "label": "Primary 6L"
+        },
+        {
+          "skill": "Leap Slam",
+          "supports": [
+            "Melee Physical Damage",
+            "Brutality",
+            "Impale"
+          ],
+          "extra_actives": [],
+          "slot": "Helmet",
+          "label": "Secondary 4L"
+        },
+        {
+          "skill": "Flame Dash",
+          "supports": [
+            "Second Wind",
+            "Lifetap",
+            "Faster Casting"
+          ],
+          "extra_actives": [],
+          "slot": "Boots",
+          "label": "Movement 4L"
+        },
+        {
+          "skill": "Enduring Cry",
+          "supports": [
+            "Second Wind",
+            "Lifetap",
+            "Concentrated Effect"
+          ],
+          "extra_actives": [],
+          "slot": "Weapon",
+          "label": "Warcry 4L"
+        },
+        {
+          "skill": "Pride",
+          "supports": [
+            "Enlighten"
+          ],
+          "extra_actives": [
+            "Herald of Purity"
+          ],
+          "slot": "Helmet",
+          "label": "Auras"
+        }
+      ],
+      "tree_nodes": [
+        {
+          "node_id": 47175,
+          "name": "Marauder start",
+          "type": "start",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 41472,
+          "name": "Discipline and Training",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 27140,
+          "name": "Two Handed Melee Damage and Leech",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 33287,
+          "name": "Juggernaut",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 30733,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 22285,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 61198,
+          "name": "Heart of the Warrior",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 15631,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 21262,
+          "name": "Elemental Damage",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 29199,
+          "name": "Intelligence",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 42009,
+          "name": "Soul of Steel",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 49178,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 65308,
+          "name": "Diamond Skin",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 27166,
+          "name": "Fire Resistance",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 61471,
+          "name": "Life",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 53793,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 58402,
+          "name": "Intelligence",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 48929,
+          "name": "Maximum Fire Resistance",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 24865,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 9511,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 11820,
+          "name": "Anointed Flesh",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 1325,
+          "name": "Golem's Blood",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 6446,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 10542,
+          "name": "Spiked Bulwark",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 42800,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 10031,
+          "name": "Life",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 56370,
+          "name": "Fortify on Melee Stun",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 36915,
+          "name": "Sacrifice",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 64816,
+          "name": "Two Handed Melee Damage and Leech",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 48438,
+          "name": "Bravery",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 1593,
+          "name": "Shield Block and Elemental Resistances with a Shield",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 40508,
+          "name": "Armour and Energy Shield",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 1340,
+          "name": "Rampart",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 44606,
+          "name": "Intelligence",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 34880,
+          "name": "Minion Life",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 62017,
+          "name": "Life and Armour",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 20551,
+          "name": "Life",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 59976,
+          "name": "Careful Counterattack",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 17735,
+          "name": "Intelligence",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 23881,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 63306,
+          "name": "Retaliation Skill Damage",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 10575,
+          "name": "Intelligence",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 58449,
+          "name": "Born to Fight",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 50515,
+          "name": "Fortify on Melee Stun",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 26196,
+          "name": "Basic Jewel Socket",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 6741,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 36949,
+          "name": "Devotion",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 58453,
+          "name": "Elemental Damage",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 9052,
+          "name": "Block",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 3167,
+          "name": "Life Regeneration",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 20832,
+          "name": "Sanctuary",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 55649,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 31080,
+          "name": "Dexterity",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 58218,
+          "name": "Purity of Flesh",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 6764,
+          "name": "Intelligence",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 44908,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 43374,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 5743,
+          "name": "Life and Energy Shield",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 37999,
+          "name": "Intelligence",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 35958,
+          "name": "Faith and Steel",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 18302,
+          "name": "Life",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 60031,
+          "name": "Prismatic Skin",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 53118,
+          "name": "Barbarism",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 49538,
+          "name": "Defiance",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 25989,
+          "name": "Nomadic Teachings",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 651,
+          "name": "Elemental Resistances",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 31628,
+          "name": "Melee Damage and Life",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 44429,
+          "name": "Life and Elemental Resistances",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 65167,
+          "name": "Life",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 13714,
+          "name": "Life",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 10904,
+          "name": "Minion Life",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 33435,
+          "name": "Holy Dominion",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 48284,
+          "name": "Block and Block Recovery",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 26523,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 12702,
+          "name": "Path of the Warrior",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 50340,
+          "name": "Elemental Resistances",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 27301,
+          "name": "Martial Experience",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 21413,
+          "name": "Combat Stamina",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 7335,
+          "name": "Armour and Life Regeneration",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 44967,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 9386,
+          "name": "Life and Energy Shield",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 28330,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 64426,
+          "name": "Elemental Resistances with a Shield",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 50862,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 22703,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 31928,
+          "name": "Armour",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 31931,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 21435,
+          "name": "Cloth and Chain",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 55485,
+          "name": "Constitution",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 9149,
+          "name": "Chill and Freeze Resistance",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 19144,
+          "name": "Sentinel",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 5065,
+          "name": "Maximum Lightning Resistance",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 12236,
+          "name": "Attack Damage with Shield",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 40653,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 13009,
+          "name": "Dexterity",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 49109,
+          "name": "Armour and Evasion",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 15064,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 34009,
+          "name": "Master of the Arena",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 476,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 9695,
+          "name": "Armour and Elemental Resistances",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 32738,
+          "name": "Wall of Steel",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 19939,
+          "name": "Life",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 30693,
+          "name": "Divine Fervour",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 487,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 14056,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 14057,
+          "name": "Life and Energy Shield",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 29933,
+          "name": "Life",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 494,
+          "name": "Retaliation Skill Damage and Shield Block",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 34031,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 26866,
+          "name": "Sanctity",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 46578,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 50422,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 12536,
+          "name": "Elemental Damage",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 7162,
+          "name": "Armour and Elemental Resistances",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 37884,
+          "name": "Elemental Resistances",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 44799,
+          "name": "Elemental Damage",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 52462,
+          "name": "Armour Mastery",
+          "type": "mastery",
+          "stats": [
+            "+1% to all maximum Elemental Resistances if Equipped Helmet, Body Armour, Gloves, and Boots all have Armour"
+          ],
+          "effect_id": 7137
+        },
+        {
+          "node_id": 54340,
+          "name": "Armour Mastery",
+          "type": "mastery",
+          "stats": [
+            "+1% to all maximum Elemental Resistances if Equipped Helmet, Body Armour, Gloves, and Boots all have Armour"
+          ],
+          "effect_id": 7137
+        },
+        {
+          "node_id": 64406,
+          "name": "Armour Mastery",
+          "type": "mastery",
+          "stats": [
+            "+1% to all maximum Elemental Resistances if Equipped Helmet, Body Armour, Gloves, and Boots all have Armour"
+          ],
+          "effect_id": 7137
+        },
+        {
+          "node_id": 19750,
+          "name": "Armour and Evasion Mastery",
+          "type": "mastery",
+          "stats": [
+            "Immune to Bleeding if Equipped Helmet has higher Armour than Evasion Rating",
+            "Immune to Poison if Equipped Helmet has higher Evasion Rating than Armour"
+          ],
+          "effect_id": 43258
+        },
+        {
+          "node_id": 25535,
+          "name": "Shield Mastery",
+          "type": "mastery",
+          "stats": [
+            "2% increased Attack Damage per 75 Armour or Evasion Rating on Shield"
+          ],
+          "effect_id": 35302
+        },
+        {
+          "node_id": 4139,
+          "name": "Life Mastery",
+          "type": "mastery",
+          "stats": [
+            "15% increased maximum Life if there are no Life Modifiers on Equipped Body Armour"
+          ],
+          "effect_id": 34242
+        },
+        {
+          "node_id": 12382,
+          "name": "Life Mastery",
+          "type": "mastery",
+          "stats": [
+            "15% increased maximum Life if there are no Life Modifiers on Equipped Body Armour"
+          ],
+          "effect_id": 34242
+        },
+        {
+          "node_id": 32241,
+          "name": "Life Mastery",
+          "type": "mastery",
+          "stats": [
+            "15% increased maximum Life if there are no Life Modifiers on Equipped Body Armour"
+          ],
+          "effect_id": 34242
+        },
+        {
+          "node_id": 1734,
+          "name": "Unflinching",
+          "type": "ascendancy",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 5819,
+          "name": "Unstoppable",
+          "type": "ascendancy",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 17988,
+          "name": "Untiring",
+          "type": "ascendancy",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 44297,
+          "name": "Undeniable",
+          "type": "ascendancy",
+          "stats": [],
+          "effect_id": null
+        }
+      ],
+      "gear_slots": [
+        {
+          "slot": "Helmet",
+          "base_name": "The Bringer of Rain",
+          "stat_priorities": [
+            "Socketed Gems are Supported by Level 30 Melee Physical Damage",
+            "Socketed Gems are Supported by Level 30 Faster Attacks",
+            "Socketed Gems are supported by Level 30 Blind",
+            "6% Chance to Block Attack Damage",
+            "Adds 20 to 30 Physical Damage to Attacks",
+            "(200-300)% increased Armour and Evasion"
+          ],
+          "budget_tier": "endgame"
+        },
+        {
+          "slot": "Gloves",
+          "base_name": "Haemophilia",
+          "stat_priorities": [
+            "+(20-30) to Strength",
+            "25% increased Damage over Time",
+            "Attacks have 25% chance to cause Bleeding",
+            "(25-40)% increased Attack Damage against Bleeding Enemies",
+            "Bleeding Enemies you Kill Explode, dealing 5% of",
+            "their Maximum Life as Physical Damage"
+          ],
+          "budget_tier": "endgame"
+        },
+        {
+          "slot": "Boots",
+          "base_name": "Farrul's Chase",
+          "stat_priorities": [
+            "Trigger Level 20 Intimidating Cry when you lose Cat's Stealth",
+            "(110-150)% increased Evasion Rating",
+            "+(50-70) to maximum Life",
+            "20% increased Movement Speed",
+            "(40-50)% chance to Avoid Bleeding",
+            "20% increased Movement Speed while you have Cat's Stealth"
+          ],
+          "budget_tier": "endgame"
+        },
+        {
+          "slot": "Belt",
+          "base_name": "Belt of the Deceiver",
+          "stat_priorities": [
+            "+(25-35) to Strength",
+            "(15-25)% increased Global Physical Damage",
+            "You take 30% reduced Extra Damage from Critical Strikes",
+            "+(30-40) to maximum Life",
+            "+(10-15)% to all Elemental Resistances",
+            "Nearby Enemies are Intimidated"
+          ],
+          "budget_tier": "endgame"
+        },
+        {
+          "slot": "Amulet",
+          "base_name": "Replica Hinekora's Sight",
+          "stat_priorities": [
+            "+(10-16) to all Attributes",
+            "+(600-1000) to Accuracy Rating",
+            "+(600-1000) to Armour",
+            "+1% to all maximum Elemental Resistances",
+            "You cannot be Maimed"
+          ],
+          "budget_tier": "endgame"
+        },
+        {
+          "slot": "Ring",
+          "base_name": "Le Heup of All",
+          "stat_priorities": [
+            "Adds 1 to 4 Physical Damage to Attacks",
+            "+(10-30) to all Attributes",
+            "(10-30)% increased Damage",
+            "(10-30)% increased Rarity of Items found",
+            "+(10-30)% to all Elemental Resistances"
+          ],
+          "budget_tier": "endgame"
+        },
+        {
+          "slot": "Weapon",
+          "base_name": "Starforge",
+          "stat_priorities": [
+            "Shaper Item",
+            "30% increased Global Physical Damage",
+            "(400-450)% increased Physical Damage",
+            "(5-8)% increased Attack Speed",
+            "+(90-100) to maximum Life",
+            "Your Physical Damage can Shock"
+          ],
+          "budget_tier": "endgame"
+        },
+        {
+          "slot": "Flask 1",
+          "base_name": "Divine Life Flask",
+          "stat_priorities": [
+            "Increased Life Recovery"
+          ],
+          "budget_tier": "endgame"
+        },
+        {
+          "slot": "Flask 2",
+          "base_name": "Quicksilver Flask",
+          "stat_priorities": [
+            "Increased Duration"
+          ],
+          "budget_tier": "endgame"
+        },
+        {
+          "slot": "Flask 3",
+          "base_name": "Granite Flask",
+          "stat_priorities": [
+            "Reduced Charges Used"
+          ],
+          "budget_tier": "endgame"
+        },
+        {
+          "slot": "Flask 4",
+          "base_name": "Silver Flask",
+          "stat_priorities": [
+            "Increased Charges Gained"
+          ],
+          "budget_tier": "endgame"
+        },
+        {
+          "slot": "Flask 5",
+          "base_name": "Bismuth Flask",
+          "stat_priorities": [
+            "Reduced Charges Used"
+          ],
+          "budget_tier": "endgame"
+        },
+        {
+          "slot": "Jewel 1",
+          "base_name": "Crimson Jewel",
+          "stat_priorities": [
+            "to maximum Life",
+            "increased damage"
+          ],
+          "budget_tier": "endgame"
+        },
+        {
+          "slot": "Jewel 2",
+          "base_name": "Crimson Jewel",
+          "stat_priorities": [
+            "to maximum Life",
+            "increased damage"
+          ],
+          "budget_tier": "endgame"
+        },
+        {
+          "slot": "Timeless Jewel",
+          "base_name": "Glorious Vanity",
+          "stat_priorities": [
+            "Passives in radius are Conquered by the Vaal"
+          ],
+          "budget_tier": "endgame"
+        }
+      ],
+      "stats": {
+        "life_estimate": 5872,
+        "es_estimate": 0,
+        "dps_index": 0,
+        "resistance_warning": null,
+        "estimated": false,
+        "full_dps": 52598.4,
+        "total_ehp": 19045
+      },
+      "rationale_it": "Build Marauder/Juggernaut con Boneshatter (physical). Difesa: life. Budget: endgame. Focus: tutti i contenuti. Albero e oggetti sono presi dai dati ufficiali di PoE 3.28.",
+      "rationale_en": "Marauder/Juggernaut Boneshatter build (physical). Defence: life. Budget: endgame. Focus: all content. Tree and items are sourced from official PoE 3.28 data.",
+      "pob_code": "eNrtWllv20gSftevaAgYzIPpmPcROAEk2bIdn5EUZzwvRptqSR3zMg_JmsH-9_2KpG7HzgKLCXZ28tAhq4-q-upsyoc3PJ9cj9qFDIYyGn88LJ_YVIrZZTwUH5pnlzfXvUGT5Twdi_xWpJmMow9N415tsoRH-UTE0SX_Fqcn8fBD8yqOxBpdRht0f8JT7ucivRBTEbSKPK54jHiQ0XTAs-yKh6BcYmExFGmT8cwX0bCzmvpUjMcijXiRN1lA53xoaiqECbmM-rH_KPKTNC4SUJvsgUdDmS_YH3w8HKRCMIggp6KfCJ8WfTykJ2zPINj8eDQSfp59aP5p6aatK45mOP9S_rRMw1QXL7ZpqvbiRfMcS1VMQ7dcvOmWZViKYRmqjjdTMzzFMHWTXjTdcPXlm6Hrpla_AVyItQat7jZZJvw4GvJ03loBcAYk1Q1IiKLVyNXPESCF_KZjK6brKKZnKralKRokxAAtNMszFEOzMUfyWaptKZZjGgr0shXbgVy2Y5tQkPQ3oI-nWrriaaaneIZrK56laYpnezhPVQ0crVqmTqNDFE81FU1zdTDSdcNWKr013SqfHRXPhqp6GB0NK03VssvRgWAq2GqWTWc6DhhrrkHrwRr0EmjN8yCzrlpQSVddQ1d0TbdphDI0Ypeu6y6NjgqK4bpYabpQsjKObnkuTrA1z8Zo6VhjuzaeIY5KY_lsqNjlGgYoHnhi9AygptqEnerQs6a6KuGouxi9aoTktWVxBCiGDhMYBkkF6FXyBkLMMF3aa3kW1tieZtEIeA3HdU2MHjgCEtXFaFsGDGU6umLqdIKpuyo5nOGYimmaOiimDX80TYd2mR7tMj0yr205eHZ1nGm6pkHPHq33NLUcadazQLdUcgxLNXUdowV5wBuoVjFgGbAnRge6V4FgWSYQtiwbMsNcDiiuTmtcE_bCSHTXhOSW58ER7dJPbE3zXIymg2dd1RzFBsC2UsUTRp1GV7PJYSE_NFddxOeX3sXHSZ4n2fuDg9ls9i5ByopH4lkG4p0fhwcJnB8BvZ89yiDYp1g6aOFfe3zcFrNTvyX8tjM-v2j31e5N68466rqfz59vPnVD9_eLSXJ7Es4e9ifz6EybfZv2-0-f-n5gzP3ped9MBvOnuws5m_5x1BaXN-Pn6NtF7-r3M90-ekiu87F3pN6e9gzrfH6shgNx9bmndcdfZtYgub12bmfaXappn-763W9T_Wv396AXhfq3OR_3nk7Dp-DhKZkfGYN8uH9rHv0WxMJ8dovTuTMade_N-Ox0nBTH-t1gKo87l8Ok9cdj9-vg_lNvGn2biz_4WStph9HleVCkd3px8-Tcp_p8mji_zaef5t5V6k6m3m-tk-yk83w-OPay28Hzk3PpZN6-Kk-_9K6kp3899S-Lqyerc_H4RfRu7cdvT6N999pt388_j4bn-9aD8zRVZ_fx_f0p8Dw8IEMcVjk2WzyU-YZSTxlRTSZzEZaZSKWkjJR7sNxwPRVpKpGdKjKyLv6jjIyzyHTZIjPTS1_kZTrL4jQ_EWHWnh_d9LtSBDi7WwQB3ijn5_4Es2U9GcSdjfqyrCvZJJ61gvxzwQOZz-mwD808LcTW4UsilveLJKnmBvOE0mnr4qJZiwnJmKxybS7zACXpSIx4EeSLBWUpaq1U6fDAz8r1WxMlTUZ-gFJ3FtVaLcQI-APp0GQi4g-BGC7FC2IgcyqCUBBHiMhKxyfQ26hz2YTnOVXOCOWyKnIb5Lpm6rDOU4XIxgsds9Bnm3X1ehLEDzzQXiLqS8wPtiSrAb0UgRA3k3kmfR4c8ZCPxbqg5TRbzLPFgr9M5IPSLD_djBeCJ_2Ah-vQEI1VxH8s-J-J3E6LvGSzERMr4k8V7ixMeLAB4YLy9_X6dhzn2bbTd-Hb4ohnk3UsSiKrqD_VTP2yHf8qo-G6eBWVVeSfKt-FHImcJxsZY0H6qYJ1y3tVByOulxumLSfYcubv6-5fkbrjiGnbHn8cDYsUunfSjcy0ILOS_o_X_y96fSeOcEfPU56LYfVJYV3G9Vm2mP5_a3Ju6CqwjkpN-Dl2OxUpD4bx6Aaht9koVDMsHrHF3E_1rOMokONJLqLNlLEk1sKZf5UXHSzuRItHXPTOcAdcXOboeXGXKzJRZ5QyI5bk6sRqz9rN6vtLX7h0wctKMJautrqFNmsxFvocbCxvx8M5a6VhXKSrPfrre4DFVGSr5cZbLKjXWa4231gtgjXprdcXt8IiWFfWfn15j2qKtlruvL58WbWWG9zXN6BXyx7X13s_sl5f_2TwIxuMtQ3aj2ww1zboP7LBWtvwhnU_iZkI1nXWzB_ZsK70S0Y-qKOhCos6Jj42epwS0Hv25ers85fjxmAiWJs6BbRRSE89JOzGFeWBkKeY4ZkvI5E3cJ8IpC_z7D1TG9XHGJSdkzJEsa7OKyA9zFn54YQZKnvxHvfDu-verpXn3H_MXtiWvbitHaClaNi_sM6Eo0KyPAYJe-uDFlK0hsOM6SpNY9OWjERd8DVU9ReqWangGVhVgc44epfjKaeP7Y09LKEdIX-WYREy6h4aOnb5SwnGgBV7WNmWlUT6zARGs4mI2DwuKhkbHR79mlPewrzIcqhJ3BrHz6jzbBynolGZdc2m-ppNe63eceNERKLqCtYyU2Mwk2V6Zz0xRhbnmxbd00jKCkN4wRLrqrwT4t9fUllhscj1dqDYM91fiNiVMFpPZDLLCYIl_YLkiiixvDDZiVE31-g7-hu7Pn3KRRgnE0lq9kWaoE3KYFzBTngRIe_n2Zb2Rmm_fp6KaJxPGrq1bvHaJZCwUzaQIVyn8gw24VPBaO3Kzj4n27Xh9vRDWMPcdJ11B2ScfAImXiyGb4hQiqyxTSjd45zscPycBPFQKGwoYEKsAO941MgnQqbscg1yxrOdsCNBUzEsfHKMBYsjeGNOPrwDq7kLa5enaRH8mpHvZohjiPDIytK0CecglfTrWu0riLGzKJehHPK8vpCsvD6IydV5jkP7OZQC-Jq1AVodZEhMtLux57wcaqsNlzBUCIszdDVi2LA24rA1jeVK_Vd3QkgJlyEpS0NvSrmDl7WLF9VhChXYhx0JXyA9p41TwadzRlPbPmi94oNV77Rj0zsIl_NHgRS2Mm6VLGovG6VxCMhlXm7D6fIRLrZn7qK4p1llwHFytKAEAjtWkZc1rgRPkWkXbkkpeGlZIL0Dib0LSU-Qypydoqg8xiknRCn6G9fR_JlVvch2ZrIXUiF-UvlQ5KQA_TJQGtT34cL-fOkfy4kq7e1pS6UW2r6sHEHp8yhCkX0QCCYE-gsqObsqXQh2KoqEDN0KgsZZSs5KomyoUZabMoOarxWbOhNtaWuou_loi1gJRUJUffMoLlAF92jRqzbd0dDd1bCf83QUo1o1zqIR_WoOR5rF6XCrKZjwBEFPB23J9h3nNTcDfXvafSF1ViFNNt5x3zuqytvIwqCsP6HCqm8VccEJq-raDLBWbcYR4ptF8RpctTw7SHlrSF22Ts46jSM5hV9XGbjqAqlQ5ig6_oQ8Ymd-E8EdDuhlt1l8LiSklAEVoyWL1hBJgyqC2J1_i4W2w-IEDQoay9XxpUujE4g2p946Wd85ub8ld5kYkXQ3Jt461tg5ti2zsMgnL5y7MfPWweb3G6m6Q28gkYYZwCjft_OUae445S4T6y0m-n-BCf1quhPFiMJUxkXGbsmG8wa1MoHIsppPjw9lASYXvAz0da5tDkCHCJ8S2IcgjssvGbZlsIz7qRxJfzVNNxSaPYrTORg1bqrf1TOaT0seZeHoxNFTIdKqd6d9t5wHjVPkJUjpL3Uq_8s-Hl7FyIMfEUpj8Z7hyoLD2a2-Bh5O6V632T5b_MY_ih_2cxG9g1_5InjHk6TROBdzhHZOHyOg2JHE3SahqCm7-UGKfgxRqrDVHwcpSO08XRbxr2iAZJwqaH6LqgnOhQgUnMRD-phJMaKwVhTLiGTqgs1EYScxUgkKXZuAw94EJRg9SBHMePqI9wWECu5haDTSuYJsHibgq6DpSMUIvDpI5zmpSkkKC-M0qjpq1E7wF9OYujg6LPLzgtMZ1YcmkrKWo8slQoFUrcW-SREeKJt-LXgb5Z0TjU4cSSoQCruKQ1jNZwPByySWAZM4mMO-IeAinvTHXzsIXUJ8ycuWVaRSlEd14vCB55QQsZXjHTfaSiA0lCQAnCLLZV7UuiD9wjgBHVbeBGseLUp2ClgFmzYoc2tXpFNUghoJ8vPqT5_wRqEQjWDvUg8FL3C2JCFvoJdcpjV5KCJJ1MODyu0OIddIjhd_-nUrxay8X2_91du_AWDOr74",
+      "viability": {
+        "passed": true,
+        "issues": [
+          {
+            "severity": "warning",
+            "code": "res_always_gear",
+            "message_it": "Le resistenze si cappano con l'equipaggiamento, non con l'albero. Punta a ~135% totale sugli oggetti per coprire la penalita di Elemental Weakness.",
+            "message_en": "Resistances are capped through gear, not the tree. Aim for ~135% total on items to cover the Elemental Weakness map penalty."
+          },
+          {
+            "severity": "warning",
+            "code": "single_defence_layer",
+            "message_it": "La build ha un solo layer difensivo. In PoE endgame servono almeno 2 layer (es. life + evasion, ES + block, MoM + armour).",
+            "message_en": "The build has only one defence layer. PoE endgame requires at least 2 layers (e.g. life + evasion, ES + block, MoM + armour)."
+          }
+        ]
+      },
+      "optimised": true
+    },
+    {
+      "intent": {
+        "character_class": "Templar",
+        "ascendancy": "Inquisitor",
+        "primary_skill": "Spark",
+        "damage_type": "lightning",
+        "defence_archetype": "life",
+        "budget": "endgame",
+        "focus": "allcontent"
+      },
+      "links": [
+        {
+          "skill": "Spark",
+          "supports": [
+            "Spell Echo",
+            "Elemental Focus",
+            "Controlled Destruction",
+            "Unleash",
+            "Cruelty"
+          ],
+          "extra_actives": [],
+          "slot": "Body Armour",
+          "label": "Primary 6L"
+        },
+        {
+          "skill": "Flame Dash",
+          "supports": [
+            "Controlled Destruction",
+            "Elemental Focus",
+            "Cruelty"
+          ],
+          "extra_actives": [],
+          "slot": "Helmet",
+          "label": "Secondary 4L"
+        },
+        {
+          "skill": "Dash",
+          "supports": [
+            "Second Wind",
+            "Lifetap",
+            "Inspiration"
+          ],
+          "extra_actives": [],
+          "slot": "Boots",
+          "label": "Movement 4L"
+        },
+        {
+          "skill": "Enduring Cry",
+          "supports": [
+            "Second Wind",
+            "Lifetap",
+            "Concentrated Effect"
+          ],
+          "extra_actives": [],
+          "slot": "Weapon",
+          "label": "Warcry 4L"
+        },
+        {
+          "skill": "Herald of Thunder",
+          "supports": [
+            "Enlighten"
+          ],
+          "extra_actives": [
+            "Wrath",
+            "Zealotry"
+          ],
+          "slot": "Helmet",
+          "label": "Auras"
+        }
+      ],
+      "tree_nodes": [
+        {
+          "node_id": 61525,
+          "name": "Templar start",
+          "type": "start",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 41472,
+          "name": "Discipline and Training",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 33287,
+          "name": "Juggernaut",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 30733,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 24083,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 42009,
+          "name": "Soul of Steel",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 49178,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 61471,
+          "name": "Life",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 53793,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 58402,
+          "name": "Intelligence",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 11820,
+          "name": "Anointed Flesh",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 56370,
+          "name": "Fortify on Melee Stun",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 36915,
+          "name": "Sacrifice",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 1593,
+          "name": "Shield Block and Elemental Resistances with a Shield",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 27195,
+          "name": "Cold Resistance",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 40508,
+          "name": "Armour and Energy Shield",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 34880,
+          "name": "Minion Life",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 62017,
+          "name": "Life and Armour",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 44103,
+          "name": "Reflexes",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 10829,
+          "name": "Dexterity",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 14930,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 6741,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 3167,
+          "name": "Life Regeneration",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 34400,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 34917,
+          "name": "Maximum Cold Resistance",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 49254,
+          "name": "Retribution",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 6764,
+          "name": "Intelligence",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 5743,
+          "name": "Life and Energy Shield",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 35958,
+          "name": "Faith and Steel",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 60031,
+          "name": "Prismatic Skin",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 651,
+          "name": "Elemental Resistances",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 6289,
+          "name": "Bloodless",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 10904,
+          "name": "Minion Life",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 33435,
+          "name": "Holy Dominion",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 48284,
+          "name": "Block and Block Recovery",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 48287,
+          "name": "Life",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 16544,
+          "name": "Dexterity",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 50340,
+          "name": "Elemental Resistances",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 32932,
+          "name": "Sovereignty",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 7335,
+          "name": "Armour and Life Regeneration",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 9386,
+          "name": "Life and Energy Shield",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 28330,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 50862,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 22703,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 9392,
+          "name": "Aura Effect",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 1203,
+          "name": "Life",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 18103,
+          "name": "Dexterity",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 31928,
+          "name": "Armour",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 31931,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 55485,
+          "name": "Constitution",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 32455,
+          "name": "Storm Weaver",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 19144,
+          "name": "Sentinel",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 40653,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 13009,
+          "name": "Dexterity",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 64210,
+          "name": "Intelligence",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 15064,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 34009,
+          "name": "Master of the Arena",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 35556,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 14056,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 14057,
+          "name": "Life and Energy Shield",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 29933,
+          "name": "Life",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 34031,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 26866,
+          "name": "Sanctity",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 50422,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 12536,
+          "name": "Elemental Damage",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 20228,
+          "name": "Mana Regeneration and Life",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 22285,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 15631,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 65308,
+          "name": "Diamond Skin",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 24865,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 16167,
+          "name": "Dexterity",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 1325,
+          "name": "Golem's Blood",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 6446,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 10031,
+          "name": "Life",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 42800,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 5935,
+          "name": "Aura Area of Effect",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 48438,
+          "name": "Bravery",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 1340,
+          "name": "Rampart",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 17735,
+          "name": "Intelligence",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 61262,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 10575,
+          "name": "Intelligence",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 24914,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 50515,
+          "name": "Fortify on Melee Stun",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 32091,
+          "name": "Evasion and Spell Suppression",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 9052,
+          "name": "Block",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 20832,
+          "name": "Sanctuary",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 2913,
+          "name": "Dexterity",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 55649,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 31080,
+          "name": "Dexterity",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 58218,
+          "name": "Purity of Flesh",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 44908,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 43374,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 54127,
+          "name": "Basic Jewel Socket",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 18302,
+          "name": "Life",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 53118,
+          "name": "Barbarism",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 25989,
+          "name": "Nomadic Teachings",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 58763,
+          "name": "Cold and Lightning Damage",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 44429,
+          "name": "Life and Elemental Resistances",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 13714,
+          "name": "Life",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 21413,
+          "name": "Combat Stamina",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 64426,
+          "name": "Elemental Resistances with a Shield",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 40366,
+          "name": "Intelligence",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 21435,
+          "name": "Cloth and Chain",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 9149,
+          "name": "Chill and Freeze Resistance",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 5065,
+          "name": "Maximum Lightning Resistance",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 49109,
+          "name": "Armour and Evasion",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 476,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 9695,
+          "name": "Armour and Elemental Resistances",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 32738,
+          "name": "Wall of Steel",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 487,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 39916,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 10221,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 7153,
+          "name": "Lightning Damage",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 46578,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 7162,
+          "name": "Armour and Elemental Resistances",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 37884,
+          "name": "Elemental Resistances",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 52462,
+          "name": "Armour Mastery",
+          "type": "mastery",
+          "stats": [
+            "+1% to all maximum Elemental Resistances if Equipped Helmet, Body Armour, Gloves, and Boots all have Armour"
+          ],
+          "effect_id": 7137
+        },
+        {
+          "node_id": 54340,
+          "name": "Armour Mastery",
+          "type": "mastery",
+          "stats": [
+            "+1% to all maximum Elemental Resistances if Equipped Helmet, Body Armour, Gloves, and Boots all have Armour"
+          ],
+          "effect_id": 7137
+        },
+        {
+          "node_id": 64406,
+          "name": "Armour Mastery",
+          "type": "mastery",
+          "stats": [
+            "+1% to all maximum Elemental Resistances if Equipped Helmet, Body Armour, Gloves, and Boots all have Armour"
+          ],
+          "effect_id": 7137
+        },
+        {
+          "node_id": 50757,
+          "name": "Evasion Mastery",
+          "type": "mastery",
+          "stats": [
+            "+15% chance to Suppress Spell Damage if Equipped Helmet, Body Armour, Gloves, and Boots all have Evasion Rating"
+          ],
+          "effect_id": 57074
+        },
+        {
+          "node_id": 4139,
+          "name": "Life Mastery",
+          "type": "mastery",
+          "stats": [
+            "15% increased maximum Life if there are no Life Modifiers on Equipped Body Armour"
+          ],
+          "effect_id": 34242
+        },
+        {
+          "node_id": 12382,
+          "name": "Life Mastery",
+          "type": "mastery",
+          "stats": [
+            "15% increased maximum Life if there are no Life Modifiers on Equipped Body Armour"
+          ],
+          "effect_id": 34242
+        },
+        {
+          "node_id": 25011,
+          "name": "Life Mastery",
+          "type": "mastery",
+          "stats": [
+            "15% increased maximum Life if there are no Life Modifiers on Equipped Body Armour"
+          ],
+          "effect_id": 34242
+        },
+        {
+          "node_id": 32241,
+          "name": "Life Mastery",
+          "type": "mastery",
+          "stats": [
+            "15% increased maximum Life if there are no Life Modifiers on Equipped Body Armour"
+          ],
+          "effect_id": 34242
+        },
+        {
+          "node_id": 13851,
+          "name": "Instruments of Zeal",
+          "type": "ascendancy",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 19417,
+          "name": "Instruments of Virtue",
+          "type": "ascendancy",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 32816,
+          "name": "Pious Path",
+          "type": "ascendancy",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 39790,
+          "name": "Sanctuary",
+          "type": "ascendancy",
+          "stats": [],
+          "effect_id": null
+        }
+      ],
+      "gear_slots": [
+        {
+          "slot": "Helmet",
+          "base_name": "Fractal Thoughts",
+          "stat_priorities": [
+            "(140-180)% increased Evasion and Energy Shield",
+            "+(25-40)% to Critical Strike Multiplier if Dexterity is higher than Intelligence",
+            "15% increased Dexterity if Strength is higher than Intelligence",
+            "1% increased Elemental Damage per 10 Dexterity",
+            "+2 to Maximum Life per 10 Intelligence"
+          ],
+          "budget_tier": "endgame"
+        },
+        {
+          "slot": "Body Armour",
+          "base_name": "Shadowstitch",
+          "stat_priorities": [
+            "Has an additional Implicit Mod",
+            "+(20-30) to all Attributes",
+            "(250-350)% increased Armour, Evasion and Energy Shield",
+            "Recover (3-5)% of Life on Kill",
+            "Recover (3-5)% of Energy Shield on Kill",
+            "6% increased Maximum Life for each Corrupted Item Equipped"
+          ],
+          "budget_tier": "endgame"
+        },
+        {
+          "slot": "Gloves",
+          "base_name": "Wyvernscale Gauntlets",
+          "stat_priorities": [
+            "to maximum Life",
+            "to Lightning Resistance",
+            "increased Cast Speed"
+          ],
+          "budget_tier": "endgame"
+        },
+        {
+          "slot": "Boots",
+          "base_name": "Duskblight",
+          "stat_priorities": [
+            "Trigger Level 1 Stalking Pustule on Kill",
+            "(120-150)% increased Armour and Evasion",
+            "+(50-60) to maximum Life",
+            "20% increased Movement Speed",
+            "50% increased Stun and Block Recovery",
+            "20% reduced Light Radius"
+          ],
+          "budget_tier": "endgame"
+        },
+        {
+          "slot": "Belt",
+          "base_name": "Replica Prismweave",
+          "stat_priorities": [
+            "(12-24)% increased Global Physical Damage",
+            "Adds (14-16) to (30-32) Fire Damage to Spells",
+            "Adds (10-12) to (24-28) Cold Damage to Spells",
+            "Adds 1 to (60-68) Lightning Damage to Spells",
+            "+(6-15)% to all Elemental Resistances",
+            "30% increased Elemental Damage during any Flask Effect"
+          ],
+          "budget_tier": "endgame"
+        },
+        {
+          "slot": "Amulet",
+          "base_name": "Solstice Vigil",
+          "stat_priorities": [
+            "Shaper Item",
+            "+(10-16) to all Attributes",
+            "(30-40)% increased Damage",
+            "+(50-70) to maximum Life",
+            "Regenerate (8-10) Mana per second",
+            "Gain Shaper's Presence for 10 seconds when you kill a Rare or Unique Enemy"
+          ],
+          "budget_tier": "endgame"
+        },
+        {
+          "slot": "Ring",
+          "base_name": "Mark of the Shaper",
+          "stat_priorities": [
+            "Shaper Item",
+            "(15-25)% increased Elemental Damage",
+            "20% chance to Trigger Level 20 Summon Volatile Anomaly on Kill",
+            "Adds (13-18) to (50-56) Lightning Damage to Spells",
+            "(6-10)% increased maximum Energy Shield",
+            "(6-10)% increased maximum Life"
+          ],
+          "budget_tier": "endgame"
+        },
+        {
+          "slot": "Wand",
+          "base_name": "Shade of Solaris",
+          "stat_priorities": [
+            "(17-21)% increased Spell Damage",
+            "Gain (10-20)% of Elemental Damage as Extra Chaos Damage",
+            "Critical Strikes deal no Damage",
+            "200% increased Spell Damage if you've dealt a Critical Strike in the past 8 seconds"
+          ],
+          "budget_tier": "endgame"
+        },
+        {
+          "slot": "Shield",
+          "base_name": "Dawnbreaker",
+          "stat_priorities": [
+            "+(10-20) to maximum Life",
+            "(150-250)% increased Armour",
+            "+(20-25)% Chance to Block",
+            "-1% Chance to Block Attack Damage for every 200 Fire Damage taken from Hits Recently",
+            "(10-20)% of Cold Damage taken as Fire Damage",
+            "(10-20)% of Lightning Damage taken as Fire Damage"
+          ],
+          "budget_tier": "endgame"
+        },
+        {
+          "slot": "Flask 1",
+          "base_name": "Divine Life Flask",
+          "stat_priorities": [
+            "Increased Life Recovery"
+          ],
+          "budget_tier": "endgame"
+        },
+        {
+          "slot": "Flask 2",
+          "base_name": "Quicksilver Flask",
+          "stat_priorities": [
+            "Increased Duration"
+          ],
+          "budget_tier": "endgame"
+        },
+        {
+          "slot": "Flask 3",
+          "base_name": "Sulphur Flask",
+          "stat_priorities": [
+            "Reduced Charges Used"
+          ],
+          "budget_tier": "endgame"
+        },
+        {
+          "slot": "Flask 4",
+          "base_name": "Diamond Flask",
+          "stat_priorities": [
+            "Increased Charges Gained"
+          ],
+          "budget_tier": "endgame"
+        },
+        {
+          "slot": "Flask 5",
+          "base_name": "Bismuth Flask",
+          "stat_priorities": [
+            "Reduced Charges Used"
+          ],
+          "budget_tier": "endgame"
+        },
+        {
+          "slot": "Jewel 1",
+          "base_name": "Cobalt Jewel",
+          "stat_priorities": [
+            "to maximum Life",
+            "increased damage"
+          ],
+          "budget_tier": "endgame"
+        },
+        {
+          "slot": "Jewel 2",
+          "base_name": "Cobalt Jewel",
+          "stat_priorities": [
+            "to maximum Life",
+            "increased damage"
+          ],
+          "budget_tier": "endgame"
+        },
+        {
+          "slot": "Timeless Jewel",
+          "base_name": "Heroic Tragedy",
+          "stat_priorities": [
+            "Passives in radius are Conquered by the Kalguur"
+          ],
+          "budget_tier": "endgame"
+        }
+      ],
+      "stats": {
+        "life_estimate": 4315,
+        "es_estimate": 864,
+        "dps_index": 0,
+        "resistance_warning": null,
+        "estimated": false,
+        "full_dps": 99685.3,
+        "total_ehp": 30087
+      },
+      "rationale_it": "Build Templar/Inquisitor con Spark (lightning). Difesa: life. Budget: endgame. Focus: tutti i contenuti. Albero e oggetti sono presi dai dati ufficiali di PoE 3.28.",
+      "rationale_en": "Templar/Inquisitor Spark build (lightning). Defence: life. Budget: endgame. Focus: all content. Tree and items are sourced from official PoE 3.28 data.",
+      "pob_code": "eNrtWttu20gSfddXNAws9iH0mGxeFTgBZPmmxLeRHDvJS9CiWiJHvChsUrJ2sP--p0hKFiXHDrDAeGZn89AR-1JdfarqVDXNwxuRB9fjoyKMRmEyeX9Y_mLzUC4u05F8t9e7vLnu3-6xXGQTmd_JTIVp8m7P_KbvsZlI8kCmyaX4Lc3O0tG7vas0kRv9YdLo9wORCT-X2YWcy6hT5Gm1x1hEioYjodSViNFzK-NZJLI9JpQvk1H3caSXfC9CFeYpBiMS827P0KFLLMJkkPpTmZ9laTFD7x4bimQU5qvdD94f3mZSMmgQzuVgJn2a9P6QfmG5gl7Lk_FY-rl6t_e7zS2Ha65huv_Wfrct09JXD45l6c56RHdtV7Nd3bXwZBlmWzMtbnE8GNz0-PqJ27phrJ9Mzq3VE7CFWhvIcm-PKemnyUhky84jAD0AqTcgoR6jBo5-23ssAaLQ33IdzfJczbENzeC6qRkmt9HgGIbdNjXeNkzNNBxXK3W2dcfGKSxTw6CtOdxrazinozku9HRcx8KBbRMNgWJiSlu3udY2rLbWNj0HTRuPTht76LqJPXXOqbVd6vF4G21btzTD8DhUKKExuG060EnXMWq6BkYt3XbK1kXbNklZHXsbtkMyHdLXcGwLPa4LJQzPoKN5pg5pUMbSOPb10Hom17iBs1GLmRzd1LqYzy0Mo_VwZm5hmVYZh9ttHJs7nuNo3DVwFu6Z0IG32ybA0l1qcRgdbRu7oIVWJtfb1JYG5ZZto3VNjPI2dDBNDiuYJukA8HVyD8LHhBNBjuWRNOiAObaNs5t228Zap21gvut5lma22wZsqZsOtbbuoXVgCsuwXK5ZnGRa3IM0yzRdS7MswsSyLGBuWW2a79guWo9DGrWwuWdBQ2xLa7E5_ea2BTcgB7F1i3O0NnSo_Vv3YPcqJGwTNkTrwotsy-AYLaPDti0gjDPAJWAuFz0ep5meBevYnuuYmlP6hmNwyHGgP35zHWd3LG7oWhVYaDla29Q9BOen_sX7IM9n6u3BwWKx-GUGukrH8iGM5C9-Gh_M4PmI5n01DaNonwLpoIN_R5NPR3Jx7nek3w0Xg38dDfTTm84Xu8tPLj8_dLITb3o_fPDnZx9Ovl4Es7uzeDH0-nPn_KP_2-fudfvDx3Squp_HH5Ze4g6im49T_XvctdTlqbXYP77oX33tced4OLuOeg4_1m9ulqNOenJ33s9G5-Np1rtd9PtfTq-jT27--fgunH8OroLe_engy_AqCu5_W4rf8uJ7cpvLjmGL86U1vsjb96b5MFajb1banU4mshtbt1-D6_2zL72gE57df7R7D3x6fH377cNcJcKRNx_cq3TSnZ4Jf_H93lF9h19lfGl42dKff9hvX2Xf7hZHWeerGkwfboann7yvpw_f3UtXtff18Px22O6f8Avz65fRYmnxbNor7i-c5Nv8dt4Ze9NzR58X9_tO9u0ceB4ekCEOK4JVqx8l2ZS8Q36wx8JcxiUl6cTI4NuD9YLrucyyENRUdYNy8R_RMWSR6dSKlulhIPOS11Sa5WcyVkfL45vBaSgjyD4toghPRPi5H2C0zCW3abeRW9Y5RQXpohPlvxYiCvMlCXu3l2eF3BK-7sT0QTGbVWO3yxlxaefiYq9WE5qxsCLdPMwj5KNjORZFlK8mlHmo83iUroh8Vc7fGij7wsSPCkCY1KdaqRGJIZ1hj8lEDCM5WqsXpUDmKB0tWSeL0yLDttCTld5PyA9mIpsiCSBVVgmu7qgzJYdZvldQNB5o6eog23tWj2dROhSR8VQnX4N9sK1NhSQ0iaITP0ibiqGTVb2vqt1JJGOZ5CI6Tf1Cbaq4HmH10Kvq2U2TPEsjyDyWCuvhSmmyqe7jBNaY8apaf0oiKVSwqee663XhxJIoXzYAXHX9YYodlFTwB1LHuYximW-zxmkEDI63zFR2suM_gaX-ko7_l6GVv2UcHKVprrbDYDsC_gS-PyivgfdhMmrkzrKXVd2vqt9FOJa5mG0qt-56VcV6iZqFmdimikb3_65730sxSxNmbHv4STIqsjCZdLNGwK-6Wdn_f4f_Kzo8kqCPrALflqPqLdZWilyPstXw363MOZeZiEbp-DYokpHMNvGphlg6ZuvB17HmPUzUSEJ1x-to81UK4Nkki8e-162vkiicBLlMmkS27qyVs_4o3z5YvR9Y_VTvD3u5jFcvNuj36r1GoWTNcyVPl92VxGrNxluGH0994gUE7FKCsQ6Axzcye7Uaq_McNKZvvlFYr-HPrwEWc6kep5svbUEV13q29cJsGW1obz8_uRMX0eZhneen9ynTGY_T3eenr3PpeoH3Uwv444L28wtw01LTzQ0M_WcWbGxgGD-zwNxYwH9mgbWxwPyZBfbGghcs_EEuZNQ4tP0zCzYP_ZSdD-r4qQKpjqL3rb7IEPVv2aer3q-fTlqn9KoQF7DbIC3AF6p1J_B0iSO0evEsCv0wV2-Z3jI8_R-UgjIpFCXOuaC_0TCBWuQkkdlkyQYBvZZsvbEwMU9RQIV56EPWIM_CqWSXiMwQAmXGwjFupw-5JEVYqFgApkJ3HoiE9ZJcRqAuiSzdMuzNPTfWjEmqTCZ58Pz6hsrry-axiMVEshnWGPqj2NYbTopfiocwLmJGxcxqTkNqhewGrHwX1kEgRulCgZj8oDUQfhaOASX2PhPZsInsuQAxAsnRKKRiHHNWw-wyBZ6mTloJlAudHFAOi1yqlmk3zFERlvaMWfqgzjkOA0SR2suzYd5HsPPWUGPZeo6zuVsDoXGaMSn8gHXTLCtmVFWVwJx8L8LZTI5a3lNLm7u8KGPf-scKhL5UocoFDKFeXrfu3zWauWG0fqd_0jqT0KmsCis-b90vgUqi4MMSZisS5BjER8N2bwzeJsXiDUQQAV6p7QUl4IQo9lHnLZfuCpUzJOynFLR2veq4UNNhmddbvSytVSvTSVOt2yycTGDR8g8AzECwiGhKitwUKkeGWJvVeMqNKu-pPKn1xtF3Dsgbiy4BFgVWfY6mxEFeVN54FKX-lNWutixFZHJU-JhT4sT6YhQWqvXGrukjEKnaAI7V9zKRLFnFsFXt3uqMRopZpZJQtVpWBzi6ynfrqtQA0SP8qfqhoB0D2LsG6EtCWbCbLFTxQoq5bPUBaeizgVBB0wjc2gSiqpfYTbBUJStWKlbaGw6panJ2GmZyR_l6TslN3IOrI2B-MKcEwdtwvJ15b8j_6kh6JMSNmGqZ-rOk-dPoOU-QYhoRVpLdhZMwal0nywdWVSxN5ECexLskCgo7T9Cf1VCyxvKNu-uqfTmpw5po_FIkoqT06puC1hmuWaza7Z8KRpWKCL6kFcyuJim2CGTClmnByjubgKfCSpjyKQm_F5KoLF626DONFDcn8sAwQU4CqycpISuzefmWhbJWGe8V33eKTOyi5u6idimyKRFzHsha19b1jIwGO_wYN24_Z8Yy_vygDCxA1uQLrrNBEcfQ-C6NoDr4opOksYiWa96o3M2jtbbznL8ZDUPFT7H_D-aU5msWHdUfyuo9gOaSyCrFHUihECrxoGoA2J5EoxUOXZEkKJyGsqSiBFKGyxUr_FgE24Ryx0je0_lekpXg4xhRyPnQ8R68s0UKxo8OVDkj2YWS8HbYwWdOHvJMNAiutVVjgdtwIyW3W1v5Jfz-OZflInjlTsUGdcjnZuSz3ioadtFoP5GnxCIZYtMpfBV8lSpFFWa6AKK1zZtZlD-RY57KTJgJt-6u_bZMKq19Y6evJvvVWcs6gfIO8NWbLAsdEzbO0pidQxtKUMA9qhIUDNFg23IuLLEhYDVvNwSembyVBJ6eO_DTDJUNsUsIy8IYXQAJHxUJlqw5qYJgxyi4Nz1a5bJz1uu2jsN5mMiqaKuom9w1R2HjB0QlO-NNI-1uYexs8WsRIsOGEVWT6y06I1TqIoLs3fGXtuA7WwyKaBYUG-LJRa8XUXPgJbnmE-iImF6sruX25TiSD8g1jZGXBFs7go9QKRS4pzQUPkYV1Bx5SbD943K1vj8i0oYUyOXjdplqWTsRtruH89Ie_L_fg76H2eGLc5mlqKFuMzj-CLk0jGUklaq3qSrDt-yCvrtsbtoHTcbDDLFPoWfqusFUmkwWaZYHSxCbRJoC3xPk5IAE_x2ydCJaN9XXUmVgZeUGjNJ6N02Q07MqTdCyjyKaFGCecxRIaRb66yOV_6n3h1cpCpL3iKOJfItbtEzBMnd8AzoIOr0-Yvts9fHWOB3u5zL5BVHgy-gXMZu1Wh_lEryd05s1HOw4VD7dlaExVa7AJSRu0diHgvJ0IopcQ6YpoiqEpYw0StFhQvudQkSA4frSKbW1K9OvqoRCOaKxUxHC-2iDWkRZ1YqymsVtQSNuSUdkCI2dp8j-x2kMPWjpgKp4GU6SfKkRZnTRraUOAFPM7qk2xoV0ADbFMSD8svysdBUAHeIEUjLxsRRCVlFW7XyWIgGiJCs1gCIZScOsvohnIsvrhYWgvpuifCcAwfXJj3DFphwca-wKZcuIPItuiUBQkbbxUOREfDgMVACr1iiUlZuGpB094tqqPjrFbvDWXkJ_UqfErGgCvf7VtjvvwiwvgPlNmMKl6JPiDWUPDypvOQRk43Cy-g73LpSL8o3N1hfI_wEgTpVs",
+      "viability": {
+        "passed": false,
+        "issues": [
+          {
+            "severity": "warning",
+            "code": "res_always_gear",
+            "message_it": "Le resistenze si cappano con l'equipaggiamento, non con l'albero. Punta a ~135% totale sugli oggetti per coprire la penalita di Elemental Weakness.",
+            "message_en": "Resistances are capped through gear, not the tree. Aim for ~135% total on items to cover the Elemental Weakness map penalty."
+          },
+          {
+            "severity": "error",
+            "code": "life_below_floor",
+            "message_it": "Vita stimata (4315) sotto la soglia minima per SC mapping (5500). Aggiungi nodi life sull'albero o aumenta il budget.",
+            "message_en": "Estimated life (4315) is below the SC mapping floor (5500). Add life nodes on the tree or raise budget."
+          },
+          {
+            "severity": "warning",
+            "code": "single_defence_layer",
+            "message_it": "La build ha un solo layer difensivo. In PoE endgame servono almeno 2 layer (es. life + evasion, ES + block, MoM + armour).",
+            "message_en": "The build has only one defence layer. PoE endgame requires at least 2 layers (e.g. life + evasion, ES + block, MoM + armour)."
+          }
+        ]
+      },
+      "optimised": true
+    },
+    {
+      "intent": {
+        "character_class": "Shadow",
+        "ascendancy": "Assassin",
+        "primary_skill": "Blade Vortex",
+        "damage_type": "chaos",
+        "defence_archetype": "life",
+        "budget": "endgame",
+        "focus": "allcontent"
+      },
+      "links": [
+        {
+          "skill": "Blade Vortex",
+          "supports": [
+            "Unbound Ailments",
+            "Cruelty",
+            "Concentrated Effect",
+            "Controlled Destruction",
+            "Void Manipulation"
+          ],
+          "extra_actives": [],
+          "slot": "Helmet",
+          "label": "Primary 6L"
+        },
+        {
+          "skill": "Flame Dash",
+          "supports": [
+            "Controlled Destruction",
+            "Elemental Focus",
+            "Cruelty"
+          ],
+          "extra_actives": [],
+          "slot": "Helmet",
+          "label": "Secondary 4L"
+        },
+        {
+          "skill": "Dash",
+          "supports": [
+            "Second Wind",
+            "Lifetap",
+            "Inspiration"
+          ],
+          "extra_actives": [],
+          "slot": "Boots",
+          "label": "Movement 4L"
+        },
+        {
+          "skill": "Enduring Cry",
+          "supports": [
+            "Second Wind",
+            "Lifetap",
+            "Concentrated Effect"
+          ],
+          "extra_actives": [],
+          "slot": "Weapon",
+          "label": "Warcry 4L"
+        },
+        {
+          "skill": "Zealotry",
+          "supports": [
+            "Enlighten"
+          ],
+          "extra_actives": [
+            "Malevolence"
+          ],
+          "slot": "Helmet",
+          "label": "Auras"
+        }
+      ],
+      "tree_nodes": [
+        {
+          "node_id": 44683,
+          "name": "Shadow start",
+          "type": "start",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 49408,
+          "name": "Evasion and Energy Shield",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 47362,
+          "name": "Life and Energy Shield on Kill",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 7938,
+          "name": "Intelligence",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 41989,
+          "name": "Resourcefulness",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 1031,
+          "name": "Intelligence",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 42760,
+          "name": "Intelligence",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 11018,
+          "name": "Evasion and Energy Shield",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 27659,
+          "name": "Dexterity",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 51212,
+          "name": "Entropy",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 10511,
+          "name": "Tolerance",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 7444,
+          "name": "Intelligence",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 27929,
+          "name": "Deep Wisdom",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 62490,
+          "name": "Poison Avoidance",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 61982,
+          "name": "Grave Intentions",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 37663,
+          "name": "Chaos Damage Over Time Multiplier",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 38176,
+          "name": "Intelligence",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 11551,
+          "name": "Intelligence",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 11811,
+          "name": "Poison Chance and Duration",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 51748,
+          "name": "Last Rites",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 55332,
+          "name": "Intelligence",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 39718,
+          "name": "Dexterity",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 37671,
+          "name": "Intelligence",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 41263,
+          "name": "Basic Jewel Socket",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 46897,
+          "name": "Armour and Energy Shield",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 36915,
+          "name": "Sacrifice",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 21301,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 35894,
+          "name": "Trickery",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 63799,
+          "name": "Life and Energy Shield",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 48698,
+          "name": "Void Barrier",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 13885,
+          "name": "Dexterity",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 51517,
+          "name": "Minion Life and Chaos Resistance",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 25409,
+          "name": "Indomitable Army",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 20546,
+          "name": "Intelligence",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 27203,
+          "name": "Heart and Soul",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 24133,
+          "name": "Survivalist",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 11334,
+          "name": "Intelligence",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 36678,
+          "name": "Intelligence",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 3656,
+          "name": "Intelligence",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 46408,
+          "name": "Fangs of the Viper",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 21835,
+          "name": "Life",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 62795,
+          "name": "Evasion and Energy Shield",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 31315,
+          "name": "Evasion and Life",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 58968,
+          "name": "Chaos Damage Over Time Multiplier",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 63843,
+          "name": "Dexterity",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 61283,
+          "name": "Mana on Kill against Cursed Enemies",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 6245,
+          "name": "Chance to Ignite",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 4713,
+          "name": "Burning Damage Multiplier",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 58218,
+          "name": "Purity of Flesh",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 6764,
+          "name": "Intelligence",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 28012,
+          "name": "Dexterity",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 50029,
+          "name": "Unnatural Calm",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 5743,
+          "name": "Life and Energy Shield",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 1648,
+          "name": "Poison Chance",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 367,
+          "name": "Energy Shield",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 59252,
+          "name": "Dexterity",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 35958,
+          "name": "Faith and Steel",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 29049,
+          "name": "Holy Fire",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 53114,
+          "name": "Revenge of the Hunted",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 35706,
+          "name": "Energy Shield",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 31359,
+          "name": "Fatal Toxins",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 37504,
+          "name": "Intuition",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 30338,
+          "name": "Damage Over Time",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 58244,
+          "name": "Intelligence",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 903,
+          "name": "Movement Speed and Spell Suppression",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 61320,
+          "name": "Life and Energy Shield",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 41866,
+          "name": "Dexterity",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 9355,
+          "name": "Strength",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 27788,
+          "name": "Blood Drinker",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 11659,
+          "name": "Avoid Interruption while Casting and Elemental Resistances",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 48778,
+          "name": "Intelligence",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 64401,
+          "name": "Life and Mana on Kill against Cursed Enemies",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 19858,
+          "name": "Herbalism",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 27283,
+          "name": "Dexterity",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 57746,
+          "name": "Chaos Resistance and Avoidance",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 49047,
+          "name": "Minion Life and Chaos Resistance",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 10904,
+          "name": "Minion Life",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 2715,
+          "name": "Quickstep",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 26270,
+          "name": "Intelligence",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 40362,
+          "name": "Life",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 4011,
+          "name": "Dexterity",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 42668,
+          "name": "Minion Attack and Cast Speed",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 40366,
+          "name": "Intelligence",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 32176,
+          "name": "Soul Thief",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 18865,
+          "name": "Melding",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 19635,
+          "name": "Intelligence",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 1461,
+          "name": "Dexterity",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 44988,
+          "name": "Wasting",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 15549,
+          "name": "Intelligence",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 36287,
+          "name": "Dexterity",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 30658,
+          "name": "Minion Life and Elemental Resistances",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 14021,
+          "name": "Intelligence",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 21958,
+          "name": "Cruel Preparation",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 8135,
+          "name": "Practical Application",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 7112,
+          "name": "Dexterity",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 55247,
+          "name": "Life and Energy Shield",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 64210,
+          "name": "Intelligence",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 59606,
+          "name": "Dexterity",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 33755,
+          "name": "Life",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 27611,
+          "name": "Lord of the Dead",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 25058,
+          "name": "Blood Siphon",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 15842,
+          "name": "One With Nature",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 1767,
+          "name": "Life and Energy Shield on Kill",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 64235,
+          "name": "Evasion and Elemental Resistances",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 49900,
+          "name": "Dexterity",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 25067,
+          "name": "Evasion and Life",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 18670,
+          "name": "Weapon Elemental Damage",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 5616,
+          "name": "Dexterity",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 38129,
+          "name": "Damage and Energy Shield",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 24050,
+          "name": "Coldhearted Calculation",
+          "type": "notable",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 29171,
+          "name": "Minion Life",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 8948,
+          "name": "Intelligence",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 2292,
+          "name": "Mana and Life",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 9206,
+          "name": "Life",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 24824,
+          "name": "Minion Attack and Cast Speed",
+          "type": "travel",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 27371,
+          "name": "Evasion Mastery",
+          "type": "mastery",
+          "stats": [
+            "+15% chance to Suppress Spell Damage if Equipped Helmet, Body Armour, Gloves, and Boots all have Evasion Rating"
+          ],
+          "effect_id": 57074
+        },
+        {
+          "node_id": 65528,
+          "name": "Evasion Mastery",
+          "type": "mastery",
+          "stats": [
+            "+15% chance to Suppress Spell Damage if Equipped Helmet, Body Armour, Gloves, and Boots all have Evasion Rating"
+          ],
+          "effect_id": 57074
+        },
+        {
+          "node_id": 292,
+          "name": "Life Mastery",
+          "type": "mastery",
+          "stats": [
+            "15% increased maximum Life if there are no Life Modifiers on Equipped Body Armour"
+          ],
+          "effect_id": 34242
+        },
+        {
+          "node_id": 12125,
+          "name": "Life Mastery",
+          "type": "mastery",
+          "stats": [
+            "15% increased maximum Life if there are no Life Modifiers on Equipped Body Armour"
+          ],
+          "effect_id": 34242
+        },
+        {
+          "node_id": 25281,
+          "name": "Life Mastery",
+          "type": "mastery",
+          "stats": [
+            "15% increased maximum Life if there are no Life Modifiers on Equipped Body Armour"
+          ],
+          "effect_id": 34242
+        },
+        {
+          "node_id": 32241,
+          "name": "Life Mastery",
+          "type": "mastery",
+          "stats": [
+            "15% increased maximum Life if there are no Life Modifiers on Equipped Body Armour"
+          ],
+          "effect_id": 34242
+        },
+        {
+          "node_id": 44316,
+          "name": "Life Mastery",
+          "type": "mastery",
+          "stats": [
+            "15% increased maximum Life if there are no Life Modifiers on Equipped Body Armour"
+          ],
+          "effect_id": 34242
+        },
+        {
+          "node_id": 9083,
+          "name": "Minion Defence Mastery",
+          "type": "mastery",
+          "stats": [
+            "Minions have +8% to all maximum Elemental Resistances"
+          ],
+          "effect_id": 61283
+        },
+        {
+          "node_id": 1945,
+          "name": "Mystical Infusion",
+          "type": "ascendancy",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 4242,
+          "name": "Unstable Infusion",
+          "type": "ascendancy",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 19083,
+          "name": "Opportunistic",
+          "type": "ascendancy",
+          "stats": [],
+          "effect_id": null
+        },
+        {
+          "node_id": 19598,
+          "name": "Toxic Delivery",
+          "type": "ascendancy",
+          "stats": [],
+          "effect_id": null
+        }
+      ],
+      "gear_slots": [
+        {
+          "slot": "Helmet",
+          "base_name": "The Bringer of Rain",
+          "stat_priorities": [
+            "Socketed Gems are Supported by Level 30 Melee Physical Damage",
+            "Socketed Gems are Supported by Level 30 Faster Attacks",
+            "Socketed Gems are supported by Level 30 Blind",
+            "6% Chance to Block Attack Damage",
+            "Adds 20 to 30 Physical Damage to Attacks",
+            "(200-300)% increased Armour and Evasion"
+          ],
+          "budget_tier": "endgame"
+        },
+        {
+          "slot": "Gloves",
+          "base_name": "The Embalmer",
+          "stat_priorities": [
+            "Socketed Gems are Supported by Level 20 Vile Toxins",
+            "Adds (13-17) to (23-29) Chaos Damage",
+            "+(50-70) to maximum Life",
+            "+(17-29)% to Chaos Resistance",
+            "(20-25)% increased Poison Duration"
+          ],
+          "budget_tier": "endgame"
+        },
+        {
+          "slot": "Boots",
+          "base_name": "Duskblight",
+          "stat_priorities": [
+            "Trigger Level 1 Stalking Pustule on Kill",
+            "(120-150)% increased Armour and Evasion",
+            "+(50-60) to maximum Life",
+            "20% increased Movement Speed",
+            "50% increased Stun and Block Recovery",
+            "20% reduced Light Radius"
+          ],
+          "budget_tier": "endgame"
+        },
+        {
+          "slot": "Belt",
+          "base_name": "Ascent From Flesh",
+          "stat_priorities": [
+            "+(9-20) to maximum Energy Shield",
+            "+300 to Evasion Rating",
+            "+(75-80) to maximum Energy Shield",
+            "+(10-15)% to all Elemental Resistances",
+            "You have Phasing if Energy Shield Recharge has started Recently",
+            "30% increased Evasion Rating while Phasing"
+          ],
+          "budget_tier": "endgame"
+        },
+        {
+          "slot": "Amulet",
+          "base_name": "Solstice Vigil",
+          "stat_priorities": [
+            "Shaper Item",
+            "+(10-16) to all Attributes",
+            "(30-40)% increased Damage",
+            "+(50-70) to maximum Life",
+            "Regenerate (8-10) Mana per second",
+            "Gain Shaper's Presence for 10 seconds when you kill a Rare or Unique Enemy"
+          ],
+          "budget_tier": "endgame"
+        },
+        {
+          "slot": "Ring",
+          "base_name": "Vermillion Ring",
+          "stat_priorities": [
+            "to maximum Life",
+            "to Fire Resistance",
+            "to Cold Resistance",
+            "to Lightning Resistance",
+            "to Mana",
+            "to all Attributes"
+          ],
+          "budget_tier": "endgame"
+        },
+        {
+          "slot": "Wand",
+          "base_name": "Shade of Solaris",
+          "stat_priorities": [
+            "(17-21)% increased Spell Damage",
+            "Gain (10-20)% of Elemental Damage as Extra Chaos Damage",
+            "Critical Strikes deal no Damage",
+            "200% increased Spell Damage if you've dealt a Critical Strike in the past 8 seconds"
+          ],
+          "budget_tier": "endgame"
+        },
+        {
+          "slot": "Shield",
+          "base_name": "Broken Faith",
+          "stat_priorities": [
+            "+12% to all Elemental Resistances",
+            "0.4% of Chaos Damage Leeched as Life",
+            "-10% Chance to Block",
+            "100% increased Global Armour while you have no Energy Shield",
+            "You have Unholy Might while you have no Energy Shield",
+            "Create Profane Ground instead of Consecrated Ground"
+          ],
+          "budget_tier": "endgame"
+        },
+        {
+          "slot": "Flask 1",
+          "base_name": "Divine Life Flask",
+          "stat_priorities": [
+            "Increased Life Recovery"
+          ],
+          "budget_tier": "endgame"
+        },
+        {
+          "slot": "Flask 2",
+          "base_name": "Quicksilver Flask",
+          "stat_priorities": [
+            "Increased Duration"
+          ],
+          "budget_tier": "endgame"
+        },
+        {
+          "slot": "Flask 3",
+          "base_name": "Sulphur Flask",
+          "stat_priorities": [
+            "Reduced Charges Used"
+          ],
+          "budget_tier": "endgame"
+        },
+        {
+          "slot": "Flask 4",
+          "base_name": "Amethyst Flask",
+          "stat_priorities": [
+            "Increased Charges Gained"
+          ],
+          "budget_tier": "endgame"
+        },
+        {
+          "slot": "Flask 5",
+          "base_name": "Bismuth Flask",
+          "stat_priorities": [
+            "Reduced Charges Used"
+          ],
+          "budget_tier": "endgame"
+        },
+        {
+          "slot": "Jewel 1",
+          "base_name": "Cobalt Jewel",
+          "stat_priorities": [
+            "to maximum Life",
+            "increased damage"
+          ],
+          "budget_tier": "endgame"
+        },
+        {
+          "slot": "Jewel 2",
+          "base_name": "Cobalt Jewel",
+          "stat_priorities": [
+            "to maximum Life",
+            "increased damage"
+          ],
+          "budget_tier": "endgame"
+        },
+        {
+          "slot": "Timeless Jewel",
+          "base_name": "Glorious Vanity",
+          "stat_priorities": [
+            "Passives in radius are Conquered by the Vaal"
+          ],
+          "budget_tier": "endgame"
+        }
+      ],
+      "stats": {
+        "life_estimate": 5605,
+        "es_estimate": 405,
+        "dps_index": 0,
+        "resistance_warning": null,
+        "estimated": false,
+        "full_dps": 27223.9,
+        "total_ehp": 21204
+      },
+      "rationale_it": "Build Shadow/Assassin con Blade Vortex (chaos). Difesa: life. Budget: endgame. Focus: tutti i contenuti. Albero e oggetti sono presi dai dati ufficiali di PoE 3.28.",
+      "rationale_en": "Shadow/Assassin Blade Vortex build (chaos). Defence: life. Budget: endgame. Focus: all content. Tree and items are sourced from official PoE 3.28 data.",
+      "pob_code": "eNrtWllz2zgSftevQKlqah7CxCR4p5xUyZKvRD4i2c5mXlyQBEmwKVLhIVu7Nf99vwZ1UXLszG7VeHZr_ABTDXSjzw8NSvuXIh9fDA8KFQ1UPPq4r5_YTMmHs2QgP9RPzy4vOld1lot0JPMbmWYqiT_U7VuzzqYizscyic_EXZIeJ4MP9fMklht0FVfo_bFIRT-XaVvOZNQo8qTcYyiijKYjkWXnYgJKdywGyUOdiawv40FzPdHIMjyruM4ikvGhbplQZCJU3E369zI_TpNiCmqd9UQ8UPly672P-1eplAzbq5nsTmWfFn3cpyewZ1Bqfjgcyn6efaj_i_u2bxmub_rO78a_PNflweoTD7lhO9zheLa4xd3VJ45l1uqTzbmz_uQ4tuWtPoVmYBuexQP7d3gWem34lQd1lsl-Eg9EOm-s7T-FG82KR4hiLdxGz16dxfAnDNA6er4RmrZhmbZlWI6HwXMCw_JB57SA-xZ091zPcEzLMhzfsg3Xg5au70A77riG53uO4VsWN3zHwVNoB0Zg2a4RhBClrQi56Rmh7brYyIUYywxNx7As08Jelm3Ts-uCbnluiDGgNdptlh0EGB2Tg-K6DmbdwOGGFXi-iTHwMBt6No2BGxjcdB3P4JZtWhgD0LkVEt0xXRMjNsMYcMfgrkl01yRTdVC465ihwT0OydzncAvGgEYKNPc9S4_QkPt-AF4_5HgOTJjOYRCeQwsrbdOGC2zTg3zbssmBcEdo2Bx-NRYht314w0a-gOLCUxhJT9vjgY_R8-k5JF7fha9s3_NsGkl-YGFfjCQt9OFDxwSfHhEni2OlAwfRcxiEhsM9D2ugummUKeY4IfR3PMekMQh9BFZLCLwQlADmGQ4sAj3Ua8LQNA3XNLGvS4HB6Fo-Rh8hdm3LcgzkP9a7rm1j1vcRBTdABGhEVsBE6OCG8DRGD1brzMZocxNjGHDKphDPcCuSyvbDEGNAWeZwy6QR0fQc5KGhiw2Fed1pfxzn-TR7v7f38PDwbgqcSobyUUXyXT-Z7E0JBmbybXavougt1dBeA38Ho28HcnR43_gatMYPX04OetfH_UYvbl5--Tx5cE9bXtYVnX88HE2Cb791ptlxMBocHQTNk6Cvwua5f3r77V7N7y8_T0dpUz0etztBrubOXdsy-eVV7-iybYbO_V3R7R2dZSbvXh9-ujq_uWnf9H8bBJF79O1yPHYmJ-m37Ojuy1chxf3593uepiLMsyafn_U6Ud47OXL7w3M-iodNGZ17Q5s_DIfHLe7k3l1LnA0Sfntnii9n7ufG_ePbq0_u1WPUbfY-Tfn3WHjjtnfxedr4Okk_90_Tznw2a9-c5v88dhup482S77dRcNh4KP7Z6vVHZ_Mr-_Ons9Czgttvny6Ouw5P78YXv31z7avEKsI737mbn8y-iPB65p7fRndv87bn3Rad29sRvLm_R2HYL6E1Wz5olCHA0flYZyqXE41FJmExkHZvxXAxk2mqgEklGWCLfwTEkEWBy5aATB-6MteAliVpfiwn2cG8ddk9UjKC7KMiivCJoD7vjzGrj5CrpFk5UlZHSTZOHhpR_qUQkcrnJOxDPU8LuSV8RcTybjGdlnNX8ymBaKPdri_UhGZMlWibqzzCOdSSQ1FE-XKBPoEaa1OaIupnev3WhKapuB8VcGG8sGqpRiR6ZEOdyVj0IjlYqRcl8MyJjCaSdoSKTKc9Of0gEgN5A8XlI-AfZ2R5tmkyW9IXZyVHeL6XLql8IDlLg7b3Lj8eR0lPRNZTRL5y-t6WaguPXse9pIgHDQX14zzb1HIxxdZzr6ppEyxRPt_UcEV6XcWSGKd-nopcDsoupaLjxixbTr-2vnmaRJDZkhn4kf9JvKXyYgGrrHhVrW8SNTgTsZoWkdhWmOZYdfJP03VPI8erI81RBG-0RDbe9IsmspL6d8r9Ya0PI0nAJ6KjpF9UoHE1wxZTfyPjn14HB0mCM2nLI9sV8BfI_a6-Ln5V8WBTsZLKSvKr6tdWQ5mL6aZyK9KrKnYaZ1OV7oB9hfz_m95fpZgmMbO2M_wwHhSpikfNtFLwSzLT9L8T_n8x4f_KjeRfpM35TQrMVlN_TXud6J0J7JtEEuHZVKtCft0-Jo7UaJzLuAoYK-JCOefPyqG95bV9-Zh93D_Nce1fvG-g5-XrhiKTCzzReKjJpcSSZ-Py_-OlT7wXQMZoZ6wSbf2ipL5QY2nPXmX5QTKYs0Y6SYp0zcOf54EvZjJbL7df2oI6m9Vq54XVMtrQ3n1-cWNSRJvGes8v79CJYq2X-88vX51ZK4bgpxj4miF8ngE3mux-cwPL_BmGjQ0s62cYNl-c8Z9hcDYY7J9hcDcYXojwJ_kgo4rR7s8wbBr9VJz3FvVTFtKiij7WOiJF1b9n1-enX64Pa1djyQ6os5ApS4asA4CvnRNyTESKGZH1VSzz2ulkGqm-yrP3zKyVbxhxTB3rosa6BRKB1Jsz_TaQ2SY7k5GU7HI8z1Qfd6mWmIiR_GnuI_3FEGvkuejfZ0-wZU-yHURoQWreL6w5FsBmlicggXchaKlFYzDIGDdpGkxbOhJ1ua9tmr_QGZdKkWGrEhqYQK9zOBP0vVHtDZYQx0Q8qkkxYdRt1Di4-isNRnAreJhu4zSR3p1io4exjNk8KUoda00R_5oT0mEe92SYSbvVDh_RF7BRkspaGdaNmPKNmHYancPasYxl2UVsYFnt6kHpA4F15Ai4L6oRfWORlqUPkQUrX5ftAHn8x0vKKCwXBeGOK944wS9EPFIIWkdmKsvJBSt6m_SKCYqemGwm0WCTvmO__XROH05wPE1kCpemMQJ7pvI8-w_SGClyoyLJrpJHFWdl2lg-acZDCmKSLTPqjb-bBW94WFqhF26Ywd3NpLpMVAacbBXlvWfXSGfXyFaR3fd0SGunaRJnyF7UKx0tVSuvUjWi4i7NsVg3F9E9OfuyyHKcFgwbf0aUa5b7YqJ7T-f5mukMByG9OWFoQuSgVpXYzYtYyyvrsYPDfCbTuRaRykHRx5p2maNioApkE_E_4T22uAuJeM5KtC375TI6jlYSqm5Gh0jQSX_pQe-8y-L-oaCdALi7AdBfD-fsKE0mYJbZuIYNUeZ0YG9VF6_47RD1OZqz7pi-XVmhx8LJsD2HSrU3wXM8lqsdI1Cc63dVawdltW-AlLGYEfpCLExUw6oMcn8JQVjAwKbTHkTIiuZAvc3IVXUDaFFFLCTXrGcyYGvpjlu9Xbd2kyjLFYJ8o0Yqql3E80dWtjVb1TsWU6Q1iYI_vKU7ENlU9YocPnAqij1TpYDEBWYyy6QXzYKR6PKHALVjCmq5268Zu0xlRj0_GyYprS4XZWsg14gp4CrgCZZcx-p7Icn3k3ntSk6ALwiVzpRMuz5OKHAynenSpzg1BSE_JSprABF2veb_GPKpo6vdyHQCLXTE6PMW1FvOH4bobRR-Hrr9YHMD8ucPIrRjWfBEPozpyzR94kSYQSNA5fwVVVy1i1sVrKFaX8ZcR5BQBlLW5bIABji6PF4rYN6EDroh6ELZewmkwC2UYrWY59WuYHM7CiES4VcUHzEhlGxLGhhZjjNqSoEOlim0641w1xsHaXKPRDsSKh_XGml_rNEbibtAhq1Q8xdgwnznaK9UoLItAQ0wCp7RyfGWKnyrm0LVVxxQXgeXh0ZZ9fMlBsFtVfxaodN1PE6iOQ5nQv2XuJrYC5ZepslQxJLRr40A5aijXIqBtgLHoOyXhVDO7voUF4q1U88ax6fNWkvN0ONqWxenAGVbLoq4P6by2Zmvenl3C2tniy-FwnGjIpx36y0agxR3abSrcnf-pS34zhbdIpqOiw3xlGEXD1F14iW59o7cBm7P6I7zLcHpAL1Vde4l2c6O7AOVTYp8XBXdwglSnXlJsPtjPFzcrWpNSs-8_LhdJM4uHu7u4b20B__v96CfcOxUPCorVUmRsRsRg167UhNcq7JssU_ZKr1nbTrLq7seiJzKeAE2vShJdJVwywXmiH6qhqq_nqerJU23knSOnWqX5W98MppP9Sa6RUaN4TxLyxaZ-G6EiGonQBSo2V8Zpf9lH_fPE-D8RxTTSL5n6MshnN3wDedBytHFAXvLlr83Gia9t7mM36EU-jJ6J6bTWu2znAMOcnrvBMsAYACZvhwWUQxHGICJPE2mcwNNeiT19cpgLSmn7KvKBsnEABgQoJzGkEuHLFjaBL0dACeeu0tfQABsuEdPajD9nfOBSFMlUwOskKO0AoRxmD-R6Jh0L9lNighCinSmZqjmLDcAz_EoW-bzjZqSiMuCwkpE3SwawL5Y5IXuBnBTMUpMLyXmUkLkCUEjncgGTJ5JXNGXIk8KmDIgFgL08mpCSuaFIvsMwmgEu4Xm9p72PpFpj1TDLiXS5HJqaMUREyWHBl3V6SeoBg7WLNcP-itGanemoryVwAT6tY8-xxpTyrMFuZ2kg1XxAoqX23fVdEzzFwDPr2TbOdkLa6ibGMuy46R3y4tv9cuOeoD4EUDMs3Kr03hYZHqfayC9jsCadKHva0WsaLGhPdGHDpGii8X-Xpl9-8jZoRotf4Z6o-SDfj-y9evbfwO2kT0M",
+      "viability": {
+        "passed": true,
+        "issues": [
+          {
+            "severity": "warning",
+            "code": "res_always_gear",
+            "message_it": "Le resistenze si cappano con l'equipaggiamento, non con l'albero. Punta a ~135% totale sugli oggetti per coprire la penalita di Elemental Weakness.",
+            "message_en": "Resistances are capped through gear, not the tree. Aim for ~135% total on items to cover the Elemental Weakness map penalty."
+          },
+          {
+            "severity": "warning",
+            "code": "single_defence_layer",
+            "message_it": "La build ha un solo layer difensivo. In PoE endgame servono almeno 2 layer (es. life + evasion, ES + block, MoM + armour).",
+            "message_en": "The build has only one defence layer. PoE endgame requires at least 2 layers (e.g. life + evasion, ES + block, MoM + armour)."
+          }
+        ]
+      },
+      "optimised": true
     }
   ]
 }
