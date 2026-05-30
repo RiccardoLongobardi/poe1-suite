@@ -182,3 +182,70 @@ misurati, in quest'ordine di impatto:
 
 Ognuno è un re-run offline del precompute + validazione, fitness-gated.
 Mi dici tu se parto da #1 o se prima vuoi decidere il bivio (A/B/C).
+
+---
+
+## 7. DECISIONE PRESA (2026-05-30): **Path A, impegno totale**
+
+Riccardo: *"non vogliamo cambiare cos'è il Theorycrafter. Vogliamo sviluppare
+un tool perfetto, anche se ci vuole un effort assurdo."*
+
+→ **Path A. Niente seed dalla ladder, mai.** Il Theorycrafter resta un
+generatore **from-scratch**. Tutto deriva dai dati PoB/3.28 vendorizzati (tree,
+gemme, item base, mod, unici, cluster, monster); la ladder resta al massimo un
+**segnale di popolarità**, mai la fonte della build. Costruiamo il tool perfetto
+che genera build REALI, viable e forti da zero — costi quel che costi.
+
+Principio guida permanente: **sintesi da dati, non curatela**. Ogni leva è
+algoritmica e fitness-gated sul calc PoB-esatto, così nessuna build regredisce.
+
+### Roadmap definitiva (fasi, ordine di impatto/effort)
+
+Onesto sull'aspettativa: è un lavoro **multi-mese**, ogni fase sono più step.
+Realistico passare dal ~2% a forse 30-60% del DPS ladder nel tempo; pareggiare
+1:1 il mirror-build umano min-maxato è una frontiera (il meta usa interazioni
+che un umano cura per giorni). Ma le build diventano **genuinamente forti e
+REALI** — giocabili, importabili, viable — che è l'obiettivo.
+
+- **Fase 1 — Profondità gemme** (in corso). Awakened ✅ Step 73. Restano:
+  livello 21 + qualità 23 da corruzione (tutte le skill), alt-quality
+  (Anomalous/Divergent/Phantasmal) dove scala, versioni Vaal, pool di supporti
+  più ampio. *Effort basso, impatto ~×1.1-1.3.*
+- **Fase 2 — Cluster jewel** (la leva tree più grossa). Vendorizzare i dati
+  cluster (quali notabili concede ogni tipo/size da `Data/ClusterJewels.lua` +
+  le definizioni notabili), modellare l'item cluster + il suo sotto-albero,
+  far provare all'ottimizzatore large/medium cluster coi migliori notabili
+  danno/difesa. *Effort medio-alto, impatto ~×1.5-2.5.*
+- **Fase 3 — Composer rare craftate** (la leva gear più grossa). Estendere il
+  pool mod (influence Shaper/Elder/Conqueror, fractured, essence, meta-craft
+  "can have multiple crafted modifiers"), e un **composer per-slot** che
+  costruisce la rara ottimale a 6 mod (3 prefix + 3 suffix + crafted)
+  rispettando le regole affissi reali; l'ottimizzatore la valuta vs gli unici.
+  *Effort alto, impatto ~×1.5-3.*
+- **Fase 4 — Meccaniche** (DoT/ailment). DoT: suite completa cold/fire/chaos
+  DoT-multi, exposure (aggiungendo la GEMMA sorgente + flag config), Wither
+  (chaos, applicazione + config), Bonechill, ailment scaling. Ailment:
+  shock/scorch/brittle/sap, ignite prolif. Ogni meccanica aggiunta
+  **onestamente** (la build include la gemma/sorgente che giustifica il
+  config). *Effort medio, impatto ~×1.5-3 sulle build DoT/ailment.*
+- **Fase 5 — Buff & utility**. Mageblood + effetti flask (la build monta i
+  flask → modellare i bonus), Watcher's Eye (mod condizionati all'aura),
+  Pantheon, cariche (con sorgenti), jewel speciali (abyss, coppia Forbidden).
+  *Effort medio, impatto ~×1.2-1.5 + difesa.*
+- **Fase 6 — Archetipi alternativi** (il gap trigger). Generare build trigger
+  (Cast-on-Crit, CwC, Mjolner) quando è così che la skill è meta — è una nuova
+  *modalità* di generazione (la skill attiva diventa il trigger, il danno viene
+  dagli spell triggerati). È il gap più grosso rimasto su alcune skill (Cyclone
+  CoC = 109M) e il più difficile. *Effort alto.*
+- **Fase 7 — Ottimizzatore più profondo**. Sostituire il greedy 1-swap con una
+  ricerca più forte (beam/annealing/multi-start) per uscire dai minimi locali;
+  ottimizzazione **congiunta** gear+tree+gemme (non greedy per-slot); profili
+  di scaling per-archetipo **derivati dai dati PoB** (quali mod/notabili/
+  supporti toccano quale skill) — il cuore della sintesi. *Effort alto.*
+- **Fase 8 — Scala & validazione**. Matrice precompute più grande; misura
+  continua del gap-ladder (`compare_ladder.py`) come metrica di regressione —
+  la ladder è il **metro**, mai la fonte.
+
+Lo stato e i numeri vivono in `CLAUDE.md` (cronologia Step) e in
+`CLAUDE_PERPLEXITY_WORKFLOW.md`. Ogni fase = più Step, ognuno fitness-gated,
+con re-run offline del precompute + bump Patch Notes quando il DPS/EHP si muove.
