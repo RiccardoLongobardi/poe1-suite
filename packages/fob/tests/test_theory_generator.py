@@ -723,3 +723,32 @@ def test_body_armour_has_socketed_gem_level_mods() -> None:
     base_tags = frozenset(next(b for b in get_base_catalogue() if b.name == body.base_name).tags)
     line = real_affix_line("to Level of Socketed Skill Gems", base_tags, "endgame")
     assert line == "+1 to Level of Socketed Skill Gems"
+
+
+def test_gem_link_level_quality_override() -> None:
+    """Step 74: a GemLink can override the active skill gem's level/quality
+    (a corrupted 21/23 main skill on a best-version build); supports/extra
+    actives are unaffected."""
+    from poe1_fob.theory.models import GemLink
+
+    link = GemLink(
+        skill="Vortex",
+        supports=("Controlled Destruction",),
+        slot="Body Armour",
+        label="Primary 6L",
+        skill_level=21,
+        skill_quality=23,
+    )
+    pob = gen._to_pob_gems((link,))
+    gems = pob.links[0].gems
+    active = next(g for g in gems if not g.is_support)
+    assert active.name == "Vortex"
+    assert active.level == 21
+    assert active.quality == 23
+    # Supports keep the default level/quality.
+    support = next(g for g in gems if g.is_support)
+    assert support.level == 20
+    # No override -> default 20/20.
+    plain = gen._to_pob_gems((GemLink(skill="Vortex", slot="Body Armour", label="Primary 6L"),))
+    pactive = next(g for g in plain.links[0].gems if not g.is_support)
+    assert pactive.level == 20 and pactive.quality == 20

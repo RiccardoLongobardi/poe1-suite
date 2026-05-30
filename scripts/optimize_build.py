@@ -127,11 +127,15 @@ class _Encoder:
         self.start = td.class_starts[gen._CLASS_ID[intent.character_class]]
         self.gear = gen._select_gear(intent)
         self.skill = gen._find_active(intent.primary_skill)
+        # Step 74: a best-version build runs a corrupted 21/23 main skill gem
+        # (standard min-max — Vaal orb / +1 gear). Measured +13% on Vortex.
         primary = GemLink(
             skill=self.skill.name,
             supports=gen._select_supports(self.skill, dmg=intent.damage_type),
             slot="Body Armour",
             label="Primary 6L",
+            skill_level=21,
+            skill_quality=23,
         )
         self.base_links = gen._build_gem_layout(intent, primary, self.skill)
         self._pob_gear = gen._to_pob_gear(self.gear)
@@ -218,10 +222,9 @@ class _Encoder:
         )
 
     def with_primary_supports(self, supports: tuple[str, ...]) -> tuple[GemLink, ...]:
-        """The build's links with the body 6L's supports replaced."""
-        primary = GemLink(
-            skill=self.skill.name, supports=supports, slot="Body Armour", label="Primary 6L"
-        )
+        """The build's links with the body 6L's supports replaced (preserving
+        the primary's 21/23 level/quality override)."""
+        primary = self.base_links[0].model_copy(update={"supports": supports})
         return (primary, *self.base_links[1:])
 
 

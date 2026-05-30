@@ -30,12 +30,12 @@ const RELEASES: Release[] = [
   {
     date: { it: "30 mag 2026", en: "30 May 2026" },
     title: {
-      it: "Theorycrafter — gemme Awakened nelle build ottimizzate",
-      en: "Theorycrafter — Awakened gems in the optimised builds",
+      it: "Theorycrafter — qualità gemme da end-game (Awakened + 21/23)",
+      en: "Theorycrafter — end-game gem quality (Awakened + 21/23)",
     },
     summary: {
-      it: "Le build pre-ottimizzate ora montano i supporti Awakened (versioni potenziate delle gemme da danno) dove fanno davvero salire il DPS — un bel salto, soprattutto per i caster.",
-      en: "The pre-optimised builds now run Awakened supports (upgraded versions of the damage gems) where they genuinely raise DPS — a solid jump, especially for casters.",
+      it: "Le build pre-ottimizzate ora montano i supporti Awakened e la skill principale corrotta a livello 21 / qualità 23 — come una vera build mirror. Bel salto di DPS, soprattutto sui caster.",
+      en: "The pre-optimised builds now run Awakened supports and a corrupted level-21 / quality-23 main skill — like a real mirror build. Solid DPS jump, especially on casters.",
     },
     entries: [
       {
@@ -43,8 +43,8 @@ const RELEASES: Release[] = [
         en: "There was also a bug underneath: Awakened gems were exported with an id PoB didn't recognise, so they did nothing. It's fixed now and PoB actually applies them.",
       },
       {
-        it: "Risultato misurato (PoB-esatto): Arc 139.700 → 178.900 DPS (+28%), Spark +25%, Vortex 255.800 → 307.700 (+20%), Lacerate +10%. Tutte restano valide, importabili e con mana/resistenze a posto.",
-        en: "Measured (PoB-exact): Arc 139,700 → 178,900 DPS (+28%), Spark +25%, Vortex 255,800 → 307,700 (+20%), Lacerate +10%. All stay valid, importable, with mana/resistances in order.",
+        it: "Risultato misurato (PoB-esatto, cumulativo): Vortex 255.800 → 346.600 DPS (+35%), Arc 139.700 → 191.900 (+37%), Spark +32%, Lacerate +14%. Tutte restano valide, importabili e con mana/resistenze a posto. Fa parte di un piano più grande per generare build sempre più realistiche e forti.",
+        en: "Measured (PoB-exact, cumulative): Vortex 255,800 → 346,600 DPS (+35%), Arc 139,700 → 191,900 (+37%), Spark +32%, Lacerate +14%. All stay valid, importable, with mana/resistances in order. Part of a larger plan to generate ever more realistic and powerful builds.",
       },
     ],
   },

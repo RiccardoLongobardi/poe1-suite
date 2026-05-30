@@ -1451,7 +1451,12 @@ def _to_pob_gems(links: tuple[GemLink, ...]) -> StageGemLinks:
     pob_links: list[PobGemLink] = []
     for link in links:
         gems = [
-            GemSpec(name=link.skill, level=_gem_level(link.skill), quality=20, is_support=False)
+            GemSpec(
+                name=link.skill,
+                level=link.skill_level or _gem_level(link.skill),
+                quality=link.skill_quality if link.skill_quality is not None else 20,
+                is_support=False,
+            )
         ]
         gems.extend(
             GemSpec(name=a, level=_gem_level(a), quality=20, is_support=False)

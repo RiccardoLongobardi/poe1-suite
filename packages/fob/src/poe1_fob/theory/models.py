@@ -63,6 +63,11 @@ class GemLink(BaseModel):
     extra_actives: tuple[str, ...] = ()
     slot: str = ""
     label: str = ""
+    # Optional level/quality override for the *active* skill gem (Step 74:
+    # a corrupted 21/23 main skill is standard on a min-maxed build). None =
+    # use the default (level 20, quality 20).
+    skill_level: int | None = None
+    skill_quality: int | None = None
 
 
 class TreeNodeRef(BaseModel):
