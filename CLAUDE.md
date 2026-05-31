@@ -126,6 +126,20 @@ Inside the navbar: a "Strumenti" / "Tools" section label above the 5 main routes
 
 Frontend-only, no backend change. Gate: 747 tests / 132 mypy / ruff clean. Build ~471 KB / 151 KB gzip.
 
+## Step 75 — Real-builds initiative: cluster jewel feasibility spike (Fase 2) 🔬
+
+`docs/REAL_BUILDS_ANALYSIS.md` Fase 2 (cluster jewels — the biggest remaining *tree* lever). **De-risking spike only — no optimiser/precompute change, no user-facing change** (like the Step 50 PoB-eval spike or Step 62 timeless unblock). A working cluster must genuinely allocate + raise DPS; a cluster that does nothing would be fictional, so this step proves the mechanism + maps the exact implementation before any build changes.
+
+**Proven (against the real PoB runtime):**
+- **Data is all in PoB.** `.pob_runtime/src/Data/ClusterJewels.lua` (3 sizes; Large = 8-12 passives, 17 damage themes each with the exact `enchant` line, e.g. "Added Small Passive Skills grant: 10% increased Spell Damage" + the theme tag; `notableSortOrder`, `keystones`). `Data/ModJewelCluster.lua` (299 notables as "1 Added Passive Skill is <Name>"). The vendored tree has **6 Large (size-2) sockets** (`expansionJewel.size == 2`, e.g. node 55190 → proxy 30275) + 18 medium + 18 small.
+- **PoB generates the sub-tree from a socketed jewel.** Socketing a Large Cluster Jewel item (theme enchant + `1 Added Passive Skill is Arcane Adept` / `Doryani's Lesson`) at socket 55190 made PoB generate **11 cluster nodes** (ids 65696-65708, deterministic) — the two notables resolved to **65700 (Arcane Adept)** and **65702 (Doryani's Lesson)**, the rest "Spell Damage" small passives.
+
+**The hard part (mapped, not yet solved):**
+- **Allocation is via the tree URL's *cluster section*, not `<Spec nodes>`.** `PassiveSpec:AllocateDecodedNodes(nodes, isCluster=true)` reads cluster nodes as `id - 65536` from a dedicated URL section (our `tree/pob_url.py` already has a cluster section from Step 14 but the encoder writes the `<Spec nodes>` attribute, which does NOT allocate cluster nodes). Injecting `65696…` into `<Spec nodes>` → **no effect** (PoB parses allocated nodes *before* generating the cluster sub-tree, so the ids don't exist yet).
+- **Connectivity + budget.** The cluster nodes are deallocated by `BuildAllDependsAndPaths` unless the Large socket is **reachable from the build's allocated tree** (orphan cluster → dropped). So the optimiser must *path to* a reachable Large socket (like the Step 63 timeless socket) AND spend **~14 passive points per Large cluster** (socket + path + ~12 cluster nodes) — which reshapes the whole tree allocation (a build runs 2-3 large + several medium ≈ 30-40 of the 123 points on clusters).
+
+**Implementation plan (the next step, Fase 2 proper):** (1) vendor the cluster data (themes+enchants per size + the notable pool, with theme-validity by mod tags) → `data/cluster/cluster_3_28.json` + a `poe1_fob.gear.clusters` loader; (2) a two-pass `optimize_clusters`: pick a build-relevant theme, socket a Large cluster at a reachable Large socket (BFS-path to it), let PoB generate the sub-tree, read back the notable ids, then **allocate via the URL cluster section** + the path; (3) budget-aware — clusters compete with regular tree nodes for the 123 points, so `trim_to_budget` must account for them; (4) fitness-gated, so a cluster is kept only when it raises real DPS net of the points it costs. Gate unchanged: 781 tests / 145 mypy / ruff clean (spike was local-only, no committed code).
+
 ## Step 74 — Real-builds initiative: corrupted 21/23 main skill (2026-05-30) ✅
 
 `docs/REAL_BUILDS_ANALYSIS.md` Fase 1 (gem depth) finish. The ladder builds run a **corrupted level-21 + quality-23** main skill gem (standard min-max — a Vaal orb on the gem, or +1 from gear); our optimiser encoded the main skill at 20/20. This bumps it. **User-facing** (caster DPS +6-13% on top of Awakened).

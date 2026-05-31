@@ -211,11 +211,15 @@ REALI** — giocabili, importabili, viable — che è l'obiettivo.
   livello 21 + qualità 23 da corruzione (tutte le skill), alt-quality
   (Anomalous/Divergent/Phantasmal) dove scala, versioni Vaal, pool di supporti
   più ampio. *Effort basso, impatto ~×1.1-1.3.*
-- **Fase 2 — Cluster jewel** (la leva tree più grossa). Vendorizzare i dati
-  cluster (quali notabili concede ogni tipo/size da `Data/ClusterJewels.lua` +
-  le definizioni notabili), modellare l'item cluster + il suo sotto-albero,
-  far provare all'ottimizzatore large/medium cluster coi migliori notabili
-  danno/difesa. *Effort medio-alto, impatto ~×1.5-2.5.*
+- **Fase 2 — Cluster jewel** (la leva tree più grossa). **Spike fatto (Step 75):**
+  i dati sono in PoB (`ClusterJewels.lua` temi+enchant, `ModJewelCluster.lua`
+  299 notabili, 6 socket Large), e PoB **genera il sotto-albero** da un cluster
+  socketato (provato, id deterministici). **Il punto difficile:** i nodi cluster
+  si allocano via la **sezione cluster dell'URL** (`id-65536`), non `<Spec
+  nodes>`; serve connettività (socket raggiungibile) + ~14 punti/cluster (che
+  rimodellano l'albero). Implementazione completa: vendor dati + `optimize_clusters`
+  two-pass (socket → PoB genera id → alloca via URL cluster + path) + budget-aware
+  + fitness-gated. *Effort medio-alto, impatto ~×1.5-2.5.*
 - **Fase 3 — Composer rare craftate** (la leva gear più grossa). Estendere il
   pool mod (influence Shaper/Elder/Conqueror, fractured, essence, meta-craft
   "can have multiple crafted modifiers"), e un **composer per-slot** che
