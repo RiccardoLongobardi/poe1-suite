@@ -211,15 +211,16 @@ REALI** — giocabili, importabili, viable — che è l'obiettivo.
   livello 21 + qualità 23 da corruzione (tutte le skill), alt-quality
   (Anomalous/Divergent/Phantasmal) dove scala, versioni Vaal, pool di supporti
   più ampio. *Effort basso, impatto ~×1.1-1.3.*
-- **Fase 2 — Cluster jewel** (la leva tree più grossa). **Spike fatto (Step 75):**
-  i dati sono in PoB (`ClusterJewels.lua` temi+enchant, `ModJewelCluster.lua`
-  299 notabili, 6 socket Large), e PoB **genera il sotto-albero** da un cluster
-  socketato (provato, id deterministici). **Il punto difficile:** i nodi cluster
-  si allocano via la **sezione cluster dell'URL** (`id-65536`), non `<Spec
-  nodes>`; serve connettività (socket raggiungibile) + ~14 punti/cluster (che
-  rimodellano l'albero). Implementazione completa: vendor dati + `optimize_clusters`
-  two-pass (socket → PoB genera id → alloca via URL cluster + path) + budget-aware
-  + fitness-gated. *Effort medio-alto, impatto ~×1.5-2.5.*
+- **Fase 2 — Cluster jewel** (la leva tree più grossa). **Spike RISOLTO end-to-end
+  (Step 75):** PoB **genera il sotto-albero** da un cluster socketato e la
+  **serializzazione funziona** — gli id cluster vanno nell'attributo `<Spec
+  nodes>` con **`clusterHashFormatVersion="2"`** sullo `<Spec>` (senza, PoB usa il
+  formato v1 legacy e crasha: era questo il blocco). Gli id sono socket-dipendenti
+  (two-pass: socket → leggi id → alloca). Serve connettività (BFS-path a un socket
+  Large raggiungibile) + ~14 punti/cluster. **Misurato +14% da UN Large cluster
+  (Vortex), ricaricabile.** Implementazione completa (de-riskata): vendor dati +
+  `encode_pob_code` con supporto cluster + `optimize_clusters` two-pass +
+  budget-aware + fitness-gated. *Effort medio-alto, impatto ~×1.5-2.5.*
 - **Fase 3 — Composer rare craftate** (la leva gear più grossa). Estendere il
   pool mod (influence Shaper/Elder/Conqueror, fractured, essence, meta-craft
   "can have multiple crafted modifiers"), e un **composer per-slot** che
