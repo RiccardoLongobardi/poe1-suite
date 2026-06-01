@@ -9,6 +9,16 @@ Read this file top-to-bottom before doing any work.
 - Prefers conversation in **Italian**, technical identifiers/commands in **English**.
 - Values: "niente fittizio" — no fake/mocked data. Every module ships with real fixtures and is end-to-end playable before the next one starts.
 
+## Token budget — keep chat output minimal
+
+**Save tokens. Write short, direct, dense chat replies.** This caps only the *prose you type to the user*, never the work itself — run all the tools, tests, research, and code you need.
+
+- No preamble, no recap of what you just did, no "I'll now…". State the result.
+- Prefer a tight bullet list or one compact table over paragraphs. Drop filler words.
+- Don't restate file contents, diffs, or command output the user can already see.
+- A final step report = a few lines: what changed, measured numbers, gate status. Not an essay.
+- Still in Italian, still technically precise — just brief.
+
 ## Product direction (read this BEFORE planning new work)
 
 FOB is a **dynamic** progression planner for PoE 1. It must cover **every class + every ascendancy + every reasonable build** the user can paste — not a curated subset.
