@@ -28,6 +28,27 @@ interface Release {
 // Prepend a new entry with user-facing (not technical) bilingual copy.
 const RELEASES: Release[] = [
   {
+    date: { it: "1 giu 2026", en: "1 Jun 2026" },
+    title: {
+      it: "Theorycrafter — cluster con i talenti giusti (di danno)",
+      en: "Theorycrafter — clusters with the right (damage) notables",
+    },
+    summary: {
+      it: "I gioielli cluster ora scelgono talenti di danno veri al posto di quelli difensivi — così rendono davvero, e due build li montano con un bel salto di DPS.",
+      en: "Cluster jewels now pick real damage notables instead of defensive ones — so they actually pay off, and two builds now run one for a solid DPS gain.",
+    },
+    entries: [
+      {
+        it: "Prima il cluster prendeva talenti difensivi (resistenze, evasione), sprecando i due slot migliori. Ora valuta solo il danno e dà priorità ai moltiplicatori (es. 'Cold-Blooded Killer' +5% moltiplicatore danno nel tempo da freddo). Misurato: Vortex 346.600 → 368.500 DPS (+6%), Blade Vortex +3%.",
+        en: "Before, the cluster grabbed defensive notables (resistances, evasion), wasting its two best slots. Now it scores damage only and favours the multipliers (e.g. 'Cold-Blooded Killer' +5% cold damage-over-time multiplier). Measured: Vortex 346,600 → 368,500 DPS (+6%), Blade Vortex +3%.",
+      },
+      {
+        it: "Le build fisiche/da attacco scartano ancora il cluster (il loro albero è già più denso) — nessuna build peggiora mai. Tutte restano a 123 punti, importabili in PoB e con mana/resistenze a posto.",
+        en: "The physical/attack builds still skip the cluster (their tree is already denser) — no build ever gets worse. All stay at 123 points, importable in PoB, with mana/resistances in order.",
+      },
+    ],
+  },
+  {
     date: { it: "30 mag 2026", en: "30 May 2026" },
     title: {
       it: "Theorycrafter — gioielli cluster nelle build ottimizzate",

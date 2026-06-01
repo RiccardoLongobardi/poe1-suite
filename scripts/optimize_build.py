@@ -1157,11 +1157,31 @@ def _cluster_themes(intent: TheoryIntent, n: int = 2) -> list[cl.ClusterTheme]:
     return [by_tag[t] for t in tags if t in by_tag][:n]
 
 
-def _cluster_notables(theme_dmg: str, defence: str, n: int = 5) -> list[str]:
-    """Top-n cluster notables scored by the build's damage/defence keywords."""
+def _cluster_notable_score(stats: str, kws: tuple[str, ...]) -> int:
+    """Score a cluster notable by DAMAGE only — the cluster's notable slots are
+    precious, so they should carry damage, not the defensive notables the
+    general (survival-weighted) scorer would pick. A DoT multiplier is weighted
+    highest (multiplicative, unlike additive 'increased damage')."""
+    low = stats.lower()
+    s = sum(3 for k in kws if k in low)
+    if "damage over time multiplier" in low:
+        s += 5
+    elif "more damage" in low:
+        s += 4
+    elif "increased damage" in low or "increased spell damage" in low:
+        s += 1
+    if "penetrat" in low or "exposure" in low:
+        s += 3
+    if "critical strike multiplier" in low:
+        s += 2
+    return s
+
+
+def _cluster_notables(theme_dmg: str, n: int = 6) -> list[str]:
+    """Top-n cluster notables scored by the build's damage keywords (only)."""
+    kws = tuple(gen._DAMAGE_KEYWORDS.get(theme_dmg, ()))
     scored = [
-        (gen._score_text(stats, theme_dmg, defence), name)
-        for name, stats in cl.get_notables().items()
+        (_cluster_notable_score(stats, kws), name) for name, stats in cl.get_notables().items()
     ]
     scored = [s for s in scored if s[0] > 0]
     scored.sort(key=lambda s: (-s[0], s[1]))
@@ -1270,7 +1290,7 @@ def optimize_clusters(
 
     best_clusters: tuple[tuple[int, str, tuple[int, ...]], ...] = ()
     best_fit = base_fit
-    notables = _cluster_notables(theme_dmg, intent.defence_archetype)
+    notables = _cluster_notables(theme_dmg)
     for theme in _cluster_themes(intent):
         if len(notables) < 2:
             break

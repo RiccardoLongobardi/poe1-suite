@@ -126,6 +126,15 @@ Inside the navbar: a "Strumenti" / "Tools" section label above the 5 main routes
 
 Frontend-only, no backend change. Gate: 747 tests / 132 mypy / ruff clean. Build ~471 KB / 151 KB gzip.
 
+## Step 77 — Real-builds initiative: cluster damage-notable scoring (Fase 2 refinement) ✅
+
+Step 76 shipped the cluster mechanism but its notable picker was wrong: it scored candidate notables with the build's **full keyword set incl. survivability** (`gen._score_text`), so a *damage* cluster grabbed **defensive** notables — the Step-76 Blade Vortex kept "Prismatic Carapace + Prismatic Dance" (+res / evasion), wasting the cluster's two precious notable slots. A cluster that does nothing for damage is barely worth its ~14 points, so most builds dropped it. This fixes the scoring → clusters become genuinely strong. **User-facing** (two cold-spell builds now keep a damage cluster).
+
+- **`_cluster_notable_score` (damage-only).** New scorer in `optimize_clusters`: scores a notable's stat text by the theme's *damage* keywords only, with bonuses for the multiplicative levers — **"Damage over Time Multiplier" +5**, "more damage" +4, penetration/exposure +3, crit multi +2, "increased … damage" +1. `_cluster_notables(theme_dmg)` now ranks the notable pool by this (dropping zero-score defensive notables) instead of `_score_text`. So a **Cold** cluster picks **Cold-Blooded Killer** (+5% Cold DoT Multiplier) + **Deep Chill**; a **Physical** cluster picks Rend + Blood Artist; a **Lightning** cluster picks Calamitous + Corrosive Elements — real damage hubs, not filler.
+- **Result — two builds flip to a net-positive cluster.** With damage notables the cluster's value clears the ~14-point cost on the cold-spell builds: **Vortex 346.6k → 368.5k (+6%)** (Cold-Blooded Killer + Deep Chill — the DoT multiplier compounds Vortex's cold-degen), **Blade Vortex 29.9k → 30.8k (+3%)**. The physical/attack builds (Cyclone, Lacerate, Boneshatter, Ice Shot) still **correctly drop** the cluster — their regular tree's physical notables are denser/cheaper than a Large cluster, so the budget-honest net comparison rejects it (no regression).
+
+**Measured (PoB-exact, all 8 builds re-validated):** every served build is exactly **123 points**, reservation-positive, resistances-capped, **importable** (cluster builds carry `clusterHashFormatVersion="2"`; re-eval = served DPS to the unit), viability-pass. Vortex's importable build = 116 regular + 7 cluster nodes; Blade Vortex = 114 + 9. Gate: 786 tests / 148 mypy / ruff clean.
+
 ## Step 76 — Real-builds initiative: cluster jewels in the optimiser (Fase 2) ✅
 
 The full cluster-jewel implementation, on the Step 75 de-risk. The optimiser can now build a **Large cluster jewel from scratch** and allocate its sub-tree — the biggest remaining tree lever. **User-facing** (Blade Vortex +5%; the infrastructure benefits every future build).
