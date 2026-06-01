@@ -591,3 +591,52 @@ def test_awakened_support_uses_plus_skill_id() -> None:
     xml = zlib.decompress(base64.urlsafe_b64decode(code + "=" * (-len(code) % 4))).decode()
     assert 'skillId="SupportControlledDestructionPlus"' in xml
     assert "SupportAwakenedControlledDestruction" not in xml
+
+
+def test_cluster_jewel_encodes_with_format_version() -> None:
+    """Step 76: a cluster jewel encodes with clusterHashFormatVersion="2" on the
+    <Spec> + the cluster node ids in the nodes attribute + the jewel Item +
+    Socket. Without the format version PoB defaults to v1 and crashes on raw
+    cluster ids."""
+    body = "\n".join(
+        [
+            "Rarity: RARE",
+            "Generated Cluster",
+            "Large Cluster Jewel",
+            "Item Level: 84",
+            "Implicits: 0",
+            "Adds 12 Passive Skills",
+            "Added Small Passive Skills grant: 10% increased Spell Damage",
+            "1 Added Passive Skill is Arcane Adept",
+        ]
+    )
+    code = encode_pob_code(
+        character_class="Witch",
+        ascendancy="Occultist",
+        tree=StageTree(stage_key="t", node_ids=(100, 200), pob_url=None),
+        clusters=((7960, body, (65568, 65569, 65570)),),
+    )
+    xml = zlib.decompress(base64.urlsafe_b64decode(code + "=" * (-len(code) % 4))).decode()
+    assert 'clusterHashFormatVersion="2"' in xml
+    # cluster ids are appended to the regular nodes in the attribute
+    import re
+
+    nodes_attr = re.search(r'<Spec[^>]*nodes="([^"]*)"', xml)
+    assert nodes_attr is not None
+    ids = {int(x) for x in nodes_attr.group(1).split(",") if x.strip().isdigit()}
+    assert {100, 200, 65568, 65569, 65570} <= ids
+    # the jewel Item + Socket are present
+    assert "Large Cluster Jewel" in xml
+    assert 'nodeId="7960"' in xml
+
+
+def test_no_cluster_omits_format_version() -> None:
+    """A normal build (no clusters) must NOT carry clusterHashFormatVersion —
+    PoB's default v1 is correct for a cluster-free attribute."""
+    code = encode_pob_code(
+        character_class="Witch",
+        ascendancy="Occultist",
+        tree=StageTree(stage_key="t", node_ids=(100, 200), pob_url=None),
+    )
+    xml = zlib.decompress(base64.urlsafe_b64decode(code + "=" * (-len(code) % 4))).decode()
+    assert "clusterHashFormatVersion" not in xml

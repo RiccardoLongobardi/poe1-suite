@@ -211,16 +211,17 @@ REALI** — giocabili, importabili, viable — che è l'obiettivo.
   livello 21 + qualità 23 da corruzione (tutte le skill), alt-quality
   (Anomalous/Divergent/Phantasmal) dove scala, versioni Vaal, pool di supporti
   più ampio. *Effort basso, impatto ~×1.1-1.3.*
-- **Fase 2 — Cluster jewel** (la leva tree più grossa). **Spike RISOLTO end-to-end
-  (Step 75):** PoB **genera il sotto-albero** da un cluster socketato e la
-  **serializzazione funziona** — gli id cluster vanno nell'attributo `<Spec
-  nodes>` con **`clusterHashFormatVersion="2"`** sullo `<Spec>` (senza, PoB usa il
-  formato v1 legacy e crasha: era questo il blocco). Gli id sono socket-dipendenti
-  (two-pass: socket → leggi id → alloca). Serve connettività (BFS-path a un socket
-  Large raggiungibile) + ~14 punti/cluster. **Misurato +14% da UN Large cluster
-  (Vortex), ricaricabile.** Implementazione completa (de-riskata): vendor dati +
-  `encode_pob_code` con supporto cluster + `optimize_clusters` two-pass +
-  budget-aware + fitness-gated. *Effort medio-alto, impatto ~×1.5-2.5.*
+- **Fase 2 — Cluster jewel** — **SHIPPATO (Step 76).** Dati vendorizzati,
+  encoder con supporto cluster (`clusterHashFormatVersion="2"`),
+  `optimize_clusters` two-pass (socket → leggi id → alloca), budget-aware con
+  **confronto netto** (cluster tenuto solo se la build finale trimmata batte
+  quella senza → nessuna regressione). Misurato: Blade Vortex +5%; gli altri 7
+  scartano il cluster (net-negativo su un albero già pieno). **Follow-up — il
+  vero salto: co-design dell'albero.** Aggiungere un cluster *sopra* un albero
+  pieno e poi trimmare è marginale; il guadagno grosso è allocare **meno nodi
+  regolari di danno** e appoggiarsi a **2-3 cluster** come hub di danno (come
+  fanno le build ladder). Serve un ottimizzatore albero che consideri i cluster
+  *durante* l'allocazione, non dopo. *Effort medio-alto.*
 - **Fase 3 — Composer rare craftate** (la leva gear più grossa). Estendere il
   pool mod (influence Shaper/Elder/Conqueror, fractured, essence, meta-craft
   "can have multiple crafted modifiers"), e un **composer per-slot** che

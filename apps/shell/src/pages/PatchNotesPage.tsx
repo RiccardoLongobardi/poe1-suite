@@ -30,6 +30,27 @@ const RELEASES: Release[] = [
   {
     date: { it: "30 mag 2026", en: "30 May 2026" },
     title: {
+      it: "Theorycrafter — gioielli cluster nelle build ottimizzate",
+      en: "Theorycrafter — cluster jewels in the optimised builds",
+    },
+    summary: {
+      it: "L'ottimizzatore ora sa costruire un gioiello cluster da zero (tema di danno + talenti) e allocarne il sotto-albero — una delle leve più forti dell'albero passivo, quando conviene davvero.",
+      en: "The optimiser can now build a cluster jewel from scratch (damage theme + notables) and allocate its sub-tree — one of the strongest passive-tree levers, when it actually pays off.",
+    },
+    entries: [
+      {
+        it: "Un cluster costa molti punti, quindi viene tenuto solo quando la build finale (entro il budget reale di punti) è davvero più forte di quella senza — così nessuna build peggiora mai. Misurato: Blade Vortex sale del 5%; gli altri archetipi, che hanno già un albero forte, lo scartano correttamente.",
+        en: "A cluster costs many points, so it's only kept when the final build (within the real point budget) is genuinely stronger than without it — so no build ever gets worse. Measured: Blade Vortex gains 5%; the other archetypes, whose trees are already strong, correctly skip it.",
+      },
+      {
+        it: "È la base per build sempre più realistiche e potenti — i prossimi passi useranno i cluster come veri 'hub' di danno nell'albero.",
+        en: "It's the foundation for ever more realistic and powerful builds — next steps will use clusters as real damage 'hubs' in the tree.",
+      },
+    ],
+  },
+  {
+    date: { it: "30 mag 2026", en: "30 May 2026" },
+    title: {
       it: "Theorycrafter — qualità gemme da end-game (Awakened + 21/23)",
       en: "Theorycrafter — end-game gem quality (Awakened + 21/23)",
     },

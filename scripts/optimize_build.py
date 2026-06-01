@@ -22,14 +22,16 @@ from __future__ import annotations
 
 import json
 import sys
+from collections import deque
 from functools import lru_cache
 from pathlib import Path
 from typing import NamedTuple
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from pob_eval import PobEvaluator  # type: ignore[import-not-found]  # sibling script
+from pob_eval import PobEvaluator, decode_pob_code  # type: ignore[import-not-found]  # sibling
 
 from poe1_core.models.enums import ItemSlot
+from poe1_fob.gear import clusters as cl
 from poe1_fob.gear.base_items import base_for_name, get_base_catalogue
 from poe1_fob.gear.models import StageGearSet, StageGearSlot
 from poe1_fob.gear.uniques import UniqueItem, unique_pob_body, uniques_for_slot
@@ -203,6 +205,7 @@ class _Encoder:
         gear: tuple[GearSlot, ...] | None = None,
         pob_gear: StageGearSet | None = None,
         jewels: tuple[tuple[int, str], ...] = (),
+        clusters: tuple[tuple[int, str, tuple[int, ...]], ...] = (),
     ) -> str:
         tree = gen._to_pob_tree(self.intent, self._nodes(visited))
         if pob_gear is not None:
@@ -219,6 +222,7 @@ class _Encoder:
             gems=gen._to_pob_gems(links if links is not None else self.base_links),
             level=_CHAR_LEVEL,
             jewels=jewels,
+            clusters=clusters,
         )
 
     def with_primary_supports(self, supports: tuple[str, ...]) -> tuple[GemLink, ...]:
@@ -1103,6 +1107,200 @@ def optimize_timeless(
 
 
 # ---------------------------------------------------------------------------
+# Cluster jewels (Step 76) — the biggest remaining tree lever. Two-pass: socket
+# a Large cluster at a reachable Large socket, let PoB generate the sub-tree,
+# read back the generated cluster node ids, then encode with them allocated.
+# The serialization needs `clusterHashFormatVersion="2"` (handled by the
+# encoder) so PoB doesn't crash on raw cluster ids. All fitness-gated.
+# ---------------------------------------------------------------------------
+
+
+@lru_cache(maxsize=1)
+def _large_socket_ids() -> frozenset[int]:
+    """Regular-tree Large (size-2) cluster sockets, from the vendored tree."""
+    path = (
+        Path(__file__).resolve().parent.parent / "packages" / "fob" / "data" / "tree" / "3_28.json"
+    )
+    raw = json.loads(path.read_text(encoding="utf-8"))
+    out: set[int] = set()
+    for nid, n in raw.get("nodes", {}).items():
+        ej = n.get("expansionJewel") or {}
+        if n.get("isJewelSocket") and ej.get("size") == 2 and nid.isdigit():
+            out.add(int(nid))
+    return frozenset(out)
+
+
+# Build damage type -> ordered Large cluster theme tags to try (most specific
+# first). Derived from PoB's theme list, not curated builds.
+_CLUSTER_THEME_TAGS: dict[str, tuple[str, ...]] = {
+    "cold": ("affliction_cold_damage", "affliction_elemental_damage", "affliction_spell_damage"),
+    "fire": ("affliction_fire_damage", "affliction_elemental_damage", "affliction_spell_damage"),
+    "lightning": (
+        "affliction_lightning_damage",
+        "affliction_elemental_damage",
+        "affliction_spell_damage",
+    ),
+    "chaos": ("affliction_chaos_damage", "affliction_spell_damage"),
+    "physical": ("affliction_physical_damage", "affliction_attack_damage"),
+}
+
+
+def _cluster_themes(intent: TheoryIntent, n: int = 2) -> list[cl.ClusterTheme]:
+    """Build-relevant Large cluster themes (by damage type), spell/attack-aware."""
+    is_attack = "attack" in gen._find_active(intent.primary_skill).tags
+    tags = list(_CLUSTER_THEME_TAGS.get(intent.damage_type, ()))
+    if is_attack:  # an elemental/phys attack scales attack damage, not spell damage
+        tags = [t for t in tags if "spell" not in t]
+        if "affliction_attack_damage" not in tags:
+            tags.append("affliction_attack_damage")
+    by_tag = {t.tag: t for t in cl.themes_for_size(cl.LARGE)}
+    return [by_tag[t] for t in tags if t in by_tag][:n]
+
+
+def _cluster_notables(theme_dmg: str, defence: str, n: int = 5) -> list[str]:
+    """Top-n cluster notables scored by the build's damage/defence keywords."""
+    scored = [
+        (gen._score_text(stats, theme_dmg, defence), name)
+        for name, stats in cl.get_notables().items()
+    ]
+    scored = [s for s in scored if s[0] > 0]
+    scored.sort(key=lambda s: (-s[0], s[1]))
+    return [name for _s, name in scored[:n]]
+
+
+def _cluster_body(theme: cl.ClusterTheme, notables: list[str]) -> str:
+    n_pass = cl.size_passive_count(cl.LARGE)
+    return "\n".join(
+        [
+            "Rarity: RARE",
+            "Generated Cluster",
+            cl.LARGE,
+            "Item Level: 84",
+            "Implicits: 0",
+            f"Adds {n_pass} Passive Skills",
+            theme.enchant,
+            *[f"1 Added Passive Skill is {nm}" for nm in notables],
+        ]
+    )
+
+
+def _reachable_socket(
+    visited: set[int], td: TreeData, sockets: frozenset[int], max_path: int
+) -> tuple[int | None, list[int]]:
+    """Multi-source BFS from the allocated tree to the nearest socket in
+    *sockets*. Returns (socket, path-including-socket) or (None, []) if the
+    nearest is farther than *max_path* fillable hops."""
+    seen = set(visited)
+    prev: dict[int, int] = {}
+    q: deque[int] = deque(visited)
+    while q:
+        x = q.popleft()
+        if x in sockets and x not in visited:
+            path: list[int] = []
+            c = x
+            while c in prev:
+                path.append(c)
+                c = prev[c]
+            return (x, path) if len(path) <= max_path else (None, [])
+        for nb in td.adjacency.get(x, frozenset()):
+            if nb not in seen and gen._is_fillable(td.nodes_by_id.get(nb), nb):
+                seen.add(nb)
+                prev[nb] = x
+                q.append(nb)
+    return None, []
+
+
+_CLUSTER_IDS_CHUNK = r"""
+local ok,err=pcall(function()
+  local f=assert(io.open(os.getenv("POB_EVAL_XML"),"r"))
+  local x=f:read("*a"); f:close(); loadBuildFromXML(x,"eval")
+end)
+if not ok then return "ERR:"..tostring(err) end
+local spec=build.spec
+for id,node in pairs(spec.nodes) do
+  if type(id)=="number" and id>=65536 and node.type=="Notable" then spec:AllocNode(node) end
+end
+local ids={}
+for id in pairs(spec.allocNodes) do
+  if type(id)=="number" and id>=65536 then ids[#ids+1]=tostring(id) end
+end
+return table.concat(ids,",")
+"""
+
+
+def _pass1_cluster_ids(ev: PobEvaluator, code: str) -> tuple[int, ...]:
+    """Load a build (cluster socketed, no cluster ids), allocate the cluster
+    notables in PoB, and return the generated cluster node ids (socket-
+    dependent, so they must be read back per socket)."""
+    ev._tmp_xml.write_text(decode_pob_code(code), encoding="utf-8")
+    out = ev._run_chunk(_CLUSTER_IDS_CHUNK).strip()
+    if out.startswith("ERR"):
+        return ()
+    return tuple(int(x) for x in out.split(",") if x.strip().isdigit())
+
+
+def optimize_clusters(
+    intent: TheoryIntent,
+    ev: PobEvaluator,
+    enc: _Encoder,
+    visited: set[int],
+    links: tuple[GemLink, ...],
+    pob_gear: StageGearSet,
+    jewels: tuple[tuple[int, str], ...] = (),
+    *,
+    max_path: int = 8,
+) -> tuple[set[int], tuple[tuple[int, str, tuple[int, ...]], ...], float]:
+    """Add a Large cluster jewel if it raises PoB-exact fitness.
+
+    Two-pass: BFS-path to the nearest reachable Large socket, socket a build-
+    relevant cluster (theme + top notables), read back the generated cluster
+    ids (pass 1), then encode with them allocated (pass 2). Fitness-gated, so a
+    cluster is kept only when it genuinely helps net of the points it costs.
+    Returns (visited, clusters, fitness).
+    """
+    td = get_tree_data()
+    theme_dmg = "minion" if "minion" in enc.skill.tags else intent.damage_type
+    base_fit = fitness(
+        ev.evaluate(enc.code(visited, links, pob_gear=pob_gear, jewels=jewels)), intent.budget
+    )
+    socket, path = _reachable_socket(visited, td, _large_socket_ids(), max_path)
+    if socket is None:
+        return visited, (), base_fit
+    v2 = visited | set(path)
+
+    best_clusters: tuple[tuple[int, str, tuple[int, ...]], ...] = ()
+    best_fit = base_fit
+    notables = _cluster_notables(theme_dmg, intent.defence_archetype)
+    for theme in _cluster_themes(intent):
+        if len(notables) < 2:
+            break
+        body = _cluster_body(theme, notables[:2])
+        code1 = enc.code(
+            v2, links, pob_gear=pob_gear, jewels=jewels, clusters=((socket, body, ()),)
+        )
+        ids = _pass1_cluster_ids(ev, code1)
+        if not ids:
+            continue
+        clusters = ((socket, body, ids),)
+        try:
+            stats = ev.evaluate(
+                enc.code(v2, links, pob_gear=pob_gear, jewels=jewels, clusters=clusters)
+            )
+        except Exception:
+            continue
+        fit = fitness(stats, intent.budget)
+        if fit > best_fit * 1.001:
+            best_clusters, best_fit = clusters, fit
+    if best_clusters:
+        print(
+            f"[opt] cluster: {best_clusters[0][1].splitlines()[6]} "
+            f"+ {notables[:2]} (+{len(path)} pts) | fit={best_fit:.0f}"
+        )
+        return v2, best_clusters, best_fit
+    return visited, (), base_fit
+
+
+# ---------------------------------------------------------------------------
 # Honest point budget (Step 68) — trim the over-allocated tree to a realistic
 # passive-point count so the served build is actually playable.
 # ---------------------------------------------------------------------------
@@ -1123,22 +1321,27 @@ def trim_to_budget(
     jewels: tuple[tuple[int, str], ...] = (),
     *,
     budget: int = _TREE_POINT_BUDGET,
+    protect_extra: frozenset[int] = frozenset(),
 ) -> set[int]:
     """Drop the lowest-value removable leaves until the build fits a realistic
     passive-point budget.
 
-    The timeless + aura passes can push the allocation past a level-100 point
-    budget (a build needing 144 points is unplayable). This trims it back:
-    connectivity-preserving (only nodes whose removal keeps the set connected
-    to the class start are dropped — i.e. leaves), protecting the start, the
-    jewel socket, and any pathed reservation-efficiency notable (dropping one
-    would break the auras' reservation). Lowest ``_score_node`` first, so the
-    filler travel goes before any real notable. Pure graph work, no PoB eval.
+    The timeless + aura + cluster passes can push the allocation past a
+    level-100 point budget (a build needing 144 points is unplayable). This
+    trims it back: connectivity-preserving (only nodes whose removal keeps the
+    set connected to the class start are dropped — i.e. leaves), protecting the
+    start, the jewel socket, any pathed reservation-efficiency notable
+    (dropping one would break the auras' reservation), and ``protect_extra``
+    (e.g. a cluster socket + its path — dropping one orphans the cluster).
+    Lowest ``_score_node`` first, so the filler travel goes before any real
+    notable. Pure graph work, no PoB eval.
     """
     td = get_tree_data()
     dmg = "minion" if "minion" in enc.skill.tags else intent.damage_type
     defence = intent.defence_archetype
-    protect = {enc.start} | (set(_RES_EFF_NODES) & visited) | {sock for sock, _ in jewels}
+    protect = (
+        {enc.start} | (set(_RES_EFF_NODES) & visited) | {sock for sock, _ in jewels} | protect_extra
+    )
     v = set(visited)
 
     def _node_score(nid: int) -> int:

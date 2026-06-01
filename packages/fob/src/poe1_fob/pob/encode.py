@@ -131,6 +131,7 @@ def encode_pob_code(
     level: int = 90,
     passthrough_user_pob: str | None = None,
     jewels: tuple[tuple[int, str], ...] = (),
+    clusters: tuple[tuple[int, str, tuple[int, ...]], ...] = (),
 ) -> str:
     """Encode a stage spec into a PoB export code.
 
@@ -174,6 +175,7 @@ def encode_pob_code(
         level=level,
         passthrough_user_pob=passthrough_user_pob,
         jewels=jewels,
+        clusters=clusters,
     )
     raw = xml_str.encode("utf-8")
     compressed = zlib.compress(raw, level=9)
@@ -195,6 +197,7 @@ def _build_xml(
     level: int,
     passthrough_user_pob: str | None = None,
     jewels: tuple[tuple[int, str], ...] = (),
+    clusters: tuple[tuple[int, str, tuple[int, ...]], ...] = (),
 ) -> str:
     """Assemble the PathOfBuilding XML root."""
 
@@ -256,7 +259,13 @@ def _build_xml(
     # empty spec — PoB still imports the code, and the user keeps their
     # original tree from the source PoB they pasted.
     tree_elem = ET.SubElement(root, "Tree", attrib={"activeSpec": "1"})
-    spec_nodes = ",".join(str(n) for n in tree.node_ids) if tree else ""
+    node_ids: tuple[int, ...] = tree.node_ids if tree else ()
+    # Step 76: cluster-jewel sub-tree nodes go in the SAME ``nodes=`` attribute
+    # (raw ids). PoB defers ids it doesn't know yet to its cluster subgraph
+    # allocation — but ONLY when ``clusterHashFormatVersion="2"`` is set; without
+    # it PoB assumes the legacy v1 hash format and crashes on raw cluster ids.
+    cluster_node_ids: tuple[int, ...] = tuple(nid for _s, _b, ids in clusters for nid in ids)
+    spec_nodes = ",".join(str(n) for n in (*node_ids, *cluster_node_ids))
     # Mastery effects: PoB silently drops every mastery node listed in
     # ``nodes=`` unless the same nodeId appears in ``masteryEffects=``.
     # That accounts for the missing-nodes / "tree is half there" symptom
@@ -269,18 +278,18 @@ def _build_xml(
     )
     # Attribute set mirrors real PoB 3.28 exports. No ``title`` (PoB
     # auto-labels), ``secondaryAscendClassId="0"`` for non-Scion builds.
-    spec = ET.SubElement(
-        tree_elem,
-        "Spec",
-        attrib={
-            "masteryEffects": spec_mastery,
-            "treeVersion": _TREE_VERSION,
-            "secondaryAscendClassId": "0",
-            "ascendClassId": str(asc_id),
-            "classId": str(class_id),
-            "nodes": spec_nodes,
-        },
-    )
+    spec_attrib = {
+        "masteryEffects": spec_mastery,
+        "treeVersion": _TREE_VERSION,
+        "secondaryAscendClassId": "0",
+        "ascendClassId": str(asc_id),
+        "classId": str(class_id),
+        "nodes": spec_nodes,
+    }
+    if clusters:
+        # Required for raw cluster ids in ``nodes=`` (see above).
+        spec_attrib["clusterHashFormatVersion"] = "2"
+    spec = ET.SubElement(tree_elem, "Spec", attrib=spec_attrib)
     # The <URL> child encodes the same node set in PoE's tree-share
     # format. PoB requires it on import (it's how the desktop app
     # rehydrates the tree); our parser also requires it (raises
@@ -431,6 +440,34 @@ def _build_xml(
             jewel_item.text = "\n" + body.strip() + "\n"
             ET.SubElement(
                 sockets_elem,
+                "Socket",
+                attrib={"nodeId": str(socket_node), "itemId": str(item_id)},
+            )
+
+    # Cluster jewels (Step 76): same Item + Socket mechanism, but the cluster
+    # sub-tree node ids are also in the Spec's ``nodes=`` (with
+    # clusterHashFormatVersion="2", set above). PoB generates the sub-tree from
+    # the socketed jewel and allocates the listed cluster ids.
+    if clusters:
+        cl_items = root.find("Items")
+        if cl_items is None:
+            cl_items = ET.SubElement(
+                root, "Items", attrib={"activeItemSet": "1", "useSecondWeaponSet": "false"}
+            )
+            ET.SubElement(
+                cl_items,
+                "ItemSet",
+                attrib={"id": "1", "useSecondWeaponSet": "false", "title": "Default"},
+            )
+        cl_sockets = spec.find("Sockets")
+        if cl_sockets is None:  # pragma: no cover - Sockets always created above
+            cl_sockets = ET.SubElement(spec, "Sockets")
+        for j, (socket_node, body, _ids) in enumerate(clusters):
+            item_id = 1100 + j
+            cl_item = ET.SubElement(cl_items, "Item", attrib={"id": str(item_id)})
+            cl_item.text = "\n" + body.strip() + "\n"
+            ET.SubElement(
+                cl_sockets,
                 "Socket",
                 attrib={"nodeId": str(socket_node), "itemId": str(item_id)},
             )

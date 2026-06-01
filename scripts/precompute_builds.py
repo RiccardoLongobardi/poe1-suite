@@ -28,6 +28,7 @@ from optimize_build import (  # type: ignore[import-not-found]  # sibling script
     fitness,
     optimize_auras,
     optimize_awakened,
+    optimize_clusters,
     optimize_links,
     optimize_timeless,
     optimize_tree,
@@ -40,7 +41,7 @@ from pob_eval import PobEvaluator  # type: ignore[import-not-found]
 from poe1_core.models.enums import ItemSlot
 from poe1_fob.theory import TheoryIntent, generate_build, validate_build
 from poe1_fob.theory import generator as gen
-from poe1_fob.theory.models import BuildSkeleton, GearSlot, StatEstimate
+from poe1_fob.theory.models import BuildSkeleton, GearSlot, StatEstimate, TreeNodeRef
 from poe1_fob.tree.tree_data import get_tree_data
 
 # Theory gear-slot label → ItemSlot, to reflect chosen uniques back into the
@@ -122,28 +123,64 @@ def _optimised_skeleton(
     # 6) auras — multi-aura group + Enlighten (+ pathed reservation nodes),
     # reservation-honest.
     best_links, visited, _ = optimize_auras(intent, ev, enc, visited, best_links, best_pob, jewels)
-    # 7) trim to a realistic passive-point budget (the timeless + aura passes
-    # can push the allocation over a level-100 budget; an unplayable build is
-    # fictional). Drops the lowest-value filler leaves.
-    pts_before = len(visited) - 1
-    visited = trim_to_budget(intent, enc, visited, jewels)
-    print(
-        f"[opt] trim: {pts_before} -> {len(visited) - 1} regular nodes "
-        f"(budget {_TREE_POINT_BUDGET})"
-    )
-    # Step 70: final honest re-socket. A chest-forbidding helmet (The Bringer
-    # of Rain) voids the body, so socketing the primary 6L there is fictional —
-    # relocate it into the helmet (the only legal socketing; it picks up the
-    # helmet's built-in supports). Applied last, as a pure overlay on the
-    # finished build (the relocation only *adds* the helmet's supports to the
-    # existing 6L), so it isn't subject to the greedy passes' path-dependence.
+    # Step 70 relocation (links-only — a chest-forbidding helmet voids the body,
+    # so the 6L is relocated to the helmet). Done before the trim/cluster evals.
     helmet_u = chosen.get(ItemSlot.HELMET)
     if helmet_u is not None and _forbids_chest(helmet_u):
         best_links = _relocate_no_chest(best_links)
-    best_stats = ev.evaluate(enc.code(visited, best_links, pob_gear=best_pob, jewels=jewels))
 
-    pob_code = enc.code(visited, best_links, pob_gear=best_pob, jewels=jewels)
-    tree_nodes = enc._nodes(visited)
+    # 7) cluster jewel (Step 76) — the biggest tree lever. Two-pass: socket a
+    # Large cluster at a reachable Large socket, read back the generated
+    # sub-tree ids, encode with them allocated. A cluster costs ~14 points
+    # (socket + path + ~8 sub-tree nodes), so it's only kept if the FINAL build
+    # (trimmed to the 123-point budget) beats the same build WITHOUT the cluster
+    # — otherwise adding it on top of an already-full tree is a net loss.
+    visited_pre = set(visited)
+    visited_c, clusters, _ = optimize_clusters(
+        intent, ev, enc, visited, best_links, best_pob, jewels
+    )
+    cluster_pts = sum(len(ids) for _s, _b, ids in clusters)
+
+    def _final(
+        v: set[int], cl_param: tuple[tuple[int, str, tuple[int, ...]], ...]
+    ) -> dict[str, float]:
+        stats: dict[str, float] = ev.evaluate(
+            enc.code(v, best_links, pob_gear=best_pob, jewels=jewels, clusters=cl_param)
+        )
+        return stats
+
+    if clusters:
+        cluster_path = frozenset(visited_c - visited_pre)  # path + socket — protect in trim
+        v_with = trim_to_budget(
+            intent,
+            enc,
+            visited_c,
+            jewels,
+            budget=_TREE_POINT_BUDGET - cluster_pts,
+            protect_extra=cluster_path,
+        )
+        v_no = trim_to_budget(intent, enc, visited_pre, jewels)
+        st_with, st_no = _final(v_with, clusters), _final(v_no, ())
+        if fitness(st_no, intent.budget) >= fitness(st_with, intent.budget):
+            clusters, visited, best_stats = (), v_no, st_no  # cluster not net-positive
+            print(f"[opt] cluster dropped (net loss after trim): {len(v_no) - 1} nodes")
+        else:
+            visited, best_stats = v_with, st_with
+            print(f"[opt] cluster kept: {len(v_with) - 1} regular + {cluster_pts} cluster")
+    else:
+        visited = trim_to_budget(intent, enc, visited_pre, jewels)
+        best_stats = _final(visited, ())
+        print(f"[opt] trim -> {len(visited) - 1} regular nodes (budget {_TREE_POINT_BUDGET})")
+
+    pob_code = enc.code(visited, best_links, pob_gear=best_pob, jewels=jewels, clusters=clusters)
+    # Cluster sub-tree nodes count toward the point budget — surface them in the
+    # served tree so the budget invariant test sees the real total.
+    cluster_refs = tuple(
+        TreeNodeRef(node_id=nid, name="Cluster passive", type="travel")
+        for _s, _b, ids in clusters
+        for nid in ids
+    )
+    tree_nodes = (*enc._nodes(visited), *cluster_refs)
     links = best_links
 
     # Display gear: the rare/weapon theory slots, with chosen uniques overlaid
@@ -179,6 +216,22 @@ def _optimised_skeleton(
                     ln
                     for ln in body_lines
                     if ln.startswith("Commanded") or ln.startswith("Passives")
+                ),
+                budget_tier=intent.budget,
+            ),
+        )
+    # Show each cluster jewel as a display slot (enchant + its notables).
+    for _s, body, _ids in clusters:
+        lines = body.split("\n")
+        gear = (
+            *gear,
+            GearSlot(
+                slot="Cluster Jewel",
+                base_name="Large Cluster Jewel",
+                stat_priorities=tuple(
+                    ln
+                    for ln in lines
+                    if ln.startswith("Added Small") or ln.startswith("1 Added Passive")
                 ),
                 budget_tier=intent.budget,
             ),

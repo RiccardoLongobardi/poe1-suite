@@ -126,6 +126,19 @@ Inside the navbar: a "Strumenti" / "Tools" section label above the 5 main routes
 
 Frontend-only, no backend change. Gate: 747 tests / 132 mypy / ruff clean. Build ~471 KB / 151 KB gzip.
 
+## Step 76 — Real-builds initiative: cluster jewels in the optimiser (Fase 2) ✅
+
+The full cluster-jewel implementation, on the Step 75 de-risk. The optimiser can now build a **Large cluster jewel from scratch** and allocate its sub-tree — the biggest remaining tree lever. **User-facing** (Blade Vortex +5%; the infrastructure benefits every future build).
+
+- **Data vendored.** `scripts/extract_cluster_jewels.py` dumps PoB's own loaded cluster data → `data/cluster/cluster_3_28.json` (46 KB: 3 sizes, 55 themes with the exact "Added Small Passive Skills grant: …" enchants, 308 cluster notables with their stat text). `poe1_fob.gear.clusters` loads it.
+- **Encoder cluster support.** `encode_pob_code` gained a `clusters` param: it sets **`clusterHashFormatVersion="2"`** on the `<Spec>` (the Step-75 breakthrough — without it PoB defaults to the legacy v1 hash and crashes on raw cluster ids), appends the cluster sub-tree node ids to the `nodes` attribute, and emits the jewel `<Item>` + `<Socket>`.
+- **`optimize_clusters` (two-pass).** Picks a build-relevant theme (by damage type) + the top relevance-scored notables, BFS-paths to the nearest reachable Large socket, then: **pass 1** — encode with the cluster socketed (no cluster ids) and read back the socket-dependent generated ids via PoB's `AllocNode`; **pass 2** — encode with them allocated. Fitness-gated.
+- **Budget-honest net comparison.** A Large cluster costs ~14 points (socket + path + ~8 sub-tree nodes), so adding it on top of an already-full tree + trimming back to 123 can be a *net loss*. The pipeline therefore evaluates the FINAL build (trimmed to budget) **with vs without** the cluster and keeps the better — so no build regresses. `trim_to_budget` protects the cluster socket + path (else the cluster orphans + deallocates).
+
+**Measured (PoB-exact, all reservation-positive + ≤123 pts + importable + viability-pass):** **Blade Vortex 28.4k → 29.9k (+5%)** — the optimiser kept a Spell cluster (Prismatic Carapace + Prismatic Dance) because its tree damage was weak enough that the cluster beats the trimmed filler. The other 7 builds **correctly dropped** the cluster (net loss after trim — their trees are already strong), so they're unchanged (no regression). The cluster build re-imports cleanly into PoB (the `clusterHashFormatVersion="2"` serialization works through the real encoder).
+
+**Honest scope:** clusters help most where the regular tree damage is weak; the bigger ladder-tier win needs **tree co-design** (allocate fewer regular damage nodes and lean on 2-3 clusters as the damage hubs) rather than adding one cluster on top of a full tree — that deeper integration is the follow-up. But the mechanism + data + budget + serialization are all shipped and proven. Tests: `test_clusters.py` (catalogue) + `test_cluster_jewel_encodes_with_format_version`. Gate: 786 tests / 148 mypy / ruff clean.
+
 ## Step 75 — Real-builds initiative: cluster jewel feasibility spike (Fase 2) 🔬
 
 `docs/REAL_BUILDS_ANALYSIS.md` Fase 2 (cluster jewels — the biggest remaining *tree* lever). **De-risking spike only — no optimiser/precompute change, no user-facing change** (like the Step 50 PoB-eval spike or Step 62 timeless unblock). A working cluster must genuinely allocate + raise DPS; a cluster that does nothing would be fictional, so this step proves the mechanism + maps the exact implementation before any build changes.
