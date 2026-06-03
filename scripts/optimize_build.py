@@ -66,6 +66,17 @@ _CHAR_LEVEL = 100
 # points is not playable, and "niente fittizio" forbids serving one.
 _TREE_POINT_BUDGET = 123
 
+# Fase 6 (CoC): the trigger 6L supports — Cast On Critical Strike (the
+# mechanism) + the triggered spell's crit/cold scaling. The trigger attack
+# (Cyclone) crits → CoC casts the spell; Increased Critical Strikes lifts the
+# attack's crit (→ trigger rate), Hypothermia/Cold Penetration scale the spell.
+_COC_SUPPORTS: tuple[str, ...] = (
+    "Cast On Critical Strike",
+    "Increased Critical Strikes",
+    "Hypothermia",
+    "Cold Penetration",
+)
+
 _EHP_FLOOR = {"starter": 2500, "mid": 4000, "endgame": 5000}
 # Step 60: EHP we reward up to (TotalEHP, PoB-exact). Above this, the EHP
 # bonus saturates so the optimiser stops trading DPS for more defence.
@@ -123,22 +134,38 @@ class _Encoder:
     """Encodes a candidate tree (a set of regular node ids) into a PoB code,
     reusing the build's fixed gear + gems + ascendancy."""
 
-    def __init__(self, intent: TheoryIntent, td: TreeData) -> None:
+    def __init__(
+        self, intent: TheoryIntent, td: TreeData, *, coc_trigger: str | None = None
+    ) -> None:
         self.intent = intent
         self.td = td
         self.start = td.class_starts[gen._CLASS_ID[intent.character_class]]
         self.gear = gen._select_gear(intent)
         self.skill = gen._find_active(intent.primary_skill)
-        # Step 74: a best-version build runs a corrupted 21/23 main skill gem
-        # (standard min-max — Vaal orb / +1 gear). Measured +13% on Vortex.
-        primary = GemLink(
-            skill=self.skill.name,
-            supports=gen._select_supports(self.skill, dmg=intent.damage_type),
-            slot="Body Armour",
-            label="Primary 6L",
-            skill_level=21,
-            skill_quality=23,
-        )
+        self.coc_trigger = coc_trigger
+        if coc_trigger is not None:
+            # Fase 6: a Cast-on-Critical-Strike build — a trigger attack
+            # (coc_trigger, e.g. Cyclone) casts the spell (intent.primary_skill,
+            # e.g. Ice Nova) on crit. The triggered spell is the DPS; its
+            # supports are CoC + the spell's crit/element scaling.
+            primary = GemLink(
+                skill=coc_trigger,
+                extra_actives=(self.skill.name,),
+                supports=_COC_SUPPORTS,
+                slot="Body Armour",
+                label="CoC 6L",
+            )
+        else:
+            # Step 74: a best-version build runs a corrupted 21/23 main skill gem
+            # (standard min-max — Vaal orb / +1 gear). Measured +13% on Vortex.
+            primary = GemLink(
+                skill=self.skill.name,
+                supports=gen._select_supports(self.skill, dmg=intent.damage_type),
+                slot="Body Armour",
+                label="Primary 6L",
+                skill_level=21,
+                skill_quality=23,
+            )
         self.base_links = gen._build_gem_layout(intent, primary, self.skill)
         self._pob_gear = gen._to_pob_gear(self.gear)
         # Ascendancy notables (display-only, fixed).
