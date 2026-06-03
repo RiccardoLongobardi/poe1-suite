@@ -136,6 +136,18 @@ Inside the navbar: a "Strumenti" / "Tools" section label above the 5 main routes
 
 Frontend-only, no backend change. Gate: 747 tests / 132 mypy / ruff clean. Build ~471 KB / 151 KB gzip.
 
+## Step 82 — Real-builds initiative: trigger archetype (CoC) feasibility spike (Fase 6) 🔬
+
+`docs/REAL_BUILDS_ANALYSIS.md` Fase 6 (trigger archetypes — Cast on Critical Strike / Cast While Channelling, what the 13M-DPS meta builds use). **De-risking spike only — no generator/optimiser/precompute change, no user-facing change** (like Step 75 cluster spike). A CoC build is a fundamentally *new archetype* (a crit+attack+spell hybrid that no current single-primary-skill build has), so this proves the mechanism + maps the implementation before any build change.
+
+**Proven (against the real PoB runtime):**
+- **The encoder produces a valid CoC build + PoB calcs the trigger.** Injected a `Cyclone + Cast On Critical Strike + Ice Nova` group into a built Cyclone and evaluated: PoB loads it (no crash) and FullDPS rose 317.1k → 354.2k — the **triggered Ice Nova** is computed and summed. The skillIds my `_skill_id` heuristic produces are **correct** for the trigger gems: **`SupportCastOnCriticalStrike`** (verified against PoB's `Data/Gems.lua`), and `Cyclone`/`IceNova` load. (Also confirmed `SupportSpellTotem` is the real id — my earlier casing worry was unfounded.)
+- **PoB rate-limits the trigger honestly** (the +37k is on *physical, non-crit* gear — a floor, not infinite): CoC has a 0.15 s cooldown → max ~6.67 triggers/s, and PoB caps it, so a served CoC DPS would be honest (no fictional infinite trigger rate).
+
+**Why it's a spike, not a step:** a real CoC build needs the whole crit+cold-spell hybrid (tree + gear), which no existing build has — the +37k floor is on the physical Cyclone's gear (no crit to trigger, no cold-spell scaling for Ice Nova). The ladder CoC Cyclone does **~5-13M** (the meta build); the mechanism is proven, the *magnitude* needs the full archetype.
+
+**Implementation plan (the next focused effort — a major multi-step feature):** (1) **two-skill build model** — a CoC build has a *trigger* attack (Cyclone) + *triggered* spells (Ice Nova + Ice Spear) that are the actual DPS; the generator/optimiser are single-primary-skill and need to carry both. (2) **Gem layout** — 6L = trigger + `Cast On Critical Strike` + 2 triggered spells (via `extra_actives`, already supported) + 2 crit supports (Increased Critical Strikes, Power Charge On Crit). (3) **Crit-aware tree/gear scoring** — the greedy scorer must value crit chance/multi (to reach the trigger-rate cap) **and** the triggered spell's element; add crit to the CoC damage keywords. (4) **Gear** — a fast high-crit weapon, typically **Cospri's Malice** (the iconic CoC unique that triggers spells on crit), + cold/spell + crit; the uniques pass picks it. (5) **Optimiser + matrix + validation** — add a CoC archetype, optimise, and validate the trigger rate is PoB-capped (honest). Gate unchanged: 789 tests / 148 mypy / ruff clean (spike local-only, no committed code).
+
 ## Step 81 — Real-builds initiative: enemy curse (Fase 4) ✅
 
 The single **biggest clean lever** of the whole initiative. The served builds applied **no curse**, so PoB modelled the enemy at full resistance — but every real build curses (a self-cast curse on the boss is a one-button combat staple). A curse matched to the build's element cuts the enemy's resistance (which **also penetrates that element's DoT**) or raises damage/ailment taken. **User-facing — +13% to +62% across the board.**
