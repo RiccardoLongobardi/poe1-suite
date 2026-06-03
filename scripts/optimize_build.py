@@ -819,6 +819,119 @@ def optimize_flasks(
     return StageGearSet(stage_key="opt", slots=tuple(slots)), cur_fit, chosen
 
 
+_ANOINT_ELEMS = ("fire", "cold", "lightning")
+
+
+def _anoint_score(stats: tuple[str, ...], dmg: str) -> int:
+    """Score a notable as an *anoint* candidate by DAMAGE only (the anoint is a
+    single free notable — make it carry damage, not the defensive notable a
+    survival-weighted scorer would pick). DoT multiplier weighted highest.
+
+    A notable that scales a *foreign* element (e.g. a Fire notable on a Lightning
+    build) is rejected even if PoB finds it a marginal gain — it reads as a
+    mistake to a real player. Build-element + element-agnostic multipliers
+    (crit / DoT) only.
+    """
+    s = " ".join(stats).lower()
+    elem = sum(3 for k in gen._DAMAGE_KEYWORDS.get(dmg, ()) if k in s)
+    # Reject a notable that scales an element this build doesn't use.
+    foreign = any(e in s for e in _ANOINT_ELEMS if e != dmg)
+    if foreign and elem == 0:
+        return 0
+    v = elem
+    if "damage over time multiplier" in s:
+        v += 7
+    if "critical strike multiplier" in s:
+        v += 2
+    if ("penetrat" in s or "exposure" in s) and elem > 0:
+        v += 3
+    return v
+
+
+def optimize_anoint(
+    intent: TheoryIntent,
+    ev: PobEvaluator,
+    enc: _Encoder,
+    visited: set[int],
+    links: tuple[GemLink, ...],
+    base_gear: StageGearSet,
+    jewels: tuple[tuple[int, str], ...] = (),
+    *,
+    top_n: int = 12,
+) -> tuple[StageGearSet, float, str | None]:
+    """Anoint the amulet with the best damage notable, fitness-gated.
+
+    Every mirror build anoints its amulet — a free tree notable (Blight oils)
+    with **no passive-point cost**, so like flasks this never trades EHP. The
+    candidate pool is the build's *unallocated* regular notables scored by
+    damage (so a cold DoT build anoints e.g. Season of Ice, +DoT multiplier),
+    emitted as an ``Allocates <Notable>`` line on the amulet that PoB applies.
+    Returns (gear, fitness, chosen notable | None).
+    """
+    td = get_tree_data()
+    dmg = "minion" if "minion" in enc.skill.tags else intent.damage_type
+    slots = list(base_gear.slots)
+    am_idx = next((i for i, s in enumerate(slots) if s.slot == ItemSlot.AMULET), None)
+    base_fit = fitness(
+        ev.evaluate(enc.code(visited, links, pob_gear=base_gear, jewels=jewels)), intent.budget
+    )
+    if am_idx is None:
+        return base_gear, base_fit, None
+    cands = sorted(
+        (
+            (_anoint_score(n.stats, dmg), n.name or "", n.id)
+            for n in td.nodes_by_id.values()
+            if n.is_notable
+            and n.name
+            and n.id < 65536
+            and not n.ascendancy_name
+            and not n.is_mastery
+            and n.id not in visited
+        ),
+        key=lambda t: (-t[0], t[1]),
+    )
+    cands = [c for c in cands if c[0] > 0][:top_n]
+    am = slots[am_idx]
+    base_stats = ev.evaluate(enc.code(visited, links, pob_gear=base_gear, jewels=jewels))
+    base_dps = base_stats.get("FullDPS") or base_stats.get("CombinedDPS") or 0.0
+    # Evaluate every candidate; keep those that give a real DPS gain (>1.5%).
+    # Among the passers, pick the highest-*scored* (most element-coherent) — so a
+    # cold build anoints Season of Ice (cold), not a chaos notable that happens
+    # to PoB-tie by a fraction. A damage anoint that does ~nothing (no good
+    # unallocated notable of this build's element is left) -> no anoint (honest).
+    passers: list[tuple[int, float, str, StageGearSlot]] = []
+    for sc, name, _nid in cands:
+        body = am.item_name.rstrip() + "\nAllocates " + name
+        trial = list(slots)
+        trial[am_idx] = StageGearSlot(
+            slot=ItemSlot.AMULET, item_name=body, kind="rare_craft", notes=am.notes
+        )
+        try:
+            stats = ev.evaluate(
+                enc.code(
+                    visited,
+                    links,
+                    pob_gear=StageGearSet(stage_key="opt", slots=tuple(trial)),
+                    jewels=jewels,
+                )
+            )
+        except Exception:
+            continue
+        dps = stats.get("FullDPS") or stats.get("CombinedDPS") or 0.0
+        if dps > base_dps * 1.015:
+            passers.append((sc, dps, name, trial[am_idx]))
+    if passers:
+        # DPS-primary, with a small element-coherence tiebreak: a tiny score
+        # nudge (~2.6% max) breaks near-ties toward the element-matching notable
+        # (Vortex -> Season of Ice over a chaos notable that PoB-ties) without
+        # overriding a real DPS gap between two equally-sensible picks.
+        _sc, dps, name, slot = max(passers, key=lambda p: p[1] * (1 + 0.002 * p[0]))
+        slots[am_idx] = slot
+        print(f"[opt] anoint: {name} | dps={dps:.0f}")
+        return StageGearSet(stage_key="opt", slots=tuple(slots)), base_fit, name
+    return base_gear, base_fit, None
+
+
 def optimize_tree(
     intent: TheoryIntent,
     ev: PobEvaluator,

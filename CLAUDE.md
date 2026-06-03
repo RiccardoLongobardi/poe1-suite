@@ -136,6 +136,17 @@ Inside the navbar: a "Strumenti" / "Tools" section label above the 5 main routes
 
 Frontend-only, no backend change. Gate: 747 tests / 132 mypy / ruff clean. Build ~471 KB / 151 KB gzip.
 
+## Step 79 — Real-builds initiative: amulet anointment (Fase 5) ✅
+
+Every mirror build **anoints** its amulet — a free tree notable (Blight oils) with **no passive-point cost**, so like flasks (Step 78) this never trades EHP. The served builds didn't anoint at all (a gap — a real build always does). This adds it. **User-facing.**
+
+- **`optimize_anoint` (`scripts/optimize_build.py`).** Scores the build's *unallocated* regular notables by **damage** (`_anoint_score`: DoT multiplier +7, the build's element keywords +3 each, element-matched penetration/exposure +3, crit multi +2) — and **rejects foreign-element notables** (a Fire notable on a Lightning build, even if PoB finds it a marginal gain, reads as a mistake). It evaluates the top candidates with PoB, and keeps the anoint **only if it's a real DPS gain (>1.5%)** — selection is **DPS-primary with a small element-coherence tiebreak** (`dps × (1 + 0.002·score)`, so a cold build picks Season of Ice over a chaos notable that PoB-ties by a fraction, but a real 3% DPS gap between two equally-sensible bleed notables still wins on DPS). Emitted as an `Allocates <Notable>` line on the amulet (reflected in the served display). Runs after the aura pass, so the unallocated-notable pool is final.
+- **Honest "no anoint" when nothing fits.** A build whose element notables are all already allocated (so only an off-element / ~0-DPS notable is left) is left **un-anointed** rather than served a misleading pick — the user anoints their preference.
+
+**Measured (PoB-exact, over Step 78), all reservation-positive + ≤123 pts + importable (re-eval = served) + viability-pass:** **Blade Vortex 33.8k → 36.9k (+9%, Acrimony — chaos, matches the build)**, **Boneshatter 57.9k → 62.4k (+8%, Rend)**, **Lacerate 222.8k → 236.1k (+6%, Wound Aggravation)**, **Vortex 391.4k → 413.2k (+6%, Season of Ice — cold DoT multiplier)**, **Cyclone 222.1k → 232.3k (+5%, Wound Aggravation)**. **Arc / Spark / Ice Shot** found no strong unallocated notable of their element → **correctly un-anointed** (unchanged, no fictional anoint). Test: `test_anointed_builds_show_the_anoint_on_the_amulet`. Gate: 788 tests / 148 mypy / ruff clean.
+
+**Cumulative over Fase 5 (Step 77 → 79, flasks + anoint):** Vortex 346.6k → **413.2k**, Arc 191.9k → **266.6k (+39%)**, Spark 131.8k → **182.8k (+39%)**, Cyclone 186.7k → **232.3k**, Lacerate 203.1k → **236.1k**, plus EHP roughly doubled on most (Vortex 26.3k → 49.9k) — all from the two clean no-point-cost levers (unique flasks + anoint), every build still 123 points / reservation-positive / importable.
+
 ## Step 78 — Real-builds initiative: unique flasks in the optimiser (Fase 5) ✅
 
 The served builds carried only **utility flask bases** (Eternal Mana / Quicksilver / Diamond), so PoB applied **~0 flask damage or defence** — even though the flask slots were already `active="true"` in the encode (PoB *was* applying their effects, the flasks just had nothing to give). A real mirror build runs powerful **unique flasks**, and crucially they cost **no passive points** — so unlike the tree / cluster / timeless passes, this lever **never trades EHP**. It's the cleanest win in the whole initiative: DPS **and** EHP both jump. **User-facing.**

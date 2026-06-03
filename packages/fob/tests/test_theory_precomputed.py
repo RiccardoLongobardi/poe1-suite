@@ -137,3 +137,28 @@ def test_builds_use_unique_flasks_keeping_a_sustain_flask() -> None:
         assert any(unique_by_name(g.base_name) is not None for g in flasks[1:]), (
             f"{sk.intent.primary_skill}: no unique flask found"
         )
+
+
+def test_anointed_builds_show_the_anoint_on_the_amulet() -> None:
+    """Step 79: builds that found a strong damage anoint (a free tree notable,
+    no passive-point cost) carry it in the importable code as ``Allocates X``
+    and surface it on the amulet display as ``Anointed: X``. (A build with no
+    strong unallocated notable of its element is left un-anointed — honest.)"""
+    import base64
+    import zlib
+
+    from poe1_fob.theory.precomputed import _load
+
+    anointed = 0
+    for sk in _load().values():
+        xml = zlib.decompress(base64.urlsafe_b64decode(sk.pob_code + "===")).decode()
+        if "Allocates " not in xml:
+            continue
+        anointed += 1
+        amulet = next((g for g in sk.gear_slots if g.slot == "Amulet"), None)
+        assert amulet is not None, f"{sk.intent.primary_skill}: anointed but no amulet shown"
+        assert any(s.startswith("Anointed:") for s in amulet.stat_priorities), (
+            f"{sk.intent.primary_skill}: anoint not surfaced on the amulet display"
+        )
+    # At least some of the served builds carry a real anoint.
+    assert anointed >= 3

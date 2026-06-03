@@ -26,6 +26,7 @@ from optimize_build import (  # type: ignore[import-not-found]  # sibling script
     _forbids_chest,
     _relocate_no_chest,
     fitness,
+    optimize_anoint,
     optimize_auras,
     optimize_awakened,
     optimize_clusters,
@@ -129,6 +130,11 @@ def _optimised_skeleton(
     # 6) auras — multi-aura group + Enlighten (+ pathed reservation nodes),
     # reservation-honest.
     best_links, visited, _ = optimize_auras(intent, ev, enc, visited, best_links, best_pob, jewels)
+    # Amulet anoint (Step 79) — a free damage notable (no passive-point cost).
+    # Run after auras so the unallocated-notable pool is final.
+    best_pob, _, anoint_name = optimize_anoint(
+        intent, ev, enc, visited, best_links, best_pob, jewels
+    )
     # Step 70 relocation (links-only — a chest-forbidding helmet voids the body,
     # so the 6L is relocated to the helmet). Done before the trim/cluster evals.
     helmet_u = chosen.get(ItemSlot.HELMET)
@@ -224,6 +230,19 @@ def _optimised_skeleton(
                     )
             overlaid.append(g)
         gear = tuple(overlaid)
+    # Reflect the amulet anoint into the display (Step 79).
+    if anoint_name:
+        gear = tuple(
+            GearSlot(
+                slot=g.slot,
+                base_name=g.base_name,
+                stat_priorities=(f"Anointed: {anoint_name}", *g.stat_priorities),
+                budget_tier=g.budget_tier,
+            )
+            if g.slot == "Amulet"
+            else g
+            for g in gear
+        )
     # Step 70: if the chosen helmet forbids a body armour (The Bringer of Rain),
     # drop the Body Armour from the displayed gear — it's unequippable, and the
     # primary 6L was relocated into the helmet.

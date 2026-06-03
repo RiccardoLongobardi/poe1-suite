@@ -28,6 +28,27 @@ interface Release {
 // Prepend a new entry with user-facing (not technical) bilingual copy.
 const RELEASES: Release[] = [
   {
+    date: { it: "3 giu 2026", en: "3 Jun 2026" },
+    title: {
+      it: "Theorycrafter — unzione dell'amuleto",
+      en: "Theorycrafter — amulet anointment",
+    },
+    summary: {
+      it: "Le build pre-ottimizzate ora ungono l'amuleto con un talento di danno — un potenziamento gratuito (non costa punti passivi) che ogni build mirror usa.",
+      en: "The pre-optimised builds now anoint the amulet with a damage notable — a free upgrade (no passive points) that every mirror build runs.",
+    },
+    entries: [
+      {
+        it: "Misurato (PoB-esatto): Blade Vortex +9% (Acrimony), Boneshatter +8% (Rend), Lacerate +6%, Vortex +6% (Season of Ice), Cyclone +5%. Il talento scelto è sempre coerente con l'elemento della build.",
+        en: "Measured (PoB-exact): Blade Vortex +9% (Acrimony), Boneshatter +8% (Rend), Lacerate +6%, Vortex +6% (Season of Ice), Cyclone +5%. The chosen notable always matches the build's element.",
+      },
+      {
+        it: "Quando non esiste un talento dell'elemento davvero utile da ungere, la build resta senza unzione invece di sceglierne uno inutile — niente finto. Tutte restano a 123 punti e importabili in PoB.",
+        en: "When there's no genuinely useful notable of the build's element to anoint, the build is left un-anointed instead of picking a useless one — nothing fake. All stay at 123 points and importable in PoB.",
+      },
+    ],
+  },
+  {
     date: { it: "1 giu 2026", en: "1 Jun 2026" },
     title: {
       it: "Theorycrafter — flask unici (DPS ed EHP in su)",
