@@ -1008,12 +1008,15 @@ def _stat_priorities(slot_name: str, intent: TheoryIntent, skill: _Active) -> tu
                 "critical strike",
             )
         else:
-            # Caster weapon: flat-to-spells + spell damage + cast speed + crit.
+            # Caster weapon: flat-to-spells + spell damage + cast speed + crit
+            # chance + crit MULTI (Step 80: the missing mirror-tier DPS mod —
+            # "+% to Global Critical Strike Multiplier" rolls on a caster weapon).
             weapon_entry = (
                 weapon_added,
                 "increased Spell Damage",
                 "increased Cast Speed",
                 "critical strike",
+                "Critical Strike Multiplier",
             )
     elif dmg == "physical":
         main_dmg = "increased Physical Damage"
@@ -1023,8 +1026,9 @@ def _stat_priorities(slot_name: str, intent: TheoryIntent, skill: _Active) -> tu
             weapon_added,
             "increased Physical Damage",
             "increased Attack Speed",
-            "Accuracy",
             "critical strike",
+            "Critical Strike Multiplier",  # Step 80: the #1 missing weapon mod
+            "Accuracy",
         )
     else:  # elemental (or chaos) attack
         main_dmg = None  # "increased Physical Damage" is dead weight here
@@ -1034,11 +1038,15 @@ def _stat_priorities(slot_name: str, intent: TheoryIntent, skill: _Active) -> tu
             weapon_added,
             "increased Attack Speed",
             "critical strike",
+            "Critical Strike Multiplier",  # Step 80
             "Accuracy",
         )
 
     slot_map: dict[str, tuple[str | None, ...]] = {
-        "Helmet": (primary_def, res_l, res_c, main_dmg),
+        # Step 80: fill rare slots toward a real mirror-tier 6-mod set. The
+        # helmet's old `main_dmg` was dead weight (spell/phys damage doesn't
+        # roll on a helmet) — replaced with a third resistance (a real mod).
+        "Helmet": (primary_def, res_f, res_l, res_c),
         # Step 69: the primary 6L is socketed in the Body Armour, so its
         # signature mirror-tier mods are the gem-level influence affixes
         # (Shaper + Elder → +1 to socketed skill & support gems) — they lead.
@@ -1051,11 +1059,11 @@ def _stat_priorities(slot_name: str, intent: TheoryIntent, skill: _Active) -> tu
             res_c,
         ),
         "Gloves": (
-            (primary_def, res_l, speed, jewel_added)
+            (primary_def, res_l, res_c, speed, jewel_added)
             if jewel_added
-            else (primary_def, res_l, speed, main_dmg)
+            else (primary_def, res_l, res_c, speed, main_dmg)
         ),
-        "Boots": (primary_def, "Movement Speed", res_c, speed),
+        "Boots": (primary_def, "Movement Speed", res_c, res_l, res_f, speed),
         "Belt": (primary_def, res_f, res_l, "increased Flask Life Recovery"),
         "Amulet": (
             (primary_def, dot_multi, "Critical Strike Multiplier" if is_crit else main_dmg, res_f)

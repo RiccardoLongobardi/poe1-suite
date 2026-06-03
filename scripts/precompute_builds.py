@@ -18,6 +18,7 @@ from __future__ import annotations
 import json
 import sys
 from pathlib import Path
+from typing import cast
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from optimize_build import (  # type: ignore[import-not-found]  # sibling script
@@ -304,9 +305,33 @@ def _optimised_skeleton(
     return skeleton.model_copy(update={"viability": validate_build(skeleton)})
 
 
+def _proxy(full_dps: float, total_ehp: float, budget: str) -> float:
+    """Run-comparable fitness proxy: DPS scaled by the same saturating EHP
+    factor the optimiser uses (resistances/reservation are equal-by-construction
+    for two viable served builds, so they cancel in the comparison)."""
+    return float(fitness({"FullDPS": full_dps, "TotalEHP": total_ehp}, budget))
+
+
 def main(argv: list[str]) -> int:
     tree_iters = 8 if "--quick" in argv else 18
     ev = PobEvaluator()
+    # Ratchet: the greedy pipeline is non-deterministic across runs (string-hash
+    # iteration order tips equal-fitness tie-breaks → a build can land on a worse
+    # local optimum by chance, independent of any code change). So never regress
+    # a served build: load the previously committed builds and keep, per
+    # archetype, whichever of {new run, committed} has the higher fitness proxy.
+    prev: dict[tuple[str, ...], dict[str, object]] = {}
+    if _OUT.exists():
+        for b in json.loads(_OUT.read_text(encoding="utf-8")).get("builds", []):
+            it = b["intent"]
+            key = (
+                it["character_class"],
+                it["ascendancy"],
+                it["primary_skill"],
+                it["damage_type"],
+                it["defence_archetype"],
+            )
+            prev[key] = b
     builds: list[dict[str, object]] = []
     for cls, asc, skill, dmg, defence in _MATRIX:
         intent = TheoryIntent(
@@ -320,12 +345,24 @@ def main(argv: list[str]) -> int:
         )
         print(f"\n=== precomputing {cls}/{asc}/{skill} ===")
         sk = _optimised_skeleton(intent, ev, tree_iters=tree_iters)
+        new_dump = sk.model_dump(mode="json")
+        new_fit = _proxy(sk.stats.full_dps, sk.stats.total_ehp, intent.budget)
+        old = prev.get((cls, asc, skill, dmg, defence))
+        if old is not None:
+            os = cast(dict[str, float], old["stats"])
+            old_fit = _proxy(float(os["full_dps"]), float(os["total_ehp"]), intent.budget)
+            if old_fit > new_fit:
+                print(
+                    f"  -> kept COMMITTED (fit {old_fit:.0f} > new {new_fit:.0f}): "
+                    f"FullDPS={os['full_dps']:.0f} EHP={os['total_ehp']}"
+                )
+                builds.append(old)
+                continue
         print(
             f"  -> FullDPS={sk.stats.full_dps:.0f} EHP={sk.stats.total_ehp} "
-            f"Life={sk.stats.life_estimate} ES={sk.stats.es_estimate} "
-            f"fit={fitness({'FullDPS': sk.stats.full_dps}, intent.budget):.0f}"
+            f"Life={sk.stats.life_estimate} ES={sk.stats.es_estimate} fit={new_fit:.0f}"
         )
-        builds.append(sk.model_dump(mode="json"))
+        builds.append(new_dump)
 
     _OUT.parent.mkdir(parents=True, exist_ok=True)
     _OUT.write_text(

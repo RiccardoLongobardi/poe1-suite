@@ -136,6 +136,15 @@ Inside the navbar: a "Strumenti" / "Tools" section label above the 5 main routes
 
 Frontend-only, no backend change. Gate: 747 tests / 132 mypy / ruff clean. Build ~471 KB / 151 KB gzip.
 
+## Step 80 — Real-builds initiative: crafted-rare mods + non-determinism ratchet (Fase 3) ✅
+
+Fase 3 first slice — **stronger crafted rares** — plus a structural robustness fix uncovered along the way. **User-facing** (Cyclone / Vortex +3%; the rare-mod work mainly upgrades the *live* generator).
+
+- **Rare mods toward a real mirror-tier 6-mod set (`_stat_priorities`).** The generated rares were under-modded — the weapon was **missing `+% to Global Critical Strike Multiplier`** (the #1 DPS mod on a crit attack/caster weapon, verified to roll on the base), and boots/helmet/gloves had only 3-4 mods. Added crit multi to every hit/crit weapon entry (kept off pure-DoT weapons) and filled the defensive slots toward 6 real rollable mods (flat life + the three resistances). Since the precomputed builds are mostly *uniques*, the served-build gain is concentrated on the rare-weapon builds (Cyclone +3%, Vortex +3%); the **broad** beneficiary is the live generator, whose rares are everywhere.
+- **Non-determinism ratchet (the bigger structural win).** Diagnosing a Lacerate "−12%" that my change *couldn't* have caused (its gear is all uniques, identical before/after) revealed the precompute is **non-deterministic across runs**: Python string-hash iteration order tips equal-fitness greedy tie-breaks, so a build can land on a worse local optimum **by chance, independent of any code change** (±~12% observed). Fix — `main()` now **ratchets**: it loads the previously committed builds and keeps, per archetype, whichever of {new run, committed} has the higher fitness proxy (`dps × saturating-EHP-factor`). So a precompute can only ever *improve* a served build, never regress it. Lacerate/Arc/Boneshatter/Spark kept their committed optima this run; Cyclone/Vortex took the crit-multi gain.
+
+**Measured (PoB-exact, over Step 79), all reservation-positive + 123 pts + importable (re-eval = served) + viability-pass:** **Cyclone 232.3k → 239.2k (+3%)**, **Vortex 413.2k → 426.7k (+3%)**; the other 6 held at their committed values (ratchet — no regression). Test: weapon body carries `Critical Strike Multiplier`. Gate: 788 tests / 148 mypy / ruff clean.
+
 ## Step 79 — Real-builds initiative: amulet anointment (Fase 5) ✅
 
 Every mirror build **anoints** its amulet — a free tree notable (Blight oils) with **no passive-point cost**, so like flasks (Step 78) this never trades EHP. The served builds didn't anoint at all (a gap — a real build always does). This adds it. **User-facing.**

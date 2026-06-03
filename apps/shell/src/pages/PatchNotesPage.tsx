@@ -30,6 +30,27 @@ const RELEASES: Release[] = [
   {
     date: { it: "3 giu 2026", en: "3 Jun 2026" },
     title: {
+      it: "Theorycrafter — rare craftati più forti + niente regressioni",
+      en: "Theorycrafter — stronger crafted rares + no regressions",
+    },
+    summary: {
+      it: "Le armi rare ora hanno il Moltiplicatore di Critico (il mod di DPS più importante che mancava) e gli altri pezzi rari arrivano a 6 mod come una vera build mirror.",
+      en: "Rare weapons now carry Critical Strike Multiplier (the key DPS mod that was missing) and the other rare pieces reach 6 mods like a real mirror build.",
+    },
+    entries: [
+      {
+        it: "Misurato: Cyclone e Vortex +3%. Il grosso del beneficio è per le build generate dal vivo (che usano rari ovunque). Le build pre-ottimizzate usano soprattutto unici, quindi il guadagno qui è sugli slot rari (l'arma).",
+        en: "Measured: Cyclone and Vortex +3%. The bulk of the benefit is for live-generated builds (which use rares everywhere). The pre-optimised builds mostly use uniques, so the gain here is on the rare slots (the weapon).",
+      },
+      {
+        it: "Importante: ora una build pre-ottimizzata non può mai peggiorare tra un aggiornamento e l'altro — il sistema tiene sempre la versione migliore già trovata.",
+        en: "Important: a pre-optimised build can now never get worse between updates — the system always keeps the best version found so far.",
+      },
+    ],
+  },
+  {
+    date: { it: "3 giu 2026", en: "3 Jun 2026" },
+    title: {
       it: "Theorycrafter — unzione dell'amuleto",
       en: "Theorycrafter — amulet anointment",
     },

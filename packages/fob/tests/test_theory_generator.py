@@ -489,6 +489,9 @@ def test_weapon_has_flat_added_damage() -> None:
     )
     weapon = next(g for g in sk.gear_slots if g.slot in ("Weapon", "Bow"))
     assert "Adds Physical Damage" in weapon.stat_priorities
+    # Step 80: a mirror-tier weapon also carries crit multiplier (the #1
+    # missing DPS mod on a crit attack/caster weapon).
+    assert "Critical Strike Multiplier" in weapon.stat_priorities
 
 
 def test_es_build_rolls_es_on_armour_and_spreads_resistances() -> None:
