@@ -738,6 +738,87 @@ def optimize_uniques(
     return StageGearSet(stage_key="opt", slots=tuple(slots)), cur_fit, chosen
 
 
+def optimize_flasks(
+    intent: TheoryIntent,
+    ev: PobEvaluator,
+    enc: _Encoder,
+    visited: set[int],
+    links: tuple[GemLink, ...],
+    base_gear: StageGearSet,
+    jewels: tuple[tuple[int, str], ...] = (),
+    *,
+    per_slot: int = 14,
+) -> tuple[StageGearSet, float, dict[int, str]]:
+    """Forward-select unique flasks for the flask slots, fitness-gated.
+
+    A mirror build runs powerful unique flasks — Bottled Faith (consecrated
+    ground → more damage + crit), The Wise Oak (elemental penetration), Taste
+    of Hate (phys taken as cold + extra cold), Dying Sun (AoE/projectiles),
+    Atziri's Promise (extra chaos + leech). The generated build only had plain
+    utility flasks (Eternal Mana / Quicksilver), so PoB applied ~0 flask
+    damage. Crucially flasks cost **no passive points**, so this never trades
+    EHP (unlike the tree/cluster passes) — it's a clean DPS *and* defence lever.
+
+    The first flask slot is kept (life/mana — sustain is non-negotiable); slots
+    2-5 are forward-selected from the unique pool, each kept only if it raises
+    PoB-exact fitness, never repeating a unique. Flask slots are already
+    ``active="true"`` in the encode, so PoB applies their effects — the served
+    DPS is the standard "flasks up" combat number every ladder build reports.
+    """
+    score_dmg = "minion" if "minion" in enc.skill.tags else intent.damage_type
+    defence = intent.defence_archetype
+    slots = list(base_gear.slots)
+    flask_idx = [i for i, s in enumerate(slots) if s.slot == ItemSlot.FLASK]
+    if len(flask_idx) < 2:
+        return (
+            base_gear,
+            fitness(
+                ev.evaluate(enc.code(visited, links, pob_gear=base_gear, jewels=jewels)),
+                intent.budget,
+            ),
+            {},
+        )
+    cands = list(uniques_for_slot("flask"))
+    cands.sort(key=lambda u: gen._score_text(" ".join(u.mods), score_dmg, defence), reverse=True)
+    cur_fit = fitness(
+        ev.evaluate(enc.code(visited, links, pob_gear=base_gear, jewels=jewels)), intent.budget
+    )
+    used: set[str] = set()
+    chosen: dict[int, str] = {}  # flask ordinal (0-based) -> unique name, for display
+    for ordinal, i in enumerate(flask_idx):
+        if ordinal == 0:
+            continue  # keep slot 1 (life/mana) for sustain
+        best_fit, best_slot, best_name = cur_fit, None, None
+        for u in cands[:per_slot]:
+            if u.name in used:
+                continue
+            trial = list(slots)
+            trial[i] = StageGearSlot(
+                slot=ItemSlot.FLASK, item_name=unique_pob_body(u), kind="rare_craft", notes=u.name
+            )
+            try:
+                stats = ev.evaluate(
+                    enc.code(
+                        visited,
+                        links,
+                        pob_gear=StageGearSet(stage_key="opt", slots=tuple(trial)),
+                        jewels=jewels,
+                    )
+                )
+            except Exception:
+                continue
+            fit = fitness(stats, intent.budget)
+            if fit > best_fit * 1.001:
+                best_fit, best_slot, best_name = fit, trial[i], u.name
+        if best_slot is not None and best_name is not None:
+            slots[i] = best_slot
+            cur_fit = best_fit
+            used.add(best_name)
+            chosen[ordinal] = best_name
+            print(f"[opt] flask: {best_name} | fit={cur_fit:.0f}")
+    return StageGearSet(stage_key="opt", slots=tuple(slots)), cur_fit, chosen
+
+
 def optimize_tree(
     intent: TheoryIntent,
     ev: PobEvaluator,

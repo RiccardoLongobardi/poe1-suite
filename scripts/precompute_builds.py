@@ -29,6 +29,7 @@ from optimize_build import (  # type: ignore[import-not-found]  # sibling script
     optimize_auras,
     optimize_awakened,
     optimize_clusters,
+    optimize_flasks,
     optimize_links,
     optimize_timeless,
     optimize_tree,
@@ -39,6 +40,7 @@ from optimize_build import (  # type: ignore[import-not-found]  # sibling script
 from pob_eval import PobEvaluator  # type: ignore[import-not-found]
 
 from poe1_core.models.enums import ItemSlot
+from poe1_fob.gear.uniques import unique_by_name
 from poe1_fob.theory import TheoryIntent, generate_build, validate_build
 from poe1_fob.theory import generator as gen
 from poe1_fob.theory.models import BuildSkeleton, GearSlot, StatEstimate, TreeNodeRef
@@ -115,6 +117,10 @@ def _optimised_skeleton(
     best_gear, _ = optimize_weapon(intent, ev, enc, visited0, best_links)
     base_pob = gen._to_pob_gear(best_gear)
     best_pob, _, chosen = optimize_uniques(intent, ev, enc, visited0, best_links, base_pob)
+    # Unique flasks (Bottled Faith / Wise Oak / Taste of Hate / …) — a clean
+    # DPS+EHP lever with no passive-point cost. Done after uniques so the later
+    # tree / timeless / aura / cluster passes optimise on the flask-boosted gear.
+    best_pob, _, flask_names = optimize_flasks(intent, ev, enc, visited0, best_links, best_pob)
     visited, _base_stats, best_stats = optimize_tree(
         intent, ev, links=best_links, pob_gear=best_pob, max_iters=tree_iters
     )
@@ -198,6 +204,26 @@ def _optimised_skeleton(
         )
 
     gear = tuple(_overlay(g) for g in best_gear)
+    # Reflect the chosen unique flasks into the display (the importable pob_code
+    # already carries them via best_pob). Flask GearSlots are labelled
+    # "Flask 1".."Flask 5" in order; flask_names maps the ordinal -> unique name.
+    if flask_names:
+        overlaid: list[GearSlot] = []
+        flask_ord = 0
+        for g in gear:
+            if g.slot.startswith("Flask"):
+                nm = flask_names.get(flask_ord)
+                flask_ord += 1
+                u = unique_by_name(nm) if nm else None
+                if u is not None:
+                    g = GearSlot(
+                        slot=g.slot,
+                        base_name=u.name,
+                        stat_priorities=tuple(u.mods[:5]),
+                        budget_tier=g.budget_tier,
+                    )
+            overlaid.append(g)
+        gear = tuple(overlaid)
     # Step 70: if the chosen helmet forbids a body armour (The Bringer of Rain),
     # drop the Body Armour from the displayed gear — it's unequippable, and the
     # primary 6L was relocated into the helmet.

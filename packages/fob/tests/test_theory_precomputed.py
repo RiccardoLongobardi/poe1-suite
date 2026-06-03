@@ -116,3 +116,24 @@ def test_expanded_matrix_archetypes_are_served() -> None:
         assert sk.optimised is True
         assert sk.intent.primary_skill == skill
         assert sk.stats.full_dps > 0 or sk.stats.total_ehp > 0
+
+
+def test_builds_use_unique_flasks_keeping_a_sustain_flask() -> None:
+    """Step 78: every served build runs powerful unique flasks (Bottled Faith /
+    Vessel of Vinktar / The Wise Oak / Replica Rumi's Concoction / …) — a clean
+    DPS+EHP lever with no passive-point cost — while keeping the first flask
+    slot as a life/mana base for sustain (never replaced by a damage unique)."""
+    from poe1_fob.gear.uniques import unique_by_name
+    from poe1_fob.theory.precomputed import _load
+
+    for sk in _load().values():
+        flasks = [g for g in sk.gear_slots if g.slot.startswith("Flask")]
+        assert len(flasks) >= 2, f"{sk.intent.primary_skill}: too few flask slots"
+        # Slot 1 stays a sustain base (not a unique).
+        assert unique_by_name(flasks[0].base_name) is None, (
+            f"{sk.intent.primary_skill}: first flask should be a life/mana base for sustain"
+        )
+        # At least one of the remaining slots is a real unique flask.
+        assert any(unique_by_name(g.base_name) is not None for g in flasks[1:]), (
+            f"{sk.intent.primary_skill}: no unique flask found"
+        )

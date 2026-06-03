@@ -30,6 +30,27 @@ const RELEASES: Release[] = [
   {
     date: { it: "1 giu 2026", en: "1 Jun 2026" },
     title: {
+      it: "Theorycrafter — flask unici (DPS ed EHP in su)",
+      en: "Theorycrafter — unique flasks (DPS and EHP up)",
+    },
+    summary: {
+      it: "Le build pre-ottimizzate ora montano flask unici potenti (Bottled Faith, Vessel of Vinktar, The Wise Oak, Rumi's, Kiara's…) invece di semplici flask di utilità. Non costano punti passivi, quindi salgono sia DPS che EHP.",
+      en: "The pre-optimised builds now run powerful unique flasks (Bottled Faith, Vessel of Vinktar, The Wise Oak, Rumi's, Kiara's…) instead of plain utility flasks. They cost no passive points, so both DPS and EHP go up.",
+    },
+    entries: [
+      {
+        it: "Misurato (PoB-esatto): Spark e Arc +39% DPS, Ice Shot +26%, Cyclone +19%, e l'EHP quasi raddoppia su molte build (Vortex 26.000 → 50.000) grazie ai flask difensivi. L'ottimizzatore abbina i flask alla build (Lion's Roar sul fisico, Vinktar sul lightning, Wise Oak per la penetrazione).",
+        en: "Measured (PoB-exact): Spark and Arc +39% DPS, Ice Shot +26%, Cyclone +19%, and EHP nearly doubles on many builds (Vortex 26,000 → 50,000) thanks to defensive flasks. The optimiser matches flasks to the build (Lion's Roar on physical, Vinktar on lightning, Wise Oak for penetration).",
+      },
+      {
+        it: "Il primo flask resta sempre vita/mana per il sostentamento. Tutte le build restano a 123 punti, importabili in PoB, con mana e resistenze a posto.",
+        en: "The first flask stays a life/mana flask for sustain. All builds remain at 123 points, importable in PoB, with mana and resistances in order.",
+      },
+    ],
+  },
+  {
+    date: { it: "1 giu 2026", en: "1 Jun 2026" },
+    title: {
       it: "Theorycrafter — cluster con i talenti giusti (di danno)",
       en: "Theorycrafter — clusters with the right (damage) notables",
     },

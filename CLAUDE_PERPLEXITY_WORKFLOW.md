@@ -15,7 +15,7 @@ Don't trust earlier versions of this file — the section below is the authorita
   - Frontend: <https://fob-ten.vercel.app> (Vercel, auto-deploy from `main`).
   - Backend: <https://fob-api-rtgg.onrender.com> (Render, region Frankfurt, auto-deploy from `main`).
   - Cost: **$0/month**.
-- **Baseline gate**: 786 tests green / 148 mypy / ruff clean.
+- **Baseline gate**: 787 tests green / 148 mypy / ruff clean.
 - **Working features (all QA-verified or post-QA fixed)**:
   - Build Finder with class/asc/stat-floor/sort filters + natural-language extraction (Step 15) + per-ascendancy population stats panel (Step 19). ✅
   - Planner with 6-stage `BuildPlan`, SSE streaming progress + ETA. ✅
@@ -28,7 +28,7 @@ Don't trust earlier versions of this file — the section below is the authorita
   - Theorycrafter viability report (Step 43) + connected BFS passive tree path (Step 44) + full-budget tree fill ~120 nodes (Step 45a) + deduplicated gem layout with compatible supports (Step 45b) + 3.28 Awakened gem allowlist (Step 45c) + realistic per-slot item affixes (Step 45d) + localised tree pathing (Step 46) + real item mods via RePoE (Step 47) + tree masteries / clean nodes / honest estimates (Step 48) + value-per-point tree optimisation (Step 49). ✅
 - **Design system**: "Void Stone & Ember" — void-black warm backgrounds, ember-gold accent, parchment text, Cinzel/Cabinet Grotesk/Geist Mono type. Light mode: "Parchment" (warm cream + ink). Both QA-verified. ✅
 
-**Baseline gate (current): 786 tests green / 148 mypy / ruff clean.**
+**Baseline gate (current): 787 tests green / 148 mypy / ruff clean.**
 
 If anything you read in this file or in `CLAUDE.md` contradicts the above, **the above wins**.
 
@@ -270,6 +270,7 @@ Reverse-chronological.
   - Defence layer check: at least 2 distinct layers required. Layers derived from keystone presence in the selected nodes (Acrobatics → evasion+dodge, Iron Reflexes → armour, Mind Over Matter → MoM, Chaos Inoculation → CI/ES) + defence_archetype.
   - Gem attribute requirements: each active/support gem has Str/Dex/Int requirements. Cross-check against the class's base attributes + tree attribute nodes. Flag gems whose requirements exceed available attributes by >20.
 
+- **2026-06-01** — *Step 78 — unique flasks in the optimiser (Fase 5).* The served builds ran only utility flask bases → PoB applied ~0 flask DPS/defence (the slots were already active="true", they just had nothing to give). `optimize_flasks` forward-selects unique flasks (Bottled Faith / Vinktar / Wise Oak / Replica Rumi's / Kiara's / Taste of Hate / Lion's Roar / Atziri's Promise / Cinderswallow / …) for slots 2-5, keeping slot 1 as a life/mana sustain base; fitness-gated, no repeats. Flasks cost NO passive points → the cleanest lever (DPS AND EHP rise, no EHP trade-off). Measured: DPS +6-39% (Spark/Arc +39%, Ice Shot +26%, Cyclone +19%), EHP roughly doubled on most (Vortex 26→50k). Flask-active stats are the ladder convention (slots were already active). All 8: 123 pts, reservation+, importable (re-eval=served), viability-pass. 787 tests / 148 mypy.
 - **2026-06-01** — *Multi-cluster "tree co-design" — TRIED, NEGATIVE (reverted).* Implemented greedy `optimize_clusters` adding up to 3 Large clusters at distinct sockets + precompute net-comparison over k=0/1/2/3 (trim each to 123 pts, keep best fitness). Measured on Vortex: k=1 386k DPS/25.0k EHP, k=2 392k/23.2k, k=3 384k/19.7k — DPS rises but each cluster's ~14 pts come from defensive/res nodes (EHP drops, a res un-caps), so fitness picks k=0/k=1 every time. Regular damage notables are denser value per point than extra cluster sub-trees. Reverted to Step-77 single-cluster (no regression). Don't re-attempt naive multi-cluster; the next cluster lever is Medium clusters (DoT-multi themes) or cluster-scaling items (Voices), not more Large clusters bolted on.
 - **2026-06-01** — *Step 77 — cluster damage-notable scoring (Fase 2 refinement).* Step 76's cluster picked notables with the build's full keyword set (incl. survivability) → defensive notables on a damage cluster (Blade Vortex kept Prismatic Carapace/Dance). New damage-only `_cluster_notable_score` (DoT-multi +5, more-damage +4, pen/exposure +3, crit-multi +2) → Cold cluster picks Cold-Blooded Killer (+5% cold DoT multi) + Deep Chill. Two cold-spell builds flip to a net-positive cluster: Vortex 346.6k → 368.5k (+6%), Blade Vortex +3%. Physical/attack builds still correctly drop it (denser tree). All 8 at 123 pts, importable, viability-pass. User-facing (Patch Notes). 786 tests / 148 mypy.
 - **2026-05-30** — *Step 76 — cluster jewels shipped in the optimiser (Fase 2 implementation).* Data vendored + encoder cluster support (clusterHashFormatVersion="2") + two-pass `optimize_clusters` + budget-honest net comparison (cluster kept only if the trimmed build beats the no-cluster one → no regression). Blade Vortex +5%; the other 7 correctly drop the cluster (net loss on an already-full tree). The big ladder-tier win needs tree co-design (lean on clusters as damage hubs) — follow-up. 786 tests.
