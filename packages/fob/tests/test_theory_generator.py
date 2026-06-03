@@ -184,7 +184,8 @@ _PIPELINE_INTENTS: tuple[dict[str, object], ...] = (
 
 
 def test_pob_export_has_all_gem_slots() -> None:
-    """Five gem groups in <Skills>: Body 6L + Helmet/Gloves/Boots/Weapon 4L."""
+    """Six gem groups in <Skills>: Body 6L + Helmet/Gloves/Boots/Weapon 4L +
+    a self-cast Curse (Step 81)."""
     import xml.etree.ElementTree as ET
 
     for ovr in _PIPELINE_INTENTS:
@@ -192,9 +193,38 @@ def test_pob_export_has_all_gem_slots() -> None:
         root = ET.fromstring(_decode_pob_xml(sk.pob_code))
         # Skill groups live under <Skills>/<SkillSet>/<Skill> in PoB XML.
         skill_groups = root.findall(".//SkillSet/Skill")
-        assert len(skill_groups) == 5, (
-            f"{ovr['primary_skill']}: expected 5 skill groups, got {len(skill_groups)}"
+        assert len(skill_groups) == 6, (
+            f"{ovr['primary_skill']}: expected 6 skill groups, got {len(skill_groups)}"
         )
+
+
+def test_build_has_element_matched_curse() -> None:
+    """Step 81: every build runs a self-cast curse matched to its damage type
+    (Frostbite for cold, Conductivity for lightning, Vulnerability for physical,
+    Despair for chaos) — the single biggest clean DPS lever. No supports (self
+    cast → no mana reservation)."""
+    cases = {
+        ("Witch", "Occultist", "Vortex", "cold", "es"): "Frostbite",
+        ("Templar", "Inquisitor", "Spark", "lightning", "life"): "Conductivity",
+        ("Marauder", "Juggernaut", "Cyclone", "physical", "life"): "Vulnerability",
+        ("Shadow", "Assassin", "Blade Vortex", "chaos", "life"): "Despair",
+    }
+    for (cls, asc, skill, dmg, defence), curse in cases.items():
+        sk = generate_build(
+            _intent(
+                character_class=cls,
+                ascendancy=asc,
+                primary_skill=skill,
+                damage_type=dmg,
+                defence_archetype=defence,
+                budget="endgame",
+                focus="allcontent",
+            )
+        )
+        curse_link = next((g for g in sk.links if g.label == "Curse"), None)
+        assert curse_link is not None, f"{skill}: no curse link"
+        assert curse_link.skill == curse, f"{skill}: curse {curse_link.skill} != {curse}"
+        assert curse_link.supports == (), f"{skill}: curse should be self-cast (no supports)"
 
 
 def test_pob_export_items_have_stats() -> None:

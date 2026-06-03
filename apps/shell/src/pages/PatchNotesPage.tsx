@@ -30,6 +30,27 @@ const RELEASES: Release[] = [
   {
     date: { it: "3 giu 2026", en: "3 Jun 2026" },
     title: {
+      it: "Theorycrafter — maledizione sul nemico (+13–62% danno)",
+      en: "Theorycrafter — enemy curse (+13–62% damage)",
+    },
+    summary: {
+      it: "Le build pre-ottimizzate ora lanciano una maledizione abbinata al loro elemento (Frostbite, Conductivity, Vulnerability…) — la leva di danno più grande finora, e ogni build mirror la usa.",
+      en: "The pre-optimised builds now self-cast a curse matched to their element (Frostbite, Conductivity, Vulnerability…) — the single biggest damage lever so far, and every mirror build runs one.",
+    },
+    entries: [
+      {
+        it: "Misurato (PoB-esatto): Vortex +62% (Frostbite abbassa la resistenza al freddo, che penetra anche il suo danno-nel-tempo da freddo), Boneshatter +40%, Arc/Spark/Ice Shot +38%, Cyclone/Lacerate +33%. La maledizione è auto-lanciata, quindi non costa mana riservato.",
+        en: "Measured (PoB-exact): Vortex +62% (Frostbite lowers cold resistance, which also penetrates its cold damage-over-time), Boneshatter +40%, Arc/Spark/Ice Shot +38%, Cyclone/Lacerate +33%. The curse is self-cast, so it costs no reserved mana.",
+      },
+      {
+        it: "Cumulativo dall'inizio dell'iniziativa: Vortex 255.000 → 693.000 DPS (×2,7). Tutte le build restano a 123 punti, importabili in PoB, con mana e resistenze a posto.",
+        en: "Cumulative since the initiative began: Vortex 255,000 → 693,000 DPS (×2.7). All builds remain at 123 points, importable in PoB, with mana and resistances in order.",
+      },
+    ],
+  },
+  {
+    date: { it: "3 giu 2026", en: "3 Jun 2026" },
+    title: {
       it: "Theorycrafter — rare craftati più forti + niente regressioni",
       en: "Theorycrafter — stronger crafted rares + no regressions",
     },

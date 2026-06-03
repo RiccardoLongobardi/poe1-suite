@@ -1553,6 +1553,20 @@ _AURA_BY_DAMAGE: dict[str, str] = {
     "physical": "Hatred",
 }
 
+# Curse by damage type (Step 81). Every mirror build curses the enemy — a
+# -resistance / +damage-taken debuff worth +13-48% DPS, self-cast (so NO mana
+# reservation, unlike a Blasphemy aura). Frostbite/Conductivity/Flammability cut
+# the matching elemental resistance (which also penetrates that element's DoT);
+# Vulnerability raises physical + bleed taken; Despair cuts chaos res + raises
+# DoT taken. PoB auto-applies an enabled curse, so the served DPS reflects it.
+_CURSE_BY_DAMAGE: dict[str, str] = {
+    "fire": "Flammability",
+    "cold": "Frostbite",
+    "lightning": "Conductivity",
+    "chaos": "Despair",
+    "physical": "Vulnerability",
+}
+
 # Helmet 4L secondary skill by skill family — a genuinely *different*
 # active from the primary (movement / secondary attack / minion utility).
 _SECONDARY_SKILL: dict[str, str] = {
@@ -1661,7 +1675,14 @@ def _build_gem_layout(
         label="Warcry 4L",
     )
 
-    return (primary, helmet_link, gloves_link, boots_link, weapon_link)
+    # Curse (Step 81): a self-cast curse matched to the build's damage type —
+    # the single biggest clean DPS lever (+13-48%, PoB auto-applies it). No mana
+    # reservation (self-cast, not Blasphemy), so it never touches the near-cap
+    # reservation budget; it just needs a spare socket, which a mirror build has.
+    curse = _pick_active(_CURSE_BY_DAMAGE.get(intent.damage_type, "Despair"), primary_name)
+    curse_link = GemLink(skill=curse, supports=(), slot="Helmet", label="Curse")
+
+    return (primary, helmet_link, gloves_link, boots_link, weapon_link, curse_link)
 
 
 def _to_pob_tree(intent: TheoryIntent, nodes: tuple[TreeNodeRef, ...]) -> StageTree:

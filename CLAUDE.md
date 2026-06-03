@@ -136,6 +136,17 @@ Inside the navbar: a "Strumenti" / "Tools" section label above the 5 main routes
 
 Frontend-only, no backend change. Gate: 747 tests / 132 mypy / ruff clean. Build ~471 KB / 151 KB gzip.
 
+## Step 81 — Real-builds initiative: enemy curse (Fase 4) ✅
+
+The single **biggest clean lever** of the whole initiative. The served builds applied **no curse**, so PoB modelled the enemy at full resistance — but every real build curses (a self-cast curse on the boss is a one-button combat staple). A curse matched to the build's element cuts the enemy's resistance (which **also penetrates that element's DoT**) or raises damage/ailment taken. **User-facing — +13% to +62% across the board.**
+
+- **`_CURSE_BY_DAMAGE` + a self-cast curse group in `_build_gem_layout`.** A 6th gem group: **Frostbite** (cold), **Conductivity** (lightning), **Flammability** (fire), **Despair** (chaos — −chaos res + DoT taken), **Vulnerability** (physical — +phys/bleed taken). **Self-cast** (no supports) so it costs **zero mana reservation** — unlike a Blasphemy curse aura, which would break the near-reservation-cap builds. PoB **auto-applies** an enabled curse (verified: the curse gem alone, no `<Config>` flag, applies it), so the served DPS reflects it. Lives in the generator, so the **live** generator curses too.
+- **Honesty.** A curse needs a spare socket (a mirror build has one) and is applied in combat (self-cast on the target). Reporting curse-applied DPS is the standard ladder convention (PoB defaults the enemy to cursed when a curse is enabled). The curse is matched to the build's own element — never a foreign one.
+
+**Measured (PoB-exact, over Step 80), all reservation-positive + 123 pts + importable (re-eval = served) + viability-pass + 6 gem groups:** **Vortex 426.7k → 693.2k (+62%, Frostbite — the −cold-res penetrates its cold DoT)**, **Boneshatter 62.4k → 87.4k (+40%, Vulnerability)**, **Arc 266.6k → 369.1k (+38%, Conductivity)**, **Spark 182.8k → 252.1k (+38%)**, **Ice Shot 63.6k → 87.7k (+38%, Frostbite)**, **Cyclone 239.2k → 317.1k (+33%, Vulnerability)**, **Lacerate 236.1k → 314.3k (+33%)**, **Blade Vortex 36.9k → 41.5k (+13%, Despair)**. Tests: `test_build_has_element_matched_curse` + the gem-group count is now 6. Gate: 789 tests / 148 mypy / ruff clean.
+
+**Cumulative over the real-builds initiative (Step 72 → 81):** Vortex 255.8k → **693.2k (×2.7)**, Arc 139.7k → **369.1k (×2.6)**, Cyclone → **317.1k**, Spark → **252.1k** — from the stacked clean levers (Awakened + 21/23 gems, timeless + cluster jewels, multi-aura, **unique flasks + anoint + curse**), every build still 123 points / reservation-positive / importable / viability-pass.
+
 ## Step 80 — Real-builds initiative: crafted-rare mods + non-determinism ratchet (Fase 3) ✅
 
 Fase 3 first slice — **stronger crafted rares** — plus a structural robustness fix uncovered along the way. **User-facing** (Cyclone / Vortex +3%; the rare-mod work mainly upgrades the *live* generator).
