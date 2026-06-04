@@ -336,6 +336,13 @@ def optimize_links(
     pool = [
         s.name for s in gen._select_supports_raw(enc.skill, n=pool_size, dmg=intent.damage_type)
     ]
+    # Empower (+2 gem levels at the corrupted lvl 4) is a big lever where the
+    # main skill scales hard with gem level — the ladder Vortex runs it (+21%
+    # measured) — but it's a utility gem absent from the keyword-ranked pool.
+    # Add it so the fitness-gated forward-select can pick it where it helps;
+    # PoB decides if +2 levels beats the alternative support for a slot.
+    if "Empower" not in pool:
+        pool.append("Empower")
     chosen: list[str] = []
     cur_fit = -1.0
     while len(chosen) < 5 and pool:

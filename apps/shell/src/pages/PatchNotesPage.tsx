@@ -28,6 +28,27 @@ interface Release {
 // Prepend a new entry with user-facing (not technical) bilingual copy.
 const RELEASES: Release[] = [
   {
+    date: { it: "4 giu 2026", en: "4 Jun 2026" },
+    title: {
+      it: "Theorycrafter — Empower sui caster (confronto con la ladder)",
+      en: "Theorycrafter — Empower on casters (ladder comparison)",
+    },
+    summary: {
+      it: "Confrontando le nostre build con quelle in cima alla ladder di poe.ninja è emerso un supporto che ci mancava: Empower (+2 livelli alla skill). Aggiunto dove conviene davvero.",
+      en: "Comparing our builds with the top poe.ninja ladder builds surfaced a support we were missing: Empower (+2 levels to the skill). Added where it genuinely helps.",
+    },
+    entries: [
+      {
+        it: "Misurato (PoB-esatto): Spark +52% (279.000 DPS), Vortex +25% (870.000), Arc +16% (428.000) — le build caster/DoT, il cui danno scala molto col livello della gemma, ora montano Empower. Le build da attacco lo saltano correttamente (per loro conta poco).",
+        en: "Measured (PoB-exact): Spark +52% (279,000 DPS), Vortex +25% (870,000), Arc +16% (428,000) — the caster/DoT builds, whose damage scales hard with gem level, now run Empower. Attack builds correctly skip it (it does little for them).",
+      },
+      {
+        it: "Il confronto è solo un segnale di 'cosa ci manca' — le build restano generate da zero dai dati ufficiali, mai copiate dalla ladder. Tutte restano a 123 punti, importabili in PoB, e non possono mai peggiorare.",
+        en: "The comparison is only a 'what are we missing' signal — builds are still generated from scratch from official data, never copied from the ladder. All stay at 123 points, importable in PoB, and can never get worse.",
+      },
+    ],
+  },
+  {
     date: { it: "3 giu 2026", en: "3 Jun 2026" },
     title: {
       it: "Theorycrafter — maledizione sul nemico (+13–62% danno)",

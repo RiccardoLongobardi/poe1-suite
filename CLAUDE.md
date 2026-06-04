@@ -136,6 +136,18 @@ Inside the navbar: a "Strumenti" / "Tools" section label above the 5 main routes
 
 Frontend-only, no backend change. Gate: 747 tests / 132 mypy / ruff clean. Build ~471 KB / 151 KB gzip.
 
+## Step 83 — Real-builds initiative: ladder gap analysis → Empower in the support pool ✅
+
+A data-driven gap hunt: `scripts/compare_ladder.py` fetches the **top poe.ninja ladder build** for an ascendancy+skill, evaluates its PoB export with the real calc, and prints the side-by-side gap vs our build (the ladder is a *gap signal* only, never a build source — the Finder/Theorycrafter boundary holds). Findings:
+
+- **Vortex (ours 5% of the 13M ladder build):** the ladder's main 6L runs **Empower** (+2 gem levels → much more cold DoT), plus low-life **ES stacking** (Shavronne's Wrappings, 11.7k ES). Our 6L had Concentrated Effect / Bonechill / Cruelty — **no Empower**. Isolated measurement: swapping in the ladder's full support set was −1% (our Conc Effect/Cruelty ≈ their Swift Affliction/Efficacy), but **Empower alone = +21%**.
+- **Root cause:** `optimize_links` builds its support pool from the keyword-ranked `_select_supports_raw`, which **excludes Empower** (a utility gem, not a damage keyword). So the fitness-gated forward-select never even considered it.
+- **Cyclone (ours 0.2% of the 84-109M ladder build):** the ladder's meta Cyclone is a **CoC / trigger build** (main link = Mark On Hit + Assassin's Mark; the DPS is triggered spells) — a different archetype = **Fase 6** (Step 82). Our physical Cyclone is far tankier (EHP 284% of the ladder's glass-cannon Abyssus build) but can't match the trigger DPS without the CoC work.
+
+**Fix (this step): add Empower to `optimize_links`' pool.** One-line — append `"Empower"` to the candidate pool so the PoB-fitness forward-select can pick it where it genuinely helps (the encoder already caps it at the corrupted level 4 = +2 levels). PoB decides per build if +2 gem levels beats the alternative support for that slot.
+
+**Measured (PoB-exact, over Step 81, ratchet = no regression):** **Spark 182.8k → 278.9k (+52%)**, **Vortex 693.2k → 869.9k (+25%)**, **Arc 369.1k → 427.9k (+16%)** — the caster/DoT builds whose gem level scales damage hard all pick Empower. The hit builds (Cyclone, Ice Shot, Boneshatter) correctly **skip** it (fitness-gated — +2 levels does little for an attack scaling on supports/gear). All 8: 123 pts, reservation-positive, importable (re-eval = served), viability-pass. Gate: 789 tests / 148 mypy / ruff clean. **Still-open ladder gaps (mapped, not yet closed): low-life ES stacking (a Shavronne's CI/low-life archetype lever) and the CoC trigger meta (Fase 6).**
+
 ## Step 82 — Real-builds initiative: trigger archetype (CoC) feasibility spike (Fase 6) 🔬
 
 `docs/REAL_BUILDS_ANALYSIS.md` Fase 6 (trigger archetypes — Cast on Critical Strike / Cast While Channelling, what the 13M-DPS meta builds use). **De-risking spike only — no generator/optimiser/precompute change, no user-facing change** (like Step 75 cluster spike). A CoC build is a fundamentally *new archetype* (a crit+attack+spell hybrid that no current single-primary-skill build has), so this proves the mechanism + maps the implementation before any build change.
