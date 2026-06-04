@@ -179,6 +179,14 @@ _CORE_SUPPORTS: tuple[str, ...] = (
     "Spell Echo",
     "Controlled Destruction",
     "Elemental Focus",
+    # Empower (+2 gem levels at lvl 4) is a caster/DoT staple — the ladder runs
+    # it (Step 83: +16-52% on the precomputed casters). It's in the *spell*
+    # section so it ranks ~4th for spells (a live spell build now picks it) but
+    # stays below the attack supports for an attack build (which is correct —
+    # +2 levels does little for an attack scaling on supports/gear). The
+    # precompute is unaffected: optimize_links forward-selects supports by PoB
+    # fitness and overrides this base pick.
+    "Empower",
     "Concentrated Effect",
     "Increased Area of Effect",
     "Hypothermia",
