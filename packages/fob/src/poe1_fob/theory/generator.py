@@ -371,6 +371,19 @@ _DAMAGE_KEYWORDS: dict[str, tuple[str, ...]] = {
     # old physical/spell keywords matched none, so 0 minion nodes were
     # taken and the minion did ~0 DPS).
     "minion": ("minion", "minions deal", "skeleton", "zombie", "spectre", "raise"),
+    # Fase 6 (CoC): a Cast-on-Critical-Strike build scales on BOTH the trigger
+    # attack's crit (to fire the trigger at the ~6.67/s cap) AND the triggered
+    # cold spell's damage. So its tree wants attack crit chance/multi + attack
+    # speed (the trigger) *and* cold/spell damage (the triggered spell). The
+    # cold-CoC keyword set unions them so the greedy scorer values the hybrid.
+    "coc_cold": (
+        "critical strike",
+        "attack speed",
+        "cold damage",
+        "spell damage",
+        "elemental damage",
+        "area damage",
+    ),
 }
 _DEFENCE_KEYWORDS: dict[str, tuple[str, ...]] = {
     "life": ("maximum life", "life regen", "life leech", "armour", "evasion"),
