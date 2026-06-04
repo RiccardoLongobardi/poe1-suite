@@ -40,6 +40,34 @@ _INTENTS: dict[tuple[str, str], dict[str, str]] = {
         "damage_type": "physical",
         "defence_archetype": "life",
     },
+    ("Inquisitor", "Arc"): {
+        "character_class": "Templar",
+        "ascendancy": "Inquisitor",
+        "primary_skill": "Arc",
+        "damage_type": "lightning",
+        "defence_archetype": "life",
+    },
+    ("Inquisitor", "Spark"): {
+        "character_class": "Templar",
+        "ascendancy": "Inquisitor",
+        "primary_skill": "Spark",
+        "damage_type": "lightning",
+        "defence_archetype": "life",
+    },
+    ("Deadeye", "Ice Shot"): {
+        "character_class": "Ranger",
+        "ascendancy": "Deadeye",
+        "primary_skill": "Ice Shot",
+        "damage_type": "cold",
+        "defence_archetype": "life",
+    },
+    ("Gladiator", "Lacerate"): {
+        "character_class": "Duelist",
+        "ascendancy": "Gladiator",
+        "primary_skill": "Lacerate",
+        "damage_type": "physical",
+        "defence_archetype": "life",
+    },
 }
 
 
