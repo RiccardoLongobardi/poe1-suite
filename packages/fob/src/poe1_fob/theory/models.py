@@ -68,6 +68,12 @@ class GemLink(BaseModel):
     # use the default (level 20, quality 20).
     skill_level: int | None = None
     skill_quality: int | None = None
+    # Imbued support (3.28 corrupted-gem mechanic, QA #4): a corrupted skill
+    # gem can carry an *additional* built-in support at level 1 that costs no
+    # socket — effectively a 7th support on the main 6L. The value is the
+    # support's base name WITHOUT " Support" (PoB appends it), e.g. "Increased
+    # Critical Damage". None = no imbued support.
+    imbued_support: str | None = None
 
 
 class TreeNodeRef(BaseModel):

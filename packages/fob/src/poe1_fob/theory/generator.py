@@ -1568,6 +1568,7 @@ def _to_pob_gems(links: tuple[GemLink, ...]) -> StageGemLinks:
                 color_pattern="R" * sockets,
                 gems=tuple(gems[:sockets]),
                 notes=link.label or "Theory link",
+                imbued_support=link.imbued_support,
             ),
         )
     return StageGemLinks(stage_key="theory_v2", links=tuple(pob_links))

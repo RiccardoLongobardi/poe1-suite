@@ -91,6 +91,15 @@ class GemLink(BaseModel):
         default="",
         description="Per-link rationale (e.g. 'CWDT setup', 'mobility chain').",
     )
+    imbued_support: str | None = Field(
+        default=None,
+        description=(
+            "3.28 imbued-gem support: a corrupted skill gem grants this support "
+            "at level 1 with no socket cost. Value is the support base name "
+            "without ' Support' (e.g. 'Increased Critical Damage'). PoB encodes "
+            "it as the <Skill imbuedSupport=...> attribute."
+        ),
+    )
 
     @model_validator(mode="after")
     def _validate_socket_count(self) -> GemLink:

@@ -342,24 +342,28 @@ def _build_xml(
                 (s, c) for s, c in _SLOT_SOCKETS if s != "Body Armour" or body_present
             )
             for orig_i, slot_label, group_gems in _assign_gem_groups(gems.links, avail_slots):
-                skill = ET.SubElement(
-                    skill_set,
-                    "Skill",
-                    attrib={
-                        "mainActiveSkillCalcs": "1",
-                        "mainActiveSkill": "1",
-                        # Only the primary (first) group is a damage skill —
-                        # auras / curse / movement / warcry must NOT count
-                        # toward FullDPS (else PoB treats e.g. Flame Dash as a
-                        # damage skill — a real PoB warning).
-                        "includeInFullDPS": "true" if orig_i == 0 else "false",
-                        # Empty label → PoB auto-derives the group name
-                        # from the first active gem.
-                        "label": "",
-                        "enabled": "true",
-                        "slot": slot_label,
-                    },
-                )
+                attrib = {
+                    "mainActiveSkillCalcs": "1",
+                    "mainActiveSkill": "1",
+                    # Only the primary (first) group is a damage skill —
+                    # auras / curse / movement / warcry must NOT count
+                    # toward FullDPS (else PoB treats e.g. Flame Dash as a
+                    # damage skill — a real PoB warning).
+                    "includeInFullDPS": "true" if orig_i == 0 else "false",
+                    # Empty label → PoB auto-derives the group name
+                    # from the first active gem.
+                    "label": "",
+                    "enabled": "true",
+                    "slot": slot_label,
+                }
+                # 3.28 imbued-gem support (QA #4): a corrupted skill gem grants
+                # a built-in level-1 support with no socket cost. PoB reads it
+                # from the <Skill imbuedSupport=...> attribute (base name without
+                # " Support") + the group's slot, and adds it as an ExtraSupport.
+                imbued = gems.links[orig_i].imbued_support
+                if imbued:
+                    attrib["imbuedSupport"] = imbued
+                skill = ET.SubElement(skill_set, "Skill", attrib=attrib)
                 for g in group_gems:
                     _gem_element(skill, g)
 

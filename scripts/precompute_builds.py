@@ -33,6 +33,7 @@ from optimize_build import (  # type: ignore[import-not-found]  # sibling script
     optimize_awakened,
     optimize_clusters,
     optimize_flasks,
+    optimize_imbued,
     optimize_links,
     optimize_timeless,
     optimize_tree,
@@ -194,6 +195,12 @@ def _optimised_skeleton(
         best_stats = _final(visited, ())
         print(f"[opt] trim -> {len(visited) - 1} regular nodes (budget {_TREE_POINT_BUDGET})")
 
+    # Imbued support (QA #4) — a free level-1 7th support via the 3.28
+    # corrupted-gem mechanic. Done on the final build (primary group only, no
+    # reservation impact); PoB picks the best per build.
+    best_links = optimize_imbued(
+        intent, ev, enc, visited, best_links, best_pob, jewels=jewels, clusters=clusters
+    )
     # Final reservation guard (QA #2): a served build must be castable. Earlier
     # passes can leave it over-reserved (the trim/cluster drop the reservation
     # nodes the aura pass relied on) — drop auras until ManaUnreserved >= cost.

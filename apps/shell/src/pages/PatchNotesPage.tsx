@@ -47,12 +47,16 @@ const RELEASES: Release[] = [
         en: "Mana: some builds reserved too much mana to even cast the skill (a defensive buff was silently reserving mana). Now every served build is genuinely castable.",
       },
       {
-        it: "Una build (Boneshatter) faceva 0 danni: usava una spada, ma Boneshatter accetta solo asce/mazze/bastoni. Corretto → da 0 a 635.000 DPS. Aggiunti anche il 2° anello, nomi di oggetti reali, una sola skill di movimento e la tab Config compilata (senza toccare nemico/mappa).",
-        en: "One build (Boneshatter) did 0 damage: it used a sword, but Boneshatter only accepts axes/maces/staves. Fixed → from 0 to 635,000 DPS. Also added the 2nd ring, real item names, a single movement skill, and a filled-in Config tab (without touching enemy/map settings).",
+        it: "Una build (Boneshatter) faceva 0 danni: usava una spada, ma Boneshatter accetta solo asce/mazze/bastoni. Corretto → da 0 a 695.000 DPS. Aggiunti anche il 2° anello, nomi di oggetti reali, una sola skill di movimento e la tab Config compilata (senza toccare nemico/mappa).",
+        en: "One build (Boneshatter) did 0 damage: it used a sword, but Boneshatter only accepts axes/maces/staves. Fixed → from 0 to 695,000 DPS. Also added the 2nd ring, real item names, a single movement skill, and a filled-in Config tab (without touching enemy/map settings).",
       },
       {
-        it: "Risultato: tutte e 8 le build precalcolate si reimportano in PoB pulite e sono molto più forti (Vortex 1,31M, Boneshatter 635k, Arc 561k, Spark 298k).",
-        en: "Result: all 8 precomputed builds re-import into PoB clean and are much stronger (Vortex 1.31M, Boneshatter 635k, Arc 561k, Spark 298k).",
+        it: "Imbued support (3.28): le build ora sfruttano la corruzione che dà un support gratis di livello 1 alla skill principale — scelto da PoB per ogni build (es. Arc/Spark +20%, Boneshatter +9%, Cyclone +8%).",
+        en: "Imbued support (3.28): builds now use the corruption that grants a free level-1 support on the main skill — chosen by PoB per build (e.g. Arc/Spark +20%, Boneshatter +9%, Cyclone +8%).",
+      },
+      {
+        it: "Risultato: tutte e 8 le build precalcolate si reimportano in PoB pulite e sono molto più forti (Vortex 1,31M, Boneshatter 695k, Arc 674k, Spark 357k).",
+        en: "Result: all 8 precomputed builds re-import into PoB clean and are much stronger (Vortex 1.31M, Boneshatter 695k, Arc 674k, Spark 357k).",
       },
     ],
   },

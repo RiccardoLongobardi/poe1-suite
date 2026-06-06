@@ -56,6 +56,37 @@ def test_encode_minimal_tree_pob_wrapper() -> None:
     assert set(snap.tree.node_ids) >= {50459, 1234}
 
 
+def test_encode_emits_imbued_support_attribute() -> None:
+    """QA #4: a GemLink carrying ``imbued_support`` (3.28 corrupted-gem
+    mechanic) emits ``imbuedSupport="<name>"`` on its <Skill> group, so PoB
+    adds the free level-1 support."""
+    tree = StageTree(stage_key="end", node_ids=(50459,))
+    gems = StageGemLinks(
+        stage_key="end",
+        links=(
+            GemLink(
+                slot=ItemSlot.BODY_ARMOUR,
+                sockets=2,
+                gems=(
+                    GemSpec(name="Cyclone", level=21, quality=23, is_support=False),
+                    GemSpec(name="Brutality", level=20, quality=20, is_support=True),
+                ),
+                imbued_support="Increased Critical Damage",
+            ),
+        ),
+    )
+    code = encode_pob_code(
+        character_class="Marauder",
+        ascendancy="Juggernaut",
+        tree=tree,
+        gems=gems,
+    )
+    xml = decode_export(code).decode("utf-8")
+    root = ET.fromstring(xml)
+    skills = root.findall(".//Skill")
+    assert any(s.attrib.get("imbuedSupport") == "Increased Critical Damage" for s in skills)
+
+
 def test_encode_emits_timeless_jewel_item_and_socket() -> None:
     """Step 63: a jewel (socket_node, item_text) is emitted as an <Item> plus
     a <Socket nodeId itemId/> in the Spec's <Sockets>, so PoB applies it."""

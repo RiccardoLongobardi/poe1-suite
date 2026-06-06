@@ -598,6 +598,65 @@ def ensure_castable(
     return tuple(cur)
 
 
+# Imbued-support candidates (3.28 corrupted-gem mechanic, QA #4): strong damage
+# supports, by base name without " Support" (PoB appends it). The imbued support
+# is granted at LEVEL 1, so this is a small but free 7th support — PoB decides
+# which the build actually benefits from (crit builds love Increased Critical
+# Damage; DoT/spell builds prefer Empower / Efficacy).
+_IMBUED_CANDIDATES: tuple[str, ...] = (
+    "Increased Critical Damage",
+    "Empower",
+    "Efficacy",
+    "Swift Affliction",
+    "Controlled Destruction",
+    "Increased Critical Strikes",
+    "Brutality",
+    "Hypothermia",
+    "Elemental Focus",
+    "Vile Toxins",
+)
+
+
+def optimize_imbued(
+    intent: TheoryIntent,
+    ev: PobEvaluator,
+    enc: _Encoder,
+    visited: set[int],
+    links: tuple[GemLink, ...],
+    pob_gear: StageGearSet,
+    jewels: tuple[tuple[int, str], ...] = (),
+    clusters: tuple[tuple[int, str, tuple[int, ...]], ...] = (),
+) -> tuple[GemLink, ...]:
+    """Pick the imbued support (3.28 corrupted-gem mechanic) that maximises
+    PoB-exact fitness — a *free* level-1 7th support on the main 6L, costing
+    no socket. Tries the damage-support pool on the primary group and keeps the
+    PoB-best (or none if nothing helps); PoB matches it to the build (crit →
+    Increased Critical Damage, DoT → Empower/Efficacy). An invalid/irrelevant
+    candidate simply yields no gain and is not kept (fitness-gated)."""
+
+    def _fit(lk: tuple[GemLink, ...]) -> float:
+        return fitness(
+            ev.evaluate(enc.code(visited, lk, pob_gear=pob_gear, jewels=jewels, clusters=clusters)),
+            intent.budget,
+        )
+
+    primary = links[0]
+    best_name: str | None = None
+    best_fit = _fit(links)
+    for cand in _IMBUED_CANDIDATES:
+        trial = (primary.model_copy(update={"imbued_support": cand}), *links[1:])
+        try:
+            f = _fit(trial)
+        except Exception:
+            continue
+        if f > best_fit * 1.001:
+            best_fit, best_name = f, cand
+    if best_name is None:
+        return links
+    print(f"[opt] imbued support: {best_name}")
+    return (primary.model_copy(update={"imbued_support": best_name}), *links[1:])
+
+
 # ---------------------------------------------------------------------------
 # Awakened support upgrade (Step 73) — endgame / best-version gem quality
 # ---------------------------------------------------------------------------
