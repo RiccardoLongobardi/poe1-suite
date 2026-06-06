@@ -164,6 +164,34 @@ def test_extract_skill_and_class_together() -> None:
     assert intent.class_filter == "slayer"
 
 
+def test_extract_skill_longest_match_wins() -> None:
+    """The most specific skill must win — 'blade vortex' must NOT collapse to
+    'Vortex' (a real ordering bug in the old hand-curated list)."""
+    intent, _ = rule_based_extract("blade vortex slayer")
+    assert intent.main_skill_hint == "Blade Vortex"
+
+
+def test_extract_skill_derived_from_catalogue() -> None:
+    """Every base skill is recognised from the vendored gem catalogue, not a
+    hand-curated subset — incl. skills never curated by hand."""
+    for query, expected in [
+        ("frostbolt occultist", "Frostbolt"),
+        ("glacial cascade miner", "Glacial Cascade"),
+        ("essence drain trickster", "Essence Drain"),
+        ("perforate gladiator", "Perforate"),
+    ]:
+        intent, _ = rule_based_extract(query)
+        assert intent.main_skill_hint == expected, query
+
+
+def test_extract_skill_no_false_positive() -> None:
+    """Whole-word matching: 'arctic' must not match 'Arc', and non-main actives
+    (auras / movement / guards) are never extracted as a main skill."""
+    for query in ("arctic armour build", "hatred aura stacker", "flame dash mobility"):
+        intent, _ = rule_based_extract(query)
+        assert intent.main_skill_hint is None, query
+
+
 def test_extract_min_life_with_k_suffix() -> None:
     intent, _ = rule_based_extract("rf con 6k vita")
     assert intent.min_life == 6000

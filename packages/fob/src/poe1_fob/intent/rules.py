@@ -25,8 +25,11 @@ Field weights
 
 from __future__ import annotations
 
+import json
 import re
 import unicodedata
+from functools import lru_cache
+from pathlib import Path
 from typing import Final
 
 from poe1_core.models.build_intent import BudgetRange, BuildIntent, ContentFocusWeight
@@ -531,85 +534,97 @@ def _match_all(norm: str, table: list[tuple[object, list[str]]]) -> list[object]
 # ---------------------------------------------------------------------------
 
 
-# Skill name → exact poe.ninja in-game gem name. Pattern matched on
-# the normalised query; longer phrases win (so "righteous fire" beats
-# "fire" before "fire" gets a chance to match anything else).
-# Order matters in this list — first hit wins.
-_SKILL_NAMES: tuple[tuple[str, tuple[str, ...]], ...] = (
-    ("Righteous Fire", ("righteous fire", "rf jugg", "rf chieftain")),
-    ("Holy Flame Totem", ("holy flame totem", "hft", "holy flame totems")),
-    ("Tornado Shot", ("tornado shot",)),
-    ("Lightning Strike", ("lightning strike",)),
-    ("Frost Blades", ("frost blades",)),
-    ("Toxic Rain", ("toxic rain", "tr ", "toxic rain pathfinder")),
-    ("Cyclone", ("cyclone",)),
-    ("Reave", ("reave",)),
-    ("Lacerate", ("lacerate",)),
-    ("Splitting Steel", ("splitting steel",)),
-    ("Sunder", ("sunder",)),
-    ("Static Strike", ("static strike",)),
-    ("Spectral Throw", ("spectral throw",)),
-    ("Spectral Helix", ("spectral helix",)),
-    ("Boneshatter", ("boneshatter",)),
-    ("Earthshatter", ("earthshatter",)),
-    ("Tectonic Slam", ("tectonic slam",)),
-    ("Molten Strike", ("molten strike",)),
-    ("Ground Slam", ("ground slam",)),
-    ("Volcanic Fissure", ("volcanic fissure",)),
-    ("Ice Shot", ("ice shot",)),
-    ("Elemental Hit", ("elemental hit", "ele hit", "eh ")),
-    ("Caustic Arrow", ("caustic arrow",)),
-    ("Explosive Arrow", ("explosive arrow", "ea ")),
-    ("Galvanic Arrow", ("galvanic arrow",)),
-    ("Kinetic Blast", ("kinetic blast", "kb ")),
-    ("Flicker Strike", ("flicker strike", "flicker")),
-    ("Wild Strike", ("wild strike",)),
-    ("Blade Flurry", ("blade flurry", "bf ")),
-    ("Shrapnel Ballista", ("shrapnel ballista",)),
-    ("Poisonous Concoction", ("poisonous concoction", "pconc")),
-    ("Penance Brand", ("penance brand",)),
-    ("Crackling Lance", ("crackling lance",)),
-    ("Spark", ("spark",)),
-    ("Arc", ("arc ",)),  # trailing space avoids matching "arctic"
-    ("Smite", ("smite",)),
-    ("Vortex", ("vortex",)),
-    ("Cold Snap", ("cold snap",)),
-    ("Bone Spear", ("bone spear",)),
-    ("Soulrend", ("soulrend",)),
-    ("Hexblast", ("hexblast",)),
-    ("Volatile Dead", ("volatile dead", "detonate dead", " dd ")),
-    ("Bane", ("bane", "essence drain", "contagion")),
-    (
-        "Raise Spectre",
-        (
-            "raise spectre",
-            "spectre",
-        ),
-    ),
-    ("Summon Skeletons", ("summon skeletons", "skeleton mages")),
-    ("Blade Vortex", ("blade vortex", "bv ")),
-    ("Cobra Lash", ("cobra lash",)),
-    ("Pyroclast Mine", ("pyroclast mine",)),
-    ("Blade Blast", ("blade blast",)),
-    ("Power Siphon", ("power siphon",)),
-    ("Storm Brand", ("storm brand",)),
-    ("Forbidden Rite", ("forbidden rite",)),
-    ("Wave of Conviction", ("wave of conviction", "woc")),
-    ("Ball Lightning", ("ball lightning",)),
+# --- Skill recognition (every skill, no curation) --------------------------
+# The Finder forwards the recognised skill to poe.ninja as the `main_skill`
+# filter, so the canonical name must be the exact in-game gem name. Instead of
+# hand-maintaining a skill list (it doesn't scale to 250+ skills and goes stale
+# every league), we DERIVE the full list from the same vendored gem catalogue
+# the Theorycrafter uses (`gems_3_28.json`) — so every base skill is recognised
+# automatically. Only a few shorthands (rf / hft / bv / …) are hand-curated.
+_GEMS_PATH: Final = Path(__file__).parent.parent.parent.parent / "data" / "gems" / "gems_3_28.json"
+
+# Tags that mark an active gem as NOT a build-around main DPS skill (the thing
+# a Finder user searches by): reserved auras / heralds / banners, defensive
+# guards, warcries, pure curses (`appliescurse` — Bane lacks it, so it stays),
+# blink movement skills (Flame Dash / Dash / …), and Vaal duplicates (the base
+# skill covers them).
+_NON_MAIN_TAGS: Final[frozenset[str]] = frozenset(
+    {
+        "aura",
+        "herald",
+        "banner",
+        "guard",
+        "warcry",
+        "appliescurse",
+        "blink",
+        "vaal",
+        # `hasreservation` covers every reserved buff (auras, heralds, banners,
+        # Arctic Armour, Skitterbots, Aspects) — none of which is a main DPS
+        # skill the Finder searches by.
+        "hasreservation",
+    }
+)
+
+# Curated shorthands / groupings only — the FULL skill list comes from the
+# catalogue. Each maps an extra pattern to an exact catalogue skill name.
+_SKILL_ABBREV: Final[tuple[tuple[str, tuple[str, ...]], ...]] = (
+    ("Righteous Fire", ("rf",)),
+    ("Holy Flame Totem", ("hft",)),
+    ("Blade Vortex", ("bv",)),
+    ("Toxic Rain", ("tr",)),
+    ("Poisonous Concoction", ("pconc",)),
+    ("Wave of Conviction", ("woc",)),
+    ("Summon Skeletons", ("skeleton mages",)),
 )
 
 
-def _extract_main_skill(norm: str) -> str | None:
-    """Return the canonical skill name if the query mentions one."""
+@lru_cache(maxsize=1)
+def _catalogue_skill_pairs() -> tuple[tuple[str, str], ...]:
+    """``(lowercased pattern, exact skill name)`` for every base active skill in
+    the vendored gem catalogue. Transfigured variants ("X of Y", grouped under
+    the base on poe.ninja) and non-main actives (auras / heralds / curses /
+    movement / Vaal) are dropped."""
+    try:
+        raw = json.loads(_GEMS_PATH.read_text(encoding="utf-8"))
+    except (OSError, ValueError):  # pragma: no cover - deployment guard
+        return ()
+    pairs: dict[str, str] = {}
+    for active in raw.get("actives", []):
+        name = str(active.get("name", ""))
+        if not name or " of " in name:
+            continue
+        if _NON_MAIN_TAGS.intersection(active.get("tags", ())):
+            continue
+        pairs.setdefault(name.lower(), name)
+    return tuple(pairs.items())
 
-    # Pad with spaces so word-boundary matching catches edge cases at
-    # the start/end of the string ("rf" alone, etc.).
-    padded = f" {norm} "
-    for canonical, patterns in _SKILL_NAMES:
-        for pat in patterns:
-            if pat in padded:
-                return canonical
-    return None
+
+@lru_cache(maxsize=1)
+def _skill_matcher() -> tuple[re.Pattern[str] | None, dict[str, str]]:
+    """A single word-boundary regex over every skill pattern (catalogue + the
+    curated shorthands), ordered longest-first so the most specific match wins
+    (e.g. "Blade Vortex" beats "Vortex"), plus a pattern→canonical lookup."""
+    lookup: dict[str, str] = {}
+    for canonical, abbrevs in _SKILL_ABBREV:
+        for ab in abbrevs:
+            lookup.setdefault(ab, canonical)
+    for pattern, name in _catalogue_skill_pairs():
+        lookup.setdefault(pattern, name)
+    if not lookup:  # pragma: no cover - deployment guard
+        return None, {}
+    alt = "|".join(re.escape(p) for p in sorted(lookup, key=len, reverse=True))
+    return re.compile(rf"\b({alt})\b"), lookup
+
+
+def _extract_main_skill(norm: str) -> str | None:
+    """Return the canonical (exact in-game) skill name the query mentions, or
+    None. Matches whole words only (so "arc" never matches "arctic") and the
+    leftmost / longest skill wins."""
+    matcher, lookup = _skill_matcher()
+    if matcher is None:
+        return None
+    match = matcher.search(norm)
+    return lookup.get(match.group(1)) if match is not None else None
 
 
 def rule_based_extract(raw: str) -> tuple[BuildIntent, float]:

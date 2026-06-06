@@ -30,13 +30,23 @@ const RELEASES: Release[] = [
   {
     date: { it: "6 giu 2026", en: "6 Jun 2026" },
     title: {
-      it: "Build Finder — più skill riconosciute (Elemental Hit, ecc.)",
-      en: "Build Finder — more skills recognised (Elemental Hit, etc.)",
+      it: "Build Finder — riconosce ogni skill (213 gemme)",
+      en: "Build Finder — recognises every skill (213 gems)",
     },
     summary: {
-      it: "Cercando 'elemental hit slayer' il Finder riconosceva solo 'slayer' e cercava tutta la ladder Slayer, perché Elemental Hit non era tra le skill note. Aggiunte Elemental Hit, Caustic/Explosive/Galvanic Arrow, Kinetic Blast, Flicker Strike, Wild Strike, Blade Flurry, Shrapnel Ballista — ora la ricerca filtra per skill + ascendancy insieme.",
-      en: "Searching 'elemental hit slayer' only recognised 'slayer' and searched the whole Slayer ladder, because Elemental Hit wasn't a known skill. Added Elemental Hit, Caustic/Explosive/Galvanic Arrow, Kinetic Blast, Flicker Strike, Wild Strike, Blade Flurry, Shrapnel Ballista — the search now filters by skill + ascendancy together.",
+      it: "Cercando 'elemental hit slayer' il Finder riconosceva solo 'slayer' e cercava tutta la ladder Slayer, perché molte skill non erano nell'elenco scritto a mano. Ora l'elenco è derivato automaticamente dai dati ufficiali delle gemme.",
+      en: "Searching 'elemental hit slayer' only recognised 'slayer' and searched the whole Slayer ladder, because many skills weren't in the hand-written list. The list is now derived automatically from the official gem data.",
     },
+    entries: [
+      {
+        it: "213 skill riconosciute (esclusi solo aure/herald/movement/buff) — anche le più di nicchia: Frostbolt, Glacial Cascade, Perforate, Essence Drain, Summon Raging Spirit…",
+        en: "213 skills recognised (only auras/heralds/movement/buffs excluded) — even niche ones: Frostbolt, Glacial Cascade, Perforate, Essence Drain, Summon Raging Spirit…",
+      },
+      {
+        it: "Corretto 'blade vortex' → ora trova Blade Vortex (non Vortex), e la ricerca filtra per skill + ascendancy insieme. Niente falsi positivi ('arctic' non confonde più con 'Arc').",
+        en: "Fixed 'blade vortex' → now finds Blade Vortex (not Vortex), and the search filters by skill + ascendancy together. No false positives ('arctic' no longer confused with 'Arc').",
+      },
+    ],
   },
   {
     date: { it: "6 giu 2026", en: "6 Jun 2026" },
