@@ -49,6 +49,12 @@ _OUTPUT_KEYS: tuple[str, ...] = (
     "Str",
     "Dex",
     "Int",
+    # Main-skill mana cost — to verify the build can actually cast it (the
+    # served unreserved mana must clear this, else PoB warns "not enough mana").
+    "ManaCost",
+    "ReqStr",
+    "ReqDex",
+    "ReqInt",
 )
 
 _INIT_HARNESS = r"""

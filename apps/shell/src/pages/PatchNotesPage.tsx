@@ -28,6 +28,35 @@ interface Release {
 // Prepend a new entry with user-facing (not technical) bilingual copy.
 const RELEASES: Release[] = [
   {
+    date: { it: "6 giu 2026", en: "6 Jun 2026" },
+    title: {
+      it: "Theorycrafter — le build ora si importano davvero in PoB",
+      en: "Theorycrafter — builds now genuinely import into PoB",
+    },
+    summary: {
+      it: "Provando a importare una build generata in Path of Building sono emersi problemi che il nostro controllo automatico non vedeva. Sistemati: ora ogni build si importa pulita — attributi giusti, mana sufficiente per lanciare le skill, ascendancy allocata, basi reali e niente gemme di troppo negli slot.",
+      en: "Importing a generated build into Path of Building surfaced issues our automated check couldn't see. Fixed: every build now imports clean — right attributes, enough mana to cast, ascendancy allocated, real item bases, and no extra gems crammed into a slot.",
+    },
+    entries: [
+      {
+        it: "Ascendancy allocata: prima nessun punto di ascendancy veniva assegnato (tutto il set di passive era inerte). Ora sì — e da solo vale +41% su Vortex.",
+        en: "Ascendancy allocated: before, no ascendancy points were assigned (the whole passive set was inert). Now they are — and that alone is +41% on Vortex.",
+      },
+      {
+        it: "Mana: alcune build riservavano troppo mana per poter lanciare la skill (un buff difensivo riservava mana di nascosto). Ora ogni build servita è davvero lanciabile.",
+        en: "Mana: some builds reserved too much mana to even cast the skill (a defensive buff was silently reserving mana). Now every served build is genuinely castable.",
+      },
+      {
+        it: "Una build (Boneshatter) faceva 0 danni: usava una spada, ma Boneshatter accetta solo asce/mazze/bastoni. Corretto → da 0 a 635.000 DPS. Aggiunti anche il 2° anello, nomi di oggetti reali, una sola skill di movimento e la tab Config compilata (senza toccare nemico/mappa).",
+        en: "One build (Boneshatter) did 0 damage: it used a sword, but Boneshatter only accepts axes/maces/staves. Fixed → from 0 to 635,000 DPS. Also added the 2nd ring, real item names, a single movement skill, and a filled-in Config tab (without touching enemy/map settings).",
+      },
+      {
+        it: "Risultato: tutte e 8 le build precalcolate si reimportano in PoB pulite e sono molto più forti (Vortex 1,31M, Boneshatter 635k, Arc 561k, Spark 298k).",
+        en: "Result: all 8 precomputed builds re-import into PoB clean and are much stronger (Vortex 1.31M, Boneshatter 635k, Arc 561k, Spark 298k).",
+      },
+    ],
+  },
+  {
     date: { it: "4 giu 2026", en: "4 Jun 2026" },
     title: {
       it: "Theorycrafter — Empower sui caster (confronto con la ladder)",

@@ -26,6 +26,7 @@ from optimize_build import (  # type: ignore[import-not-found]  # sibling script
     _Encoder,
     _forbids_chest,
     _relocate_no_chest,
+    ensure_castable,
     fitness,
     optimize_anoint,
     optimize_auras,
@@ -42,6 +43,7 @@ from optimize_build import (  # type: ignore[import-not-found]  # sibling script
 from pob_eval import PobEvaluator  # type: ignore[import-not-found]
 
 from poe1_core.models.enums import ItemSlot
+from poe1_fob.gear.models import StageGearSet
 from poe1_fob.gear.uniques import unique_by_name
 from poe1_fob.theory import TheoryIntent, generate_build, validate_build
 from poe1_fob.theory import generator as gen
@@ -136,11 +138,18 @@ def _optimised_skeleton(
     best_pob, _, anoint_name = optimize_anoint(
         intent, ev, enc, visited, best_links, best_pob, jewels
     )
-    # Step 70 relocation (links-only — a chest-forbidding helmet voids the body,
-    # so the 6L is relocated to the helmet). Done before the trim/cluster evals.
+    # Step 70 relocation (a chest-forbidding helmet voids the body, so the 6L is
+    # relocated to the helmet). Done before the trim/cluster evals. **QA fix:**
+    # also DROP the body item from the encoded gear — otherwise the gem-slot
+    # allocator still sees a Body Armour slot and puts the 6L there, into a
+    # voided body → 0 DPS (the bug behind Boneshatter=0).
     helmet_u = chosen.get(ItemSlot.HELMET)
     if helmet_u is not None and _forbids_chest(helmet_u):
         best_links = _relocate_no_chest(best_links)
+        best_pob = StageGearSet(
+            stage_key=best_pob.stage_key,
+            slots=tuple(s for s in best_pob.slots if s.slot is not ItemSlot.BODY_ARMOUR),
+        )
 
     # 7) cluster jewel (Step 76) — the biggest tree lever. Two-pass: socket a
     # Large cluster at a reachable Large socket, read back the generated
@@ -185,7 +194,17 @@ def _optimised_skeleton(
         best_stats = _final(visited, ())
         print(f"[opt] trim -> {len(visited) - 1} regular nodes (budget {_TREE_POINT_BUDGET})")
 
+    # Final reservation guard (QA #2): a served build must be castable. Earlier
+    # passes can leave it over-reserved (the trim/cluster drop the reservation
+    # nodes the aura pass relied on) — drop auras until ManaUnreserved >= cost.
+    best_links = ensure_castable(
+        ev, enc, visited, best_links, best_pob, jewels=jewels, clusters=clusters
+    )
     pob_code = enc.code(visited, best_links, pob_gear=best_pob, jewels=jewels, clusters=clusters)
+    # Re-eval the FINAL (post-guard) code so the served StatEstimate matches the
+    # importable build to the unit — the guard may have dropped auras, lowering
+    # the real DPS/EHP below the pre-guard `best_stats` printed above.
+    best_stats = ev.evaluate(pob_code)
     # Cluster sub-tree nodes count toward the point budget — surface them in the
     # served tree so the budget invariant test sees the real total.
     cluster_refs = tuple(

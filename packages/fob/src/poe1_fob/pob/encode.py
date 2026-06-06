@@ -37,7 +37,7 @@ from collections.abc import Iterable
 from poe1_core.models.enums import ItemSlot
 
 from ..gear.models import StageGearSet
-from ..gems.models import GemSpec, StageGemLinks
+from ..gems.models import GemLink, GemSpec, StageGemLinks
 from ..tree.models import StageTree
 from ..tree.pob_url import encode_pob_tree_url
 
@@ -333,24 +333,34 @@ def _build_xml(
             attrib={"id": "1", "title": "Default"},
         )
         if gems is not None:
-            for link in gems.links:
+            # A build with no body armour (The Bringer of Rain) has no Body
+            # Armour socket group — drop it so the primary lands in the helmet.
+            body_present = gear is None or any(
+                s.slot is ItemSlot.BODY_ARMOUR and s.kind != "skip" for s in gear.slots
+            )
+            avail_slots = tuple(
+                (s, c) for s, c in _SLOT_SOCKETS if s != "Body Armour" or body_present
+            )
+            for orig_i, slot_label, group_gems in _assign_gem_groups(gems.links, avail_slots):
                 skill = ET.SubElement(
                     skill_set,
                     "Skill",
                     attrib={
                         "mainActiveSkillCalcs": "1",
                         "mainActiveSkill": "1",
-                        "includeInFullDPS": "true",
+                        # Only the primary (first) group is a damage skill —
+                        # auras / curse / movement / warcry must NOT count
+                        # toward FullDPS (else PoB treats e.g. Flame Dash as a
+                        # damage skill — a real PoB warning).
+                        "includeInFullDPS": "true" if orig_i == 0 else "false",
                         # Empty label → PoB auto-derives the group name
-                        # from the first active gem. Stamping the slot
-                        # name here made PoB show "Body Armour" instead
-                        # of the actual skill in the Main Skill dropdown.
+                        # from the first active gem.
                         "label": "",
                         "enabled": "true",
-                        "slot": _slot_to_pob_label(link.slot),
+                        "slot": slot_label,
                     },
                 )
-                for g in link.gems:
+                for g in group_gems:
                     _gem_element(skill, g)
 
     # <Items>: when the user pasted a PoB, passthrough their <Items>
@@ -386,6 +396,7 @@ def _build_xml(
             # label verbatim from _slot_to_pob_label.
             flask_n = 0
             jewel_n = 0
+            ring_n = 0
             for idx, slot_spec in enumerate(gear.slots, start=1):
                 if slot_spec.kind == "skip":
                     continue
@@ -396,6 +407,12 @@ def _build_xml(
                 elif slot_spec.slot is ItemSlot.JEWEL:
                     jewel_n += 1
                     slot_label = f"Jewel {jewel_n}"
+                elif slot_spec.slot is ItemSlot.RING:
+                    # PoE has two ring slots — label by occurrence (QA #8) so a
+                    # second ring lands in "Ring 2" instead of colliding on
+                    # "Ring 1" (which voided it).
+                    ring_n += 1
+                    slot_label = f"Ring {ring_n}"
                 else:
                     slot_label = base_label
                 item = ET.SubElement(
@@ -491,14 +508,82 @@ def _build_xml(
             if user_elem is not None:
                 root.append(_clone(user_elem))
                 continue
-        # Fall back to empty stub so PoB doesn't complain about missing
-        # sections (TreeView + Config are the only ones it expects).
-        if tag in ("TreeView", "Config"):
+        if tag == "Config":
+            # QA #10: populate the Config tab with the build's realistic
+            # **player-side** combat state — flasks up (a mirror build runs
+            # near-permanent flask uptime; this also enables "while using a
+            # Flask" mods like Bottled Faith's consecrated ground) and "killed
+            # recently" (the normal map/boss-fight state). We deliberately do
+            # NOT touch enemy stats or map modifiers (per the QA note); the
+            # enemy stays PoB's default Pinnacle Boss, and an enabled curse is
+            # auto-applied by PoB.
+            cfg = ET.SubElement(root, "Config")
+            for name in ("conditionUsingFlask", "conditionKilledRecently"):
+                ET.SubElement(cfg, "Input", attrib={"name": name, "boolean": "true"})
+        elif tag == "TreeView":
             ET.SubElement(root, tag)
 
     # ET.tostring includes the XML declaration; PoB doesn't require
     # it but accepts it.
     return ET.tostring(root, encoding="unicode", xml_declaration=False)
+
+
+# Gem sockets per gear slot — a group can't hold more gems than its slot has
+# sockets or PoB warns "too many gems in X slot". (2H weapons have 6, but our
+# casters/most builds use a 1H + off-hand, so 3 is the safe assumption.)
+_SLOT_SOCKETS: tuple[tuple[str, int], ...] = (
+    ("Body Armour", 6),
+    ("Helmet", 4),
+    ("Gloves", 4),
+    ("Boots", 4),
+    ("Weapon 1", 3),
+    ("Weapon 2", 3),
+)
+
+
+def _assign_gem_groups(
+    links: tuple[GemLink, ...], slots: tuple[tuple[str, int], ...] = _SLOT_SOCKETS
+) -> list[tuple[int, str, list[GemSpec]]]:
+    """Distribute gem groups across gear slots respecting socket capacity.
+
+    Returns ``[(original_index, pob_slot_label, gems)]``. *Protected* groups —
+    the primary (index 0) and any aura/reservation group (more than one active
+    gem, or carrying Enlighten/Empower) — are placed first so they keep all
+    their gems; the remaining disposable utility groups (movement / warcry /
+    secondary) are placed last and **trimmed** (trailing supports dropped) if a
+    slot is too small. So no slot ever holds more gems than it has sockets, and
+    the trim never breaks an aura's reservation.
+
+    *slots* is the list of available (slot, sockets) — a build with no body
+    armour (The Bringer of Rain) passes a list without "Body Armour", so the
+    primary lands in the helmet (the Bringer's free supports make up the link)
+    rather than a non-existent body (which voids the skill → 0 DPS).
+    """
+
+    def _protected(i: int) -> bool:
+        if i == 0:
+            return True
+        actives = sum(1 for g in links[i].gems if not g.is_support)
+        if actives > 1:
+            return True
+        return any(g.name in ("Enlighten", "Empower", "Enhance") for g in links[i].gems)
+
+    caps = dict(slots)
+    out: list[tuple[int, str, list[GemSpec]]] = []
+    order = sorted(range(len(links)), key=lambda i: (not _protected(i), -len(links[i].gems), i))
+    for i in order:
+        gems = list(links[i].gems)
+        placed: str | None = None
+        for slot, _c in slots:
+            if caps[slot] >= len(gems):
+                placed, caps[slot] = slot, caps[slot] - len(gems)
+                break
+        if placed is None:  # no slot fits the full group — trim to the largest free
+            slot = max(caps, key=lambda s: caps[s])
+            n = max(caps[slot], 1)
+            gems, caps[slot], placed = gems[:n], max(caps[slot] - n, 0), slot
+        out.append((i, placed, gems))
+    return out
 
 
 def _skill_id(gem: GemSpec) -> str:

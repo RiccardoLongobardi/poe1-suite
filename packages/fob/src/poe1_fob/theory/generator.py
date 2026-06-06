@@ -510,14 +510,14 @@ def _is_bow_skill(skill: _Active) -> bool:
 
 def _build_weapon_group(intent: TheoryIntent) -> str:
     """The weapon family the generator recommends for this build —
-    mirrors the choice in `_select_gear` (bow / wand / sword)."""
+    mirrors the choice in `_select_gear` (bow / wand / axe)."""
     skill = _find_active(intent.primary_skill)
     if "bow" in skill.tags or _is_bow_skill(skill):
         return "bow"
     if "melee" in skill.tags:
-        return "sword"
+        return "axe"
     if "attack" in skill.tags and "wandattack" not in skill.tags:
-        return "sword"
+        return "axe"
     return "wand"
 
 
@@ -1129,6 +1129,44 @@ _FLASK_SUFFIX: dict[str, str] = {
 }
 
 
+# Real-rare-style name pools, so a generated rare reads like an actual item
+# ("Dread Knot") instead of the placeholder "Generated Boots" (QA #7). The
+# name is cosmetic — PoB calcs off the base + mods — but it must look real.
+_RARE_PREFIX = (
+    "Dread",
+    "Storm",
+    "Grim",
+    "Doom",
+    "Rune",
+    "Blood",
+    "Soul",
+    "Corpse",
+    "Eagle",
+    "Pandemonium",
+)
+_RARE_SUFFIX = (
+    "Bite",
+    "Gnarl",
+    "Veil",
+    "Coil",
+    "Ward",
+    "Edge",
+    "Husk",
+    "Brand",
+    "Knot",
+    "Spire",
+)
+
+
+def _rare_name(base_name: str, slot_name: str) -> str:
+    """A deterministic plausible rare name (stable across runs — uses an
+    ord-sum, not the hash-randomised builtin ``hash``)."""
+    seed = sum(ord(c) for c in base_name + slot_name)
+    return (
+        f"{_RARE_PREFIX[seed % len(_RARE_PREFIX)]} {_RARE_SUFFIX[(seed // 7) % len(_RARE_SUFFIX)]}"
+    )
+
+
 def _theory_item_body(
     slot_name: str,
     base_name: str,
@@ -1152,7 +1190,7 @@ def _theory_item_body(
         )
     lines = [
         "Rarity: RARE",
-        f"Generated {slot_name}",
+        _rare_name(base_name, slot_name),
         base_name,
         "Implicits: 0",
     ]
@@ -1212,20 +1250,28 @@ def _select_gear(intent: TheoryIntent) -> tuple[GearSlot, ...]:
                 budget_tier=intent.budget,
             ),
         )
-    # Weapon by archetype: bow attack → Bow, melee → Two Hand Sword,
-    # else (caster / wand) → Wand. Bow detection uses tags, not damage type
+    # Weapon by archetype: bow attack → Bow, melee → Two Hand Axe, else
+    # (caster / wand) → Wand. Bow detection uses tags, not damage type
     # (Step 53), so an elemental bow attack like Ice Shot — which carries no
     # "bow" tag in PoB's data — still resolves to a Bow rather than a Wand.
+    # **QA fix:** the melee default is a Two Handed *Axe*, not a Sword —
+    # PoB restricts each skill to a set of weapon classes (`weaponTypes`),
+    # and a sword is NOT usable by every slam/strike: Boneshatter, for one,
+    # allows only Axe / Mace / Staff / Sceptre, so a sword made PoB disable
+    # the skill ("No usable weapon equipped" → 0 DPS). A Two Handed Axe is
+    # the most universally-accepted 2H melee class (Boneshatter, Cyclone,
+    # Lacerate all allow it), so it's the safe default. (The fully-correct
+    # fix — picking from each skill's real `weaponTypes` — is a follow-up.)
     if "bow" in skill.tags or _is_bow_skill(skill):
         weapon_class, weapon_slot, weapon_label = "Bow", ItemSlot.WEAPON_MAIN, "Bow"
     elif "melee" in skill.tags:
-        weapon_class, weapon_slot, weapon_label = "Two Hand Sword", ItemSlot.WEAPON_MAIN, "Weapon"
+        weapon_class, weapon_slot, weapon_label = "Two Hand Axe", ItemSlot.WEAPON_MAIN, "Weapon"
     elif "attack" in skill.tags and "wandattack" not in skill.tags:
         # A ranged attack that is neither a bow skill nor wand-compatible
         # (e.g. Spectral Throw) is a melee-weapon attack — a Wand would be
         # wrong. Default to a melee weapon. Wand-attacks (Power Siphon,
         # Kinetic Blast) keep the Wand via the else branch.
-        weapon_class, weapon_slot, weapon_label = "Two Hand Sword", ItemSlot.WEAPON_MAIN, "Weapon"
+        weapon_class, weapon_slot, weapon_label = "Two Hand Axe", ItemSlot.WEAPON_MAIN, "Weapon"
     else:
         weapon_class, weapon_slot, weapon_label = "Wand", ItemSlot.WEAPON_MAIN, "Wand"
     weapon_pool = [
@@ -1270,6 +1316,20 @@ def _select_gear(intent: TheoryIntent) -> tuple[GearSlot, ...]:
                     budget_tier=intent.budget,
                 ),
             )
+    # Second ring (QA #8) — PoE has two ring slots; the build was using only
+    # one. A rare ring also carries `+to all Attributes` / resistances (helps
+    # meet gem attribute requirements — QA #1).
+    ring2_base = _pick_base(ItemSlot.RING, intent)
+    out.append(
+        GearSlot(
+            slot="Ring",
+            base_name=ring2_base,
+            stat_priorities=_rollable_priorities(
+                _stat_priorities("Ring", intent, skill), ring2_base, intent.budget
+            ),
+            budget_tier=intent.budget,
+        ),
+    )
     out.extend(_select_flasks(intent))
     out.extend(_select_jewels(intent))
     return tuple(out)
@@ -1588,6 +1648,34 @@ _CURSE_BY_DAMAGE: dict[str, str] = {
     "physical": "Vulnerability",
 }
 
+# Class attribute affinity — used to pick utility gems (guard / warcry) the
+# build can actually meet the attribute requirement of (QA #1: a Witch can't
+# use a high-Strength Enduring Cry). Int casters get Int-based guards, Str
+# classes get Str-based ones.
+_INT_CLASSES: frozenset[str] = frozenset({"Witch", "Shadow", "Scion"})
+_STR_CLASSES: frozenset[str] = frozenset({"Marauder", "Duelist", "Templar"})
+
+
+def _pick_guard(character_class: str, primary_name: str) -> str:
+    """A defensive guard skill the class can meet the attribute req of —
+    Arcane Cloak (Int) / Molten Shell (Str). Not a damage skill."""
+    pref = "Arcane Cloak" if character_class in _INT_CLASSES else "Molten Shell"
+    return _pick_active(pref, primary_name)
+
+
+def _pick_warcry(character_class: str, primary_name: str) -> str:
+    """A non-reserving defensive utility for the warcry slot. **Enduring Cry
+    for every class** — it costs *zero* mana reservation (it's an instant
+    warcry, granting endurance charges + a life regen burst). The earlier
+    "Tempest Shield for Int casters" was a real QA bug: Tempest Shield
+    *reserves* mana, which over-reserved the low-mana ES builds (Vortex / BV)
+    to the point PoB warned "not enough mana" and disabled their auras.
+    Enduring Cry never reserves, so it's safe on every build (where the Str
+    requirement isn't met it simply does nothing — non-fatal, unlike a
+    reservation)."""
+    return _pick_active("Enduring Cry", primary_name)
+
+
 # Helmet 4L secondary skill by skill family — a genuinely *different*
 # active from the primary (movement / secondary attack / minion utility).
 _SECONDARY_SKILL: dict[str, str] = {
@@ -1631,13 +1719,18 @@ def _build_gem_layout(
     # Helmet 4L: a *secondary* skill, distinct from the primary, with
     # supports that actually fit it.
     dmg = intent.damage_type
-    secondary = _pick_secondary(skill, primary_name)
-    secondary_active = _find_active(secondary)
+    # Helmet: a defensive guard (QA #5/#6 — the old "secondary" group put a
+    # travel skill like Flame Dash here and counted it as damage; a guard is a
+    # real utility and is attribute-appropriate for the class, QA #1).
+    guard = _pick_guard(intent.character_class, primary_name)
+    guard_active = _find_active(guard)
     helmet_link = GemLink(
-        skill=secondary,
-        supports=_select_supports(secondary_active, 3, dmg=dmg),
+        skill=guard,
+        supports=_pick_supports_for(
+            guard_active, ("Second Wind", "Increased Duration", "Arcane Surge"), 3, dmg=dmg
+        ),
         slot="Helmet",
-        label="Secondary 4L",
+        label="Guard 4L",
     )
 
     # Gloves 4L: aura + 3 utility supports.
@@ -1665,7 +1758,7 @@ def _build_gem_layout(
     known = _known_active_names()
     movement = primary_name
     for m in movement_prefs:
-        if m in known and m != primary_name and m != secondary:
+        if m in known and m != primary_name and m != guard:
             movement = m
             break
     movement_active = _find_active(movement)
@@ -1681,8 +1774,9 @@ def _build_gem_layout(
         label="Movement 4L",
     )
 
-    # Weapon 4L: warcry / utility.
-    warcry = _pick_active("Enduring Cry", primary_name)
+    # Weapon: a warcry (Str) or a second guard (Int) — attribute-appropriate
+    # for the class (QA #1), distinct from the helmet guard.
+    warcry = _pick_warcry(intent.character_class, primary_name)
     warcry_active = _find_active(warcry)
     weapon_link = GemLink(
         skill=warcry,
@@ -1706,15 +1800,74 @@ def _build_gem_layout(
     return (primary, helmet_link, gloves_link, boots_link, weapon_link, curse_link)
 
 
+def _ascendancy_nodes(intent: TheoryIntent) -> tuple[int, ...]:
+    """The connected ascendancy sub-tree to allocate — the start + the
+    build-relevant notables + their connecting small nodes, within the lab's
+    8-point budget (2 ascendancy points per lab x 4 labs; the start is free).
+
+    PoB allocates these via the ascendancy, **separate** from the 123-point
+    main tree, so they cost no main-tree points. They must form a connected
+    sub-graph rooted at the ascendancy start (a bare notable with no path
+    floats and PoB drops it — the bug this fixes). Greedy: repeatedly take the
+    highest-relevance reachable notable + its connecting path until the budget
+    is spent.
+    """
+    td = get_tree_data()
+    start = td.ascendancy_starts.get(intent.ascendancy)
+    if start is None:
+        return ()
+    asc_ids = {nid for nid, n in td.nodes_by_id.items() if n.ascendancy_name == intent.ascendancy}
+    asc_ids.add(start)
+    sub_adj = {
+        nid: frozenset(a for a in td.adjacency.get(nid, ()) if a in asc_ids) for nid in asc_ids
+    }
+    skill = _find_active(intent.primary_skill)
+    dmg = "minion" if "minion" in skill.tags else intent.damage_type
+    defence = intent.defence_archetype
+    visited = {start}
+    budget = 8
+    while len(visited) - 1 < budget:
+        best: tuple[int, list[int]] | None = None
+        for nid in asc_ids:
+            n = td.nodes_by_id.get(nid)
+            if nid in visited or n is None or not n.is_notable:
+                continue
+            path: list[int] | None = None
+            for src in visited:
+                p = bfs_path(sub_adj, src, nid)
+                if p and (path is None or len(p) < len(path)):
+                    path = p
+            if path is None:
+                continue
+            if len(visited) - 1 + sum(1 for x in path if x not in visited) > budget:
+                continue
+            # `_score_node` returns 0 for any ascendancy node, so score the
+            # notable's text directly. Allocate the best reachable even at
+            # score 0 — every ascendancy notable is build-defining (that's why
+            # the ascendancy was chosen), so a full 8-point allocation is right.
+            sc = _score_text(" ".join([n.name or "", *n.stats]), dmg, defence)
+            if best is None or sc > best[0]:
+                best = (sc, path)
+        if best is None:
+            break
+        visited |= set(best[1])
+    return tuple(sorted(visited))
+
+
 def _to_pob_tree(intent: TheoryIntent, nodes: tuple[TreeNodeRef, ...]) -> StageTree:
-    # Encode the regular tree path + mastery nodes. The "start" node is
-    # auto-allocated by PoB; ascendancy notables must NOT go into the main
-    # `nodes` list (they're allocated via the lab and have no connecting
-    # path on the main tree → they'd float). Mastery nodes are allocated
-    # via the `nodes` list AND the `masteryEffects` (node, effect) pairs —
-    # PoB drops a mastery node from `nodes` unless its effect is listed.
+    # Encode the regular tree path + mastery nodes + the ascendancy sub-tree.
+    # The "start" node is auto-allocated by PoB. Ascendancy nodes ARE included
+    # now (they were wrongly excluded before — a bare notable floats, but the
+    # connected sub-tree from `_ascendancy_nodes` allocates correctly via the
+    # lab). Mastery nodes are allocated via the `nodes` list AND the
+    # `masteryEffects` (node, effect) pairs — PoB drops a mastery node from
+    # `nodes` unless its effect is listed.
+    asc_ids = set(_ascendancy_nodes(intent))
     real_ids = tuple(
-        n.node_id for n in nodes if n.type not in ("start", "ascendancy") and n.node_id > 0
+        sorted(
+            {n.node_id for n in nodes if n.type not in ("start", "ascendancy") and n.node_id > 0}
+            | asc_ids
+        )
     )
     mastery_effects = tuple(
         (n.node_id, n.effect_id) for n in nodes if n.type == "mastery" and n.effect_id is not None

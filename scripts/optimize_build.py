@@ -108,16 +108,14 @@ def fitness(stats: dict[str, float], budget: str) -> float:
     floor = _EHP_FLOOR.get(budget, 4000)
     if pool < floor:
         pen *= max(0.1, pool / floor)
-    # Step 66/67: negative unreserved mana = the auras can't actually be
-    # reserved. PoB applies the buffs anyway, so without this penalty the
-    # optimiser would stack unrunnable auras for "free" DPS. A firm cliff makes
-    # any over-reserved build score ~10x lower, so the aura forward-select only
-    # keeps auras that genuinely fit. Step 67 tightened the threshold to a
-    # strict 0 (was -10): a served build at e.g. -2 unreserved is unrunnable,
-    # and the optimiser can always path a reservation-efficiency notable or
-    # drop an aura to land non-negative. PoB's mana is integer-grained, so 0 is
-    # the honest floor.
-    if stats.get("ManaUnreserved", 0.0) < 0:
+    # Step 66/67: over-reserved mana = the auras can't be reserved. PoB applies
+    # the buffs anyway, so without this penalty the optimiser would stack
+    # unrunnable auras for "free" DPS. **QA fix (2026-06-05):** the floor is the
+    # main skill's *mana cost*, not 0 — a build with 17 unreserved but a 120-cost
+    # Vortex literally can't cast it (PoB warns "not enough mana to use"). So the
+    # served unreserved mana must clear ManaCost; the aura forward-select then
+    # only keeps auras that leave enough mana to actually cast the skill.
+    if stats.get("ManaUnreserved", 0.0) < stats.get("ManaCost", 0.0):
         pen *= 0.1
     ehp = max(stats.get("TotalEHP", 0.0), 1.0)
     target = _EHP_TARGET.get(budget, 25000)
@@ -552,6 +550,54 @@ def optimize_auras(
     return final_links, best_visited, cur_fit
 
 
+def ensure_castable(
+    ev: PobEvaluator,
+    enc: _Encoder,
+    visited: set[int],
+    links: tuple[GemLink, ...],
+    pob_gear: StageGearSet,
+    jewels: tuple[tuple[int, str], ...] = (),
+    clusters: tuple[tuple[int, str, tuple[int, ...]], ...] = (),
+) -> tuple[GemLink, ...]:
+    """Final reservation guard — a served build MUST be castable.
+
+    The aura pass paths reservation-efficiency nodes so its auras fit, but a
+    *later* pass (``trim_to_budget`` / cluster / relocation) can drop those
+    nodes and tip the finished build over-reserved (``ManaUnreserved`` < the
+    skill's ``ManaCost`` → PoB warns "not enough mana"). The fitness gate only
+    *penalises* that, it doesn't forbid it, so the pipeline can still emit an
+    over-reserved optimum. This runs on the FINAL build and, while it
+    over-reserves, drops the lowest-priority aura from the multi-aura group
+    (last forward-selected first) until it's castable — a castable lower-DPS
+    build always beats an unplayable one ("niente fittizio").
+    """
+
+    def _castable(lk: tuple[GemLink, ...]) -> bool:
+        try:
+            st = ev.evaluate(
+                enc.code(visited, lk, pob_gear=pob_gear, jewels=jewels, clusters=clusters)
+            )
+        except Exception:
+            return False
+        return float(st.get("ManaUnreserved", 0.0)) >= float(st.get("ManaCost", 0.0))
+
+    cur = list(links)
+    dropped: list[str] = []
+    while not _castable(tuple(cur)):
+        idx = next((i for i, lk in enumerate(cur) if lk.label == "Auras"), None)
+        if idx is None:
+            break  # no aura group left — the base build itself over-reserves
+        auras = [cur[idx].skill, *cur[idx].extra_actives]
+        dropped.append(auras[-1])
+        if len(auras) <= 1:
+            cur.pop(idx)  # the group's last aura — remove the whole group
+        else:
+            cur[idx] = _aura_group_link(auras[:-1])
+    if dropped:
+        print(f"[opt] reservation guard dropped auras: {dropped}")
+    return tuple(cur)
+
+
 # ---------------------------------------------------------------------------
 # Awakened support upgrade (Step 73) — endgame / best-version gem quality
 # ---------------------------------------------------------------------------
@@ -623,7 +669,7 @@ def _weapon_candidates(intent: TheoryIntent, enc: _Encoder, n: int) -> list[str]
     if "bow" in skill.tags or gen._is_bow_skill(skill):
         weapon_class = "Bow"
     elif "melee" in skill.tags or ("attack" in skill.tags and "wandattack" not in skill.tags):
-        weapon_class = "Two Hand Sword"
+        weapon_class = "Two Hand Axe"  # mirrors _select_gear (universal melee class)
     else:
         weapon_class = "Wand"
     cap = gen._BUDGET_DROP_CAP[intent.budget]
@@ -732,6 +778,9 @@ def optimize_uniques(
 
     slots = list(base_gear.slots)
     chosen: dict[ItemSlot, UniqueItem] = {}
+    # A unique is "Limited to: 1" — never equip the same one twice (e.g. on both
+    # ring slots, QA #8). Track the ones already chosen and skip them.
+    used: set[str] = set()
     cur_fit = fitness(ev.evaluate(enc.code(visited, links, pob_gear=base_gear)), intent.budget)
 
     for i, slot in enumerate(slots):
@@ -749,6 +798,8 @@ def optimize_uniques(
         best_slot = slot
         best_u: UniqueItem | None = None
         for u in cands[:per_slot]:
+            if u.name in used:
+                continue
             trial = list(slots)
             trial[i] = StageGearSlot(
                 slot=slot.slot, item_name=unique_pob_body(u), kind="rare_craft", notes=u.name
@@ -768,6 +819,7 @@ def optimize_uniques(
             slots[i] = best_slot
             cur_fit = best_slot_fit
             chosen[slot.slot] = best_u
+            used.add(best_u.name)
             print(f"[opt] {slot.slot.value}: unique {best_u.name} | fit={cur_fit:.0f}")
     return StageGearSet(stage_key="opt", slots=tuple(slots)), cur_fit, chosen
 
