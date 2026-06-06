@@ -30,6 +30,17 @@ const RELEASES: Release[] = [
   {
     date: { it: "6 giu 2026", en: "6 Jun 2026" },
     title: {
+      it: "Build Finder — più skill riconosciute (Elemental Hit, ecc.)",
+      en: "Build Finder — more skills recognised (Elemental Hit, etc.)",
+    },
+    summary: {
+      it: "Cercando 'elemental hit slayer' il Finder riconosceva solo 'slayer' e cercava tutta la ladder Slayer, perché Elemental Hit non era tra le skill note. Aggiunte Elemental Hit, Caustic/Explosive/Galvanic Arrow, Kinetic Blast, Flicker Strike, Wild Strike, Blade Flurry, Shrapnel Ballista — ora la ricerca filtra per skill + ascendancy insieme.",
+      en: "Searching 'elemental hit slayer' only recognised 'slayer' and searched the whole Slayer ladder, because Elemental Hit wasn't a known skill. Added Elemental Hit, Caustic/Explosive/Galvanic Arrow, Kinetic Blast, Flicker Strike, Wild Strike, Blade Flurry, Shrapnel Ballista — the search now filters by skill + ascendancy together.",
+    },
+  },
+  {
+    date: { it: "6 giu 2026", en: "6 Jun 2026" },
+    title: {
       it: "Theorycrafter — le build ora si importano davvero in PoB",
       en: "Theorycrafter — builds now genuinely import into PoB",
     },

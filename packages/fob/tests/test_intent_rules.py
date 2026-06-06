@@ -154,6 +154,16 @@ def test_extract_ascendancy_beats_base_class() -> None:
     assert intent.class_filter == "juggernaut"
 
 
+def test_extract_skill_and_class_together() -> None:
+    """A 'skill + ascendancy' query must extract BOTH (the bug: 'elemental hit
+    slayer' was only matching Slayer because Elemental Hit wasn't a known skill,
+    so the Finder searched the whole Slayer ladder)."""
+
+    intent, _ = rule_based_extract("elemental hit slayer")
+    assert intent.main_skill_hint == "Elemental Hit"
+    assert intent.class_filter == "slayer"
+
+
 def test_extract_min_life_with_k_suffix() -> None:
     intent, _ = rule_based_extract("rf con 6k vita")
     assert intent.min_life == 6000
