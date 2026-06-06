@@ -787,22 +787,55 @@ def _select_masteries(
     where nothing is relevant. Returns (node_id, effect_id, name, stats),
     best-first, capped to ``_MAX_MASTERIES``.
     """
+    # `dmg == "minion"` is the caller's signal that this is a minion build
+    # (Step 55). A non-minion build must NOT value minion-only mastery effects
+    # ("Minions have +8% max Elemental Resistances" reads as survival but does
+    # nothing for the player), and "Light Radius" is pure flavour that scores a
+    # false positive via the Energy-Shield keyword ("Light Radius based on ES").
+    is_minion = dmg == "minion"
+
+    def _relevant_score(stats: tuple[str, ...]) -> int:
+        rel = [s for s in stats if _mastery_stat_ok(s, is_minion)]
+        return _score_text(" ".join(rel), dmg, defence) if rel else 0
+
+    # Score EVERY effect of every reachable mastery (not just the best per node)
+    # so the de-dup below can give two adjacent same-type wheels two DIFFERENT
+    # effects instead of the same one twice.
     candidates: list[tuple[int, int, int, str, tuple[str, ...]]] = []
     for nid, node in td.nodes_by_id.items():
         if not node.is_mastery or not node.mastery_effects:
             continue
         if not (td.adjacency.get(nid, frozenset()) & visited):
             continue  # no allocated node in this mastery's wheel
-        best_eff = max(
-            node.mastery_effects,
-            key=lambda e: _score_text(" ".join(e[1]), dmg, defence),
-        )
-        eff_score = _score_text(" ".join(best_eff[1]), dmg, defence)
-        if eff_score <= 0:
-            continue  # nothing relevant on this mastery for the build
-        candidates.append((eff_score, nid, best_eff[0], node.name or "Mastery", best_eff[1]))
+        for eff_id, stats in node.mastery_effects:
+            score = _relevant_score(stats)
+            if score > 0:
+                candidates.append((score, nid, eff_id, node.name or "Mastery", stats))
     candidates.sort(key=lambda c: (-c[0], c[1]))
-    return [(nid, eff, name, stats) for _, nid, eff, name, stats in candidates[:_MAX_MASTERIES]]
+    # Each mastery NODE picks ONE effect, and a mastery EFFECT is unique (PoB /
+    # PoE won't let you allocate the same effect twice) — so de-dup on both.
+    out: list[tuple[int, int, str, tuple[str, ...]]] = []
+    used_nodes: set[int] = set()
+    used_effects: set[str] = set()
+    for _score, nid, eff_id, name, stats in candidates:
+        sig = " ".join(stats)
+        if nid in used_nodes or sig in used_effects:
+            continue
+        out.append((nid, eff_id, name, stats))
+        used_nodes.add(nid)
+        used_effects.add(sig)
+        if len(out) >= _MAX_MASTERIES:
+            break
+    return out
+
+
+def _mastery_stat_ok(stat: str, is_minion: bool) -> bool:
+    """A mastery-effect stat is relevant to the player's build unless it's a
+    minion-only line on a non-minion build, or pure flavour (light radius)."""
+    low = stat.lower()
+    if "light radius" in low:
+        return False
+    return not ("minion" in low and not is_minion)
 
 
 def _select_tree_nodes(intent: TheoryIntent) -> tuple[TreeNodeRef, ...]:

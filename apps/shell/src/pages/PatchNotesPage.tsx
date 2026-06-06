@@ -30,6 +30,31 @@ const RELEASES: Release[] = [
   {
     date: { it: "6 giu 2026", en: "6 Jun 2026" },
     title: {
+      it: "Theorycrafter — build legali nella lega attuale",
+      en: "Theorycrafter — builds legal in the current league",
+    },
+    summary: {
+      it: "Un secondo import in PoB ha trovato altri 4 problemi, tutti sistemati: il risultato è che le build sono ora 100% legali nella lega attuale (niente gemme Standard-only) e ogni oggetto è equipaggiabile.",
+      en: "A second PoB import found 4 more issues, all fixed: the result is that builds are now 100% legal in the current league (no Standard-only gems) and every item is equippable.",
+    },
+    entries: [
+      {
+        it: "Niente più gemme Awakened 'legacy' (che esistono solo in Standard): le build usano solo le versioni ottenibili nella lega. Il danno dei caster scende (è il costo onesto di una build davvero giocabile).",
+        en: "No more 'legacy' Awakened gems (Standard-only): builds use only versions obtainable in the league. Caster damage drops a bit — the honest cost of a genuinely playable build.",
+      },
+      {
+        it: "Niente più oggetti che non puoi equipaggiare (es. uno scudo che richiede Destrezza su una build non-Destrezza): l'ottimizzatore ora rispetta i requisiti di attributi.",
+        en: "No more items you can't equip (e.g. a Dexterity shield on a non-Dex build): the optimiser now respects attribute requirements.",
+      },
+      {
+        it: "Masteries sensate: niente più 'Light Radius' o difese per servitori su build senza servitori, e niente effetti duplicati. Risolto anche il nome 'Generated Cluster'.",
+        en: "Sensible masteries: no more 'Light Radius' or minion defences on non-minion builds, and no duplicate effects. Also fixed the 'Generated Cluster' name.",
+      },
+    ],
+  },
+  {
+    date: { it: "6 giu 2026", en: "6 Jun 2026" },
+    title: {
       it: "Build Finder — riconosce ogni skill (213 gemme)",
       en: "Build Finder — recognises every skill (213 gems)",
     },

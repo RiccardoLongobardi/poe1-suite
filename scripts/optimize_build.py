@@ -117,6 +117,26 @@ def fitness(stats: dict[str, float], budget: str) -> float:
     # only keeps auras that leave enough mana to actually cast the skill.
     if stats.get("ManaUnreserved", 0.0) < stats.get("ManaCost", 0.0):
         pen *= 0.1
+    # QA (2026-06-06): a served build must be EQUIPPABLE — every item + gem
+    # Str/Dex/Int requirement met. PoB doesn't enforce requirements in the calc
+    # (it just warns), so without this the optimiser happily picks gear the
+    # build can't wear (Atziri's Reflection — a Dex buckler — on a Str/Int
+    # build) or off-attribute supports that would be disabled in-game. Penalise
+    # the total attribute shortfall so unequippable picks are rejected.
+    shortfall = (
+        max(0.0, stats.get("ReqStr", 0.0) - stats.get("Str", 0.0))
+        + max(0.0, stats.get("ReqDex", 0.0) - stats.get("Dex", 0.0))
+        + max(0.0, stats.get("ReqInt", 0.0) - stats.get("Int", 0.0))
+    )
+    if shortfall > 0:
+        # Graduated from 1.0 (no flat start): a BIG shortfall (Atziri's
+        # Reflection, a Dex buckler on a non-Dex build → ~100 Dex short) is
+        # hammered to ~0.17 and rejected, while a tiny residual gem shortfall
+        # (2 Int on a level-21 support) is left near 1.0. A flat-start penalty
+        # was tried and is strictly worse — it can't fix the small inherent
+        # gem-Int shortfalls anyway (no attribute node helps enough) and it
+        # destabilises the greedy onto a far worse local optimum.
+        pen *= max(0.2, 1.0 - shortfall / 120.0)
     ehp = max(stats.get("TotalEHP", 0.0), 1.0)
     target = _EHP_TARGET.get(budget, 25000)
     ehp_factor = 0.4 + 0.6 * min(ehp / target, 1.0) ** 0.5
@@ -701,6 +721,14 @@ def optimize_awakened(
             continue
         aw = f"Awakened {s}"
         if aw not in known:
+            continue
+        # QA (2026-06-06): only NON-legacy Awakened gems. Content Update 3.28
+        # removed every Awakened support from the drop pool except Awakened
+        # Empower/Enhance/Enlighten — the rest are Standard-league legacy gems
+        # the player can't obtain. `_is_available_in_328` rejects those, so the
+        # damage Awakened supports (all legacy) are never swapped in (this pass
+        # becomes a no-op in 3.28 — the regular supports are kept).
+        if not gen._is_available_in_328(aw):
             continue
         trial = list(cur)
         trial[i] = aw
@@ -1532,7 +1560,7 @@ def _cluster_body(theme: cl.ClusterTheme, notables: list[str]) -> str:
     return "\n".join(
         [
             "Rarity: RARE",
-            "Generated Cluster",
+            gen._rare_name(theme.enchant, "Cluster Jewel"),
             cl.LARGE,
             "Item Level: 84",
             "Implicits: 0",
