@@ -54,6 +54,10 @@ const RELEASES: Release[] = [
         it: "Note di rilascio riorganizzate: raggruppate per mese con un indice cliccabile in alto.",
         en: "Patch notes reorganised: grouped by month with a clickable index at the top.",
       },
+      {
+        it: "Nuove sezioni FAQ e Privacy/Note legali (in fondo al menu): cosa fa FOB, da dove vengono i dati, i limiti onesti del tool e cosa (non) raccogliamo — niente account, niente tracking.",
+        en: "New FAQ and Privacy/Legal sections (bottom of the menu): what FOB does, where the data comes from, the tool's honest limits and what we (don't) collect — no accounts, no tracking.",
+      },
     ],
   },
   {

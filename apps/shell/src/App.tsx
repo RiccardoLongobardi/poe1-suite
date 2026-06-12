@@ -34,7 +34,9 @@ import { useDisclosure } from "@mantine/hooks";
 import {
   IconFlask,
   IconHeart,
+  IconHelpCircle,
   IconHistory,
+  IconShieldLock,
   IconHome,
   IconKeyboard,
   IconListCheck,
@@ -58,8 +60,10 @@ import { KeyboardShortcutsModal } from "./components/KeyboardShortcutsModal";
 import { ParticleCanvas } from "./components/ParticleCanvas";
 import { WarmupOverlay } from "./components/WarmupOverlay";
 import { useLang, useT } from "./i18n";
+import { FaqPage } from "./pages/FaqPage";
 import { HomePage } from "./pages/HomePage";
 import { PatchNotesPage } from "./pages/PatchNotesPage";
+import { PrivacyPage } from "./pages/PrivacyPage";
 import { WelcomePage } from "./pages/WelcomePage";
 import { hasSeenWelcome } from "./state/welcome";
 import { usePageStore } from "./store/pageStore";
@@ -359,6 +363,8 @@ function ShellLayout() {
                   element={<TheorycrafterPage />}
                 />
                 <Route path="/patch-notes" element={<PatchNotesPage />} />
+                <Route path="/faq" element={<FaqPage />} />
+                <Route path="/privacy" element={<PrivacyPage />} />
                 <Route path="*" element={<Navigate to="/home" replace />} />
               </Routes>
             </Suspense>
@@ -447,6 +453,26 @@ function ShellLayout() {
               leftSection={<IconHistory size={14} />}
               active={isActive("/patch-notes")}
               onClick={navTo("/patch-notes")}
+              variant="light"
+              styles={{
+                label: { fontSize: "0.78rem", color: "var(--vs-text-muted)" },
+              }}
+            />
+            <NavLink
+              label={t({ it: "Domande frequenti", en: "FAQ" })}
+              leftSection={<IconHelpCircle size={14} />}
+              active={isActive("/faq")}
+              onClick={navTo("/faq")}
+              variant="light"
+              styles={{
+                label: { fontSize: "0.78rem", color: "var(--vs-text-muted)" },
+              }}
+            />
+            <NavLink
+              label={t({ it: "Privacy e note legali", en: "Privacy & legal" })}
+              leftSection={<IconShieldLock size={14} />}
+              active={isActive("/privacy")}
+              onClick={navTo("/privacy")}
               variant="light"
               styles={{
                 label: { fontSize: "0.78rem", color: "var(--vs-text-muted)" },
