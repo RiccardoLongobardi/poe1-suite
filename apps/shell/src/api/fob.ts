@@ -92,6 +92,12 @@ export async function getTheorySkills(): Promise<SkillsResponse> {
   return get<SkillsResponse>("/fob/theory/skills");
 }
 
+/** GET /fob/finder/skills — every main-skill name the Finder can search by
+ * (catalogue-derived, sorted; main DPS skills only). */
+export async function getFinderSkills(): Promise<{ skills: string[] }> {
+  return get<{ skills: string[] }>("/fob/finder/skills");
+}
+
 /** POST /fob/analyze-pob */
 export async function analyzePob(input: string): Promise<AnalyzePobResponse> {
   return post<AnalyzePobResponse>("/fob/analyze-pob", { input });

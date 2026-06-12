@@ -28,6 +28,35 @@ interface Release {
 // Prepend a new entry with user-facing (not technical) bilingual copy.
 const RELEASES: Release[] = [
   {
+    date: { it: "12 giu 2026", en: "12 Jun 2026" },
+    title: {
+      it: "Build Finder — ricerca strutturata (niente più frasi libere)",
+      en: "Build Finder — structured search (no more free-text queries)",
+    },
+    summary: {
+      it: "Il Finder non interpreta più una frase in linguaggio naturale (con la relativa incertezza): ora scegli direttamente skill, classe/ascendancy e contenuto da menu concreti. Quello che selezioni è esattamente quello che viene cercato.",
+      en: "The Finder no longer interprets a natural-language sentence (with its uncertainty): you now pick skill, class/ascendancy and content from concrete menus. What you select is exactly what gets searched.",
+    },
+    entries: [
+      {
+        it: "Selettore skill con ricerca (213 skill, derivate dai dati ufficiali delle gemme), classe/ascendancy, contenuto (mapping/bossing/uber/…), ordinamento e soglie minime di vita/ES/EHP/DPS — tutto in un pannello unico.",
+        en: "Searchable skill picker (213 skills, derived from official gem data), class/ascendancy, content (mapping/bossing/ubers/…), sorting and minimum life/ES/EHP/DPS floors — all in one panel.",
+      },
+      {
+        it: "Nuovo pulsante “Analizza” su ogni risultato: apre la build direttamente nella dashboard Analizza (accanto al pulsante “Pianifica” esistente).",
+        en: "New “Analyze” button on every result: opens the build directly in the Analyze dashboard (next to the existing “Plan” button).",
+      },
+      {
+        it: "Home aggiornata: descrizioni ed esempi ora allineati a come funzionano davvero i tre strumenti; rimossi i riferimenti personali dal footer.",
+        en: "Home updated: descriptions and examples now match how the three tools actually work; personal references removed from the footer.",
+      },
+      {
+        it: "Note di rilascio riorganizzate: raggruppate per mese con un indice cliccabile in alto.",
+        en: "Patch notes reorganised: grouped by month with a clickable index at the top.",
+      },
+    ],
+  },
+  {
     date: { it: "6 giu 2026", en: "6 Jun 2026" },
     title: {
       it: "Theorycrafter — build legali nella lega attuale",
@@ -1772,8 +1801,36 @@ function ReleaseCard({ release }: { release: Release }) {
   );
 }
 
+/** "6 giu 2026" → "giu 2026" (the month-group key/label). */
+function monthOf(dateLabel: string): string {
+  return dateLabel.split(" ").slice(1).join(" ");
+}
+
+/** Group the (newest-first, month-contiguous) releases by month. */
+function groupByMonth(
+  releases: Release[],
+): { it: string; en: string; anchor: string; items: Release[] }[] {
+  const groups: { it: string; en: string; anchor: string; items: Release[] }[] = [];
+  for (const r of releases) {
+    const it = monthOf(r.date.it);
+    const last = groups[groups.length - 1];
+    if (last && last.it === it) {
+      last.items.push(r);
+    } else {
+      groups.push({
+        it,
+        en: monthOf(r.date.en),
+        anchor: `m-${it.replace(/\s+/g, "-")}`,
+        items: [r],
+      });
+    }
+  }
+  return groups;
+}
+
 export function PatchNotesPage() {
   const t = useT();
+  const groups = groupByMonth(RELEASES);
   return (
     <Stack gap="md">
       <Group gap={10} align="center">
@@ -1784,16 +1841,52 @@ export function PatchNotesPage() {
       </Group>
       <Text c="dimmed" size="sm">
         {t({
-          it: "Tutta la storia di FOB, dalle origini a oggi — dalla prima riga di codice (24 aprile 2026) all'ultimo aggiornamento. Dal più recente.",
-          en: "The whole history of FOB, from the origins to today — from the first line of code (24 April 2026) to the latest update. Newest first.",
+          it: "Tutta la storia di FOB, dalle origini a oggi — dalla prima riga di codice (24 aprile 2026) all'ultimo aggiornamento. Dal più recente, raggruppata per mese.",
+          en: "The whole history of FOB, from the origins to today — from the first line of code (24 April 2026) to the latest update. Newest first, grouped by month.",
         })}
       </Text>
 
-      <Stack gap="sm">
-        {RELEASES.map((r, i) => (
-          <ReleaseCard key={i} release={r} />
+      {/* Month index — anchor chips, newest first. */}
+      <Group gap={6} wrap="wrap">
+        {groups.map((g) => (
+          <Badge
+            key={g.anchor}
+            component="a"
+            href={`#${g.anchor}`}
+            variant="light"
+            color="ember"
+            size="lg"
+            style={{ cursor: "pointer", textTransform: "none" }}
+          >
+            {t({ it: g.it, en: g.en })} · {g.items.length}
+          </Badge>
         ))}
-      </Stack>
+      </Group>
+
+      {groups.map((g) => (
+        <Stack key={g.anchor} gap="sm">
+          <Group
+            gap={8}
+            align="baseline"
+            id={g.anchor}
+            style={{ scrollMarginTop: 72 }}
+          >
+            <Title order={3} style={{ textTransform: "capitalize" }}>
+              {t({ it: g.it, en: g.en })}
+            </Title>
+            <Text size="sm" c="dimmed">
+              {g.items.length}{" "}
+              {t({
+                it: g.items.length === 1 ? "rilascio" : "rilasci",
+                en: g.items.length === 1 ? "release" : "releases",
+              })}
+            </Text>
+          </Group>
+          {g.items.map((r, i) => (
+            <ReleaseCard key={i} release={r} />
+          ))}
+        </Stack>
+      ))}
 
       <Text size="xs" c="dimmed" ta="center" mt="md">
         {t({

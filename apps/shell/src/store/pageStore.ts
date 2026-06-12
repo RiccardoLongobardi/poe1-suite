@@ -41,9 +41,14 @@ import type {
 // Finder slice
 // ---------------------------------------------------------------------------
 
-/** The subset of `BuildIntent` editable via the Finder filter row. */
+/** The Finder's structured search criteria — the primary input since the
+ * structured-search rework (no more NL query / parsing confidence). */
 export interface FinderFilters {
+  /** Exact main-skill name from the catalogue-derived list (null = any). */
+  skill: string | null;
   class_filter: string | null;
+  /** Content-focus key (mapping / bossing / ubers / …); null = any. */
+  focus: string | null;
   sort_by: SortKey;
   min_life: number | null;
   min_es: number | null;
@@ -55,7 +60,9 @@ export interface FinderFilters {
 
 export function emptyFinderFilters(): FinderFilters {
   return {
+    skill: null,
     class_filter: null,
+    focus: null,
     sort_by: "score",
     min_life: null,
     min_es: null,
@@ -96,10 +103,13 @@ export interface AnalyzeState {
   input: string;
   result: AnalyzePobResponse | null;
   editing: boolean;
+  /** One-shot flag: when true, AnalyzePage runs the analysis on mount
+   * (set by the Finder's "Analizza" lift) and resets it. */
+  autorun: boolean;
 }
 
 function emptyAnalyze(): AnalyzeState {
-  return { input: "", result: null, editing: true };
+  return { input: "", result: null, editing: true, autorun: false };
 }
 
 // ---------------------------------------------------------------------------
@@ -242,7 +252,11 @@ export const usePageStore = create<PageStore>()(
     }),
     {
       name: "fob-page-state",
-      version: 1,
+      // v2: FinderFilters gained `skill` + `focus` (structured search) and
+      // AnalyzeState gained `autorun` — a v1 payload would restore filter
+      // objects missing those keys, so it's discarded (session-scoped state,
+      // losing it on deploy is fine).
+      version: 2,
       storage: createJSONStorage(() => resilientStorage),
     },
   ),

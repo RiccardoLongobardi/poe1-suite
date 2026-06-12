@@ -1,13 +1,12 @@
 /**
- * FinderPage — the "Build Finder" flow, the oracle's interface.
+ * FinderPage — the "Build Finder": structured ladder search.
  *
- * Step 1: user types a free-text query → POST /fob/extract-intent.
- * Step 2: parsed BuildIntent shown; user presses "Trova build"
- *         → POST /fob/recommend → ranked build list.
- *
- * Step 22b redesign: a centred hero search that collapses after
- * submit, a horizontal filter-pill row, a two-column results + meta
- * sidebar layout, staggered card reveal, and an oracle empty state.
+ * Structured-search rework (Step 86): the primary input is a concrete
+ * search panel — skill picker (catalogue-derived list from
+ * GET /fob/finder/skills), class/ascendancy, content focus, sort and
+ * stat floors — and the BuildIntent is built client-side from those
+ * fields. No more natural-language query, no parsing confidence: what
+ * you select is exactly what is searched.
  */
 
 import {
@@ -21,18 +20,16 @@ import {
   Select,
   Stack,
   Text,
-  Textarea,
   Title,
 } from "@mantine/core";
-import { IconEye, IconSortDescending } from "@tabler/icons-react";
+import { IconSearch, IconSortDescending } from "@tabler/icons-react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { getPopulationStats } from "../api/builds";
-import { extractIntent, recommend } from "../api/fob";
-import type { BuildIntent, SortKey } from "../api/types";
+import { getFinderSkills, recommend } from "../api/fob";
+import type { BuildIntent, ContentFocus, SortKey } from "../api/types";
 import { BuildCard } from "../components/BuildCard";
 import { ErrorBoundary } from "../components/ErrorBoundary";
-import { IntentCard } from "../components/IntentCard";
 import { PopulationStatsPanel } from "../components/PopulationStatsPanel";
 import { withViewTransition } from "../hooks/useViewTransition";
 import { useT } from "../i18n";
@@ -123,39 +120,52 @@ const SORT_KEYS: { value: SortKey; it: string; en: string }[] = [
   { value: "level", it: "Livello ↓", en: "Level ↓" },
 ];
 
+/** Content-focus options for the structured search. */
+const FOCUS_KEYS: { value: ContentFocus; it: string; en: string }[] = [
+  { value: "mapping", it: "Mapping", en: "Mapping" },
+  { value: "bossing", it: "Bossing", en: "Bossing" },
+  { value: "ubers", it: "Uber boss", en: "Uber bosses" },
+  { value: "league_start", it: "League start", en: "League start" },
+  { value: "delve", it: "Delve", en: "Delve" },
+  { value: "sanctum", it: "Sanctum", en: "Sanctum" },
+  { value: "simulacrum", it: "Simulacrum", en: "Simulacrum" },
+  { value: "generalist", it: "Tutto il contenuto", en: "All content" },
+];
+
 interface Props {
   onSendToPlanner?: (pobCode: string) => void;
+  onSendToAnalyze?: (input: string) => void;
 }
 
-// The editable filter subset (`FinderFilters`) lives in the Zustand
-// `pageStore` so it survives cross-route navigation. Kept separate
-// from the parsed intent so editing a filter never clobbers the
-// intent's other dimensions.
-
-function overridesFromIntent(intent: BuildIntent): FinderFilters {
+/**
+ * Build the full BuildIntent client-side from the structured criteria —
+ * deterministic, no extraction step, confidence is always 1.
+ */
+function intentFromFilters(f: FinderFilters): BuildIntent {
   return {
-    class_filter: intent.class_filter,
-    sort_by: intent.sort_by ?? "score",
-    min_life: intent.min_life,
-    min_es: intent.min_es,
-    min_ehp: intent.min_ehp,
-    min_dps: intent.min_dps,
-    min_level: intent.min_level,
-    max_level: intent.max_level,
-  };
-}
-
-function applyOverrides(intent: BuildIntent, ov: FinderFilters): BuildIntent {
-  return {
-    ...intent,
-    class_filter: ov.class_filter,
-    sort_by: ov.sort_by,
-    min_life: ov.min_life,
-    min_es: ov.min_es,
-    min_ehp: ov.min_ehp,
-    min_dps: ov.min_dps,
-    min_level: ov.min_level,
-    max_level: ov.max_level,
+    damage_profile: null,
+    alternative_damage_profiles: [],
+    playstyle: null,
+    alternative_playstyles: [],
+    content_focus: f.focus
+      ? [{ focus: f.focus as ContentFocus, weight: 1.0 }]
+      : [],
+    budget: null,
+    complexity_cap: null,
+    defense_profile: null,
+    hard_constraints: [],
+    main_skill_hint: f.skill,
+    class_filter: f.class_filter,
+    min_life: f.min_life,
+    min_es: f.min_es,
+    min_ehp: f.min_ehp,
+    min_dps: f.min_dps,
+    min_level: f.min_level,
+    max_level: f.max_level,
+    sort_by: f.sort_by,
+    confidence: 1.0,
+    raw_input: [f.skill, f.class_filter, f.focus].filter(Boolean).join(" ") || "structured search",
+    parser_origin: "rule_based",
   };
 }
 
@@ -164,59 +174,49 @@ function OracleEmptyState() {
   const t = useT();
   return (
     <Stack align="center" gap={6} py={48}>
-      <IconEye size={48} color="var(--vs-ember-border)" stroke={1.4} />
+      <IconSearch size={48} color="var(--vs-ember-border)" stroke={1.4} />
       <Text fw={600} size="lg" style={{ fontFamily: "'Cinzel', serif" }}>
         {t({
-          it: "L'oracolo attende la tua domanda",
-          en: "The oracle awaits your question",
+          it: "Cerca una build reale dalla ladder",
+          en: "Search a real build from the ladder",
         })}
       </Text>
-      <Text size="sm" c="dimmed" ta="center" maw={420}>
+      <Text size="sm" c="dimmed" ta="center" maw={460}>
         {t({
-          it: "Descrivi il build che cerchi — classe, skill, budget, contenuto.",
-          en: "Describe the build you want — class, skill, budget, content.",
+          it: "Scegli skill, classe o contenuto qui sopra e premi Trova build — i risultati sono personaggi reali della lega corrente, ordinati per quanto rispondono ai tuoi criteri.",
+          en: "Pick a skill, class or content above and hit Find builds — results are real characters from the current league, ranked against your criteria.",
         })}
       </Text>
     </Stack>
   );
 }
 
-export function FinderPage({ onSendToPlanner }: Props) {
+export function FinderPage({ onSendToPlanner, onSendToAnalyze }: Props) {
   const t = useT();
   const sortOptions = SORT_KEYS.map((s) => ({
     value: s.value,
     label: t({ it: s.it, en: s.en }),
   }));
-  // Cross-route persistent state — query, parsed intent, filter
-  // overrides, results, drill-down skill filter and the editing flag
-  // all survive navigating away and back (Zustand `pageStore`).
-  const { query, topN, intent, overrides, result, skillFilter } =
-    usePageStore((s) => s.finder);
+  const focusOptions = FOCUS_KEYS.map((f) => ({
+    value: f.value,
+    label: t({ it: f.it, en: f.en }),
+  }));
+  // Cross-route persistent state — criteria, results and the drill-down
+  // skill filter survive navigating away and back (Zustand `pageStore`).
+  const { topN, overrides, result, skillFilter } = usePageStore((s) => s.finder);
   const setFinder = usePageStore((s) => s.setFinder);
+
+  // The searchable skill list (213 catalogue-derived main skills).
+  const skillsQuery = useQuery({
+    queryKey: ["finder-skills"],
+    queryFn: getFinderSkills,
+    staleTime: Infinity,
+  });
 
   const recommendMut = useMutation({
     mutationFn: (i: BuildIntent) => recommend(i, topN),
     onSuccess: (data) => {
       setFinder({ result: data, skillFilter: null });
-    },
-  });
-
-  // Submitting the query parses the intent AND immediately runs the
-  // recommend in one go — the user never has to click "Find builds" a
-  // second time. The filter row's button below re-runs recommend only
-  // (for refining the already-parsed intent).
-  const extractMut = useMutation({
-    mutationFn: () => extractIntent(query),
-    onSuccess: (data) => {
-      const ov = overridesFromIntent(data);
-      setFinder({
-        intent: data,
-        overrides: ov,
-        result: null,
-        skillFilter: null,
-        editing: false,
-      });
-      recommendMut.mutate(applyOverrides(data, ov));
     },
   });
 
@@ -262,206 +262,187 @@ export function FinderPage({ onSendToPlanner }: Props) {
     setFinder({ overrides: { ...overrides, ...p } });
   }
 
-  const handleExtract = () => {
-    if (!query.trim()) return;
-    extractMut.mutate();
-  };
-
-  const handleRecommend = () => {
-    if (!intent) return;
-    recommendMut.mutate(applyOverrides(intent, overrides));
+  const handleSearch = () => {
+    recommendMut.mutate(intentFromFilters(overrides));
   };
 
   return (
     <Stack gap="lg">
-      {/* ── Search input — always editable, no edit/collapse step ───── */}
-      <Stack align="center" gap="sm" py={intent ? "xs" : "md"}>
-        {!intent && (
+      {/* ── Structured search panel — concrete criteria, no NL parsing ── */}
+      <Stack align="center" gap="sm" py={result ? "xs" : "md"}>
+        {!result && (
           <>
             <Title order={2} ta="center">
-              {t({ it: "Consulta l'oracolo", en: "Consult the oracle" })}
+              {t({ it: "Trova la tua build", en: "Find your build" })}
             </Title>
             <Text c="dimmed" ta="center" size="sm" maw={520}>
               {t({
-                it: 'Descrivi il build che cerchi in italiano o inglese — es. "cold self-cast per mapping, budget basso"',
-                en: 'Describe the build you want in Italian or English — e.g. "cold self-cast for mapping, low budget"',
+                it: "Cerca tra le build reali della ladder per skill, classe e contenuto.",
+                en: "Search the real ladder builds by skill, class and content.",
               })}
             </Text>
           </>
         )}
-        <Textarea
-          w="100%"
-          maw={620}
-          placeholder={t({
-            it: "cerca RF con 6k life almeno...",
-            en: "search RF with at least 6k life...",
-          })}
-          value={query}
-          onChange={(e) => setFinder({ query: e.currentTarget.value })}
-          minRows={2}
-          autosize
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) handleExtract();
-          }}
-        />
-        <Button
-          size="md"
-          onClick={handleExtract}
-          loading={extractMut.isPending || recommendMut.isPending}
-          disabled={!query.trim()}
-        >
-          {t({ it: "Consulta l'Oracolo", en: "Consult the Oracle" })}
-        </Button>
-        <Text size="xs" c="dimmed">
-          Ctrl+Enter
-        </Text>
+        <Group justify="center" wrap="wrap" gap="sm" align="flex-end">
+          <Select
+            label={t({ it: "Skill principale", en: "Main skill" })}
+            placeholder={t({ it: "Qualsiasi skill", en: "Any skill" })}
+            data={skillsQuery.data?.skills ?? []}
+            value={overrides.skill}
+            onChange={(v) => patchOverrides({ skill: v })}
+            clearable
+            searchable
+            nothingFoundMessage={t({ it: "Nessuna skill", en: "No skill" })}
+            size="md"
+            w={230}
+          />
+          <Select
+            label={t({ it: "Classe / Ascendancy", en: "Class / Ascendancy" })}
+            placeholder={t({ it: "Qualsiasi", en: "Any" })}
+            data={CLASS_OPTIONS}
+            value={overrides.class_filter}
+            onChange={(v) => patchOverrides({ class_filter: v })}
+            clearable
+            searchable
+            size="md"
+            w={200}
+          />
+          <Select
+            label={t({ it: "Contenuto", en: "Content" })}
+            placeholder={t({ it: "Qualsiasi", en: "Any" })}
+            data={focusOptions}
+            value={overrides.focus}
+            onChange={(v) => patchOverrides({ focus: v })}
+            clearable
+            size="md"
+            w={170}
+          />
+          <Button
+            size="md"
+            leftSection={<IconSearch size={18} />}
+            onClick={handleSearch}
+            loading={recommendMut.isPending}
+          >
+            {t({ it: "Trova build", en: "Find builds" })}
+          </Button>
+        </Group>
+
+        {/* Refinement row — sort, stat floors, level range, result count. */}
+        <div className="finder-filter-row">
+          <Select
+            label={t({ it: "Ordina", en: "Sort" })}
+            data={sortOptions}
+            value={overrides.sort_by}
+            onChange={(v) => patchOverrides({ sort_by: (v as SortKey) ?? "score" })}
+            allowDeselect={false}
+            size="xs"
+            w={130}
+          />
+          <NumberInput
+            label={t({ it: "Min Vita", en: "Min Life" })}
+            placeholder="5000"
+            value={overrides.min_life ?? ""}
+            onChange={(v) =>
+              patchOverrides({ min_life: typeof v === "number" ? v : null })
+            }
+            min={0}
+            step={500}
+            thousandSeparator=","
+            size="xs"
+            w={110}
+          />
+          <NumberInput
+            label="Min ES"
+            placeholder="3000"
+            value={overrides.min_es ?? ""}
+            onChange={(v) =>
+              patchOverrides({ min_es: typeof v === "number" ? v : null })
+            }
+            min={0}
+            step={500}
+            thousandSeparator=","
+            size="xs"
+            w={110}
+          />
+          <NumberInput
+            label="Min EHP"
+            placeholder="8000"
+            value={overrides.min_ehp ?? ""}
+            onChange={(v) =>
+              patchOverrides({ min_ehp: typeof v === "number" ? v : null })
+            }
+            min={0}
+            step={1000}
+            thousandSeparator=","
+            size="xs"
+            w={110}
+          />
+          <NumberInput
+            label={t({ it: "Min DPS", en: "Min DPS" })}
+            placeholder="500000"
+            value={overrides.min_dps ?? ""}
+            onChange={(v) =>
+              patchOverrides({ min_dps: typeof v === "number" ? v : null })
+            }
+            min={0}
+            step={100_000}
+            thousandSeparator=","
+            size="xs"
+            w={120}
+          />
+          <NumberInput
+            label={t({ it: "Min Lv", en: "Min Lv" })}
+            placeholder="90"
+            value={overrides.min_level ?? ""}
+            onChange={(v) =>
+              patchOverrides({ min_level: typeof v === "number" ? v : null })
+            }
+            min={1}
+            max={100}
+            size="xs"
+            w={90}
+          />
+          <NumberInput
+            label={t({ it: "Max Lv", en: "Max Lv" })}
+            placeholder="100"
+            value={overrides.max_level ?? ""}
+            onChange={(v) =>
+              patchOverrides({ max_level: typeof v === "number" ? v : null })
+            }
+            min={1}
+            max={100}
+            size="xs"
+            w={90}
+          />
+          <NumberInput
+            label={t({ it: "Risultati", en: "Results" })}
+            value={topN}
+            onChange={(v) => setFinder({ topN: typeof v === "number" ? v : 10 })}
+            min={1}
+            max={50}
+            size="xs"
+            w={90}
+          />
+          <Button
+            size="xs"
+            variant="subtle"
+            color="gray"
+            onClick={() => setFinder({ overrides: emptyFinderFilters() })}
+          >
+            {t({ it: "Reset", en: "Reset" })}
+          </Button>
+        </div>
       </Stack>
 
-      {extractMut.isError && (
-        <Alert color="red" title={t({ it: "Errore extract-intent", en: "Intent extraction error" })}>
-          {extractMut.error.message}
+      {recommendMut.isError && (
+        <Alert color="red" title={t({ it: "Errore nella ricerca", en: "Search error" })}>
+          {recommendMut.error.message}
         </Alert>
       )}
 
-      {/* ── Parsed intent + filters + results ───────────────────────── */}
-      {intent && (
+      {/* ── Results ─────────────────────────────────────────────────── */}
+      {result || recommendMut.isPending ? (
         <ErrorBoundary label={t({ it: "Errore nel pannello Finder", en: "Finder panel error" })}>
-          <ErrorBoundary label={t({ it: "Errore nel riepilogo intent", en: "Intent summary error" })}>
-            <IntentCard intent={applyOverrides(intent, overrides)} />
-          </ErrorBoundary>
-
-          {/* Filter pill row — scrolls horizontally on mobile. */}
-          <div className="finder-filter-row">
-            <Select
-              label={t({ it: "Classe / Asc.", en: "Class / Asc." })}
-              placeholder={t({ it: "Qualsiasi", en: "Any" })}
-              data={CLASS_OPTIONS}
-              value={overrides.class_filter}
-              onChange={(v) => patchOverrides({ class_filter: v })}
-              clearable
-              searchable
-              size="xs"
-              w={170}
-            />
-            <Select
-              label={t({ it: "Ordina", en: "Sort" })}
-              data={sortOptions}
-              value={overrides.sort_by}
-              onChange={(v) => patchOverrides({ sort_by: (v as SortKey) ?? "score" })}
-              allowDeselect={false}
-              size="xs"
-              w={130}
-            />
-            <NumberInput
-              label={t({ it: "Min Vita", en: "Min Life" })}
-              placeholder="5000"
-              value={overrides.min_life ?? ""}
-              onChange={(v) =>
-                patchOverrides({ min_life: typeof v === "number" ? v : null })
-              }
-              min={0}
-              step={500}
-              thousandSeparator=","
-              size="xs"
-              w={110}
-            />
-            <NumberInput
-              label="Min ES"
-              placeholder="3000"
-              value={overrides.min_es ?? ""}
-              onChange={(v) =>
-                patchOverrides({ min_es: typeof v === "number" ? v : null })
-              }
-              min={0}
-              step={500}
-              thousandSeparator=","
-              size="xs"
-              w={110}
-            />
-            <NumberInput
-              label="Min EHP"
-              placeholder="8000"
-              value={overrides.min_ehp ?? ""}
-              onChange={(v) =>
-                patchOverrides({ min_ehp: typeof v === "number" ? v : null })
-              }
-              min={0}
-              step={1000}
-              thousandSeparator=","
-              size="xs"
-              w={110}
-            />
-            <NumberInput
-              label={t({ it: "Min DPS", en: "Min DPS" })}
-              placeholder="500000"
-              value={overrides.min_dps ?? ""}
-              onChange={(v) =>
-                patchOverrides({ min_dps: typeof v === "number" ? v : null })
-              }
-              min={0}
-              step={100_000}
-              thousandSeparator=","
-              size="xs"
-              w={120}
-            />
-            <NumberInput
-              label={t({ it: "Min Lv", en: "Min Lv" })}
-              placeholder="90"
-              value={overrides.min_level ?? ""}
-              onChange={(v) =>
-                patchOverrides({ min_level: typeof v === "number" ? v : null })
-              }
-              min={1}
-              max={100}
-              size="xs"
-              w={90}
-            />
-            <NumberInput
-              label={t({ it: "Max Lv", en: "Max Lv" })}
-              placeholder="100"
-              value={overrides.max_level ?? ""}
-              onChange={(v) =>
-                patchOverrides({ max_level: typeof v === "number" ? v : null })
-              }
-              min={1}
-              max={100}
-              size="xs"
-              w={90}
-            />
-            <NumberInput
-              label={t({ it: "Risultati", en: "Results" })}
-              value={topN}
-              onChange={(v) =>
-                setFinder({ topN: typeof v === "number" ? v : 10 })
-              }
-              min={1}
-              max={50}
-              size="xs"
-              w={90}
-            />
-            <Button
-              size="xs"
-              onClick={handleRecommend}
-              loading={recommendMut.isPending}
-            >
-              {t({ it: "Trova build →", en: "Find builds →" })}
-            </Button>
-            <Button
-              size="xs"
-              variant="subtle"
-              color="gray"
-              onClick={() => setFinder({ overrides: emptyFinderFilters() })}
-            >
-              {t({ it: "Reset", en: "Reset" })}
-            </Button>
-          </div>
-
-          {recommendMut.isError && (
-            <Alert color="red" title={t({ it: "Errore recommend", en: "Recommend error" })}>
-              {recommendMut.error.message}
-            </Alert>
-          )}
-
           {/* Two-column: results (2fr) + meta sidebar (1fr). */}
           <div className="finder-grid">
             {/* Results column */}
@@ -539,6 +520,7 @@ export function FinderPage({ onSendToPlanner }: Props) {
                             build={b}
                             index={i}
                             onSendToPlanner={onSendToPlanner}
+                            onSendToAnalyze={onSendToAnalyze}
                             metaPct={metaPct.get(
                               (b.ref.main_skill ?? "").toLowerCase(),
                             )}
@@ -548,8 +530,8 @@ export function FinderPage({ onSendToPlanner }: Props) {
                         {ranked.length === 0 && (
                           <Text c="dimmed" ta="center" py="xl">
                             {t({
-                              it: "Nessun candidato supera i filtri hard-constraint.",
-                              en: "No candidate passes the hard-constraint filters.",
+                              it: "Nessuna build trovata con questi criteri — prova ad allargare i filtri.",
+                              en: "No build found with these criteria — try widening the filters.",
                             })}
                           </Text>
                         )}
@@ -565,9 +547,7 @@ export function FinderPage({ onSendToPlanner }: Props) {
                     );
                   })()}
                 </ErrorBoundary>
-              ) : (
-                <OracleEmptyState />
-              )}
+              ) : null}
             </div>
 
             {/* Meta sidebar — population stats. Above results on mobile. */}
@@ -578,10 +558,9 @@ export function FinderPage({ onSendToPlanner }: Props) {
             </div>
           </div>
         </ErrorBoundary>
+      ) : (
+        <OracleEmptyState />
       )}
-
-      {/* Empty state before any search has been run. */}
-      {!intent && !extractMut.isPending && <OracleEmptyState />}
     </Stack>
   );
 }

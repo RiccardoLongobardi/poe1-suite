@@ -599,6 +599,13 @@ def _catalogue_skill_pairs() -> tuple[tuple[str, str], ...]:
     return tuple(pairs.items())
 
 
+def finder_skill_names() -> tuple[str, ...]:
+    """Every main-skill name the Finder can search by (sorted) — the
+    catalogue-derived list behind ``GET /fob/finder/skills``, used by the
+    structured search UI's skill picker."""
+    return tuple(sorted(name for _pat, name in _catalogue_skill_pairs()))
+
+
 @lru_cache(maxsize=1)
 def _skill_matcher() -> tuple[re.Pattern[str] | None, dict[str, str]]:
     """A single word-boundary regex over every skill pattern (catalogue + the

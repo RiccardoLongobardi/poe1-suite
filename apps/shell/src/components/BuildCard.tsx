@@ -35,6 +35,7 @@ import {
   IconCopy,
   IconExternalLink,
   IconHeart,
+  IconChartBar,
   IconListCheck,
   IconShieldHalf,
   IconSparkles,
@@ -50,6 +51,9 @@ interface Props {
   /** Position in the result list — drives the staggered reveal delay. */
   index?: number;
   onSendToPlanner?: (pobCode: string) => void;
+  /** Open the build in the Analyze page (receives the poe.ninja
+   * character URL — AnalyzePage resolves it to a PoB code itself). */
+  onSendToAnalyze?: (input: string) => void;
   /**
    * Population share of this build's main skill in the current ladder
    * (0-100), if known. Drives the "X% of meta" line.
@@ -187,6 +191,7 @@ export function BuildCard({
   build,
   index,
   onSendToPlanner,
+  onSendToAnalyze,
   metaPct,
   onDrillSkill,
 }: Props) {
@@ -451,6 +456,31 @@ export function BuildCard({
                 >
                   {t({ it: "Pianifica", en: "Plan" })}
                 </Button>
+              )}
+              {onSendToAnalyze && (
+                <Tooltip
+                  label={t({
+                    it: "Apri la build nella dashboard Analizza",
+                    en: "Open the build in the Analyze dashboard",
+                  })}
+                  withArrow
+                  position="top"
+                >
+                  <Button
+                    size="xs"
+                    variant="light"
+                    color="grape"
+                    leftSection={<IconChartBar size={13} />}
+                    onClick={(e) => {
+                      e.stopPropagation(); // don't toggle collapse
+                      onSendToAnalyze(
+                        poeNinjaUrl(ref.league, ref.account, ref.character),
+                      );
+                    }}
+                  >
+                    {t({ it: "Analizza", en: "Analyze" })}
+                  </Button>
+                </Tooltip>
               )}
               <Tooltip
                 label={t({

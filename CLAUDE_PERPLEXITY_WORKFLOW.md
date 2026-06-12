@@ -164,6 +164,20 @@ Owns: strategic direction, manual QA in PoB Community, final-call on architectur
 
   - **Process notes for whoever picks this up:** (a) the optimiser/precompute is **local-only** (needs `.pob_runtime/` via `scripts/setup_pob.py`); Render never runs PoB, it serves `data/theory/precomputed_3_28.json`. (b) `pob_eval.PobEvaluator` chdir's into PoB's `src/`, so any output path must be repo-root-anchored (a relative path silently lands under `.pob_runtime/src/`). (c) Validate every change with `scripts/compare_ladder.py <Ascendancy> <Skill>` (DoT-aware, uses CombinedDPS) and re-run `scripts/precompute_builds.py` to refresh the vendored optima + bump the Patch Notes when DPS/EHP move. (d) the pre-commit hook normalises line endings → if a commit aborts, just `git add -u` and re-commit.
 
+### UX / PRODUCT BACKLOG (Riccardo, 2026-06-12)
+
+Riccardo's verbatim wishlist after the full-project review. 1-5 near-term; 6-9 need design first.
+
+1. **Finder → structured search input (replaces NL-as-primary).** "Non ha senso che accettiamo query in linguaggio naturale visto che poi dobbiamo andare di confidence. Dobbiamo dare un modo affidabile ed intuitivo, seppur intelligente, di fare una ricerca concreta e completa della build." → the primary input becomes a structured panel (searchable skill picker from the catalogue-derived skill list + class/ascendancy + content focus + budget + sort + stat floors); the BuildIntent is built client-side — no confidence, no extraction ambiguity.
+2. **Finder result card → "Analizza" button** alongside the existing "Pianifica" lift (open the build directly in Analyze).
+3. **Home alignment.** Finder description updated for the structured search; EVERY "cosa puoi fare in pratica" example aligned with the three tools' real behaviour; **remove the personal email from the footer** (privacy). ⚠️ REMINDER for Riccardo: open a PayPal address without real personal info — until then the site keeps only the generic paypal.me link, no explicit personal data anywhere.
+4. **Patch Notes reorganisation** — index by date (month groups) and/or per-function grouping.
+5. **FAQ + privacy/legal sections.** Static bilingual pages. FAQ: what FOB is, data sources (poe.ninja/PoB/GGG), how DPS is computed (PoB-exact), why builds differ from the ladder, donations. Privacy: no accounts, no tracking, localStorage-only prefs, third-party API calls listed.
+6. **Chatbot.** Needs design: scope (FAQ answering? build advice?), backend (Anthropic API already integrated for intent), cost ceiling.
+7. **Community section.** Needs design: what it is (Discord link? build sharing? comments?).
+8. **"UI PRO MAX" — full site re-engineering.** Riccardo: "creane uno nuovo e non toccare quello già fatto" → a NEW frontend app built alongside the current one (e.g. `apps/shell-v2/`); `apps/shell` stays untouched and deployed until the new one reaches parity. Needs a visual-direction design phase first.
+9. **PayPal anonymised account** (Riccardo's own task — see the reminder in #3).
+
 ### NEEDS DESIGN / FOLLOW-UP
 
 - _(none — Theorycrafter notable-efficiency shipped in Step 49)_

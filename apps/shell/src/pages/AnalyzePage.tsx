@@ -34,7 +34,7 @@ import {
   IconSword,
 } from "@tabler/icons-react";
 import { useMutation } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getDetail, parsePoeNinjaCharacterUrl } from "../api/builds";
 import { analyzePob } from "../api/fob";
 import { usePageStore } from "../store/pageStore";
@@ -527,7 +527,7 @@ function BuildDashboard({ data }: { data: AnalyzePobResponse }) {
 export function AnalyzePage() {
   const t = useT();
   // Cross-route persistent state — survives navigation away and back.
-  const { input, result } = usePageStore((s) => s.analyze);
+  const { input, result, autorun } = usePageStore((s) => s.analyze);
   const setAnalyze = usePageStore((s) => s.setAnalyze);
 
   // Resolve the input then analyse it. The input may be:
@@ -561,6 +561,17 @@ export function AnalyzePage() {
   const submit = () => {
     if (input.trim()) mut.mutate();
   };
+
+  // One-shot autorun: the Finder's "Analizza" lift stashes the input and
+  // sets this flag, so the analysis runs as soon as the page mounts. The
+  // flag resets immediately — navigating back later never re-fires it.
+  useEffect(() => {
+    if (autorun && input.trim()) {
+      setAnalyze({ autorun: false });
+      mut.mutate();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autorun]);
 
   return (
     <Stack gap="md">

@@ -62,6 +62,7 @@ import { HomePage } from "./pages/HomePage";
 import { PatchNotesPage } from "./pages/PatchNotesPage";
 import { WelcomePage } from "./pages/WelcomePage";
 import { hasSeenWelcome } from "./state/welcome";
+import { usePageStore } from "./store/pageStore";
 
 // Route-level code-splitting. The three heaviest feature pages (each
 // pulls in its own chart/planner/analysis machinery) are lazy-loaded
@@ -161,6 +162,15 @@ function ShellLayout() {
   const onSendToPlanner = (pobCode: string) => {
     setPlannerInput(pobCode);
     navigate("/planner");
+    close();
+  };
+
+  // Finder → Analyze lift: stash the poe.ninja URL in the analyze slice
+  // with the one-shot autorun flag; AnalyzePage runs it on mount.
+  const setAnalyze = usePageStore((s) => s.setAnalyze);
+  const onSendToAnalyze = (input: string) => {
+    setAnalyze({ input, result: null, autorun: true });
+    navigate("/analyze");
     close();
   };
 
@@ -332,7 +342,12 @@ function ShellLayout() {
                 <Route path="/home" element={<HomePage />} />
                 <Route
                   path="/finder"
-                  element={<FinderPage onSendToPlanner={onSendToPlanner} />}
+                  element={
+                    <FinderPage
+                      onSendToPlanner={onSendToPlanner}
+                      onSendToAnalyze={onSendToAnalyze}
+                    />
+                  }
                 />
                 <Route path="/analyze" element={<AnalyzePage />} />
                 <Route

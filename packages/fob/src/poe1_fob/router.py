@@ -488,6 +488,15 @@ def make_router(settings: Settings) -> APIRouter:
         )
         return intent
 
+    @router.get(
+        "/finder/skills",
+        summary="Every main-skill name the Finder can search by (catalogue-derived).",
+    )
+    async def finder_skills() -> dict[str, tuple[str, ...]]:
+        from .intent.rules import finder_skill_names
+
+        return {"skills": finder_skill_names()}
+
     @router.post(
         "/recommend",
         response_model=RecommendResponse,

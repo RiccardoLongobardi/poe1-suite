@@ -143,12 +143,12 @@ export function HomePage() {
           title="Build Finder"
           openLabel={t({ it: "Apri", en: "Open" })}
           description={t({
-            it: "Descrivi quello che cerchi in italiano o inglese. FOB legge l'intent, interroga il ladder di poe.ninja e ti restituisce le build migliori con score multidimensionale.",
-            en: "Describe what you want in Italian or English. FOB reads the intent, queries the poe.ninja ladder and returns the best builds with a multi-dimensional score.",
+            it: "Scegli skill, classe/ascendancy e contenuto: FOB interroga la ladder di poe.ninja e ti restituisce le build reali migliori, ordinate con uno score multidimensionale e filtrabili per vita/ES/EHP/DPS.",
+            en: "Pick skill, class/ascendancy and content: FOB queries the poe.ninja ladder and returns the best real builds, ranked with a multi-dimensional score and filterable by life/ES/EHP/DPS.",
           })}
           example={t({
-            it: '"voglio una cold dot comfy per mapping, budget 20 div"',
-            en: '"a comfy cold-dot for mapping, 20 div budget"',
+            it: "Elemental Hit + Slayer + Mapping → top 10 build reali",
+            en: "Elemental Hit + Slayer + Mapping → top 10 real builds",
           })}
         />
         <FeatureCard
@@ -187,37 +187,37 @@ export function HomePage() {
             <Text size="sm" c="dimmed">
               <Text component="span" fw={600} c="bright">
                 {t({
-                  it: "Trovare una build per la tua lega:",
-                  en: "Find a build for your league:",
+                  it: "Trovare una build per la tua lega (Finder):",
+                  en: "Find a build for your league (Finder):",
                 })}
               </Text>{" "}
               {t({
-                it: '"build tanky con CI per bossing, no minion" → top 10 build dal ladder filtrate sui tuoi vincoli.',
-                en: '"tanky CI build for bossing, no minions" → top 10 ladder builds filtered by your constraints.',
+                it: "scegli skill, classe e contenuto (es. Elemental Hit + Slayer + Mapping), aggiungi i minimi di vita/EHP/DPS che pretendi → top 10 build reali dalla ladder, con score spiegato.",
+                en: "pick skill, class and content (e.g. Elemental Hit + Slayer + Mapping), add the life/EHP/DPS floors you demand → top 10 real ladder builds, with an explained score.",
               })}
             </Text>
             <Text size="sm" c="dimmed">
               <Text component="span" fw={600} c="bright">
                 {t({
-                  it: "Capire una guida che hai trovato:",
-                  en: "Understand a guide you found:",
+                  it: "Capire una build al volo (Analizza):",
+                  en: "Understand a build at a glance (Analyze):",
                 })}
               </Text>{" "}
               {t({
-                it: "incolla il pobb.in e vedi subito che skill / ascendancy / item core ha. Niente Path of Building da aprire.",
-                en: "paste the pobb.in and instantly see its skill / ascendancy / core items. No need to open Path of Building.",
+                it: "incolla un PoB / pobb.in / URL poe.ninja — o premi “Analizza” su un risultato del Finder — e vedi equip, gemme, statistiche chiave e albero senza aprire Path of Building.",
+                en: "paste a PoB / pobb.in / poe.ninja URL — or hit “Analyze” on a Finder result — and see gear, gems, key stats and tree without opening Path of Building.",
               })}
             </Text>
             <Text size="sm" c="dimmed">
               <Text component="span" fw={600} c="bright">
                 {t({
-                  it: "Pianificare il day-0 al day-100:",
-                  en: "Plan day-0 to day-100:",
+                  it: "Pianificare il day-0 al day-100 (Planner):",
+                  en: "Plan day-0 to day-100 (Planner):",
                 })}
               </Text>{" "}
               {t({
-                it: "il Planner ti dice cosa indossare in atto 1, atto 5, mid-campaign, prime maps, end-game con i prezzi live e l'ETA totale.",
-                en: "the Planner tells you what to wear in act 1, act 5, mid-campaign, early maps and end-game with live prices and a total ETA.",
+                it: "da un PoB (o da “Pianifica” sul Finder) ottieni 6 fasi con gli item da indossare, gem progression, prezzi live e un codice PoB importabile per ogni fase.",
+                en: "from a PoB (or “Plan” on a Finder result) you get 6 stages with the items to wear, gem progression, live prices and an importable PoB code per stage.",
               })}
             </Text>
             <Text size="sm" c="dimmed">
@@ -228,8 +228,8 @@ export function HomePage() {
                 })}
               </Text>{" "}
               {t({
-                it: 'il costo totale stimato è la somma dei budget per fase. Se il "High Investment" è 800 div, sai cosa ti aspetta.',
-                en: 'the total estimated cost is the sum of the per-stage budgets. If "High Investment" is 800 div, you know what to expect.',
+                it: 'nel Planner il costo totale stimato è la somma dei budget per fase. Se il "High Investment" è 800 div, sai cosa ti aspetta prima di iniziare.',
+                en: 'in the Planner the total estimated cost is the sum of the per-stage budgets. If "High Investment" is 800 div, you know what to expect before you start.',
               })}
             </Text>
           </SimpleGrid>
@@ -276,8 +276,8 @@ export function HomePage() {
       <Box ta="center" pt="md">
         <Text size="xs" c="dimmed">
           {t({
-            it: "FOB v1 · Mirage League · ric.longobardi@outlook.it · open-source su GitHub",
-            en: "FOB v1 · Mirage League · ric.longobardi@outlook.it · open-source on GitHub",
+            it: "FOB v1 · Mirage League · open-source su GitHub",
+            en: "FOB v1 · Mirage League · open-source on GitHub",
           })}
         </Text>
       </Box>

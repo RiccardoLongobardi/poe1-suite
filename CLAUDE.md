@@ -136,6 +136,19 @@ Inside the navbar: a "Strumenti" / "Tools" section label above the 5 main routes
 
 Frontend-only, no backend change. Gate: 747 tests / 132 mypy / ruff clean. Build ~471 KB / 151 KB gzip.
 
+## Step 86 — Finder structured search + Analyze lift + Home/privacy + Patch Notes reorg ✅
+
+First slice of Riccardo's UX/product wishlist (2026-06-12, full list in `CLAUDE_PERPLEXITY_WORKFLOW.md` §6 "UX / PRODUCT BACKLOG"). Backend + frontend.
+
+- **Finder structured search (replaces NL-as-primary).** The free-text query + extract-intent + confidence flow is gone from the UI: the primary input is now a structured panel — **searchable skill picker** (213 catalogue-derived skills via the new `GET /fob/finder/skills`, backed by `intent.rules.finder_skill_names()`), class/ascendancy, content focus, sort + stat floors. The `BuildIntent` is built **client-side** (`intentFromFilters`, confidence always 1.0) and goes straight to `/fob/recommend` — what you select is exactly what is searched. `FinderFilters` gained `skill` + `focus`; pageStore persist bumped to v2 (discards v1 payloads). `POST /fob/extract-intent` stays in the API (unused by the UI).
+- **"Analizza" button on every Finder result** (QA wishlist #2) — lifts the build into the Analyze dashboard: `onSendToAnalyze` in App.tsx stashes the poe.ninja character URL in the analyze slice with a new one-shot `autorun` flag; AnalyzePage runs the analysis on mount and resets the flag. Verified e2e in the preview (Finder → Analizza → dashboard populated).
+- **Home aligned + privacy.** Finder card copy/example updated for the structured search; every "Cosa ci puoi fare" bullet now names its tool (Finder/Analizza/Planner) and matches real behaviour incl. the new lifts; **personal email removed from the footer**. ⚠️ Riccardo still has to open an anonymised PayPal (the generic paypal.me link stays meanwhile).
+- **Patch Notes reorganised** — releases grouped by month (parsed from the existing date labels, no data migration) with a clickable month-chip index at the top (giu 10 / mag 68 / apr 4).
+
+Verified in the live preview: structured search returns real ladder builds filtered by skill+class (Elemental Hit + Slayer → all-Slayer EH builds), the Analyze lift auto-runs, Home has no email, Patch Notes shows month groups. **Preview-testing gotcha:** driving two dependent clicks (select option + search) in the same synchronous eval tick races React's state commit — the search fires with the pre-click store. A human interaction (separate ticks) is fine; re-clicking search with the state committed confirmed the filter works.
+
+Gate: 795 tests / 148 mypy / ruff clean. Build ~536 KB main / 55 KB FinderPage chunk.
+
 ## Step 85 — QA round 2: legal-league fixes from a 2nd PoB import ✅
 
 A second PoB import surfaced 4 more issues. All fixed; **the headline is the builds are now LEGAL in the current league** (no Standard-only legacy gems, every item equippable).

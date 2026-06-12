@@ -756,3 +756,21 @@ def test_get_theory_skills(settings: Settings) -> None:
         names = {s["name"] for s in r.json()["skills"]}
         assert "Fireball" in names
         assert "Cyclone" in names
+
+
+def test_get_finder_skills(settings: Settings) -> None:
+    """GET /fob/finder/skills returns the catalogue-derived main-skill list
+    (sorted, main DPS skills only — no auras / movement / curses)."""
+
+    app = create_app(settings)
+    with TestClient(app) as client:
+        r = client.get("/fob/finder/skills")
+        assert r.status_code == 200, r.text
+        skills = r.json()["skills"]
+        assert len(skills) > 150
+        assert skills == sorted(skills)
+        assert "Elemental Hit" in skills
+        assert "Cyclone" in skills
+        # Non-main actives are excluded.
+        assert "Hatred" not in skills
+        assert "Flame Dash" not in skills
