@@ -175,7 +175,7 @@ Riccardo's verbatim wishlist after the full-project review. 1-5 near-term; 6-9 n
 5. **FAQ + privacy/legal sections.** Static bilingual pages. FAQ: what FOB is, data sources (poe.ninja/PoB/GGG), how DPS is computed (PoB-exact), why builds differ from the ladder, donations. Privacy: no accounts, no tracking, localStorage-only prefs, third-party API calls listed.
 6. **Chatbot.** Needs design: scope (FAQ answering? build advice?), backend (Anthropic API already integrated for intent), cost ceiling.
 7. **Community section.** Needs design: what it is (Discord link? build sharing? comments?).
-8. **"UI PRO MAX" — full site re-engineering.** Riccardo: "creane uno nuovo e non toccare quello già fatto" → a NEW frontend app built alongside the current one (e.g. `apps/shell-v2/`); `apps/shell` stays untouched and deployed until the new one reaches parity. Needs a visual-direction design phase first.
+8. **"UI PRO MAX" — full site re-engineering.** Riccardo: "creane uno nuovo e non toccare quello già fatto" → a NEW frontend app built alongside the current one; `apps/shell` stays untouched and deployed until the new one reaches parity. **FOUNDATION DONE (Step 87)** — `apps/shell-v2/` with the "Obsidian Pro" design system (cool slate + ember, Space Grotesk/Inter, sticky top navbar, no welcome gate), token-compatible port of every feature page, dev on :5174. **Still open:** per-page deep redesigns (denser pro layouts for Finder results / Analyze dashboard), Riccardo's visual approval, then the Vercel root flip to ship it (and a public Patch Notes entry at that moment).
 9. **PayPal anonymised account** (Riccardo's own task — see the reminder in #3).
 
 ### NEEDS DESIGN / FOLLOW-UP

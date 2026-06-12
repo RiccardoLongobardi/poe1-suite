@@ -7,6 +7,7 @@ configure the stdlib ``logging`` module directly in other modules.
 
 from __future__ import annotations
 
+import contextlib
 import logging
 import sys
 from typing import Any, cast
@@ -27,6 +28,17 @@ def configure_logging(settings: Settings) -> None:
     global _CONFIGURED
     if _CONFIGURED:
         return
+
+    # Windows consoles default to a legacy code page (cp1252): printing a
+    # log line that carries a non-encodable character (e.g. a poe.ninja
+    # character name with unicode glyphs) raises UnicodeEncodeError from
+    # inside the logger and 500s the request. Force UTF-8 with replacement
+    # so logging can never crash the app (Linux/macOS are already UTF-8).
+    for stream in (sys.stderr, sys.stdout):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if reconfigure is not None:
+            with contextlib.suppress(ValueError, OSError):
+                reconfigure(encoding="utf-8", errors="replace")
 
     level = getattr(logging, settings.log_level)
 

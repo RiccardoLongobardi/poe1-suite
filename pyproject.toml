@@ -21,7 +21,7 @@ package = false
 
 [tool.uv.workspace]
 members = ["packages/*", "apps/*"]
-exclude = ["apps/shell", "packages/__pycache__"]
+exclude = ["apps/shell", "apps/shell-v2", "packages/__pycache__"]
 
 [tool.uv.sources]
 poe1-core = { workspace = true }

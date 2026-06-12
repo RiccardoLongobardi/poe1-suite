@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- FOB favicon — "FOB" wordmark in neon violet on a dark tile. -->
+  <defs>
+    <filter id="neon" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="2.4" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+    <linearGradient id="ink" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#e3ccff" />
+      <stop offset="100%" stop-color="#b07cff" />
+    </linearGradient>
+  </defs>
+
+  <!-- Dark rounded tile so the neon reads on any browser-tab colour. -->
+  <rect width="64" height="64" rx="13" fill="#0d0a16" />
+  <rect x="1" y="1" width="62" height="62" rx="12" fill="none"
+    stroke="#6e26ff" stroke-opacity="0.35" stroke-width="1.5" />
+
+  <!-- Wordmark -->
+  <text x="32" y="34" text-anchor="middle" dominant-baseline="central"
+    font-family="Arial, Helvetica, sans-serif" font-weight="800"
+    font-size="22" letter-spacing="0.5"
+    textLength="46" lengthAdjust="spacingAndGlyphs"
+    fill="url(#ink)" filter="url(#neon)">FOB</text>
+</svg>

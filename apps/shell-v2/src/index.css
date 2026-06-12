@@ -1,0 +1,887 @@
+/* ════════════════════════════════════════════════════════════════════
+   "Obsidian Pro" — FOB v2 design system (UI PRO MAX initiative)
+
+   Evolution of v1's "Void Stone & Ember": the ember-gold identity
+   stays, the warm parchment base becomes a cool near-black obsidian
+   slate, the side rail becomes a sticky top navbar, and the type stack
+   modernises (Space Grotesk headings / Inter body; Cinzel survives
+   only in the brand wordmark).
+
+   IMPORTANT: token NAMES (--vs-*) and utility CLASS names are kept
+   identical to v1 so every ported page/component picks up the new
+   skin without edits. Only the VALUES and the chrome are new.
+   ════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Backgrounds — cool obsidian slate */
+  --vs-bg:           #0b0d10;   /* body */
+  --vs-surface-1:    #12151a;   /* primary card surface */
+  --vs-surface-2:    #181c23;   /* elevated surface (inputs, tooltips) */
+  --vs-surface-3:    #1f242d;   /* highest elevation */
+
+  /* Ember gold — primary accent (brand, unchanged hue family) */
+  --vs-ember:        #cf8f1f;
+  --vs-ember-bright: #e8a832;
+  --vs-ember-dim:    rgba(207, 143, 31, 0.12);
+  --vs-ember-glow:   rgba(207, 143, 31, 0.25);
+  --vs-ember-border: rgba(207, 143, 31, 0.22);
+
+  /* Blood — errors, rare-tier accents */
+  --vs-blood:        #9a1e1e;
+  --vs-blood-dim:    rgba(154, 30, 30, 0.15);
+
+  /* Text — cool hierarchy */
+  --vs-text:         #e8ecf2;   /* primary */
+  --vs-text-muted:   #8e98a8;   /* secondary */
+  --vs-text-faint:   #5a6372;   /* tertiary */
+  --vs-text-inverse: #0b0d10;   /* on ember backgrounds */
+
+  /* Borders */
+  --vs-border:       rgba(255, 255, 255, 0.08);  /* default: neutral hairline */
+  --vs-border-faint: rgba(255, 255, 255, 0.05);
+  --vs-border-stone: rgba(255, 255, 255, 0.06);
+
+  /* Stat colours — PoE1 item rarity palette */
+  --vs-normal:   #c8c8c8;
+  --vs-magic:    #8888ff;
+  --vs-rare:     #ffff77;
+  --vs-unique:   #af6025;
+  --vs-gem:      #1aa29b;
+  --vs-currency: #aa9e82;
+
+  /* Shadows */
+  --vs-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --vs-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.45);
+  --vs-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.55), 0 0 64px rgba(207, 143, 31, 0.04);
+
+  /* Radius */
+  --vs-radius-sm: 6px;
+  --vs-radius-md: 8px;
+  --vs-radius-lg: 12px;
+
+  /* Transitions */
+  --vs-transition: 160ms cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Legacy alias from v1 — kept so any leftover reference resolves. */
+  --astral-glow: var(--vs-ember);
+}
+
+/* ────────────────────────────────────────────────────────────────────
+   Light mode — clean cool daylight (replaces v1's parchment). Ember is
+   darkened so it clears WCAG 4.5:1 on the light surfaces; it stays an
+   accent, never body text.
+   ──────────────────────────────────────────────────────────────────── */
+[data-mantine-color-scheme="light"] {
+  --vs-bg:           #f4f6f9;
+  --vs-surface-1:    #ffffff;
+  --vs-surface-2:    #eef1f5;
+  --vs-surface-3:    #e6eaf0;
+
+  --vs-ember:        #a06c14;
+  --vs-ember-bright: #cf8f1f;
+  --vs-ember-dim:    rgba(160, 108, 20, 0.1);
+  --vs-ember-glow:   rgba(160, 108, 20, 0.2);
+  --vs-ember-border: rgba(160, 108, 20, 0.3);
+
+  --vs-blood:        #8a1717;
+  --vs-blood-dim:    rgba(138, 23, 23, 0.1);
+
+  --vs-text:         #1a212b;
+  --vs-text-muted:   #5b6573;
+  --vs-text-faint:   #9aa3b0;
+  --vs-text-inverse: #ffffff;
+
+  --vs-border:       rgba(26, 33, 43, 0.12);
+  --vs-border-faint: rgba(26, 33, 43, 0.07);
+  --vs-border-stone: rgba(26, 33, 43, 0.08);
+
+  --vs-normal:   #555555;
+  --vs-magic:    #4444cc;
+  --vs-rare:     #8a7a00;
+  --vs-unique:   #8b4513;
+  --vs-gem:      #0d7a75;
+  --vs-currency: #6b5a3e;
+
+  --vs-shadow-sm: 0 1px 3px rgba(26, 33, 43, 0.08);
+  --vs-shadow-md: 0 4px 16px rgba(26, 33, 43, 0.1);
+  --vs-shadow-lg: 0 8px 32px rgba(26, 33, 43, 0.14),
+    0 0 64px rgba(160, 108, 20, 0.05);
+
+  /* Mantine's default dimmed grey fails contrast on the light bg —
+     remap <Text c="dimmed"> to the muted token. `!important` because
+     Mantine sets this var at higher specificity. */
+  --mantine-color-dimmed: var(--vs-text-muted) !important;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
+
+body {
+  background-color: var(--vs-bg);
+  color: var(--vs-text);
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Ambient ember glow — a single fixed radial at the top of the page
+   (replaces v1's parchment-noise texture + particle canvas: cleaner,
+   zero runtime cost). */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(
+      900px 420px at 50% -120px,
+      rgba(207, 143, 31, 0.07),
+      transparent 70%
+    );
+}
+[data-mantine-color-scheme="light"] body::before {
+  background:
+    radial-gradient(
+      900px 420px at 50% -120px,
+      rgba(160, 108, 20, 0.06),
+      transparent 70%
+    );
+}
+
+/* All page content sits above the glow layer. */
+#root {
+  position: relative;
+  z-index: 1;
+}
+
+/* Headings — Space Grotesk everywhere. Cinzel is reserved for the
+   `.brand-serif` wordmark class only (v1 heritage). */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.mantine-Title-root {
+  font-family: "Space Grotesk", "Inter", sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--vs-text);
+}
+
+.brand-serif {
+  font-family: "Cinzel", Georgia, serif !important;
+  letter-spacing: 0.06em;
+}
+
+/* Monospace stat values. */
+.stat-value,
+.mono {
+  font-family: "Geist Mono", "Fira Code", monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Scrollbar. */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--vs-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--vs-surface-3);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--vs-ember);
+}
+
+/* Selection. */
+::selection {
+  background: rgba(207, 143, 31, 0.3);
+  color: var(--vs-text);
+}
+
+/* ── v2 chrome: sticky top navbar ─────────────────────────────────────
+   The header is a custom element (no Mantine AppShell): sticky, slate
+   with blur, hairline bottom border. Nav links are horizontal tabs
+   with an ember active underline. */
+.v2-header {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  background: rgba(11, 13, 16, 0.82);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--vs-border-faint);
+}
+[data-mantine-color-scheme="light"] .v2-header {
+  background: rgba(244, 246, 249, 0.85);
+}
+
+.v2-header-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 20px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.v2-nav {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.v2-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.v2-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 13px;
+  border-radius: var(--vs-radius-md);
+  font-family: "Space Grotesk", "Inter", sans-serif;
+  font-size: 0.86rem;
+  font-weight: 500;
+  color: var(--vs-text-muted);
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  position: relative;
+  transition: color var(--vs-transition), background var(--vs-transition);
+}
+.v2-nav-link:hover {
+  color: var(--vs-text);
+  background: var(--vs-surface-2);
+}
+.v2-nav-link[data-active="true"] {
+  color: var(--vs-ember-bright);
+}
+.v2-nav-link[data-active="true"]::after {
+  content: "";
+  position: absolute;
+  left: 13px;
+  right: 13px;
+  bottom: -1px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--vs-ember);
+}
+[data-mantine-color-scheme="light"] .v2-nav-link[data-active="true"] {
+  color: var(--vs-ember);
+}
+
+/* Page content container. */
+.v2-main {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 28px 20px 64px;
+}
+
+/* Footer. */
+.v2-footer {
+  border-top: 1px solid var(--vs-border-faint);
+  margin-top: 48px;
+}
+.v2-footer-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+/* ── Mantine component overrides — interactive states ──────────────── */
+
+.mantine-Card-root {
+  background: var(--vs-surface-1);
+  border-color: var(--vs-border);
+  box-shadow: none;
+  transition:
+    border-color var(--vs-transition),
+    box-shadow var(--vs-transition);
+}
+.mantine-Card-root:hover {
+  border-color: var(--vs-ember-border);
+  box-shadow: var(--vs-shadow-md);
+}
+
+.mantine-Paper-root {
+  background: var(--vs-surface-1);
+}
+
+/* Filled (primary) buttons glow on hover. The default Button variant
+   is "filled" and emits no data-variant attribute, so cover both. */
+.mantine-Button-root:not([data-variant]),
+.mantine-Button-root[data-variant="filled"] {
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  transition:
+    background var(--vs-transition),
+    box-shadow var(--vs-transition);
+}
+.mantine-Button-root:not([data-variant]):not([data-disabled]):hover,
+.mantine-Button-root[data-variant="filled"]:not([data-disabled]):hover {
+  box-shadow: 0 0 16px var(--vs-ember-glow);
+}
+
+/* Inputs (TextInput / Textarea / Select / NumberInput all share
+   .mantine-Input-input). Slate surface + ember focus ring; monospace
+   family for the data-tool aesthetic (v1 convention, kept). */
+.mantine-Input-input {
+  background: var(--vs-surface-2);
+  border-color: var(--vs-border);
+  color: var(--vs-text);
+  font-family: var(--mantine-font-family-monospace);
+}
+.mantine-Input-input::placeholder {
+  color: var(--vs-text-faint);
+}
+.mantine-Input-input:focus,
+.mantine-Input-input:focus-within {
+  border-color: var(--vs-ember);
+  box-shadow: 0 0 0 2px var(--vs-ember-dim);
+}
+
+.mantine-Tooltip-tooltip {
+  background: var(--vs-surface-3);
+  border: 1px solid var(--vs-border);
+  color: var(--vs-text);
+}
+
+/* ── Re-usable animation primitives ─────────────────────────────────── */
+
+@keyframes vs-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 24px rgba(207, 143, 31, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 52px rgba(232, 168, 50, 0.6);
+  }
+}
+
+@keyframes vs-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes vs-twinkle {
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes vs-rotate-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.fob-fade-in {
+  animation: vs-fade-in 0.8s ease-out both;
+}
+.fob-pulse-glow {
+  animation: vs-pulse 3s ease-in-out infinite;
+}
+.fob-twinkle {
+  animation: vs-twinkle 2s ease-in-out infinite;
+}
+.fob-feature-card {
+  transition:
+    transform 200ms ease,
+    box-shadow 200ms ease,
+    border-color 200ms ease;
+  cursor: pointer;
+}
+.fob-feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--vs-shadow-lg);
+  border-color: var(--vs-ember);
+}
+
+/* Analyze page: two-column dashboard at >=768px. */
+@media (min-width: 768px) {
+  .analyze-dashboard {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+  }
+}
+
+/* ── Finder page layout ─────────────────────────────────────────────── */
+
+/* Two-column layout: results (2fr) + meta sidebar (1fr) at >=1024px. */
+.finder-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+@media (min-width: 1024px) {
+  .finder-grid {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  }
+}
+
+/* Filter pill row — wraps so every control is always visible. */
+.finder-filter-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+.finder-filter-row > * {
+  flex: 0 0 auto;
+}
+
+/* Meta sidebar: above results on mobile, right column on desktop. */
+.finder-sidebar {
+  order: -1;
+}
+@media (min-width: 1024px) {
+  .finder-sidebar {
+    order: 0;
+  }
+}
+
+/* Glass surface. */
+.vs-glass {
+  background: var(--vs-surface-1);
+}
+@supports (
+  (backdrop-filter: blur(8px)) or (-webkit-backdrop-filter: blur(8px))
+) {
+  .vs-glass {
+    background: rgba(18, 21, 26, 0.66);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  [data-mantine-color-scheme="light"] .vs-glass {
+    background: rgba(255, 255, 255, 0.78);
+  }
+}
+
+/* Clickable main-skill name on a BuildCard — drill-down affordance. */
+.drill-skill {
+  cursor: pointer;
+  transition: color 120ms ease;
+}
+.drill-skill:hover {
+  color: var(--vs-ember-bright);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* ── Rarity hover glow + shimmer ──────────────────────────────────────
+   Gear cells/rows tagged `.vs-rarity` + a `data-rarity` attribute light
+   up on hover with a diagonal sweep + glow in the PoE rarity colour. */
+.vs-rarity {
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow 160ms ease;
+  --rarity-tint: rgba(200, 200, 200, 0.16);
+  --rarity-glow: rgba(200, 200, 200, 0.22);
+}
+[data-rarity="magic"] {
+  --rarity-tint: rgba(120, 130, 255, 0.24);
+  --rarity-glow: rgba(120, 130, 255, 0.36);
+}
+[data-rarity="rare"] {
+  --rarity-tint: rgba(255, 226, 90, 0.24);
+  --rarity-glow: rgba(255, 226, 90, 0.34);
+}
+[data-rarity="unique"] {
+  --rarity-tint: rgba(214, 128, 46, 0.28);
+  --rarity-glow: rgba(214, 128, 46, 0.42);
+}
+.vs-rarity::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 35%,
+    var(--rarity-tint) 50%,
+    transparent 65%
+  );
+  background-size: 220% 100%;
+  background-repeat: no-repeat;
+  transition: opacity 180ms ease;
+}
+.vs-rarity:hover {
+  box-shadow:
+    0 0 0 1px var(--rarity-glow),
+    0 0 16px var(--rarity-glow);
+}
+.vs-rarity:hover::after {
+  opacity: 1;
+  animation: vs-rarity-shimmer 1.5s ease-in-out infinite;
+}
+@keyframes vs-rarity-shimmer {
+  from {
+    background-position: -160% 0;
+  }
+  to {
+    background-position: 160% 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vs-rarity:hover::after {
+    animation: none;
+  }
+}
+
+/* ── Skeleton loaders ───────────────────────────────────────────────── */
+@keyframes vs-skeleton-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+.vs-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--vs-surface-1) 25%,
+    var(--vs-surface-3) 50%,
+    var(--vs-surface-1) 75%
+  );
+  background-size: 200% 100%;
+  animation: vs-skeleton-shimmer 1.6s ease-in-out infinite;
+  border-radius: var(--vs-radius-sm);
+}
+.vs-skeleton-text {
+  height: 12px;
+  width: 100%;
+}
+.vs-skeleton-heading {
+  height: 22px;
+  width: 45%;
+}
+.vs-skeleton-card {
+  height: 96px;
+  width: 100%;
+  border-radius: var(--vs-radius-md);
+}
+@media (prefers-reduced-motion: reduce) {
+  .vs-skeleton {
+    animation: none;
+    background: var(--vs-surface-2);
+  }
+}
+
+/* ── Brand logo ember pulse ─────────────────────────────────────────── */
+@keyframes vs-ember-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(1);
+    filter: drop-shadow(0 0 1px var(--vs-ember));
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.12);
+    filter: drop-shadow(0 0 9px var(--vs-ember-bright));
+  }
+}
+.vs-logo-pulse {
+  animation: vs-ember-pulse 3s ease-in-out infinite;
+  transform-origin: center;
+}
+@media (prefers-reduced-motion: reduce) {
+  .vs-logo-pulse {
+    animation: none;
+  }
+}
+
+/* ── Route transition — opacity-only fade, replayed per navigation. ── */
+@keyframes vs-route-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.vs-route {
+  animation: vs-route-fade-in 200ms ease-out both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .vs-route {
+    animation: none;
+  }
+}
+
+/* ── View Transitions API — narrow scope (Finder skill drill-down). ── */
+::view-transition-old(finder-results),
+::view-transition-new(finder-results) {
+  animation-duration: 120ms;
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(finder-results),
+  ::view-transition-new(finder-results) {
+    animation: none;
+  }
+}
+
+/* ── Toasts ─────────────────────────────────────────────────────────── */
+.mantine-Notification-root {
+  background: var(--vs-surface-2);
+  border: 1px solid var(--vs-border-stone);
+  box-shadow: var(--vs-shadow-lg);
+}
+.mantine-Notification-title {
+  font-family: "Space Grotesk", "Inter", sans-serif;
+  color: var(--vs-text);
+}
+.mantine-Notification-description {
+  color: var(--vs-text-muted);
+}
+
+/* Staggered result-card reveal. */
+@keyframes vs-card-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    clip-path: inset(0 0% 0 0);
+  }
+}
+
+.vs-card-reveal {
+  animation: vs-card-reveal 400ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--card-index, 0) * 50ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vs-card-reveal {
+    animation: none !important;
+  }
+}
+
+/* ── Planner numbered timeline ──────────────────────────────────────── */
+
+.planner-timeline {
+  display: flex;
+  align-items: flex-start;
+  position: relative;
+  padding: 6px 0 2px;
+}
+
+.planner-timeline::before {
+  content: "";
+  position: absolute;
+  top: 17px;
+  left: 5%;
+  right: 5%;
+  height: 2px;
+  background: var(--vs-ember-border);
+  z-index: 0;
+}
+
+.planner-stage {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  z-index: 1;
+  padding: 0 2px;
+  animation: vs-card-reveal 400ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--dot-index, 0) * 90ms);
+}
+
+.planner-dot {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--vs-ember);
+  border: 2px solid var(--vs-bg);
+  box-shadow: 0 0 0 2px var(--vs-ember-border);
+  transition:
+    box-shadow var(--vs-transition),
+    background var(--vs-transition);
+}
+
+.planner-stage:hover .planner-dot {
+  box-shadow: 0 0 10px var(--vs-ember-glow), 0 0 0 2px var(--vs-ember);
+}
+
+.planner-stage[data-expanded="true"] .planner-dot {
+  box-shadow: 0 0 14px var(--vs-ember-glow), 0 0 0 3px var(--vs-ember);
+}
+
+.planner-roman {
+  font-family: "Space Grotesk", sans-serif;
+  font-weight: 700;
+  font-size: 0.72rem;
+  color: var(--vs-ember-bright);
+  line-height: 1;
+}
+
+.planner-stage-label {
+  font-family: "Inter", sans-serif;
+  font-size: 0.72rem;
+  color: var(--vs-text-muted);
+  text-align: center;
+  line-height: 1.2;
+}
+
+.planner-stage[data-expanded="true"] .planner-stage-label {
+  color: var(--vs-text);
+  font-weight: 600;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .planner-stage {
+    animation: none !important;
+  }
+}
+
+/* ── Cold-start warmup overlay ──────────────────────────────────────── */
+
+.warmup-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: rgba(11, 13, 16, 0.94);
+  animation: warmup-fade-in 300ms ease-out;
+}
+
+.warmup-overlay--fading {
+  opacity: 0;
+  transition: opacity 600ms ease-out;
+}
+
+@keyframes warmup-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.warmup-orb-wrap {
+  border-radius: 50%;
+  animation: warmup-glow 2400ms ease-in-out infinite;
+}
+
+@keyframes warmup-glow {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 8px rgba(207, 143, 31, 0.35));
+  }
+  50% {
+    filter: drop-shadow(0 0 26px rgba(232, 168, 50, 0.7));
+  }
+}
+
+.warmup-orb {
+  display: block;
+  animation: warmup-pulse 2400ms ease-in-out infinite;
+  transform-origin: center;
+}
+
+@keyframes warmup-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.06);
+  }
+}
+
+.warmup-orb-ring {
+  transform-origin: 60px 60px;
+  animation: warmup-spin 3000ms linear infinite;
+}
+
+@keyframes warmup-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.warmup-title {
+  margin: 14px 0 0;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 1.1rem;
+  color: var(--vs-text);
+  text-align: center;
+}
+
+.warmup-subtitle {
+  margin: 2px 0 0;
+  font-family: "Inter", sans-serif;
+  font-size: 0.8rem;
+  color: var(--vs-text-muted);
+  text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .warmup-overlay,
+  .warmup-overlay--fading,
+  .warmup-orb-wrap,
+  .warmup-orb,
+  .warmup-orb-ring,
+  .fob-fade-in,
+  .fob-pulse-glow,
+  .fob-twinkle {
+    animation: none !important;
+    transition: none !important;
+  }
+}

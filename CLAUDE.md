@@ -136,6 +136,19 @@ Inside the navbar: a "Strumenti" / "Tools" section label above the 5 main routes
 
 Frontend-only, no backend change. Gate: 747 tests / 132 mypy / ruff clean. Build ~471 KB / 151 KB gzip.
 
+## Step 87 — "UI PRO MAX": shell-v2 "Obsidian Pro" foundation (wishlist #8) ✅
+
+Riccardo's #8 ("AGGIUNGERE UI PRO MAX e reingegnare il sito — creane uno nuovo e non toccare quello già fatto"). **New frontend app `apps/shell-v2/`** built alongside v1; `apps/shell` is untouched and stays deployed until v2 reaches parity + approval (then the Vercel Root Directory flips to `apps/shell-v2` — see `apps/shell-v2/README.md`).
+
+- **Design "Obsidian Pro"** (direction chosen by Claude, delegated): the ember-gold identity stays (brand, PoE-appropriate), the warm parchment base becomes a **cool near-black slate** (`#0b0d10` body, hairline borders), type stack modernised — **Space Grotesk** headings + **Inter** body, Cinzel only in the `brand-serif` wordmark, Geist Mono kept for numbers. Particle canvas dropped for a static ambient radial glow. Light mode redone as clean cool daylight.
+- **Chrome rebuilt**: custom **sticky top navbar** (no Mantine AppShell, no side rail, no burger — the tab row scrolls horizontally on mobile) with brand / 5 tool tabs (active = ember underline) / Support / IT-EN / shortcuts / theme; **footer** carries Patch Notes / FAQ / Privacy / Support; **no welcome gate** (`/` → Home). Keyboard shortcuts, lifts (Finder→Planner/Analyze), donation modal, warmup overlay all inherited.
+- **Token-compatible port**: the `--vs-*` token NAMES + every utility class name are identical to v1 (only VALUES changed), so all feature pages/components ported with zero edits (only inline Cinzel refs → Space Grotesk). `WelcomePage`/`ParticleCanvas`/`state/welcome` removed from v2. HomePage rewritten (pro hero + 2 CTA + **4** tool cards incl. Theorycrafter + aligned "cosa puoi fare").
+- **Workspace**: `apps/shell-v2` added to the uv workspace `exclude` (the `apps/*` glob would otherwise demand a pyproject); dev on port **5174** (launch.json `fob-frontend-v2`); v1 and v2 run side-by-side against the same backend.
+- **Backend bug found by v2 testing (fixed for both)**: on Windows the dev backend 500'd any request whose log line carried a non-cp1252 character (poe.ninja character names with unicode glyphs → `UnicodeEncodeError` from *inside structlog* — `cp1252` console encoding). `configure_logging` now `reconfigure`s stdout/stderr to UTF-8 with `errors="replace"` so logging can never crash a request. Production (Linux/UTF-8) was never affected.
+- **NO public Patch Notes entry** — v2 is not deployed yet; the user-facing entry lands when the Vercel root flips.
+
+Verified in the live preview (5174): top-nav + active tab, Home hero + 4 cards, Finder structured search e2e (Top 10 of 40 real candidates with Pianifica/Analizza/Apri/Copia buttons), all routes render (analyze/planner/theorycrafter/patch-notes/faq/privacy). Gate: 795 tests / 148 mypy / ruff clean; v2 build OK (8s).
+
 ## Step 86 — Finder structured search + Analyze lift + Home/privacy + Patch Notes reorg ✅
 
 First slice of Riccardo's UX/product wishlist (2026-06-12, full list in `CLAUDE_PERPLEXITY_WORKFLOW.md` §6 "UX / PRODUCT BACKLOG"). Backend + frontend.
